@@ -1580,7 +1580,7 @@
           </div>
           <button class="filter-toggle" onclick="toggleFilters()" id="filterToggle">
             <i class="fas fa-chevron-down"></i>
-            <span>ESPANDI</span>
+            <span>FILTRA</span>
           </button>
         </div>
 
@@ -2704,7 +2704,7 @@
       filtered.forEach(r => {
         const delta = (Number(r.ValoreAttuale) || 0) - (Number(r.PrezzoPagato) || 0);
         const presenteBadge = r.Presente 
-          ? '<span class="badge presente"><i class="fas fa-check"></i> YES</span>' 
+          ? '<span class="badge presente"><i class="fas fa-check"></i> SI</span>' 
           : '<span class="badge assente"><i class="fas fa-times"></i> NO</span>';
         const statoStelle = r.ValutazioneStato ? '⭐'.repeat(Math.min(r.ValutazioneStato, 10)) : '—';
 
@@ -2721,7 +2721,7 @@
             <td>${presenteBadge}</td>
             <td>
               <button class="btn-action btn-edit" onclick='apriModale(${JSON.stringify(r).replace(/'/g, "&apos;")})'>
-                <i class="fas fa-edit"></i> EDIT
+                <i class="fas fa-edit"></i> MODIFICA
               </button>
             </td>
           </tr>`;
@@ -2759,7 +2759,7 @@
                 <span class="card-value" style="color: #10b981; font-weight: 700;">${Number(r.ValoreAttuale || 0).toFixed(2)} €</span>
               </div>
               <div class="card-row">
-                <span class="card-label"><i class="fas fa-chart-line"></i> GAIN/LOSS</span>
+                <span class="card-label"><i class="fas fa-chart-line"></i> GUADAGNO/PERDITA</span>
                 <span class="card-value" style="color: ${delta >= 0 ? '#10b981' : '#ef4444'}; font-weight: 800;">
                   ${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €
                 </span>
@@ -2900,6 +2900,7 @@
 
 </body>
 </html>
+
 
 
 
