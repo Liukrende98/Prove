@@ -2,8 +2,8 @@
 <html lang="it">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Liuk & Tremon - Pokémon Collection</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
+  <title>⚡ Liuk & Tremon - Pokémon Collection ⚡</title>
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -16,6 +16,8 @@
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 
   <style>
     * {
@@ -30,6 +32,45 @@
       min-height: 100vh;
       padding-bottom: 40px;
       color: #e5e7eb;
+      overflow-x: hidden;
+    }
+
+    /* PARTICELLE ANIMATE */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: #fbbf24;
+      border-radius: 50%;
+      opacity: 0;
+      animation: float 15s infinite;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        opacity: 0;
+        transform: translateY(0) translateX(0) scale(0);
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-100vh) translateX(50px) scale(1);
+      }
     }
 
     /* HEADER EPICO */
@@ -42,24 +83,40 @@
       top: 0;
       z-index: 1000;
       border-bottom: 3px solid #fbbf24;
+      animation: headerGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes headerGlow {
+      0%, 100% {
+        box-shadow: 0 8px 40px rgba(251, 191, 36, 0.3);
+      }
+      50% {
+        box-shadow: 0 8px 60px rgba(251, 191, 36, 0.6);
+      }
     }
 
     h1 {
       text-align: center;
-      font-size: 42px;
+      font-size: 48px;
       font-weight: 900;
       margin-bottom: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 16px;
-      text-shadow: 0 0 30px rgba(251, 191, 36, 0.8);
+      gap: 20px;
+      text-shadow: 0 0 40px rgba(251, 191, 36, 0.8);
+      position: relative;
     }
 
     .pikachu-logo {
-      font-size: 56px;
-      filter: drop-shadow(0 0 20px #fbbf24);
-      animation: pikachuBounce 1.5s ease-in-out infinite;
+      font-size: 72px;
+      filter: drop-shadow(0 0 30px #fbbf24);
+      animation: pikachuBounce 2s ease-in-out infinite;
+      cursor: pointer;
+    }
+
+    .pikachu-logo:hover {
+      animation: pikachuShake 0.5s ease-in-out infinite;
     }
 
     @keyframes pikachuBounce {
@@ -67,25 +124,31 @@
         transform: translateY(0) rotate(0deg);
       }
       25% {
-        transform: translateY(-15px) rotate(-5deg);
+        transform: translateY(-20px) rotate(-8deg);
       }
       75% {
-        transform: translateY(-10px) rotate(5deg);
+        transform: translateY(-15px) rotate(8deg);
       }
     }
 
+    @keyframes pikachuShake {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-15deg) scale(1.1); }
+      75% { transform: rotate(15deg) scale(1.1); }
+    }
+
     .title-gradient {
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #fbbf24 100%);
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 25%, #fbbf24 50%, #f59e0b 75%, #fbbf24 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      background-size: 200% auto;
-      animation: shimmer 3s linear infinite;
+      background-size: 300% auto;
+      animation: shimmer 4s linear infinite;
     }
 
     @keyframes shimmer {
       0% { background-position: 0% center; }
-      100% { background-position: 200% center; }
+      100% { background-position: 300% center; }
     }
 
     /* TABS MIGLIORATI */
@@ -144,6 +207,8 @@
       padding: 32px 16px;
       max-width: 1400px;
       margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
 
     .tab-content.active {
@@ -189,7 +254,7 @@
       left: -50%;
       width: 200%;
       height: 200%;
-      background: radial-gradient(circle, rgba(251, 191, 36, 0.1) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(251, 191, 36, 0.15) 0%, transparent 70%);
       transform: scale(0);
       transition: transform 0.6s;
     }
@@ -199,8 +264,8 @@
     }
 
     .stat-card:hover {
-      transform: translateY(-12px) scale(1.02);
-      box-shadow: 0 20px 80px rgba(251, 191, 36, 0.4);
+      transform: translateY(-12px) scale(1.03);
+      box-shadow: 0 20px 80px rgba(251, 191, 36, 0.5);
       border-color: #fbbf24;
     }
 
@@ -251,8 +316,8 @@
         box-shadow: 0 10px 30px rgba(251, 191, 36, 0.5);
       }
       50% {
-        transform: scale(1.05);
-        box-shadow: 0 15px 40px rgba(251, 191, 36, 0.7);
+        transform: scale(1.08);
+        box-shadow: 0 15px 50px rgba(251, 191, 36, 0.8);
       }
     }
 
@@ -504,19 +569,19 @@
 
     .btn-scan {
       width: 100%;
-      padding: 22px;
+      padding: 24px;
       border-radius: 20px;
       border: 3px solid #fbbf24;
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
       color: #000;
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 900;
       cursor: pointer;
       transition: all 0.4s ease;
       box-shadow: 0 8px 30px rgba(251, 191, 36, 0.5);
       margin-bottom: 24px;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 1.5px;
       position: relative;
       overflow: hidden;
     }
@@ -535,13 +600,13 @@
     }
 
     .btn-scan:hover::before {
-      width: 400px;
-      height: 400px;
+      width: 500px;
+      height: 500px;
     }
 
     .btn-scan:hover {
-      transform: translateY(-5px) scale(1.02);
-      box-shadow: 0 15px 50px rgba(251, 191, 36, 0.7);
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 15px 50px rgba(251, 191, 36, 0.8);
     }
 
     /* TABELLA */
@@ -839,13 +904,19 @@
       background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
       border-radius: 28px;
       padding: 36px;
-      max-width: 1000px;
+      max-width: 95vw;
       width: 100%;
-      max-height: 90vh;
+      max-height: 95vh;
       overflow-y: auto;
       box-shadow: 0 20px 80px rgba(251, 191, 36, 0.4);
       animation: scaleIn 0.4s ease;
       border: 3px solid #fbbf24;
+    }
+
+    .modal-content.graph-modal {
+      max-width: 98vw;
+      max-height: 98vh;
+      padding: 24px;
     }
 
     @keyframes scaleIn {
@@ -930,104 +1001,107 @@
       background: #000;
     }
 
-    /* SCAN OVERLAY - ZONA CARTA */
-    .scan-overlay {
+    /* OVERLAY SCAN ZONE */
+    .scan-zones {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       pointer-events: none;
     }
 
-    /* ZONA NOME (TOP CENTER) */
-    .scan-zone-name {
+    .zone-name {
       position: absolute;
       top: 8%;
-      left: 50%;
-      transform: translateX(-50%);
+      left: 15%;
       width: 70%;
-      height: 8%;
-      border: 3px dashed #10b981;
-      border-radius: 8px;
-      background: rgba(16, 185, 129, 0.1);
-      animation: pulse 2s infinite;
+      height: 10%;
+      border: 4px dashed #10b981;
+      border-radius: 12px;
+      background: rgba(16, 185, 129, 0.15);
+      animation: zonePulse 2s infinite;
     }
 
-    .scan-zone-name::before {
+    .zone-name::before {
       content: 'NOME CARTA';
       position: absolute;
-      top: -30px;
+      top: -35px;
       left: 50%;
       transform: translateX(-50%);
       background: #10b981;
       color: #000;
-      padding: 6px 16px;
-      border-radius: 8px;
-      font-weight: 800;
-      font-size: 12px;
+      padding: 8px 20px;
+      border-radius: 10px;
+      font-weight: 900;
+      font-size: 14px;
       white-space: nowrap;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.5);
     }
 
-    /* ZONA ESPANSIONE (BOTTOM LEFT) */
-    .scan-zone-expansion {
+    .zone-expansion {
       position: absolute;
       bottom: 8%;
-      left: 8%;
-      width: 30%;
-      height: 6%;
-      border: 3px dashed #fbbf24;
-      border-radius: 8px;
-      background: rgba(251, 191, 36, 0.1);
-      animation: pulse 2s infinite 0.5s;
+      left: 5%;
+      width: 35%;
+      height: 8%;
+      border: 4px dashed #fbbf24;
+      border-radius: 12px;
+      background: rgba(251, 191, 36, 0.15);
+      animation: zonePulse 2s infinite 0.5s;
     }
 
-    .scan-zone-expansion::before {
-      content: 'ESPANSIONE';
+    .zone-expansion::before {
+      content: 'ESPANSIONE + NUMERO';
       position: absolute;
-      bottom: -30px;
+      bottom: -35px;
       left: 0;
       background: #fbbf24;
       color: #000;
-      padding: 6px 16px;
-      border-radius: 8px;
-      font-weight: 800;
-      font-size: 12px;
+      padding: 8px 20px;
+      border-radius: 10px;
+      font-weight: 900;
+      font-size: 14px;
       white-space: nowrap;
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.5);
     }
 
-    @keyframes pulse {
+    @keyframes zonePulse {
       0%, 100% {
         opacity: 1;
         transform: scale(1);
       }
       50% {
-        opacity: 0.6;
-        transform: scale(1.02);
+        opacity: 0.7;
+        transform: scale(1.03);
       }
     }
 
-    .scan-guide-text {
+    .scan-instruction {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.9);
       color: #fbbf24;
-      padding: 16px 32px;
-      border-radius: 16px;
-      font-weight: 800;
-      font-size: 18px;
+      padding: 20px 40px;
+      border-radius: 20px;
+      font-weight: 900;
+      font-size: 20px;
       text-align: center;
-      border: 3px solid #fbbf24;
-      animation: guidePulse 1.5s ease-in-out infinite;
+      border: 4px solid #fbbf24;
+      animation: instructionPulse 2s ease-in-out infinite;
+      box-shadow: 0 0 40px rgba(251, 191, 36, 0.8);
     }
 
-    @keyframes guidePulse {
+    @keyframes instructionPulse {
       0%, 100% {
         transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 40px rgba(251, 191, 36, 0.8);
       }
       50% {
         transform: translate(-50%, -50%) scale(1.05);
+        box-shadow: 0 0 60px rgba(251, 191, 36, 1);
       }
     }
 
@@ -1040,14 +1114,51 @@
       box-shadow: 0 0 40px rgba(16, 185, 129, 0.5);
     }
 
-    /* CHART CONTAINER */
+    /* CHART CONTAINER GIGANTE */
     .chart-container {
-      margin-top: 28px;
-      padding: 28px;
+      margin-top: 24px;
+      padding: 20px;
       background: #0a0a0a;
       border-radius: 20px;
       border: 2px solid #2a2a2a;
-      min-height: 400px;
+      min-height: 70vh;
+      position: relative;
+    }
+
+    .chart-container canvas {
+      cursor: grab;
+    }
+
+    .chart-container canvas:active {
+      cursor: grabbing;
+    }
+
+    .zoom-controls {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+      z-index: 10;
+    }
+
+    .zoom-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #000;
+      font-size: 20px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+    }
+
+    .zoom-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
     }
 
     /* RESPONSIVE */
@@ -1094,21 +1205,26 @@
       }
 
       .modal-content {
-        max-width: 100%;
         padding: 24px;
+      }
+
+      .chart-container {
+        min-height: 50vh;
       }
     }
   </style>
 </head>
 
 <body>
+  <!-- PARTICELLE ANIMATE -->
+  <div class="particles" id="particles"></div>
 
   <!-- HEADER -->
   <div class="header">
     <h1>
-      <span class="pikachu-logo">⚡</span>
+      <span class="pikachu-logo" onclick="pikachuClick()">⚡</span>
       <span class="title-gradient">LIUK & TREMON</span>
-      <span class="pikachu-logo">⚡</span>
+      <span class="pikachu-logo" onclick="pikachuClick()">⚡</span>
     </h1>
     
     <div class="tabs">
@@ -1196,13 +1312,7 @@
     </div>
 
     <!-- CARDS MOBILE -->
-    <div id="cardsOut" class="mobile-cards">
-      <div class="card">
-        <div class="card-header">
-          <i class="fas fa-spinner fa-spin"></i> Caricamento...
-        </div>
-      </div>
-    </div>
+    <div id="cardsOut" class="mobile-cards"></div>
 
   </div>
 
@@ -1214,19 +1324,18 @@
 
       <!-- PULSANTE SCANSIONE -->
       <button type="button" class="btn-scan" onclick="avviaScansionePokemon()">
-        <i class="fas fa-camera-retro"></i> SCANSIONA CARTA POKÉMON
+        <i class="fas fa-camera-retro"></i> ⚡ SCANSIONA CARTA POKÉMON ⚡
       </button>
 
       <!-- CAMERA CON OVERLAY -->
       <div id="cameraContainer">
         <video id="cameraView" autoplay playsinline></video>
-        <div class="scan-overlay">
-          <div class="scan-zone-name"></div>
-          <div class="scan-zone-expansion"></div>
+        <div class="scan-zones">
+          <div class="zone-name"></div>
+          <div class="zone-expansion"></div>
         </div>
-        <div class="scan-guide-text" id="scanGuideText">
-          ⚡ INQUADRA LA CARTA ⚡<br>
-          <span style="font-size: 14px;">Clicca per scattare</span>
+        <div class="scan-instruction" id="scanInstruction">
+          ⚡ CLICCA PER SCATTARE ⚡
         </div>
       </div>
       
@@ -1236,7 +1345,7 @@
 
       <div class="info-box">
         <i class="fas fa-lightbulb"></i>
-        Il campo <strong>Guadagno/Perdita</strong> viene calcolato automaticamente come: <strong>Valore Attuale - Prezzo Pagato</strong>
+        Il campo <strong>Guadagno/Perdita</strong> viene calcolato automaticamente
       </div>
 
       <form id="formAggiungi" onsubmit="aggiungi(event)">
@@ -1249,12 +1358,12 @@
 
           <div class="form-group">
             <label><i class="fas fa-layer-group"></i> Categoria</label>
-            <input type="text" name="Categoria" id="categoriaInput" placeholder="Es. Carta Singola, ETB, Booster">
+            <input type="text" name="Categoria" id="categoriaInput" placeholder="Es. Carta Singola">
           </div>
 
           <div class="form-group full">
             <label><i class="fas fa-scroll"></i> Descrizione / Espansione</label>
-            <textarea name="Descrizione" id="descrizioneInput" placeholder="Es. SV06 - 030/200 - Twilight Masquerade"></textarea>
+            <textarea name="Descrizione" id="descrizioneInput" placeholder="Es. SVI - 075/198"></textarea>
           </div>
 
           <div class="form-group">
@@ -1268,7 +1377,7 @@
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-calculator"></i> Guadagno/Perdita (€) <span style="color: #10b981;">(AUTO)</span></label>
+            <label><i class="fas fa-calculator"></i> Guadagno/Perdita (€)</label>
             <input type="number" step="0.01" name="Delta" id="deltaAdd" placeholder="0.00" readonly disabled>
           </div>
 
@@ -1293,15 +1402,20 @@
 
   </div>
 
-  <!-- MODAL GRAFICO -->
+  <!-- MODAL GRAFICO GIGANTE -->
   <div id="modalGrafico" class="modal">
-    <div class="modal-content">
+    <div class="modal-content graph-modal">
       <div class="modal-header">
         <h2 class="modal-title" id="graficoTitolo"><i class="fas fa-chart-area"></i> STATISTICHE</h2>
         <button class="modal-close" onclick="chiudiGrafico()">✕</button>
       </div>
       
       <div class="chart-container">
+        <div class="zoom-controls">
+          <button class="zoom-btn" onclick="resetZoom()" title="Reset Zoom">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+        </div>
         <canvas id="chartCanvas"></canvas>
       </div>
     </div>
@@ -1395,7 +1509,32 @@
     let stream = null;
     let currentChart = null;
 
-    // ========== SCANSIONE POKÉMON ULTRA OTTIMIZZATA ==========
+    // ========== PARTICELLE ANIMATE ==========
+    function creaParticelle() {
+      const container = document.getElementById('particles');
+      for (let i = 0; i < 30; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 15 + 's';
+        particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+        container.appendChild(particle);
+      }
+    }
+    creaParticelle();
+
+    // ========== PIKACHU CLICK ==========
+    function pikachuClick() {
+      const pikachus = document.querySelectorAll('.pikachu-logo');
+      pikachus.forEach(p => {
+        p.style.animation = 'pikachuShake 0.5s ease-in-out';
+        setTimeout(() => {
+          p.style.animation = 'pikachuBounce 2s ease-in-out infinite';
+        }, 500);
+      });
+    }
+
+    // ========== SCANSIONE POKÉMON ALGORITHM SUPREMO ==========
     
     async function avviaScansionePokemon() {
       const video = document.getElementById('cameraView');
@@ -1406,8 +1545,8 @@
         stream = await navigator.mediaDevices.getUserMedia({ 
           video: { 
             facingMode: 'environment',
-            width: { ideal: 2560 },
-            height: { ideal: 1440 }
+            width: { ideal: 3840 },
+            height: { ideal: 2160 }
           }
         });
         
@@ -1416,18 +1555,18 @@
         
         scanMsg.className = 'msg info';
         scanMsg.style.display = 'block';
-        scanMsg.innerHTML = '<i class="fas fa-camera"></i> <strong>FOTOCAMERA ATTIVA</strong> - Inquadra la carta nelle zone evidenziate e clicca per scattare';
+        scanMsg.innerHTML = '<i class="fas fa-camera"></i> <strong>⚡ FOTOCAMERA ATTIVA ⚡</strong> Inquadra la carta nelle zone evidenziate';
         
-        video.onclick = () => scattaEScannerizza();
+        video.onclick = () => scansionaCartaPokemon();
         
       } catch (err) {
         scanMsg.className = 'msg error';
         scanMsg.style.display = 'block';
-        scanMsg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <strong>ERRORE FOTOCAMERA:</strong> ' + err.message;
+        scanMsg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <strong>ERRORE:</strong> ' + err.message;
       }
     }
 
-    async function scattaEScannerizza() {
+    async function scansionaCartaPokemon() {
       const video = document.getElementById('cameraView');
       const canvas = document.getElementById('capturedCanvas');
       const container = document.getElementById('cameraContainer');
@@ -1439,9 +1578,6 @@
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
       ctx.drawImage(video, 0, 0);
       
-      // Pre-elabora l'immagine
-      elaboraImmaginePokemon(ctx, canvas.width, canvas.height);
-      
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
@@ -1450,93 +1586,68 @@
       canvas.style.display = 'block';
       
       scanMsg.className = 'msg info';
-      scanMsg.innerHTML = '<i class="fas fa-cog fa-spin"></i> <strong>ANALISI POKÉMON IN CORSO...</strong> Elaborazione avanzata carta';
+      scanMsg.innerHTML = '<i class="fas fa-cog fa-spin"></i> <strong>⚡ ELABORAZIONE ALGORITMO SUPREMO ⚡</strong>';
       
-      await scannerizzaCartaPokemon(canvas);
+      await elaborazioneSupremaPokemon(canvas, ctx);
     }
 
-    function elaboraImmaginePokemon(ctx, width, height) {
-      const imageData = ctx.getImageData(0, 0, width, height);
-      const data = imageData.data;
-      
-      // Ottimizzazione per testo nero su sfondo chiaro
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        
-        // Calcola luminosità
-        const brightness = (0.299 * r + 0.587 * g + 0.114 * b);
-        
-        // Aumenta contrasto aggressivo
-        let adjusted = brightness > 150 ? 255 : brightness < 80 ? 0 : brightness;
-        
-        // Aumenta il nero (testo)
-        if (brightness < 100) {
-          adjusted = Math.max(0, adjusted - 50);
-        }
-        
-        data[i] = data[i + 1] = data[i + 2] = adjusted;
-      }
-      
-      ctx.putImageData(imageData, 0, 0);
-    }
-
-    async function scannerizzaCartaPokemon(canvas) {
+    async function elaborazioneSupremaPokemon(canvas, ctx) {
       const scanMsg = document.getElementById('scanMsg');
+      const w = canvas.width;
+      const h = canvas.height;
       
       try {
-        const width = canvas.width;
-        const height = canvas.height;
-        
-        // ESTRAI ZONA NOME (top 5-15% altezza, centro orizzontale)
+        // ZONA NOME: Top 6-16%, Centro orizzontale 12-88%
         const nomeCanvas = document.createElement('canvas');
         const nomeCtx = nomeCanvas.getContext('2d');
-        nomeCanvas.width = width * 0.8;
-        nomeCanvas.height = height * 0.12;
+        nomeCanvas.width = Math.floor(w * 0.76);
+        nomeCanvas.height = Math.floor(h * 0.10);
         nomeCtx.drawImage(canvas, 
-          width * 0.1, height * 0.05,  // source x, y
-          width * 0.8, height * 0.12,  // source width, height
-          0, 0,                         // dest x, y
-          nomeCanvas.width, nomeCanvas.height  // dest width, height
+          Math.floor(w * 0.12), Math.floor(h * 0.06),
+          Math.floor(w * 0.76), Math.floor(h * 0.10),
+          0, 0, nomeCanvas.width, nomeCanvas.height
         );
         
-        // ESTRAI ZONA ESPANSIONE (bottom 5-12% altezza, left 5-40% larghezza)
-        const expansionCanvas = document.createElement('canvas');
-        const expansionCtx = expansionCanvas.getContext('2d');
-        expansionCanvas.width = width * 0.4;
-        expansionCanvas.height = height * 0.1;
-        expansionCtx.drawImage(canvas,
-          width * 0.05, height * 0.88,  // source x, y (bottom left)
-          width * 0.4, height * 0.1,    // source width, height
-          0, 0,                          // dest x, y
-          expansionCanvas.width, expansionCanvas.height
-        );
+        // Pre-elabora zona nome
+        preprocessPokemonZone(nomeCtx, nomeCanvas.width, nomeCanvas.height, 'nome');
         
-        scanMsg.innerHTML = '<i class="fas fa-cog fa-spin"></i> <strong>SCANSIONE ZONA NOME...</strong> 30%';
+        scanMsg.innerHTML = '<i class="fas fa-bolt fa-spin"></i> <strong>SCANSIONE NOME...</strong> 25%';
         
         // OCR ZONA NOME
-        const nomeData = nomeCanvas.toDataURL('image/png');
-        const resultNome = await Tesseract.recognize(nomeData, 'eng', {
+        const nomeResult = await Tesseract.recognize(nomeCanvas.toDataURL('image/png'), 'eng+ita', {
           logger: () => {},
           tessedit_pageseg_mode: Tesseract.PSM.SINGLE_LINE,
-          tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz '
+          tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÀÈÉÌÒÙàèéìòù '
         });
         
-        scanMsg.innerHTML = '<i class="fas fa-cog fa-spin"></i> <strong>SCANSIONE ZONA ESPANSIONE...</strong> 70%';
+        console.log('NOME RAW:', nomeResult.data.text);
+        
+        // ZONA ESPANSIONE: Bottom 5-13%, Left 3-42%
+        const expCanvas = document.createElement('canvas');
+        const expCtx = expCanvas.getContext('2d');
+        expCanvas.width = Math.floor(w * 0.39);
+        expCanvas.height = Math.floor(h * 0.08);
+        expCtx.drawImage(canvas,
+          Math.floor(w * 0.03), Math.floor(h * 0.87),
+          Math.floor(w * 0.39), Math.floor(h * 0.08),
+          0, 0, expCanvas.width, expCanvas.height
+        );
+        
+        // Pre-elabora zona espansione
+        preprocessPokemonZone(expCtx, expCanvas.width, expCanvas.height, 'expansion');
+        
+        scanMsg.innerHTML = '<i class="fas fa-bolt fa-spin"></i> <strong>SCANSIONE ESPANSIONE...</strong> 75%';
         
         // OCR ZONA ESPANSIONE
-        const expansionData = expansionCanvas.toDataURL('image/png');
-        const resultExpansion = await Tesseract.recognize(expansionData, 'eng', {
+        const expResult = await Tesseract.recognize(expCanvas.toDataURL('image/png'), 'eng', {
           logger: () => {},
           tessedit_pageseg_mode: Tesseract.PSM.SINGLE_LINE,
-          tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/ '
+          tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/ '
         });
         
-        console.log('TESTO NOME:', resultNome.data.text);
-        console.log('TESTO ESPANSIONE:', resultExpansion.data.text);
+        console.log('ESPANSIONE RAW:', expResult.data.text);
         
-        const info = estraiDatiPokemon(resultNome.data.text, resultExpansion.data.text);
+        const info = estraiDatiPokemonSupremo(nomeResult.data.text, expResult.data.text);
         
         if (info.nome) {
           document.getElementById('nomeInput').value = info.nome;
@@ -1544,14 +1655,18 @@
           
           scanMsg.className = 'msg success';
           scanMsg.innerHTML = `
-            <i class="fas fa-check-circle"></i> <strong>⚡ CARTA RICONOSCIUTA! ⚡</strong><br>
-            📛 <strong>${info.nome}</strong>${info.espansione ? ' | 🎴 ' + info.espansione : ''}${info.numero ? ' | #' + info.numero : ''}
+            <i class="fas fa-check-circle"></i> <strong>⚡⚡⚡ CARTA RICONOSCIUTA! ⚡⚡⚡</strong><br>
+            <div style="margin-top: 10px; font-size: 18px;">
+              🎴 <strong>${info.nome}</strong><br>
+              ${info.espansione ? '📦 <strong>' + info.espansione + '</strong>' : ''}
+              ${info.numero ? ' • 🔢 <strong>' + info.numero + '</strong>' : ''}
+            </div>
           `;
           
           setTimeout(() => {
             canvas.style.display = 'none';
             scanMsg.style.display = 'none';
-          }, 6000);
+          }, 7000);
           
         } else {
           scanMsg.className = 'msg error';
@@ -1560,70 +1675,89 @@
         
       } catch (err) {
         scanMsg.className = 'msg error';
-        scanMsg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <strong>ERRORE SCANSIONE:</strong> ' + err.message;
+        scanMsg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <strong>ERRORE:</strong> ' + err.message;
         console.error('Errore scansione:', err);
       }
     }
 
-    function estraiDatiPokemon(testoNome, testoExpansion) {
-      console.log('=== ESTRAZIONE DATI POKÉMON ===');
-      console.log('Testo nome:', testoNome);
-      console.log('Testo espansione:', testoExpansion);
+    function preprocessPokemonZone(ctx, width, height, tipo) {
+      const imageData = ctx.getImageData(0, 0, width, height);
+      const data = imageData.data;
       
-      // ESTRAI NOME
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        
+        // Calcola luminosità
+        const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
+        
+        // CONTRASTO ESTREMO per testo nero su sfondo chiaro
+        let adjusted;
+        if (tipo === 'nome') {
+          // Zona nome: testo nero su giallo/bianco
+          adjusted = brightness > 140 ? 255 : brightness < 90 ? 0 : brightness;
+        } else {
+          // Zona espansione: testo nero piccolo
+          adjusted = brightness > 130 ? 255 : brightness < 100 ? 0 : brightness;
+        }
+        
+        data[i] = data[i + 1] = data[i + 2] = adjusted;
+      }
+      
+      ctx.putImageData(imageData, 0, 0);
+    }
+
+    function estraiDatiPokemonSupremo(testoNome, testoExp) {
+      console.log('=== ESTRAZIONE SUPREMA ===');
+      console.log('Nome:', testoNome);
+      console.log('Exp:', testoExp);
+      
+      // PULISCI NOME
       let nome = testoNome
         .trim()
-        .replace(/[^a-zA-Z\s]/g, '')  // Rimuovi tutto tranne lettere e spazi
-        .replace(/\s+/g, ' ')          // Normalizza spazi
+        .replace(/[^a-zA-ZÀ-ÿ\s]/g, '')  // Solo lettere
+        .replace(/\s+/g, ' ')
         .trim();
       
-      // Pulisci nome
-      nome = nome
-        .replace(/^(HP|ATK|DEF|Basic|Stage|Evolution)\s*/gi, '')
-        .trim();
+      // Rimuovi prefissi comuni
+      nome = nome.replace(/^(HP|ATK|DEF|Basic|Stage|Evolution|Pokémon)\s*/gi, '').trim();
       
-      console.log('Nome estratto:', nome);
-      
-      // ESTRAI ESPANSIONE E NUMERO (es: "SV06 030/200" o "PAL 15/100")
+      // ESTRAI ESPANSIONE E NUMERO
       let espansione = '';
       let numero = '';
-      let descrizione = '';
       
-      // Pattern: SIGLA NUMERO/TOTALE
-      const pattern = /([A-Z]{2,5})\s*(\d{1,4})\s*\/\s*(\d{1,4})/i;
-      const match = testoExpansion.match(pattern);
+      // Pattern: SVI 075/198, PAL 15/100, etc.
+      const pattern = /([A-Z]{2,4})\s*(\d{1,4})\s*\/\s*(\d{1,4})/;
+      const match = testoExp.match(pattern);
       
       if (match) {
         espansione = match[1].toUpperCase();
-        numero = `${match[2].padStart(3, '0')}/${match[3].padStart(3, '0')}`;
-        descrizione = `${espansione} - ${numero}`;
-        console.log('Espansione:', espansione, 'Numero:', numero);
+        const num1 = match[2].padStart(3, '0');
+        const num2 = match[3].padStart(3, '0');
+        numero = `${num1}/${num2}`;
       } else {
-        // Prova pattern alternativo (solo sigla)
-        const patternSigla = /\b([A-Z]{2,5})\b/;
-        const matchSigla = testoExpansion.match(patternSigla);
-        if (matchSigla) {
-          espansione = matchSigla[1].toUpperCase();
-          descrizione = espansione;
-          console.log('Solo espansione:', espansione);
+        // Fallback: cerca solo sigla
+        const siglaMatch = testoExp.match(/\b([A-Z]{2,4})\b/);
+        if (siglaMatch) {
+          espansione = siglaMatch[1].toUpperCase();
         }
       }
       
-      return {
-        nome: nome || '',
-        espansione: espansione || '',
-        numero: numero || '',
-        descrizione: descrizione || ''
-      };
+      const descrizione = espansione && numero ? `${espansione} - ${numero}` : espansione;
+      
+      console.log('RISULTATO:', { nome, espansione, numero, descrizione });
+      
+      return { nome, espansione, numero, descrizione };
     }
 
-    // ========== GRAFICI ULTRA FIGHI ==========
+    // ========== GRAFICI INTERATTIVI GIGANTI ==========
     
     async function apriGrafico(tipo) {
       const { data, error } = await client.from("Articoli").select("*").order('created_at', { ascending: true });
       
       if (error || !data || data.length === 0) {
-        alert('⚠️ Nessun dato disponibile per i grafici');
+        alert('⚠️ Nessun dato disponibile');
         return;
       }
 
@@ -1649,15 +1783,15 @@
           break;
         case 'spesa':
           chartConfig = generaGraficoSpesa(data);
-          document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-wallet"></i> INVESTIMENTO CUMULATIVO';
+          document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-wallet"></i> INVESTIMENTO';
           break;
         case 'performance':
           chartConfig = generaGraficoPerformance(data);
-          document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-rocket"></i> PERFORMANCE ARTICOLI';
+          document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-rocket"></i> PERFORMANCE';
           break;
         case 'presenti':
           chartConfig = generaGraficoPresenti(data);
-          document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-box-open"></i> STATO MAGAZZINO';
+          document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-box-open"></i> MAGAZZINO';
           break;
       }
 
@@ -1666,16 +1800,16 @@
         data: chartConfig.data,
         options: {
           responsive: true,
-          maintainAspectRatio: true,
+          maintainAspectRatio: false,
           animation: {
-            duration: 1500,
+            duration: 2000,
             easing: 'easeInOutQuart'
           },
           plugins: {
             legend: {
               labels: {
                 color: '#e5e7eb',
-                font: { size: 15, weight: 'bold' },
+                font: { size: 16, weight: 'bold' },
                 padding: 20
               }
             },
@@ -1684,36 +1818,58 @@
               titleColor: '#fbbf24',
               bodyColor: '#e5e7eb',
               borderColor: '#fbbf24',
-              borderWidth: 2,
-              padding: 12,
-              titleFont: { size: 14, weight: 'bold' },
-              bodyFont: { size: 13 }
+              borderWidth: 3,
+              padding: 16,
+              titleFont: { size: 16, weight: 'bold' },
+              bodyFont: { size: 14 },
+              cornerRadius: 12
+            },
+            zoom: {
+              pan: {
+                enabled: true,
+                mode: 'xy'
+              },
+              zoom: {
+                wheel: {
+                  enabled: true
+                },
+                pinch: {
+                  enabled: true
+                },
+                mode: 'xy'
+              }
             }
           },
           scales: chartConfig.type !== 'doughnut' && chartConfig.type !== 'pie' ? {
             x: {
               ticks: { 
                 color: '#9ca3af',
-                font: { size: 12, weight: '600' }
+                font: { size: 13, weight: '600' }
               },
               grid: { 
                 color: '#2a2a2a',
-                lineWidth: 1
+                lineWidth: 2
               }
             },
             y: {
               ticks: { 
                 color: '#9ca3af',
-                font: { size: 12, weight: '600' }
+                font: { size: 13, weight: '600' }
               },
               grid: { 
                 color: '#2a2a2a',
-                lineWidth: 1
+                lineWidth: 2
               }
             }
           } : {}
         }
       });
+    }
+
+    function resetZoom() {
+      if (currentChart) {
+        currentChart.resetZoom();
+      }
     }
 
     function generaGraficoCrescita(data) {
@@ -1728,12 +1884,12 @@
             backgroundColor: 'rgba(251, 191, 36, 0.2)',
             fill: true,
             tension: 0.4,
-            borderWidth: 3,
-            pointRadius: 5,
-            pointHoverRadius: 8,
+            borderWidth: 4,
+            pointRadius: 6,
+            pointHoverRadius: 10,
             pointBackgroundColor: '#fbbf24',
             pointBorderColor: '#000',
-            pointBorderWidth: 2
+            pointBorderWidth: 3
           }]
         }
       };
@@ -1752,12 +1908,12 @@
             backgroundColor: 'rgba(16, 185, 129, 0.2)',
             fill: true,
             tension: 0.4,
-            borderWidth: 3,
-            pointRadius: 5,
-            pointHoverRadius: 8,
+            borderWidth: 4,
+            pointRadius: 6,
+            pointHoverRadius: 10,
             pointBackgroundColor: '#10b981',
             pointBorderColor: '#000',
-            pointBorderWidth: 2
+            pointBorderWidth: 3
           }]
         }
       };
@@ -1776,12 +1932,12 @@
             backgroundColor: 'rgba(249, 115, 22, 0.2)',
             fill: true,
             tension: 0.4,
-            borderWidth: 3,
-            pointRadius: 5,
-            pointHoverRadius: 8,
+            borderWidth: 4,
+            pointRadius: 6,
+            pointHoverRadius: 10,
             pointBackgroundColor: '#f97316',
             pointBorderColor: '#000',
-            pointBorderWidth: 2
+            pointBorderWidth: 3
           }]
         }
       };
@@ -1815,7 +1971,7 @@
             data: [presenti, assenti],
             backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)'],
             borderColor: ['#10b981', '#ef4444'],
-            borderWidth: 3
+            borderWidth: 4
           }]
         }
       };
@@ -2015,7 +2171,7 @@
     async function eliminaArticolo() {
       const id = document.getElementById('editId').value;
       const nome = document.getElementById('editNome').value;
-      if (!confirm(`⚠️ ELIMINARE "${nome}"?\n\nQuesta azione è IRREVERSIBILE!`)) return;
+      if (!confirm(`⚠️ ELIMINARE "${nome}"?\n\nAzione IRREVERSIBILE!`)) return;
 
       const { error } = await client.from('Articoli').delete().eq('id', id);
       const msg = document.getElementById('modalMsg');
@@ -2025,7 +2181,7 @@
         msg.textContent = '❌ ERRORE: ' + error.message;
       } else {
         msg.className = 'msg success';
-        msg.textContent = '✅ ARTICOLO ELIMINATO!';
+        msg.textContent = '✅ ELIMINATO!';
         setTimeout(() => { chiudiModale(); carica(); }, 1500);
       }
     }
@@ -2056,7 +2212,7 @@
         msg.textContent = '❌ ERRORE: ' + error.message;
       } else {
         msg.className = 'msg success';
-        msg.textContent = '✅ MODIFICHE SALVATE!';
+        msg.textContent = '✅ SALVATO!';
         setTimeout(() => { chiudiModale(); carica(); }, 1500);
       }
     }
@@ -2085,9 +2241,11 @@
       if (error) {
         msg.className = 'msg error';
         msg.textContent = '❌ ERRORE: ' + error.message;
+        msg.style.display = 'block';
       } else {
         msg.className = 'msg success';
-        msg.textContent = '✅ ARTICOLO AGGIUNTO ALLA COLLEZIONE!';
+        msg.textContent = '✅ AGGIUNTO ALLA COLLEZIONE!';
+        msg.style.display = 'block';
         form.reset();
         document.getElementById('deltaAdd').value = '';
         setTimeout(() => switchTab('archivio'), 2000);
