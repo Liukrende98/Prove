@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Liuk & Tremon</title>
+  <title>Liuk & Tremon - Pokémon Collection</title>
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
-  <!-- Font Awesome per icone -->
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- Tesseract.js per OCR -->
+  <!-- Tesseract.js -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 
-  <!-- Chart.js per grafici -->
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
 
   <style>
@@ -26,253 +26,341 @@
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
-      background: #0a0a0a;
+      background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
       min-height: 100vh;
       padding-bottom: 40px;
       color: #e5e7eb;
     }
 
-    /* HEADER */
+    /* HEADER EPICO */
     .header {
-      background: rgba(18, 18, 18, 0.95);
-      backdrop-filter: blur(10px);
-      padding: 20px;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+      background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+      backdrop-filter: blur(20px);
+      padding: 24px 20px;
+      box-shadow: 0 8px 40px rgba(251, 191, 36, 0.3);
       position: sticky;
       top: 0;
       z-index: 1000;
-      border-bottom: 1px solid #1f1f1f;
+      border-bottom: 3px solid #fbbf24;
     }
 
     h1 {
       text-align: center;
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      font-size: 32px;
-      font-weight: 800;
-      letter-spacing: -1px;
-      margin-bottom: 16px;
+      font-size: 42px;
+      font-weight: 900;
+      margin-bottom: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 16px;
+      text-shadow: 0 0 30px rgba(251, 191, 36, 0.8);
     }
 
     .pikachu-logo {
-      font-size: 40px;
-      animation: bounce 2s infinite;
+      font-size: 56px;
+      filter: drop-shadow(0 0 20px #fbbf24);
+      animation: pikachuBounce 1.5s ease-in-out infinite;
     }
 
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
+    @keyframes pikachuBounce {
+      0%, 100% { 
+        transform: translateY(0) rotate(0deg);
+      }
+      25% {
+        transform: translateY(-15px) rotate(-5deg);
+      }
+      75% {
+        transform: translateY(-10px) rotate(5deg);
+      }
     }
 
-    /* TABS */
+    .title-gradient {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #fbbf24 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      background-size: 200% auto;
+      animation: shimmer 3s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    /* TABS MIGLIORATI */
     .tabs {
       display: flex;
-      gap: 8px;
+      gap: 12px;
       justify-content: center;
     }
 
     .tab {
-      padding: 12px 32px;
-      border-radius: 12px;
-      border: none;
-      background: transparent;
-      color: #6b7280;
-      font-size: 15px;
-      font-weight: 600;
+      padding: 14px 40px;
+      border-radius: 16px;
+      border: 2px solid transparent;
+      background: rgba(20, 20, 20, 0.6);
+      color: #9ca3af;
+      font-size: 16px;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
+      overflow: hidden;
+    }
+
+    .tab::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .tab:hover::before {
+      left: 100%;
     }
 
     .tab:hover {
-      background: rgba(251, 191, 36, 0.1);
+      background: rgba(251, 191, 36, 0.15);
       color: #fbbf24;
+      border-color: rgba(251, 191, 36, 0.3);
+      transform: translateY(-3px);
     }
 
     .tab.active {
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      color: #0a0a0a;
-      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+      color: #000;
+      box-shadow: 0 8px 30px rgba(251, 191, 36, 0.6);
+      border-color: #fbbf24;
+      transform: translateY(-2px);
     }
 
     .tab-content {
       display: none;
-      padding: 24px 16px;
+      padding: 32px 16px;
       max-width: 1400px;
       margin: 0 auto;
     }
 
     .tab-content.active {
       display: block;
-      animation: fadeIn 0.5s ease;
+      animation: fadeInUp 0.6s ease;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes fadeInUp {
+      from { 
+        opacity: 0; 
+        transform: translateY(30px);
+      }
+      to { 
+        opacity: 1; 
+        transform: translateY(0);
+      }
     }
 
-    /* CRUSCOTTO MEGA FIGO */
+    /* CRUSCOTTO ULTRA FIGO */
     .dashboard {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
     }
 
     .stat-card {
-      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-      padding: 28px;
-      border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      background: linear-gradient(135deg, #1f1f1f 0%, #0f0f0f 100%);
+      padding: 32px;
+      border-radius: 24px;
+      box-shadow: 0 12px 50px rgba(0, 0, 0, 0.7);
       position: relative;
       overflow: hidden;
-      transition: all 0.3s ease;
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
       cursor: pointer;
-      border: 1px solid #2a2a2a;
-    }
-
-    .stat-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 60px rgba(251, 191, 36, 0.3);
-      border-color: #fbbf24;
+      border: 2px solid #2a2a2a;
     }
 
     .stat-card::before {
       content: '';
       position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(251, 191, 36, 0.1) 0%, transparent 70%);
+      transform: scale(0);
+      transition: transform 0.6s;
+    }
+
+    .stat-card:hover::before {
+      transform: scale(1);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-12px) scale(1.02);
+      box-shadow: 0 20px 80px rgba(251, 191, 36, 0.4);
+      border-color: #fbbf24;
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      height: 5px;
+      height: 6px;
       background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
     }
 
-    .stat-card.green::before {
+    .stat-card.green::after {
       background: linear-gradient(90deg, #10b981 0%, #059669 100%);
     }
 
-    .stat-card.orange::before {
+    .stat-card.orange::after {
       background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
     }
 
-    .stat-card.blue::before {
+    .stat-card.blue::after {
       background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
     }
 
-    .stat-card.red::before {
+    .stat-card.red::after {
       background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
     }
 
     .stat-icon {
-      width: 60px;
-      height: 60px;
-      border-radius: 16px;
+      width: 70px;
+      height: 70px;
+      border-radius: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
-      margin-bottom: 16px;
+      font-size: 32px;
+      margin-bottom: 20px;
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      color: #0a0a0a;
-      box-shadow: 0 8px 24px rgba(251, 191, 36, 0.3);
+      color: #000;
+      box-shadow: 0 10px 30px rgba(251, 191, 36, 0.5);
+      animation: iconPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes iconPulse {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 10px 30px rgba(251, 191, 36, 0.5);
+      }
+      50% {
+        transform: scale(1.05);
+        box-shadow: 0 15px 40px rgba(251, 191, 36, 0.7);
+      }
     }
 
     .stat-card.green .stat-icon {
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.5);
     }
 
     .stat-card.orange .stat-icon {
       background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-      box-shadow: 0 8px 24px rgba(249, 115, 22, 0.3);
+      box-shadow: 0 10px 30px rgba(249, 115, 22, 0.5);
     }
 
     .stat-card.blue .stat-icon {
       background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.5);
     }
 
     .stat-card.red .stat-icon {
       background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-      box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);
+      box-shadow: 0 10px 30px rgba(239, 68, 68, 0.5);
     }
 
     .stat-label {
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 14px;
+      font-weight: 700;
       color: #9ca3af;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
     }
 
     .stat-value {
-      font-size: 36px;
-      font-weight: 800;
-      color: #fbbf24;
+      font-size: 42px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       line-height: 1;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+      text-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
     }
 
     .stat-card.green .stat-value {
-      color: #10b981;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .stat-card.orange .stat-value {
-      color: #f97316;
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .stat-card.blue .stat-value {
-      color: #3b82f6;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .stat-card.red .stat-value {
-      color: #ef4444;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .stat-subtext {
-      font-size: 13px;
+      font-size: 14px;
       color: #6b7280;
-      font-weight: 500;
+      font-weight: 600;
     }
 
     /* BOX */
     .box {
       background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-      padding: 24px;
-      border-radius: 20px;
-      margin-bottom: 24px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-      transition: all 0.3s ease;
-      border: 1px solid #2a2a2a;
+      padding: 28px;
+      border-radius: 24px;
+      margin-bottom: 28px;
+      box-shadow: 0 12px 50px rgba(0, 0, 0, 0.7);
+      transition: all 0.4s ease;
+      border: 2px solid #2a2a2a;
     }
 
     .box:hover {
-      box-shadow: 0 15px 50px rgba(251, 191, 36, 0.2);
+      box-shadow: 0 20px 70px rgba(251, 191, 36, 0.3);
       border-color: #3a3a3a;
     }
 
-    /* FILTRI STILOSI */
+    /* FILTRI */
     .filters {
       display: grid;
       grid-template-columns: 1fr 1fr auto;
-      gap: 12px;
+      gap: 16px;
     }
 
     .filters input {
-      padding: 14px 18px;
-      border-radius: 12px;
+      padding: 16px 20px;
+      border-radius: 16px;
       border: 2px solid #2a2a2a;
       font-size: 15px;
       transition: all 0.3s ease;
-      background: #0f0f0f;
+      background: #0a0a0a;
       color: #e5e7eb;
     }
 
@@ -284,32 +372,32 @@
       outline: none;
       border-color: #fbbf24;
       background: #1a1a1a;
-      box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.1);
+      box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.2);
     }
 
     .filters button {
-      padding: 14px 28px;
-      border-radius: 12px;
+      padding: 16px 32px;
+      border-radius: 16px;
       border: none;
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      color: #0a0a0a;
-      font-size: 15px;
-      font-weight: 600;
+      color: #000;
+      font-size: 16px;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+      box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
     }
 
     .filters button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(251, 191, 36, 0.6);
     }
 
-    /* FORM FIGO */
+    /* FORM */
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 24px;
     }
 
     .form-group {
@@ -322,22 +410,23 @@
 
     .form-group label {
       display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: #d1d5db;
+      margin-bottom: 10px;
+      font-weight: 700;
+      color: #fbbf24;
       font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .form-group input,
-    .form-group textarea,
-    .form-group select {
+    .form-group textarea {
       width: 100%;
-      padding: 14px 18px;
-      border-radius: 12px;
+      padding: 16px 20px;
+      border-radius: 16px;
       border: 2px solid #2a2a2a;
       font-size: 15px;
       transition: all 0.3s ease;
-      background: #0f0f0f;
+      background: #0a0a0a;
       color: #e5e7eb;
     }
 
@@ -351,11 +440,11 @@
       outline: none;
       border-color: #fbbf24;
       background: #1a1a1a;
-      box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.1);
+      box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.2);
     }
 
     .form-group textarea {
-      min-height: 100px;
+      min-height: 120px;
       resize: vertical;
       font-family: inherit;
     }
@@ -364,14 +453,15 @@
       background: #0a0a0a;
       color: #6b7280;
       cursor: not-allowed;
+      border-color: #1a1a1a;
     }
 
     .checkbox-wrapper {
       display: flex;
       align-items: center;
-      padding: 14px 18px;
-      background: #0f0f0f;
-      border-radius: 12px;
+      padding: 18px 20px;
+      background: #0a0a0a;
+      border-radius: 16px;
       cursor: pointer;
       transition: all 0.3s ease;
       border: 2px solid #2a2a2a;
@@ -383,53 +473,78 @@
     }
 
     .checkbox-wrapper input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      margin-right: 12px;
+      width: 24px;
+      height: 24px;
+      margin-right: 14px;
       cursor: pointer;
+      accent-color: #fbbf24;
     }
 
     .btn-submit {
       width: 100%;
-      padding: 18px;
-      border-radius: 12px;
+      padding: 20px;
+      border-radius: 16px;
       border: none;
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: white;
-      font-size: 16px;
-      font-weight: 700;
+      font-size: 18px;
+      font-weight: 800;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-      margin-top: 20px;
+      transition: all 0.4s ease;
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+      margin-top: 24px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .btn-submit:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 35px rgba(16, 185, 129, 0.6);
     }
 
     .btn-scan {
       width: 100%;
-      padding: 18px;
-      border-radius: 12px;
-      border: none;
+      padding: 22px;
+      border-radius: 20px;
+      border: 3px solid #fbbf24;
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      color: #0a0a0a;
-      font-size: 16px;
-      font-weight: 700;
+      color: #000;
+      font-size: 20px;
+      font-weight: 900;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
-      margin-bottom: 20px;
+      transition: all 0.4s ease;
+      box-shadow: 0 8px 30px rgba(251, 191, 36, 0.5);
+      margin-bottom: 24px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-scan::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .btn-scan:hover::before {
+      width: 400px;
+      height: 400px;
     }
 
     .btn-scan:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 15px 50px rgba(251, 191, 36, 0.7);
     }
 
-    /* TABELLA DESKTOP PREMIUM */
+    /* TABELLA */
     .table-container {
       overflow-x: auto;
     }
@@ -442,29 +557,29 @@
 
     thead {
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      border-radius: 12px;
+      border-radius: 16px;
     }
 
     th {
-      padding: 16px;
+      padding: 18px;
       text-align: left;
       font-size: 13px;
-      font-weight: 700;
-      color: #0a0a0a;
+      font-weight: 800;
+      color: #000;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
     }
 
     th:first-child {
-      border-top-left-radius: 12px;
+      border-top-left-radius: 16px;
     }
 
     th:last-child {
-      border-top-right-radius: 12px;
+      border-top-right-radius: 16px;
     }
 
     td {
-      padding: 16px;
+      padding: 18px;
       border-bottom: 1px solid #2a2a2a;
       font-size: 14px;
       vertical-align: middle;
@@ -473,78 +588,79 @@
 
     tbody tr {
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
       background: #0f0f0f;
     }
 
     tbody tr:hover {
-      background: linear-gradient(90deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+      background: linear-gradient(90deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%);
+      transform: scale(1.01);
     }
 
-    /* MOBILE CARDS SUPER FIGHE */
+    /* MOBILE CARDS */
     .mobile-cards {
       display: none;
     }
 
     .card {
       background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-      margin-bottom: 16px;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      margin-bottom: 20px;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
       overflow: hidden;
-      transition: all 0.3s ease;
-      border: 1px solid #2a2a2a;
+      transition: all 0.4s ease;
+      border: 2px solid #2a2a2a;
     }
 
     .card:hover {
-      box-shadow: 0 8px 30px rgba(251, 191, 36, 0.3);
-      transform: translateY(-4px);
+      box-shadow: 0 12px 50px rgba(251, 191, 36, 0.4);
+      transform: translateY(-6px);
       border-color: #fbbf24;
     }
 
     .card-header {
-      padding: 18px;
+      padding: 20px;
       background: linear-gradient(135deg, #1f1f1f 0%, #1a1a1a 100%);
-      border-bottom: 2px solid #2a2a2a;
+      border-bottom: 3px solid #fbbf24;
       cursor: pointer;
     }
 
     .card-title {
-      font-weight: 700;
-      font-size: 17px;
+      font-weight: 800;
+      font-size: 18px;
       color: #fbbf24;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
     .card-subtitle {
-      font-size: 13px;
+      font-size: 14px;
       color: #9ca3af;
-      font-weight: 500;
+      font-weight: 600;
     }
 
     .card-body {
-      padding: 18px;
+      padding: 20px;
       display: none;
       background: #0f0f0f;
     }
 
     .card.expanded .card-body {
       display: block;
-      animation: slideDown 0.3s ease;
+      animation: slideDown 0.4s ease;
     }
 
     @keyframes slideDown {
       from { opacity: 0; max-height: 0; }
-      to { opacity: 1; max-height: 1000px; }
+      to { opacity: 1; max-height: 2000px; }
     }
 
     .card-row {
       display: flex;
       justify-content: space-between;
-      padding: 12px 0;
+      padding: 14px 0;
       border-bottom: 1px solid #2a2a2a;
     }
 
@@ -553,97 +669,102 @@
     }
 
     .card-label {
-      font-weight: 600;
+      font-weight: 700;
       color: #9ca3af;
       font-size: 13px;
-      flex-shrink: 0;
-      margin-right: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .card-value {
       text-align: right;
       color: #e5e7eb;
-      font-weight: 500;
-      word-break: break-word;
+      font-weight: 600;
     }
 
     .expand-icon {
-      transition: transform 0.3s ease;
-      font-size: 14px;
+      transition: transform 0.4s ease;
+      font-size: 16px;
     }
 
     .card.expanded .expand-icon {
       transform: rotate(180deg);
     }
 
-    /* BADGE STILOSI */
+    /* BADGE */
     .badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 12px;
-      border-radius: 8px;
+      padding: 8px 14px;
+      border-radius: 10px;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .badge.presente {
       background: rgba(16, 185, 129, 0.2);
       color: #10b981;
-      border: 1px solid #10b981;
+      border: 2px solid #10b981;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
     }
 
     .badge.assente {
       background: rgba(239, 68, 68, 0.2);
       color: #ef4444;
-      border: 1px solid #ef4444;
+      border: 2px solid #ef4444;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
     }
 
     /* PULSANTI AZIONE */
     .btn-action {
-      padding: 8px 16px;
-      border-radius: 8px;
+      padding: 10px 18px;
+      border-radius: 12px;
       border: none;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .btn-edit {
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      color: #0a0a0a;
-      box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+      color: #000;
+      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
     }
 
     .btn-edit:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(251, 191, 36, 0.6);
     }
 
     .btn-delete {
       background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
       color: white;
-      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
     }
 
     .btn-delete:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.6);
     }
 
     .btn-save {
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: white;
-      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
     }
 
     .btn-save:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.6);
     }
 
     .btn-cancel {
@@ -657,36 +778,40 @@
 
     /* MESSAGGI */
     .msg {
-      padding: 16px 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
+      padding: 18px 24px;
+      border-radius: 16px;
+      margin-bottom: 24px;
       display: none;
-      font-weight: 600;
-      animation: slideIn 0.3s ease;
-      border: 2px solid;
+      font-weight: 700;
+      animation: slideIn 0.4s ease;
+      border: 3px solid;
+      font-size: 15px;
     }
 
     @keyframes slideIn {
-      from { opacity: 0; transform: translateX(-20px); }
+      from { opacity: 0; transform: translateX(-30px); }
       to { opacity: 1; transform: translateX(0); }
     }
 
     .msg.success {
-      background: rgba(16, 185, 129, 0.1);
+      background: rgba(16, 185, 129, 0.15);
       color: #10b981;
       border-color: #10b981;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
     }
 
     .msg.error {
-      background: rgba(239, 68, 68, 0.1);
+      background: rgba(239, 68, 68, 0.15);
       color: #ef4444;
       border-color: #ef4444;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
     }
 
     .msg.info {
-      background: rgba(59, 130, 246, 0.1);
+      background: rgba(59, 130, 246, 0.15);
       color: #3b82f6;
       border-color: #3b82f6;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
     }
 
     /* MODAL */
@@ -697,8 +822,8 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.9);
-      backdrop-filter: blur(4px);
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(8px);
       z-index: 2000;
       align-items: center;
       justify-content: center;
@@ -707,20 +832,20 @@
 
     .modal.active {
       display: flex;
-      animation: fadeIn 0.3s ease;
+      animation: fadeIn 0.4s ease;
     }
 
     .modal-content {
       background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-      border-radius: 20px;
-      padding: 32px;
-      max-width: 900px;
+      border-radius: 28px;
+      padding: 36px;
+      max-width: 1000px;
       width: 100%;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-      animation: scaleIn 0.3s ease;
-      border: 1px solid #2a2a2a;
+      box-shadow: 0 20px 80px rgba(251, 191, 36, 0.4);
+      animation: scaleIn 0.4s ease;
+      border: 3px solid #fbbf24;
     }
 
     @keyframes scaleIn {
@@ -732,131 +857,207 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
+      margin-bottom: 28px;
     }
 
     .modal-title {
-      font-size: 24px;
-      font-weight: 800;
+      font-size: 28px;
+      font-weight: 900;
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .modal-close {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
       border: none;
       background: #2a2a2a;
       cursor: pointer;
-      font-size: 20px;
+      font-size: 24px;
       color: #e5e7eb;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
     }
 
     .modal-close:hover {
-      background: #3a3a3a;
+      background: #fbbf24;
+      color: #000;
       transform: rotate(90deg);
     }
 
     .info-box {
-      background: rgba(59, 130, 246, 0.1);
+      background: rgba(59, 130, 246, 0.15);
       border: 2px solid #3b82f6;
-      border-radius: 12px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
-      font-size: 13px;
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      font-size: 14px;
       color: #60a5fa;
-      font-weight: 500;
+      font-weight: 600;
     }
 
     .info-box i {
-      margin-right: 8px;
+      margin-right: 10px;
     }
 
     .action-buttons {
       display: flex;
-      gap: 8px;
+      gap: 12px;
     }
 
-    /* CAMERA */
-    #cameraView {
-      width: 100%;
-      max-height: 400px;
-      border-radius: 12px;
-      margin: 16px 0;
-      display: none;
-      border: 2px solid #fbbf24;
-      object-fit: contain;
-      background: #000;
-    }
-
-    #capturedImage {
-      max-width: 100%;
-      border-radius: 12px;
-      margin: 16px 0;
-      display: none;
-      border: 2px solid #10b981;
-    }
-
-    /* SCAN GUIDE */
-    .scan-guide {
+    /* CAMERA SCAN */
+    #cameraContainer {
       position: relative;
-      margin: 16px 0;
       display: none;
+      margin: 24px 0;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 4px solid #fbbf24;
+      box-shadow: 0 0 40px rgba(251, 191, 36, 0.5);
     }
 
-    .scan-guide.active {
+    #cameraContainer.active {
       display: block;
     }
 
-    .guide-overlay {
-      position: absolute;
-      top: 10%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80%;
-      max-width: 300px;
-      height: 420px;
-      border: 3px dashed #fbbf24;
-      border-radius: 12px;
-      pointer-events: none;
-      z-index: 10;
+    #cameraView {
+      width: 100%;
+      display: block;
+      background: #000;
     }
 
-    .guide-text {
+    /* SCAN OVERLAY - ZONA CARTA */
+    .scan-overlay {
       position: absolute;
-      top: -40px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    /* ZONA NOME (TOP CENTER) */
+    .scan-zone-name {
+      position: absolute;
+      top: 8%;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(251, 191, 36, 0.9);
-      color: #0a0a0a;
-      padding: 8px 16px;
+      width: 70%;
+      height: 8%;
+      border: 3px dashed #10b981;
       border-radius: 8px;
-      font-weight: 700;
-      font-size: 14px;
+      background: rgba(16, 185, 129, 0.1);
+      animation: pulse 2s infinite;
+    }
+
+    .scan-zone-name::before {
+      content: 'NOME CARTA';
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #10b981;
+      color: #000;
+      padding: 6px 16px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 12px;
       white-space: nowrap;
+    }
+
+    /* ZONA ESPANSIONE (BOTTOM LEFT) */
+    .scan-zone-expansion {
+      position: absolute;
+      bottom: 8%;
+      left: 8%;
+      width: 30%;
+      height: 6%;
+      border: 3px dashed #fbbf24;
+      border-radius: 8px;
+      background: rgba(251, 191, 36, 0.1);
+      animation: pulse 2s infinite 0.5s;
+    }
+
+    .scan-zone-expansion::before {
+      content: 'ESPANSIONE';
+      position: absolute;
+      bottom: -30px;
+      left: 0;
+      background: #fbbf24;
+      color: #000;
+      padding: 6px 16px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.6;
+        transform: scale(1.02);
+      }
+    }
+
+    .scan-guide-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: #fbbf24;
+      padding: 16px 32px;
+      border-radius: 16px;
+      font-weight: 800;
+      font-size: 18px;
+      text-align: center;
+      border: 3px solid #fbbf24;
+      animation: guidePulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes guidePulse {
+      0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(1.05);
+      }
+    }
+
+    #capturedCanvas {
+      max-width: 100%;
+      border-radius: 20px;
+      margin: 24px 0;
+      display: none;
+      border: 4px solid #10b981;
+      box-shadow: 0 0 40px rgba(16, 185, 129, 0.5);
     }
 
     /* CHART CONTAINER */
     .chart-container {
-      margin-top: 24px;
-      padding: 20px;
+      margin-top: 28px;
+      padding: 28px;
       background: #0a0a0a;
-      border-radius: 12px;
-      border: 1px solid #2a2a2a;
+      border-radius: 20px;
+      border: 2px solid #2a2a2a;
+      min-height: 400px;
     }
 
     /* RESPONSIVE */
     @media (max-width: 768px) {
       h1 {
-        font-size: 24px;
+        font-size: 28px;
       }
 
       .pikachu-logo {
-        font-size: 30px;
+        font-size: 42px;
       }
 
       .filters {
@@ -880,11 +1081,11 @@
       }
 
       .stat-value {
-        font-size: 28px;
+        font-size: 32px;
       }
 
       .tab {
-        padding: 10px 20px;
+        padding: 12px 24px;
         font-size: 14px;
       }
 
@@ -894,6 +1095,7 @@
 
       .modal-content {
         max-width: 100%;
+        padding: 24px;
       }
     }
   </style>
@@ -905,15 +1107,16 @@
   <div class="header">
     <h1>
       <span class="pikachu-logo">⚡</span>
-      Liuk & Tremon
+      <span class="title-gradient">LIUK & TREMON</span>
+      <span class="pikachu-logo">⚡</span>
     </h1>
     
     <div class="tabs">
       <button class="tab active" onclick="switchTab('archivio')">
-        <i class="fas fa-archive"></i> Archivio
+        <i class="fas fa-archive"></i> ARCHIVIO
       </button>
       <button class="tab" onclick="switchTab('aggiungi')">
-        <i class="fas fa-plus-circle"></i> Aggiungi
+        <i class="fas fa-plus-circle"></i> AGGIUNGI
       </button>
     </div>
   </div>
@@ -924,46 +1127,46 @@
     <!-- CRUSCOTTO MEGA -->
     <div class="dashboard" id="dashboard">
       <div class="stat-card" onclick="apriGrafico('totale')">
-        <div class="stat-icon"><i class="fas fa-boxes"></i></div>
+        <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
         <div class="stat-label">Totale Articoli</div>
         <div class="stat-value" id="statTotale">0</div>
         <div class="stat-subtext">nella collezione</div>
       </div>
       
       <div class="stat-card green" onclick="apriGrafico('valore')">
-        <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+        <div class="stat-icon"><i class="fas fa-gem"></i></div>
         <div class="stat-label">Valore Totale</div>
         <div class="stat-value" id="statValore">0 €</div>
         <div class="stat-subtext">valore di mercato</div>
       </div>
       
       <div class="stat-card orange" onclick="apriGrafico('spesa')">
-        <div class="stat-icon"><i class="fas fa-credit-card"></i></div>
+        <div class="stat-icon"><i class="fas fa-wallet"></i></div>
         <div class="stat-label">Spesa Totale</div>
         <div class="stat-value" id="statSpesa">0 €</div>
         <div class="stat-subtext">investimento iniziale</div>
       </div>
       
       <div class="stat-card blue" onclick="apriGrafico('performance')">
-        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="stat-icon"><i class="fas fa-rocket"></i></div>
         <div class="stat-label">Performance</div>
         <div class="stat-value" id="statDelta">0 €</div>
         <div class="stat-subtext" id="statDeltaPercent">0%</div>
       </div>
       
       <div class="stat-card red" onclick="apriGrafico('presenti')">
-        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-        <div class="stat-label">Articoli Presenti</div>
+        <div class="stat-icon"><i class="fas fa-box-open"></i></div>
+        <div class="stat-label">Magazzino</div>
         <div class="stat-value" id="statPresenti">0</div>
-        <div class="stat-subtext" id="statPresentiSub">in magazzino</div>
+        <div class="stat-subtext" id="statPresentiSub">articoli presenti</div>
       </div>
     </div>
 
     <!-- FILTRI -->
     <div class="box filters">
-      <input id="fNome" placeholder="🔍 Cerca per nome...">
+      <input id="fNome" placeholder="🔍 Cerca per nome carta...">
       <input id="fCategoria" placeholder="📁 Filtra per categoria...">
-      <button onclick="carica()"><i class="fas fa-filter"></i> Filtra</button>
+      <button onclick="carica()"><i class="fas fa-search"></i> CERCA</button>
     </div>
 
     <!-- TABELLA DESKTOP -->
@@ -972,20 +1175,20 @@
         <table>
           <thead>
             <tr>
-              <th><i class="fas fa-tag"></i> Nome</th>
-              <th><i class="fas fa-folder"></i> Categoria</th>
-              <th><i class="fas fa-dollar-sign"></i> Valore</th>
-              <th><i class="fas fa-receipt"></i> Prezzo</th>
-              <th><i class="fas fa-chart-line"></i> Guadagno/Perdita</th>
+              <th><i class="fas fa-signature"></i> Nome</th>
+              <th><i class="fas fa-tags"></i> Categoria</th>
+              <th><i class="fas fa-coins"></i> Valore</th>
+              <th><i class="fas fa-money-bill-wave"></i> Prezzo</th>
+              <th><i class="fas fa-chart-line"></i> Gain/Loss</th>
               <th><i class="fas fa-star"></i> Stato</th>
-              <th><i class="fas fa-check"></i> Presente</th>
-              <th><i class="fas fa-cog"></i> Azioni</th>
+              <th><i class="fas fa-warehouse"></i> Stock</th>
+              <th><i class="fas fa-tools"></i> Azioni</th>
             </tr>
           </thead>
           <tbody id="tableOut">
-            <tr><td colspan="8" style="text-align: center; padding: 40px;">
-              <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #fbbf24;"></i>
-              <div style="margin-top: 12px; color: #6b7280;">Caricamento...</div>
+            <tr><td colspan="8" style="text-align: center; padding: 50px;">
+              <i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #fbbf24;"></i>
+              <div style="margin-top: 16px; color: #6b7280; font-weight: 600;">Caricamento collezione...</div>
             </td></tr>
           </tbody>
         </table>
@@ -1009,25 +1212,30 @@
     <div class="box">
       <div id="formMsg" class="msg"></div>
 
-      <!-- PULSANTE SCANSIONE RAPIDA -->
-      <button type="button" class="btn-scan" onclick="avviaScansione()">
-        <i class="fas fa-camera"></i> Scansione Rapida Carta Pokémon
+      <!-- PULSANTE SCANSIONE -->
+      <button type="button" class="btn-scan" onclick="avviaScansionePokemon()">
+        <i class="fas fa-camera-retro"></i> SCANSIONA CARTA POKÉMON
       </button>
 
-      <!-- SCAN GUIDE -->
-      <div class="scan-guide" id="scanGuide">
-        <div class="guide-overlay">
-          <div class="guide-text">⚡ Inquadra la carta qui ⚡</div>
-        </div>
+      <!-- CAMERA CON OVERLAY -->
+      <div id="cameraContainer">
         <video id="cameraView" autoplay playsinline></video>
+        <div class="scan-overlay">
+          <div class="scan-zone-name"></div>
+          <div class="scan-zone-expansion"></div>
+        </div>
+        <div class="scan-guide-text" id="scanGuideText">
+          ⚡ INQUADRA LA CARTA ⚡<br>
+          <span style="font-size: 14px;">Clicca per scattare</span>
+        </div>
       </div>
       
-      <canvas id="capturedImage"></canvas>
+      <canvas id="capturedCanvas"></canvas>
       
       <div id="scanMsg" class="msg" style="display: none;"></div>
 
       <div class="info-box">
-        <i class="fas fa-info-circle"></i>
+        <i class="fas fa-lightbulb"></i>
         Il campo <strong>Guadagno/Perdita</strong> viene calcolato automaticamente come: <strong>Valore Attuale - Prezzo Pagato</strong>
       </div>
 
@@ -1035,22 +1243,22 @@
         
         <div class="form-grid">
           <div class="form-group">
-            <label><i class="fas fa-tag"></i> Nome *</label>
-            <input type="text" name="Nome" id="nomeInput" required placeholder="Es. Pikachu VMAX">
+            <label><i class="fas fa-bolt"></i> Nome Carta *</label>
+            <input type="text" name="Nome" id="nomeInput" required placeholder="Es. Charizard ex">
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-folder"></i> Categoria</label>
-            <input type="text" name="Categoria" placeholder="Es. ETB, Carta singola">
+            <label><i class="fas fa-layer-group"></i> Categoria</label>
+            <input type="text" name="Categoria" id="categoriaInput" placeholder="Es. Carta Singola, ETB, Booster">
           </div>
 
           <div class="form-group full">
-            <label><i class="fas fa-align-left"></i> Descrizione</label>
-            <textarea name="Descrizione" id="descrizioneInput" placeholder="Descrizione dettagliata dell'articolo..."></textarea>
+            <label><i class="fas fa-scroll"></i> Descrizione / Espansione</label>
+            <textarea name="Descrizione" id="descrizioneInput" placeholder="Es. SV06 - 030/200 - Twilight Masquerade"></textarea>
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-dollar-sign"></i> Valore Attuale (€) *</label>
+            <label><i class="fas fa-chart-bar"></i> Valore Attuale (€) *</label>
             <input type="number" step="0.01" name="ValoreAttuale" id="valoreAttualeAdd" required placeholder="0.00" oninput="calcolaDeltaAdd()">
           </div>
 
@@ -1060,25 +1268,25 @@
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-chart-line"></i> Guadagno/Perdita (€) <span style="color: #fbbf24;">(auto)</span></label>
+            <label><i class="fas fa-calculator"></i> Guadagno/Perdita (€) <span style="color: #10b981;">(AUTO)</span></label>
             <input type="number" step="0.01" name="Delta" id="deltaAdd" placeholder="0.00" readonly disabled>
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-star"></i> Valutazione Stato (1-10)</label>
-            <input type="number" min="1" max="10" name="ValutazioneStato" placeholder="8">
+            <label><i class="fas fa-star-half-alt"></i> Valutazione Stato (1-10)</label>
+            <input type="number" min="1" max="10" name="ValutazioneStato" placeholder="10">
           </div>
 
           <div class="form-group full">
             <label class="checkbox-wrapper">
               <input type="checkbox" name="Presente" checked>
-              <span><i class="fas fa-check-circle"></i> Articolo Presente in Magazzino</span>
+              <span><i class="fas fa-box-open"></i> Articolo Presente in Magazzino</span>
             </label>
           </div>
         </div>
 
         <button type="submit" class="btn-submit">
-          <i class="fas fa-plus-circle"></i> Aggiungi Articolo
+          <i class="fas fa-plus-circle"></i> AGGIUNGI ALLA COLLEZIONE
         </button>
       </form>
     </div>
@@ -1089,7 +1297,7 @@
   <div id="modalGrafico" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 class="modal-title" id="graficoTitolo"><i class="fas fa-chart-bar"></i> Statistiche</h2>
+        <h2 class="modal-title" id="graficoTitolo"><i class="fas fa-chart-area"></i> STATISTICHE</h2>
         <button class="modal-close" onclick="chiudiGrafico()">✕</button>
       </div>
       
@@ -1103,15 +1311,15 @@
   <div id="modalModifica" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 class="modal-title"><i class="fas fa-edit"></i> Modifica Articolo</h2>
+        <h2 class="modal-title"><i class="fas fa-edit"></i> MODIFICA ARTICOLO</h2>
         <button class="modal-close" onclick="chiudiModale()">✕</button>
       </div>
 
       <div id="modalMsg" class="msg"></div>
 
       <div class="info-box">
-        <i class="fas fa-info-circle"></i>
-        Il campo <strong>Guadagno/Perdita</strong> viene calcolato automaticamente come: <strong>Valore Attuale - Prezzo Pagato</strong>
+        <i class="fas fa-lightbulb"></i>
+        Il campo <strong>Guadagno/Perdita</strong> viene calcolato automaticamente
       </div>
 
       <form id="formModifica" onsubmit="salvaModifica(event)">
@@ -1119,22 +1327,22 @@
         
         <div class="form-grid">
           <div class="form-group">
-            <label><i class="fas fa-tag"></i> Nome *</label>
+            <label><i class="fas fa-bolt"></i> Nome *</label>
             <input type="text" id="editNome" name="Nome" required>
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-folder"></i> Categoria</label>
+            <label><i class="fas fa-layer-group"></i> Categoria</label>
             <input type="text" id="editCategoria" name="Categoria">
           </div>
 
           <div class="form-group full">
-            <label><i class="fas fa-align-left"></i> Descrizione</label>
+            <label><i class="fas fa-scroll"></i> Descrizione</label>
             <textarea id="editDescrizione" name="Descrizione"></textarea>
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-dollar-sign"></i> Valore Attuale (€) *</label>
+            <label><i class="fas fa-chart-bar"></i> Valore Attuale (€) *</label>
             <input type="number" step="0.01" id="editValoreAttuale" name="ValoreAttuale" required oninput="calcolaDeltaEdit()">
           </div>
 
@@ -1144,35 +1352,35 @@
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-chart-line"></i> Guadagno/Perdita (€) <span style="color: #fbbf24;">(auto)</span></label>
+            <label><i class="fas fa-calculator"></i> Guadagno/Perdita (€)</label>
             <input type="number" step="0.01" id="editDelta" name="Delta" readonly disabled>
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-star"></i> Valutazione Stato (1-10)</label>
+            <label><i class="fas fa-star-half-alt"></i> Valutazione Stato (1-10)</label>
             <input type="number" min="1" max="10" id="editValutazioneStato" name="ValutazioneStato">
           </div>
 
           <div class="form-group full">
             <label class="checkbox-wrapper">
               <input type="checkbox" id="editPresente" name="Presente">
-              <span><i class="fas fa-check-circle"></i> Articolo Presente in Magazzino</span>
+              <span><i class="fas fa-box-open"></i> Articolo Presente in Magazzino</span>
             </label>
           </div>
         </div>
 
-        <div style="display: flex; gap: 12px; margin-top: 24px;">
+        <div style="display: flex; gap: 16px; margin-top: 28px;">
           <button type="submit" class="btn-action btn-save" style="flex: 1;">
-            <i class="fas fa-save"></i> Salva Modifiche
+            <i class="fas fa-save"></i> SALVA
           </button>
           <button type="button" class="btn-action btn-cancel" onclick="chiudiModale()">
-            <i class="fas fa-times"></i> Annulla
+            <i class="fas fa-times"></i> ANNULLA
           </button>
         </div>
 
-        <div style="margin-top: 24px; padding-top: 24px; border-top: 2px solid #2a2a2a;">
+        <div style="margin-top: 28px; padding-top: 28px; border-top: 3px solid #2a2a2a;">
           <button type="button" class="btn-action btn-delete" style="width: 100%;" onclick="eliminaArticolo()">
-            <i class="fas fa-trash"></i> Elimina Articolo
+            <i class="fas fa-trash-alt"></i> ELIMINA ARTICOLO
           </button>
         </div>
       </form>
@@ -1182,23 +1390,242 @@
   <script>
     const SUPABASE_URL = "https://xoagoblnzvdqnktpfhlk.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_Uf5-1uzQzL-OqI6dA-tl_g_RHpYxNds";
-
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let stream = null;
     let currentChart = null;
-    let allData = [];
 
-    // APRI GRAFICO
+    // ========== SCANSIONE POKÉMON ULTRA OTTIMIZZATA ==========
+    
+    async function avviaScansionePokemon() {
+      const video = document.getElementById('cameraView');
+      const container = document.getElementById('cameraContainer');
+      const scanMsg = document.getElementById('scanMsg');
+      
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { 
+            facingMode: 'environment',
+            width: { ideal: 2560 },
+            height: { ideal: 1440 }
+          }
+        });
+        
+        video.srcObject = stream;
+        container.classList.add('active');
+        
+        scanMsg.className = 'msg info';
+        scanMsg.style.display = 'block';
+        scanMsg.innerHTML = '<i class="fas fa-camera"></i> <strong>FOTOCAMERA ATTIVA</strong> - Inquadra la carta nelle zone evidenziate e clicca per scattare';
+        
+        video.onclick = () => scattaEScannerizza();
+        
+      } catch (err) {
+        scanMsg.className = 'msg error';
+        scanMsg.style.display = 'block';
+        scanMsg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <strong>ERRORE FOTOCAMERA:</strong> ' + err.message;
+      }
+    }
+
+    async function scattaEScannerizza() {
+      const video = document.getElementById('cameraView');
+      const canvas = document.getElementById('capturedCanvas');
+      const container = document.getElementById('cameraContainer');
+      const scanMsg = document.getElementById('scanMsg');
+      
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(video, 0, 0);
+      
+      // Pre-elabora l'immagine
+      elaboraImmaginePokemon(ctx, canvas.width, canvas.height);
+      
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      
+      container.classList.remove('active');
+      canvas.style.display = 'block';
+      
+      scanMsg.className = 'msg info';
+      scanMsg.innerHTML = '<i class="fas fa-cog fa-spin"></i> <strong>ANALISI POKÉMON IN CORSO...</strong> Elaborazione avanzata carta';
+      
+      await scannerizzaCartaPokemon(canvas);
+    }
+
+    function elaboraImmaginePokemon(ctx, width, height) {
+      const imageData = ctx.getImageData(0, 0, width, height);
+      const data = imageData.data;
+      
+      // Ottimizzazione per testo nero su sfondo chiaro
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        
+        // Calcola luminosità
+        const brightness = (0.299 * r + 0.587 * g + 0.114 * b);
+        
+        // Aumenta contrasto aggressivo
+        let adjusted = brightness > 150 ? 255 : brightness < 80 ? 0 : brightness;
+        
+        // Aumenta il nero (testo)
+        if (brightness < 100) {
+          adjusted = Math.max(0, adjusted - 50);
+        }
+        
+        data[i] = data[i + 1] = data[i + 2] = adjusted;
+      }
+      
+      ctx.putImageData(imageData, 0, 0);
+    }
+
+    async function scannerizzaCartaPokemon(canvas) {
+      const scanMsg = document.getElementById('scanMsg');
+      
+      try {
+        const width = canvas.width;
+        const height = canvas.height;
+        
+        // ESTRAI ZONA NOME (top 5-15% altezza, centro orizzontale)
+        const nomeCanvas = document.createElement('canvas');
+        const nomeCtx = nomeCanvas.getContext('2d');
+        nomeCanvas.width = width * 0.8;
+        nomeCanvas.height = height * 0.12;
+        nomeCtx.drawImage(canvas, 
+          width * 0.1, height * 0.05,  // source x, y
+          width * 0.8, height * 0.12,  // source width, height
+          0, 0,                         // dest x, y
+          nomeCanvas.width, nomeCanvas.height  // dest width, height
+        );
+        
+        // ESTRAI ZONA ESPANSIONE (bottom 5-12% altezza, left 5-40% larghezza)
+        const expansionCanvas = document.createElement('canvas');
+        const expansionCtx = expansionCanvas.getContext('2d');
+        expansionCanvas.width = width * 0.4;
+        expansionCanvas.height = height * 0.1;
+        expansionCtx.drawImage(canvas,
+          width * 0.05, height * 0.88,  // source x, y (bottom left)
+          width * 0.4, height * 0.1,    // source width, height
+          0, 0,                          // dest x, y
+          expansionCanvas.width, expansionCanvas.height
+        );
+        
+        scanMsg.innerHTML = '<i class="fas fa-cog fa-spin"></i> <strong>SCANSIONE ZONA NOME...</strong> 30%';
+        
+        // OCR ZONA NOME
+        const nomeData = nomeCanvas.toDataURL('image/png');
+        const resultNome = await Tesseract.recognize(nomeData, 'eng', {
+          logger: () => {},
+          tessedit_pageseg_mode: Tesseract.PSM.SINGLE_LINE,
+          tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz '
+        });
+        
+        scanMsg.innerHTML = '<i class="fas fa-cog fa-spin"></i> <strong>SCANSIONE ZONA ESPANSIONE...</strong> 70%';
+        
+        // OCR ZONA ESPANSIONE
+        const expansionData = expansionCanvas.toDataURL('image/png');
+        const resultExpansion = await Tesseract.recognize(expansionData, 'eng', {
+          logger: () => {},
+          tessedit_pageseg_mode: Tesseract.PSM.SINGLE_LINE,
+          tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/ '
+        });
+        
+        console.log('TESTO NOME:', resultNome.data.text);
+        console.log('TESTO ESPANSIONE:', resultExpansion.data.text);
+        
+        const info = estraiDatiPokemon(resultNome.data.text, resultExpansion.data.text);
+        
+        if (info.nome) {
+          document.getElementById('nomeInput').value = info.nome;
+          document.getElementById('descrizioneInput').value = info.descrizione || '';
+          
+          scanMsg.className = 'msg success';
+          scanMsg.innerHTML = `
+            <i class="fas fa-check-circle"></i> <strong>⚡ CARTA RICONOSCIUTA! ⚡</strong><br>
+            📛 <strong>${info.nome}</strong>${info.espansione ? ' | 🎴 ' + info.espansione : ''}${info.numero ? ' | #' + info.numero : ''}
+          `;
+          
+          setTimeout(() => {
+            canvas.style.display = 'none';
+            scanMsg.style.display = 'none';
+          }, 6000);
+          
+        } else {
+          scanMsg.className = 'msg error';
+          scanMsg.innerHTML = '<i class="fas fa-times-circle"></i> <strong>CARTA NON RICONOSCIUTA</strong> - Riprova o inserisci manualmente';
+        }
+        
+      } catch (err) {
+        scanMsg.className = 'msg error';
+        scanMsg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <strong>ERRORE SCANSIONE:</strong> ' + err.message;
+        console.error('Errore scansione:', err);
+      }
+    }
+
+    function estraiDatiPokemon(testoNome, testoExpansion) {
+      console.log('=== ESTRAZIONE DATI POKÉMON ===');
+      console.log('Testo nome:', testoNome);
+      console.log('Testo espansione:', testoExpansion);
+      
+      // ESTRAI NOME
+      let nome = testoNome
+        .trim()
+        .replace(/[^a-zA-Z\s]/g, '')  // Rimuovi tutto tranne lettere e spazi
+        .replace(/\s+/g, ' ')          // Normalizza spazi
+        .trim();
+      
+      // Pulisci nome
+      nome = nome
+        .replace(/^(HP|ATK|DEF|Basic|Stage|Evolution)\s*/gi, '')
+        .trim();
+      
+      console.log('Nome estratto:', nome);
+      
+      // ESTRAI ESPANSIONE E NUMERO (es: "SV06 030/200" o "PAL 15/100")
+      let espansione = '';
+      let numero = '';
+      let descrizione = '';
+      
+      // Pattern: SIGLA NUMERO/TOTALE
+      const pattern = /([A-Z]{2,5})\s*(\d{1,4})\s*\/\s*(\d{1,4})/i;
+      const match = testoExpansion.match(pattern);
+      
+      if (match) {
+        espansione = match[1].toUpperCase();
+        numero = `${match[2].padStart(3, '0')}/${match[3].padStart(3, '0')}`;
+        descrizione = `${espansione} - ${numero}`;
+        console.log('Espansione:', espansione, 'Numero:', numero);
+      } else {
+        // Prova pattern alternativo (solo sigla)
+        const patternSigla = /\b([A-Z]{2,5})\b/;
+        const matchSigla = testoExpansion.match(patternSigla);
+        if (matchSigla) {
+          espansione = matchSigla[1].toUpperCase();
+          descrizione = espansione;
+          console.log('Solo espansione:', espansione);
+        }
+      }
+      
+      return {
+        nome: nome || '',
+        espansione: espansione || '',
+        numero: numero || '',
+        descrizione: descrizione || ''
+      };
+    }
+
+    // ========== GRAFICI ULTRA FIGHI ==========
+    
     async function apriGrafico(tipo) {
       const { data, error } = await client.from("Articoli").select("*").order('created_at', { ascending: true });
       
       if (error || !data || data.length === 0) {
-        alert('Nessun dato disponibile per il grafico');
+        alert('⚠️ Nessun dato disponibile per i grafici');
         return;
       }
-
-      allData = data;
 
       const modal = document.getElementById('modalGrafico');
       modal.classList.add('active');
@@ -1209,67 +1636,80 @@
 
       const ctx = document.getElementById('chartCanvas').getContext('2d');
 
-      let chartData, chartTitle, chartColor;
+      let chartConfig;
 
       switch(tipo) {
         case 'totale':
-          chartTitle = '📦 Crescita Collezione nel Tempo';
-          chartColor = '#fbbf24';
-          chartData = generaGraficoCrescita(data);
+          chartConfig = generaGraficoCrescita(data);
+          document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-layer-group"></i> CRESCITA COLLEZIONE';
           break;
-        
         case 'valore':
-          chartTitle = '💰 Valore Totale nel Tempo';
-          chartColor = '#10b981';
-          chartData = generaGraficoValore(data);
+          chartConfig = generaGraficoValore(data);
+          document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-gem"></i> VALORE NEL TEMPO';
           break;
-        
         case 'spesa':
-          chartTitle = '💳 Spesa Cumulativa';
-          chartColor = '#f97316';
-          chartData = generaGraficoSpesa(data);
+          chartConfig = generaGraficoSpesa(data);
+          document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-wallet"></i> INVESTIMENTO CUMULATIVO';
           break;
-        
         case 'performance':
-          chartTitle = '📈 Performance (Guadagno/Perdita)';
-          chartColor = '#3b82f6';
-          chartData = generaGraficoPerformance(data);
+          chartConfig = generaGraficoPerformance(data);
+          document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-rocket"></i> PERFORMANCE ARTICOLI';
           break;
-        
         case 'presenti':
-          chartTitle = '✅ Articoli Presenti vs Assenti';
-          chartColor = '#ef4444';
-          chartData = generaGraficoPresenti(data);
+          chartConfig = generaGraficoPresenti(data);
+          document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-box-open"></i> STATO MAGAZZINO';
           break;
       }
 
-      document.getElementById('graficoTitolo').innerHTML = `<i class="fas fa-chart-bar"></i> ${chartTitle}`;
-
       currentChart = new Chart(ctx, {
-        type: chartData.type,
-        data: chartData.data,
+        type: chartConfig.type,
+        data: chartConfig.data,
         options: {
           responsive: true,
           maintainAspectRatio: true,
+          animation: {
+            duration: 1500,
+            easing: 'easeInOutQuart'
+          },
           plugins: {
             legend: {
               labels: {
                 color: '#e5e7eb',
-                font: {
-                  size: 14,
-                  weight: 'bold'
-                }
+                font: { size: 15, weight: 'bold' },
+                padding: 20
               }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(10, 10, 10, 0.95)',
+              titleColor: '#fbbf24',
+              bodyColor: '#e5e7eb',
+              borderColor: '#fbbf24',
+              borderWidth: 2,
+              padding: 12,
+              titleFont: { size: 14, weight: 'bold' },
+              bodyFont: { size: 13 }
             }
           },
-          scales: chartData.type !== 'doughnut' ? {
+          scales: chartConfig.type !== 'doughnut' && chartConfig.type !== 'pie' ? {
             x: {
-              ticks: { color: '#9ca3af' },
-              grid: { color: '#2a2a2a' }
+              ticks: { 
+                color: '#9ca3af',
+                font: { size: 12, weight: '600' }
+              },
+              grid: { 
+                color: '#2a2a2a',
+                lineWidth: 1
+              }
             },
             y: {
-              ticks: { color: '#9ca3af' },
-              grid: { color: '#2a2a2a' }
+              ticks: { 
+                color: '#9ca3af',
+                font: { size: 12, weight: '600' }
+              },
+              grid: { 
+                color: '#2a2a2a',
+                lineWidth: 1
+              }
             }
           } : {}
         }
@@ -1277,87 +1717,88 @@
     }
 
     function generaGraficoCrescita(data) {
-      const labels = data.map(r => new Date(r.created_at).toLocaleDateString('it-IT'));
-      const values = data.map((r, i) => i + 1);
-
       return {
         type: 'line',
         data: {
-          labels,
+          labels: data.map(r => new Date(r.created_at).toLocaleDateString('it-IT')),
           datasets: [{
-            label: 'Numero Articoli',
-            data: values,
+            label: '📦 Numero Articoli',
+            data: data.map((r, i) => i + 1),
             borderColor: '#fbbf24',
-            backgroundColor: 'rgba(251, 191, 36, 0.1)',
+            backgroundColor: 'rgba(251, 191, 36, 0.2)',
             fill: true,
-            tension: 0.4
+            tension: 0.4,
+            borderWidth: 3,
+            pointRadius: 5,
+            pointHoverRadius: 8,
+            pointBackgroundColor: '#fbbf24',
+            pointBorderColor: '#000',
+            pointBorderWidth: 2
           }]
         }
       };
     }
 
     function generaGraficoValore(data) {
-      const labels = data.map(r => new Date(r.created_at).toLocaleDateString('it-IT'));
       let cumulative = 0;
-      const values = data.map(r => {
-        cumulative += Number(r.ValoreAttuale || 0);
-        return cumulative;
-      });
-
       return {
         type: 'line',
         data: {
-          labels,
+          labels: data.map(r => new Date(r.created_at).toLocaleDateString('it-IT')),
           datasets: [{
-            label: 'Valore Totale (€)',
-            data: values,
+            label: '💎 Valore Totale (€)',
+            data: data.map(r => cumulative += Number(r.ValoreAttuale || 0)),
             borderColor: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            backgroundColor: 'rgba(16, 185, 129, 0.2)',
             fill: true,
-            tension: 0.4
+            tension: 0.4,
+            borderWidth: 3,
+            pointRadius: 5,
+            pointHoverRadius: 8,
+            pointBackgroundColor: '#10b981',
+            pointBorderColor: '#000',
+            pointBorderWidth: 2
           }]
         }
       };
     }
 
     function generaGraficoSpesa(data) {
-      const labels = data.map(r => new Date(r.created_at).toLocaleDateString('it-IT'));
       let cumulative = 0;
-      const values = data.map(r => {
-        cumulative += Number(r.PrezzoPagato || 0);
-        return cumulative;
-      });
-
       return {
         type: 'line',
         data: {
-          labels,
+          labels: data.map(r => new Date(r.created_at).toLocaleDateString('it-IT')),
           datasets: [{
-            label: 'Spesa Totale (€)',
-            data: values,
+            label: '💳 Spesa Totale (€)',
+            data: data.map(r => cumulative += Number(r.PrezzoPagato || 0)),
             borderColor: '#f97316',
-            backgroundColor: 'rgba(249, 115, 22, 0.1)',
+            backgroundColor: 'rgba(249, 115, 22, 0.2)',
             fill: true,
-            tension: 0.4
+            tension: 0.4,
+            borderWidth: 3,
+            pointRadius: 5,
+            pointHoverRadius: 8,
+            pointBackgroundColor: '#f97316',
+            pointBorderColor: '#000',
+            pointBorderWidth: 2
           }]
         }
       };
     }
 
     function generaGraficoPerformance(data) {
-      const labels = data.map(r => r.Nome);
       const values = data.map(r => Number(r.ValoreAttuale || 0) - Number(r.PrezzoPagato || 0));
-
       return {
         type: 'bar',
         data: {
-          labels,
+          labels: data.map(r => r.Nome),
           datasets: [{
-            label: 'Guadagno/Perdita (€)',
+            label: '📊 Guadagno/Perdita (€)',
             data: values,
             backgroundColor: values.map(v => v >= 0 ? 'rgba(16, 185, 129, 0.8)' : 'rgba(239, 68, 68, 0.8)'),
             borderColor: values.map(v => v >= 0 ? '#10b981' : '#ef4444'),
-            borderWidth: 2
+            borderWidth: 3
           }]
         }
       };
@@ -1366,19 +1807,15 @@
     function generaGraficoPresenti(data) {
       const presenti = data.filter(r => r.Presente).length;
       const assenti = data.length - presenti;
-
       return {
         type: 'doughnut',
         data: {
-          labels: ['Presenti', 'Assenti'],
+          labels: ['✅ Presenti', '❌ Assenti'],
           datasets: [{
             data: [presenti, assenti],
-            backgroundColor: [
-              'rgba(16, 185, 129, 0.8)',
-              'rgba(239, 68, 68, 0.8)'
-            ],
+            backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)'],
             borderColor: ['#10b981', '#ef4444'],
-            borderWidth: 2
+            borderWidth: 3
           }]
         }
       };
@@ -1392,244 +1829,25 @@
       }
     }
 
-    // AVVIA SCANSIONE OTTIMIZZATA
-    async function avviaScansione() {
-      const video = document.getElementById('cameraView');
-      const scanGuide = document.getElementById('scanGuide');
-      const scanMsg = document.getElementById('scanMsg');
-      
-      try {
-        // Richiedi fotocamera ad alta risoluzione
-        stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { 
-            facingMode: 'environment',
-            width: { ideal: 1920 },
-            height: { ideal: 1080 }
-          }
-        });
-        
-        video.srcObject = stream;
-        scanGuide.classList.add('active');
-        
-        scanMsg.className = 'msg info';
-        scanMsg.style.display = 'block';
-        scanMsg.innerHTML = '<i class="fas fa-info-circle"></i> <strong>INQUADRA LA CARTA NEL RIQUADRO</strong> - Clicca sul video per scattare';
-        
-        // Scatta automaticamente dopo 2 secondi
-        setTimeout(() => {
-          video.onclick = () => scattaFotoOttimizzata();
-        }, 500);
-        
-      } catch (err) {
-        scanMsg.className = 'msg error';
-        scanMsg.style.display = 'block';
-        scanMsg.textContent = '❌ Impossibile accedere alla fotocamera: ' + err.message;
-      }
-    }
-
-    // SCATTA FOTO OTTIMIZZATA
-    function scattaFotoOttimizzata() {
-      const video = document.getElementById('cameraView');
-      const canvas = document.getElementById('capturedImage');
-      const scanMsg = document.getElementById('scanMsg');
-      const scanGuide = document.getElementById('scanGuide');
-      
-      // Imposta dimensioni alte per maggiore qualità
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0);
-      
-      // Pre-elabora l'immagine per migliorare l'OCR
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const processedData = preprocessImage(imageData);
-      ctx.putImageData(processedData, 0, 0);
-      
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-      
-      scanGuide.classList.remove('active');
-      canvas.style.display = 'block';
-      
-      scanMsg.className = 'msg info';
-      scanMsg.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <strong>ANALISI AVANZATA IN CORSO...</strong> Estrazione dati carta Pokémon';
-      
-      processaImmagineOttimizzata(canvas);
-    }
-
-    // PRE-ELABORAZIONE IMMAGINE
-    function preprocessImage(imageData) {
-      const data = imageData.data;
-      
-      // Aumenta contrasto e luminosità
-      for (let i = 0; i < data.length; i += 4) {
-        // Converti a grayscale
-        const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-        
-        // Aumenta contrasto
-        const contrast = 1.5;
-        const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
-        let adjusted = factor * (gray - 128) + 128;
-        
-        // Applica threshold per testo più chiaro
-        adjusted = adjusted > 140 ? 255 : adjusted < 100 ? 0 : adjusted;
-        
-        data[i] = data[i + 1] = data[i + 2] = adjusted;
-      }
-      
-      return imageData;
-    }
-
-    // PROCESSA IMMAGINE CON OCR OTTIMIZZATO
-    async function processaImmagineOttimizzata(canvas) {
-      const scanMsg = document.getElementById('scanMsg');
-      
-      try {
-        const imageData = canvas.toDataURL('image/png');
-        
-        // Configura Tesseract per migliore riconoscimento
-        const result = await Tesseract.recognize(imageData, 'eng', {
-          logger: m => {
-            if (m.status === 'recognizing text') {
-              const progress = Math.round(m.progress * 100);
-              scanMsg.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <strong>SCANSIONE ${progress}%</strong> - Riconoscimento caratteri avanzato`;
-            }
-          },
-          tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-/',
-          tessedit_pageseg_mode: Tesseract.PSM.SPARSE_TEXT
-        });
-        
-        const testoRiconosciuto = result.data.text;
-        console.log('TESTO RICONOSCIUTO:', testoRiconosciuto);
-        
-        // Estrazione SUPER OTTIMIZZATA per carte Pokémon
-        const info = estraiInfoCartaPokemonAvanzato(testoRiconosciuto);
-        
-        if (info.nome) {
-          document.getElementById('nomeInput').value = info.nome;
-          document.getElementById('descrizioneInput').value = info.espansione || '';
-          
-          scanMsg.className = 'msg success';
-          scanMsg.innerHTML = `✅ <strong>CARTA RICONOSCIUTA!</strong><br>📛 ${info.nome}${info.espansione ? ' 🎴 ' + info.espansione : ''}${info.numero ? ' #' + info.numero : ''}`;
-          
-          setTimeout(() => {
-            canvas.style.display = 'none';
-            scanMsg.style.display = 'none';
-          }, 5000);
-          
-        } else {
-          scanMsg.className = 'msg error';
-          scanMsg.innerHTML = '❌ <strong>CARTA NON RICONOSCIUTA</strong><br>Inserisci i dati manualmente o riprova la scansione';
-        }
-        
-      } catch (err) {
-        scanMsg.className = 'msg error';
-        scanMsg.textContent = '❌ Errore durante l\'elaborazione: ' + err.message;
-      }
-    }
-
-    // ESTRAZIONE AVANZATA INFO CARTA POKÉMON
-    function estraiInfoCartaPokemonAvanzato(testo) {
-      console.log('Elaborazione testo per carta Pokémon...');
-      
-      // Pulisci il testo
-      const linee = testo.split('\n')
-        .map(l => l.trim())
-        .filter(l => l.length > 0);
-      
-      let nome = '';
-      let espansione = '';
-      let numero = '';
-      
-      // PATTERN COMUNI NELLE CARTE POKÉMON
-      
-      // 1. CERCA NOME (di solito nelle prime 3 righe, tutto maiuscolo o Title Case)
-      for (let i = 0; i < Math.min(5, linee.length); i++) {
-        const linea = linee[i];
-        
-        // Rimuovi numeri HP e altri pattern comuni
-        const lineaPulita = linea.replace(/\bHP\s*\d+/gi, '').trim();
-        
-        // Il nome è tipicamente:
-        // - Tra 3 e 25 caratteri
-        // - Non contiene numeri (tranne eccezioni tipo "Porygon2")
-        // - Non contiene simboli strani
-        // - È in alto sulla carta
-        if (lineaPulita.length >= 3 && lineaPulita.length <= 25) {
-          // Escludi linee con troppi numeri o simboli
-          const numeriCount = (lineaPulita.match(/\d/g) || []).length;
-          const caratteriCount = lineaPulita.length;
-          
-          if (numeriCount < caratteriCount * 0.3) {
-            if (!nome && !lineaPulita.match(/^(HP|ATK|DEF|Stage|Basic|Evolution)/i)) {
-              nome = lineaPulita;
-              console.log('Nome trovato:', nome);
-            }
-          }
-        }
-      }
-      
-      // 2. CERCA SIGLA ESPANSIONE (formato: XXX 000/000 o XXX-000)
-      // Pattern comuni: "SV06", "PAL", "TEF", "MEW", "OBF", etc.
-      const patternEspansione = /\b([A-Z]{2,5})\s*[-:]?\s*(\d{1,4})\s*[\/\\]\s*(\d{1,4})/i;
-      const matchEspansione = testo.match(patternEspansione);
-      
-      if (matchEspansione) {
-        espansione = matchEspansione[1].toUpperCase();
-        numero = `${matchEspansione[2]}/${matchEspansione[3]}`;
-        console.log('Espansione trovata:', espansione, 'Numero:', numero);
-      } else {
-        // Cerca pattern alternativo (solo sigla)
-        const patternSigla = /\b([A-Z]{2,5})[-:]?(\d{1,4})\b/;
-        const matchSigla = testo.match(patternSigla);
-        if (matchSigla) {
-          espansione = matchSigla[1].toUpperCase();
-          console.log('Sigla trovata:', espansione);
-        }
-      }
-      
-      // 3. FALLBACK: Se non trovato nome, cerca parole comuni di Pokémon
-      if (!nome) {
-        const pokemonComuni = ['Pikachu', 'Charizard', 'Mewtwo', 'Mew', 'Eevee', 'Snorlax', 'Lucario', 
-                               'Greninja', 'Rayquaza', 'Garchomp', 'Dragonite', 'Gyarados', 'Blastoise', 'Venusaur'];
-        
-        for (const pokemon of pokemonComuni) {
-          if (testo.toUpperCase().includes(pokemon.toUpperCase())) {
-            nome = pokemon;
-            console.log('Nome trovato da lista comune:', nome);
-            break;
-          }
-        }
-      }
-      
-      return { 
-        nome: nome || '', 
-        espansione: espansione || '', 
-        numero: numero || ''
-      };
-    }
-
+    // ========== FUNZIONI STANDARD ==========
+    
     function calcolaDeltaAdd() {
       const valore = parseFloat(document.getElementById('valoreAttualeAdd').value) || 0;
       const prezzo = parseFloat(document.getElementById('prezzoPagatoAdd').value) || 0;
-      const delta = valore - prezzo;
-      document.getElementById('deltaAdd').value = delta.toFixed(2);
+      document.getElementById('deltaAdd').value = (valore - prezzo).toFixed(2);
     }
 
     function calcolaDeltaEdit() {
       const valore = parseFloat(document.getElementById('editValoreAttuale').value) || 0;
       const prezzo = parseFloat(document.getElementById('editPrezzoPagato').value) || 0;
-      const delta = valore - prezzo;
-      document.getElementById('editDelta').value = delta.toFixed(2);
+      document.getElementById('editDelta').value = (valore - prezzo).toFixed(2);
     }
 
     function switchTab(tabName) {
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
-        document.getElementById('scanGuide').classList.remove('active');
-        document.getElementById('capturedImage').style.display = 'none';
+        document.getElementById('cameraContainer').classList.remove('active');
+        document.getElementById('capturedCanvas').style.display = 'none';
         document.getElementById('scanMsg').style.display = 'none';
       }
       
@@ -1640,9 +1858,7 @@
       document.querySelector(`.tab:nth-child(${tabIndex})`).classList.add('active');
       document.getElementById(`tab-${tabName}`).classList.add('active');
 
-      if (tabName === 'archivio') {
-        carica();
-      }
+      if (tabName === 'archivio') carica();
     }
 
     function aggiornaCruscotto(data) {
@@ -1659,7 +1875,7 @@
       document.getElementById('statDelta').textContent = (delta >= 0 ? '+' : '') + delta.toFixed(2) + ' €';
       document.getElementById('statDeltaPercent').textContent = (delta >= 0 ? '+' : '') + deltaPercent.toFixed(1) + '%';
       document.getElementById('statPresenti').textContent = presenti;
-      document.getElementById('statPresentiSub').textContent = `${presenti} su ${totale} articoli`;
+      document.getElementById('statPresentiSub').textContent = `${presenti} di ${totale}`;
     }
 
     async function carica() {
@@ -1667,29 +1883,17 @@
       const categoria = document.getElementById("fCategoria").value;
 
       let query = client.from("Articoli").select("*").order('created_at', { ascending: false });
-
       if (nome) query = query.ilike("Nome", `%${nome}%`);
       if (categoria) query = query.ilike("Categoria", `%${categoria}%`);
 
       const { data, error } = await query;
-
       const tableOut = document.getElementById("tableOut");
       const cardsOut = document.getElementById("cardsOut");
 
-      if (error) {
-        tableOut.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #ef4444;">${error.message}</td></tr>`;
-        cardsOut.innerHTML = `<div class="card"><div class="card-header">${error.message}</div></div>`;
-        return;
-      }
-
-      if (!data || data.length === 0) {
-        tableOut.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 40px; color: #6b7280;">
-          <i class="fas fa-inbox" style="font-size: 48px; opacity: 0.3;"></i>
-          <div style="margin-top: 12px;">Nessun risultato trovato</div>
-        </td></tr>`;
-        cardsOut.innerHTML = `<div class="card"><div class="card-header">
-          <i class="fas fa-inbox"></i> Nessun risultato
-        </div></div>`;
+      if (error || !data || data.length === 0) {
+        const emptyMsg = '<i class="fas fa-inbox" style="font-size: 48px; opacity: 0.3;"></i><div style="margin-top: 16px;">Nessun risultato</div>';
+        tableOut.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 50px; color: #6b7280;">${emptyMsg}</td></tr>`;
+        cardsOut.innerHTML = `<div class="card"><div class="card-header">${emptyMsg}</div></div>`;
         aggiornaCruscotto([]);
         return;
       }
@@ -1699,32 +1903,26 @@
       tableOut.innerHTML = "";
       data.forEach(r => {
         const delta = (Number(r.ValoreAttuale) || 0) - (Number(r.PrezzoPagato) || 0);
-        
         const presenteBadge = r.Presente 
-          ? '<span class="badge presente"><i class="fas fa-check"></i> Presente</span>' 
-          : '<span class="badge assente"><i class="fas fa-times"></i> Assente</span>';
-        
-        const statoStelle = r.ValutazioneStato 
-          ? '⭐'.repeat(Math.min(r.ValutazioneStato, 10))
-          : '—';
+          ? '<span class="badge presente"><i class="fas fa-check"></i> YES</span>' 
+          : '<span class="badge assente"><i class="fas fa-times"></i> NO</span>';
+        const statoStelle = r.ValutazioneStato ? '⭐'.repeat(Math.min(r.ValutazioneStato, 10)) : '—';
 
         tableOut.innerHTML += `
           <tr>
-            <td style="font-weight: 600;">${r.Nome ?? ""}</td>
+            <td style="font-weight: 700;">${r.Nome ?? ""}</td>
             <td>${r.Categoria ?? "—"}</td>
-            <td style="font-weight: 600; color: #10b981;">${Number(r.ValoreAttuale || 0).toFixed(2)} €</td>
+            <td style="font-weight: 700; color: #10b981;">${Number(r.ValoreAttuale || 0).toFixed(2)} €</td>
             <td>${Number(r.PrezzoPagato || 0).toFixed(2)} €</td>
-            <td style="font-weight: 700; color: ${delta >= 0 ? '#10b981' : '#ef4444'};">
+            <td style="font-weight: 800; color: ${delta >= 0 ? '#10b981' : '#ef4444'};">
               ${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €
             </td>
             <td>${statoStelle}</td>
             <td>${presenteBadge}</td>
             <td>
-              <div class="action-buttons">
-                <button class="btn-action btn-edit" onclick='apriModale(${JSON.stringify(r).replace(/'/g, "&apos;")})'>
-                  <i class="fas fa-edit"></i> Modifica
-                </button>
-              </div>
+              <button class="btn-action btn-edit" onclick='apriModale(${JSON.stringify(r).replace(/'/g, "&apos;")})'>
+                <i class="fas fa-edit"></i> EDIT
+              </button>
             </td>
           </tr>`;
       });
@@ -1732,10 +1930,9 @@
       cardsOut.innerHTML = "";
       data.forEach(r => {
         const delta = (Number(r.ValoreAttuale) || 0) - (Number(r.PrezzoPagato) || 0);
-        
         const presenteBadge = r.Presente 
-          ? '<span class="badge presente"><i class="fas fa-check"></i> Presente</span>' 
-          : '<span class="badge assente"><i class="fas fa-times"></i> Assente</span>';
+          ? '<span class="badge presente"><i class="fas fa-check"></i> PRESENTE</span>' 
+          : '<span class="badge assente"><i class="fas fa-times"></i> ASSENTE</span>';
 
         cardsOut.innerHTML += `
           <div class="card">
@@ -1745,7 +1942,7 @@
                 <span class="expand-icon">▼</span>
               </div>
               <div class="card-subtitle">
-                <i class="fas fa-folder"></i> ${r.Categoria ?? "Nessuna categoria"}
+                <i class="fas fa-layer-group"></i> ${r.Categoria ?? "Nessuna categoria"}
               </div>
             </div>
             <div class="card-body">
@@ -1754,38 +1951,38 @@
                 <span class="card-value">${r.id}</span>
               </div>
               <div class="card-row">
-                <span class="card-label"><i class="fas fa-calendar"></i> Creato il</span>
+                <span class="card-label"><i class="fas fa-calendar"></i> DATA</span>
                 <span class="card-value">${new Date(r.created_at).toLocaleDateString('it-IT')}</span>
               </div>
               <div class="card-row">
-                <span class="card-label"><i class="fas fa-align-left"></i> Descrizione</span>
+                <span class="card-label"><i class="fas fa-scroll"></i> DESCRIZIONE</span>
                 <span class="card-value">${r.Descrizione || "—"}</span>
               </div>
               <div class="card-row">
-                <span class="card-label"><i class="fas fa-dollar-sign"></i> Valore Attuale</span>
+                <span class="card-label"><i class="fas fa-gem"></i> VALORE</span>
                 <span class="card-value" style="color: #10b981; font-weight: 700;">${Number(r.ValoreAttuale || 0).toFixed(2)} €</span>
               </div>
               <div class="card-row">
-                <span class="card-label"><i class="fas fa-receipt"></i> Prezzo Pagato</span>
+                <span class="card-label"><i class="fas fa-receipt"></i> PREZZO</span>
                 <span class="card-value">${Number(r.PrezzoPagato || 0).toFixed(2)} €</span>
               </div>
               <div class="card-row">
-                <span class="card-label"><i class="fas fa-chart-line"></i> Guadagno/Perdita</span>
-                <span class="card-value" style="color: ${delta >= 0 ? '#10b981' : '#ef4444'}; font-weight: 700;">
+                <span class="card-label"><i class="fas fa-chart-line"></i> GAIN/LOSS</span>
+                <span class="card-value" style="color: ${delta >= 0 ? '#10b981' : '#ef4444'}; font-weight: 800;">
                   ${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €
                 </span>
               </div>
               <div class="card-row">
-                <span class="card-label"><i class="fas fa-star"></i> Valutazione</span>
+                <span class="card-label"><i class="fas fa-star"></i> STATO</span>
                 <span class="card-value">${r.ValutazioneStato ? r.ValutazioneStato + '/10 ⭐' : '—'}</span>
               </div>
               <div class="card-row">
-                <span class="card-label"><i class="fas fa-check-circle"></i> Presente</span>
+                <span class="card-label"><i class="fas fa-warehouse"></i> STOCK</span>
                 <span class="card-value">${presenteBadge}</span>
               </div>
-              <div style="margin-top: 16px;">
+              <div style="margin-top: 20px;">
                 <button class="btn-action btn-edit" style="width: 100%;" onclick='apriModale(${JSON.stringify(r).replace(/'/g, "&apos;")})'>
-                  <i class="fas fa-edit"></i> Modifica Articolo
+                  <i class="fas fa-edit"></i> MODIFICA
                 </button>
               </div>
             </div>
@@ -1806,9 +2003,7 @@
       document.getElementById('editPrezzoPagato').value = articolo.PrezzoPagato || '';
       document.getElementById('editValutazioneStato').value = articolo.ValutazioneStato || '';
       document.getElementById('editPresente').checked = articolo.Presente || false;
-
       calcolaDeltaEdit();
-
       document.getElementById('modalModifica').classList.add('active');
       document.getElementById('modalMsg').className = 'msg';
     }
@@ -1820,121 +2015,93 @@
     async function eliminaArticolo() {
       const id = document.getElementById('editId').value;
       const nome = document.getElementById('editNome').value;
-
-      if (!confirm(`Sei sicuro di voler eliminare "${nome}"?\n\nQuesta azione è irreversibile!`)) {
-        return;
-      }
+      if (!confirm(`⚠️ ELIMINARE "${nome}"?\n\nQuesta azione è IRREVERSIBILE!`)) return;
 
       const { error } = await client.from('Articoli').delete().eq('id', id);
-
       const msg = document.getElementById('modalMsg');
 
       if (error) {
         msg.className = 'msg error';
-        msg.textContent = '❌ Errore: ' + error.message;
+        msg.textContent = '❌ ERRORE: ' + error.message;
       } else {
         msg.className = 'msg success';
-        msg.textContent = '✅ Articolo eliminato con successo!';
-        
-        setTimeout(() => {
-          chiudiModale();
-          carica();
-        }, 1500);
+        msg.textContent = '✅ ARTICOLO ELIMINATO!';
+        setTimeout(() => { chiudiModale(); carica(); }, 1500);
       }
     }
 
     async function salvaModifica(e) {
       e.preventDefault();
-      
       const form = e.target;
       const formData = new FormData(form);
-      const id = formData.get('id');
-      
       const valore = parseFloat(formData.get('ValoreAttuale'));
       const prezzo = parseFloat(formData.get('PrezzoPagato'));
-      const delta = valore - prezzo;
-      
+
       const articolo = {
         Nome: formData.get('Nome'),
         Descrizione: formData.get('Descrizione') || null,
         Categoria: formData.get('Categoria') || null,
         ValoreAttuale: valore,
         PrezzoPagato: prezzo,
-        Delta: delta,
+        Delta: valore - prezzo,
         ValutazioneStato: formData.get('ValutazioneStato') ? parseInt(formData.get('ValutazioneStato')) : null,
         Presente: formData.get('Presente') === 'on'
       };
 
-      const { error } = await client.from('Articoli').update(articolo).eq('id', id);
-
+      const { error } = await client.from('Articoli').update(articolo).eq('id', formData.get('id'));
       const msg = document.getElementById('modalMsg');
 
       if (error) {
         msg.className = 'msg error';
-        msg.textContent = '❌ Errore: ' + error.message;
+        msg.textContent = '❌ ERRORE: ' + error.message;
       } else {
         msg.className = 'msg success';
-        msg.textContent = '✅ Articolo modificato con successo!';
-        
-        setTimeout(() => {
-          chiudiModale();
-          carica();
-        }, 1500);
+        msg.textContent = '✅ MODIFICHE SALVATE!';
+        setTimeout(() => { chiudiModale(); carica(); }, 1500);
       }
     }
 
     async function aggiungi(e) {
       e.preventDefault();
-      
       const form = e.target;
       const formData = new FormData(form);
-      
       const valore = parseFloat(formData.get('ValoreAttuale'));
       const prezzo = parseFloat(formData.get('PrezzoPagato'));
-      const delta = valore - prezzo;
-      
+
       const articolo = {
         Nome: formData.get('Nome'),
         Descrizione: formData.get('Descrizione') || null,
         Categoria: formData.get('Categoria') || null,
         ValoreAttuale: valore,
         PrezzoPagato: prezzo,
-        Delta: delta,
+        Delta: valore - prezzo,
         ValutazioneStato: formData.get('ValutazioneStato') ? parseInt(formData.get('ValutazioneStato')) : null,
         Presente: formData.get('Presente') === 'on'
       };
 
       const { error } = await client.from('Articoli').insert([articolo]);
-
       const msg = document.getElementById('formMsg');
 
       if (error) {
         msg.className = 'msg error';
-        msg.textContent = '❌ Errore: ' + error.message;
+        msg.textContent = '❌ ERRORE: ' + error.message;
       } else {
         msg.className = 'msg success';
-        msg.textContent = '✅ Articolo aggiunto con successo!';
+        msg.textContent = '✅ ARTICOLO AGGIUNTO ALLA COLLEZIONE!';
         form.reset();
         document.getElementById('deltaAdd').value = '';
-        
-        setTimeout(() => {
-          switchTab('archivio');
-        }, 1500);
+        setTimeout(() => switchTab('archivio'), 2000);
       }
     }
 
     carica();
 
     document.getElementById('modalModifica').addEventListener('click', function(e) {
-      if (e.target === this) {
-        chiudiModale();
-      }
+      if (e.target === this) chiudiModale();
     });
 
     document.getElementById('modalGrafico').addEventListener('click', function(e) {
-      if (e.target === this) {
-        chiudiGrafico();
-      }
+      if (e.target === this) chiudiGrafico();
     });
   </script>
 
