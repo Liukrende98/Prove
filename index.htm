@@ -784,18 +784,60 @@
     /* CAMERA */
     #cameraView {
       width: 100%;
+      max-height: 400px;
       border-radius: 12px;
       margin: 16px 0;
       display: none;
       border: 2px solid #fbbf24;
+      object-fit: contain;
+      background: #000;
     }
 
     #capturedImage {
-      width: 100%;
+      max-width: 100%;
       border-radius: 12px;
       margin: 16px 0;
       display: none;
       border: 2px solid #10b981;
+    }
+
+    /* SCAN GUIDE */
+    .scan-guide {
+      position: relative;
+      margin: 16px 0;
+      display: none;
+    }
+
+    .scan-guide.active {
+      display: block;
+    }
+
+    .guide-overlay {
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      max-width: 300px;
+      height: 420px;
+      border: 3px dashed #fbbf24;
+      border-radius: 12px;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .guide-text {
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(251, 191, 36, 0.9);
+      color: #0a0a0a;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      white-space: nowrap;
     }
 
     /* CHART CONTAINER */
@@ -972,9 +1014,15 @@
         <i class="fas fa-camera"></i> Scansione Rapida Carta Pokémon
       </button>
 
-      <!-- CAMERA E PREVIEW -->
-      <video id="cameraView" autoplay playsinline></video>
-      <canvas id="capturedImage" style="display: none;"></canvas>
+      <!-- SCAN GUIDE -->
+      <div class="scan-guide" id="scanGuide">
+        <div class="guide-overlay">
+          <div class="guide-text">⚡ Inquadra la carta qui ⚡</div>
+        </div>
+        <video id="cameraView" autoplay playsinline></video>
+      </div>
+      
+      <canvas id="capturedImage"></canvas>
       
       <div id="scanMsg" class="msg" style="display: none;"></div>
 
@@ -1143,7 +1191,6 @@
 
     // APRI GRAFICO
     async function apriGrafico(tipo) {
-      // Carica tutti i dati
       const { data, error } = await client.from("Articoli").select("*").order('created_at', { ascending: true });
       
       if (error || !data || data.length === 0) {
@@ -1156,7 +1203,6 @@
       const modal = document.getElementById('modalGrafico');
       modal.classList.add('active');
 
-      // Distruggi grafico esistente
       if (currentChart) {
         currentChart.destroy();
       }
@@ -1230,7 +1276,6 @@
       });
     }
 
-    // GENERA GRAFICO CRESCITA
     function generaGraficoCrescita(data) {
       const labels = data.map(r => new Date(r.created_at).toLocaleDateString('it-IT'));
       const values = data.map((r, i) => i + 1);
@@ -1251,7 +1296,6 @@
       };
     }
 
-    // GENERA GRAFICO VALORE
     function generaGraficoValore(data) {
       const labels = data.map(r => new Date(r.created_at).toLocaleDateString('it-IT'));
       let cumulative = 0;
@@ -1276,7 +1320,6 @@
       };
     }
 
-    // GENERA GRAFICO SPESA
     function generaGraficoSpesa(data) {
       const labels = data.map(r => new Date(r.created_at).toLocaleDateString('it-IT'));
       let cumulative = 0;
@@ -1301,7 +1344,6 @@
       };
     }
 
-    // GENERA GRAFICO PERFORMANCE
     function generaGraficoPerformance(data) {
       const labels = data.map(r => r.Nome);
       const values = data.map(r => Number(r.ValoreAttuale || 0) - Number(r.PrezzoPagato || 0));
@@ -1321,7 +1363,6 @@
       };
     }
 
-    // GENERA GRAFICO PRESENTI
     function generaGraficoPresenti(data) {
       const presenti = data.filter(r => r.Presente).length;
       const assenti = data.length - presenti;
@@ -1343,7 +1384,6 @@
       };
     }
 
-    // CHIUDI GRAFICO
     function chiudiGrafico() {
       document.getElementById('modalGrafico').classList.remove('active');
       if (currentChart) {
@@ -1352,24 +1392,33 @@
       }
     }
 
-    // AVVIA SCANSIONE
+    // AVVIA SCANSIONE OTTIMIZZATA
     async function avviaScansione() {
       const video = document.getElementById('cameraView');
+      const scanGuide = document.getElementById('scanGuide');
       const scanMsg = document.getElementById('scanMsg');
       
       try {
+        // Richiedi fotocamera ad alta risoluzione
         stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: 'environment' }
+          video: { 
+            facingMode: 'environment',
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+          }
         });
         
         video.srcObject = stream;
-        video.style.display = 'block';
+        scanGuide.classList.add('active');
         
         scanMsg.className = 'msg info';
         scanMsg.style.display = 'block';
-        scanMsg.innerHTML = '<i class="fas fa-info-circle"></i> Inquadra la carta Pokémon e clicca per scattare';
+        scanMsg.innerHTML = '<i class="fas fa-info-circle"></i> <strong>INQUADRA LA CARTA NEL RIQUADRO</strong> - Clicca sul video per scattare';
         
-        video.onclick = () => scattaFoto();
+        // Scatta automaticamente dopo 2 secondi
+        setTimeout(() => {
+          video.onclick = () => scattaFotoOttimizzata();
+        }, 500);
         
       } catch (err) {
         scanMsg.className = 'msg error';
@@ -1378,63 +1427,101 @@
       }
     }
 
-    // SCATTA FOTO
-    function scattaFoto() {
+    // SCATTA FOTO OTTIMIZZATA
+    function scattaFotoOttimizzata() {
       const video = document.getElementById('cameraView');
       const canvas = document.getElementById('capturedImage');
       const scanMsg = document.getElementById('scanMsg');
+      const scanGuide = document.getElementById('scanGuide');
       
+      // Imposta dimensioni alte per maggiore qualità
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0);
       
+      // Pre-elabora l'immagine per migliorare l'OCR
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const processedData = preprocessImage(imageData);
+      ctx.putImageData(processedData, 0, 0);
+      
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
-      video.style.display = 'none';
+      
+      scanGuide.classList.remove('active');
       canvas.style.display = 'block';
       
       scanMsg.className = 'msg info';
-      scanMsg.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Elaborazione immagine in corso...';
+      scanMsg.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <strong>ANALISI AVANZATA IN CORSO...</strong> Estrazione dati carta Pokémon';
       
-      processaImmagine(canvas);
+      processaImmagineOttimizzata(canvas);
     }
 
-    // PROCESSA IMMAGINE CON OCR
-    async function processaImmagine(canvas) {
+    // PRE-ELABORAZIONE IMMAGINE
+    function preprocessImage(imageData) {
+      const data = imageData.data;
+      
+      // Aumenta contrasto e luminosità
+      for (let i = 0; i < data.length; i += 4) {
+        // Converti a grayscale
+        const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+        
+        // Aumenta contrasto
+        const contrast = 1.5;
+        const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+        let adjusted = factor * (gray - 128) + 128;
+        
+        // Applica threshold per testo più chiaro
+        adjusted = adjusted > 140 ? 255 : adjusted < 100 ? 0 : adjusted;
+        
+        data[i] = data[i + 1] = data[i + 2] = adjusted;
+      }
+      
+      return imageData;
+    }
+
+    // PROCESSA IMMAGINE CON OCR OTTIMIZZATO
+    async function processaImmagineOttimizzata(canvas) {
       const scanMsg = document.getElementById('scanMsg');
       
       try {
         const imageData = canvas.toDataURL('image/png');
         
+        // Configura Tesseract per migliore riconoscimento
         const result = await Tesseract.recognize(imageData, 'eng', {
           logger: m => {
             if (m.status === 'recognizing text') {
-              scanMsg.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Riconoscimento testo: ${Math.round(m.progress * 100)}%`;
+              const progress = Math.round(m.progress * 100);
+              scanMsg.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <strong>SCANSIONE ${progress}%</strong> - Riconoscimento caratteri avanzato`;
             }
-          }
+          },
+          tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-/',
+          tessedit_pageseg_mode: Tesseract.PSM.SPARSE_TEXT
         });
         
         const testoRiconosciuto = result.data.text;
-        const info = estraiInfoCarta(testoRiconosciuto);
+        console.log('TESTO RICONOSCIUTO:', testoRiconosciuto);
+        
+        // Estrazione SUPER OTTIMIZZATA per carte Pokémon
+        const info = estraiInfoCartaPokemonAvanzato(testoRiconosciuto);
         
         if (info.nome) {
           document.getElementById('nomeInput').value = info.nome;
           document.getElementById('descrizioneInput').value = info.espansione || '';
           
           scanMsg.className = 'msg success';
-          scanMsg.innerHTML = `✅ Carta riconosciuta: <strong>${info.nome}</strong>${info.espansione ? ' - ' + info.espansione : ''}`;
+          scanMsg.innerHTML = `✅ <strong>CARTA RICONOSCIUTA!</strong><br>📛 ${info.nome}${info.espansione ? ' 🎴 ' + info.espansione : ''}${info.numero ? ' #' + info.numero : ''}`;
           
           setTimeout(() => {
             canvas.style.display = 'none';
             scanMsg.style.display = 'none';
-          }, 3000);
+          }, 5000);
           
         } else {
           scanMsg.className = 'msg error';
-          scanMsg.textContent = '❌ Impossibile riconoscere la carta. Inserisci i dati manualmente.';
+          scanMsg.innerHTML = '❌ <strong>CARTA NON RICONOSCIUTA</strong><br>Inserisci i dati manualmente o riprova la scansione';
         }
         
       } catch (err) {
@@ -1443,34 +1530,87 @@
       }
     }
 
-    // ESTRAI INFO DALLA CARTA
-    function estraiInfoCarta(testo) {
-      const linee = testo.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    // ESTRAZIONE AVANZATA INFO CARTA POKÉMON
+    function estraiInfoCartaPokemonAvanzato(testo) {
+      console.log('Elaborazione testo per carta Pokémon...');
+      
+      // Pulisci il testo
+      const linee = testo.split('\n')
+        .map(l => l.trim())
+        .filter(l => l.length > 0);
       
       let nome = '';
       let espansione = '';
+      let numero = '';
       
+      // PATTERN COMUNI NELLE CARTE POKÉMON
+      
+      // 1. CERCA NOME (di solito nelle prime 3 righe, tutto maiuscolo o Title Case)
       for (let i = 0; i < Math.min(5, linee.length); i++) {
         const linea = linee[i];
         
-        if (linea.length > 3 && linea.length < 30 && !linea.includes('HP') && !linea.match(/^\d/)) {
-          if (!nome) {
-            nome = linea;
+        // Rimuovi numeri HP e altri pattern comuni
+        const lineaPulita = linea.replace(/\bHP\s*\d+/gi, '').trim();
+        
+        // Il nome è tipicamente:
+        // - Tra 3 e 25 caratteri
+        // - Non contiene numeri (tranne eccezioni tipo "Porygon2")
+        // - Non contiene simboli strani
+        // - È in alto sulla carta
+        if (lineaPulita.length >= 3 && lineaPulita.length <= 25) {
+          // Escludi linee con troppi numeri o simboli
+          const numeriCount = (lineaPulita.match(/\d/g) || []).length;
+          const caratteriCount = lineaPulita.length;
+          
+          if (numeriCount < caratteriCount * 0.3) {
+            if (!nome && !lineaPulita.match(/^(HP|ATK|DEF|Stage|Basic|Evolution)/i)) {
+              nome = lineaPulita;
+              console.log('Nome trovato:', nome);
+            }
           }
         }
       }
       
-      const patternEspansione = /([A-Z]{2,4})\s*\d+\/\d+/i;
+      // 2. CERCA SIGLA ESPANSIONE (formato: XXX 000/000 o XXX-000)
+      // Pattern comuni: "SV06", "PAL", "TEF", "MEW", "OBF", etc.
+      const patternEspansione = /\b([A-Z]{2,5})\s*[-:]?\s*(\d{1,4})\s*[\/\\]\s*(\d{1,4})/i;
       const matchEspansione = testo.match(patternEspansione);
       
       if (matchEspansione) {
         espansione = matchEspansione[1].toUpperCase();
+        numero = `${matchEspansione[2]}/${matchEspansione[3]}`;
+        console.log('Espansione trovata:', espansione, 'Numero:', numero);
+      } else {
+        // Cerca pattern alternativo (solo sigla)
+        const patternSigla = /\b([A-Z]{2,5})[-:]?(\d{1,4})\b/;
+        const matchSigla = testo.match(patternSigla);
+        if (matchSigla) {
+          espansione = matchSigla[1].toUpperCase();
+          console.log('Sigla trovata:', espansione);
+        }
       }
       
-      return { nome, espansione };
+      // 3. FALLBACK: Se non trovato nome, cerca parole comuni di Pokémon
+      if (!nome) {
+        const pokemonComuni = ['Pikachu', 'Charizard', 'Mewtwo', 'Mew', 'Eevee', 'Snorlax', 'Lucario', 
+                               'Greninja', 'Rayquaza', 'Garchomp', 'Dragonite', 'Gyarados', 'Blastoise', 'Venusaur'];
+        
+        for (const pokemon of pokemonComuni) {
+          if (testo.toUpperCase().includes(pokemon.toUpperCase())) {
+            nome = pokemon;
+            console.log('Nome trovato da lista comune:', nome);
+            break;
+          }
+        }
+      }
+      
+      return { 
+        nome: nome || '', 
+        espansione: espansione || '', 
+        numero: numero || ''
+      };
     }
 
-    // CALCOLA DELTA AUTOMATICAMENTE - FORM AGGIUNGI
     function calcolaDeltaAdd() {
       const valore = parseFloat(document.getElementById('valoreAttualeAdd').value) || 0;
       const prezzo = parseFloat(document.getElementById('prezzoPagatoAdd').value) || 0;
@@ -1478,7 +1618,6 @@
       document.getElementById('deltaAdd').value = delta.toFixed(2);
     }
 
-    // CALCOLA DELTA AUTOMATICAMENTE - FORM MODIFICA
     function calcolaDeltaEdit() {
       const valore = parseFloat(document.getElementById('editValoreAttuale').value) || 0;
       const prezzo = parseFloat(document.getElementById('editPrezzoPagato').value) || 0;
@@ -1486,11 +1625,10 @@
       document.getElementById('editDelta').value = delta.toFixed(2);
     }
 
-    // SWITCH TAB
     function switchTab(tabName) {
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
-        document.getElementById('cameraView').style.display = 'none';
+        document.getElementById('scanGuide').classList.remove('active');
         document.getElementById('capturedImage').style.display = 'none';
         document.getElementById('scanMsg').style.display = 'none';
       }
@@ -1507,7 +1645,6 @@
       }
     }
 
-    // AGGIORNA CRUSCOTTO
     function aggiornaCruscotto(data) {
       const totale = data.length;
       const valoreAttuale = data.reduce((sum, r) => sum + (Number(r.ValoreAttuale) || 0), 0);
@@ -1525,7 +1662,6 @@
       document.getElementById('statPresentiSub').textContent = `${presenti} su ${totale} articoli`;
     }
 
-    // CARICA ARTICOLI
     async function carica() {
       const nome = document.getElementById("fNome").value;
       const categoria = document.getElementById("fCategoria").value;
@@ -1560,7 +1696,6 @@
 
       aggiornaCruscotto(data);
 
-      // TABELLA DESKTOP
       tableOut.innerHTML = "";
       data.forEach(r => {
         const delta = (Number(r.ValoreAttuale) || 0) - (Number(r.PrezzoPagato) || 0);
@@ -1594,7 +1729,6 @@
           </tr>`;
       });
 
-      // CARDS MOBILE
       cardsOut.innerHTML = "";
       data.forEach(r => {
         const delta = (Number(r.ValoreAttuale) || 0) - (Number(r.PrezzoPagato) || 0);
@@ -1659,12 +1793,10 @@
       });
     }
 
-    // TOGGLE CARD
     function toggleCard(card) {
       card.classList.toggle('expanded');
     }
 
-    // APRI MODALE MODIFICA
     function apriModale(articolo) {
       document.getElementById('editId').value = articolo.id;
       document.getElementById('editNome').value = articolo.Nome || '';
@@ -1681,12 +1813,10 @@
       document.getElementById('modalMsg').className = 'msg';
     }
 
-    // CHIUDI MODALE
     function chiudiModale() {
       document.getElementById('modalModifica').classList.remove('active');
     }
 
-    // ELIMINA ARTICOLO
     async function eliminaArticolo() {
       const id = document.getElementById('editId').value;
       const nome = document.getElementById('editNome').value;
@@ -1713,7 +1843,6 @@
       }
     }
 
-    // SALVA MODIFICA
     async function salvaModifica(e) {
       e.preventDefault();
       
@@ -1754,7 +1883,6 @@
       }
     }
 
-    // AGGIUNGI ARTICOLO
     async function aggiungi(e) {
       e.preventDefault();
       
@@ -1795,10 +1923,8 @@
       }
     }
 
-    // CARICA AL LOAD
     carica();
 
-    // Chiudi modale cliccando fuori
     document.getElementById('modalModifica').addEventListener('click', function(e) {
       if (e.target === this) {
         chiudiModale();
