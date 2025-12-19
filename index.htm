@@ -16,29 +16,31 @@
 const SUPABASE_URL = "https://TUO-PROGETTO.supabase.co";
 const SUPABASE_ANON_KEY = "ANON_PUBLIC_KEY";
 
-const sb = window.supabase.createClient(
+// NOME DIVERSO, NON supabase
+const client = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
 );
 
 async function carica() {
-  const { data, error } = await sb
+  const { data, error } = await client
     .from("nome_tabella")
     .select("*");
 
   if (error) {
-    document.getElementById("out").innerText = error.message;
+    document.getElementById("out").innerText =
+      "ERRORE: " + error.message;
     return;
   }
 
   document.getElementById("out").innerHTML =
-    data.map(r => `<p>${JSON.stringify(r)}</p>`).join("");
+    data.map(r => `<pre>${JSON.stringify(r, null, 2)}</pre>`).join("");
 }
 
 carica();
 </script>
 
-
 </body>
 </html>
+
 
