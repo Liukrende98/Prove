@@ -61,10 +61,30 @@
   }
 
   /* RANGE */
+@media (max-width: 430px) {
+
+  /* FIX RANGE VALORE - iPhone */
   .range-inputs {
-    grid-template-columns: 1fr;
+    display: flex;
     gap: 10px;
+    width: 100%;
   }
+
+  .range-inputs input {
+    flex: 1;
+    min-width: 0;
+    padding: 16px;
+    font-size: 16px;
+    text-align: center;
+    border-radius: 16px;
+  }
+
+  .range-separator {
+    display: none;
+  }
+
+}
+
 
   .range-separator {
     display: none;
@@ -3004,6 +3024,7 @@
 
 </body>
 </html>
+
 
 
 
