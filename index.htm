@@ -1,47 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard</title>
+  <title>Dashboard Articoli</title>
+
+  <!-- Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
+  <h2>Dati</h2>
+  <div id="out">carico...</div>
 
-<h2>Dati</h2>
-<div id="out">carico...</div>
+  <script>
+    // === DATI REALI ===
+    const SUPABASE_URL = "https://xoagoblnzvdqnktpfhlk.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_Uf5-1uzQzL-OqI6dA-tl_g_RHpYxNds";
+    const TABLE_NAME = "Articoli";
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    // Client Supabase (NON chiamarlo 'supabase')
+    const client = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
 
-<script>
-const SUPABASE_URL = "https://abcd1234efgh.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+    async function carica() {
+      const { data, error } = await client
+        .from(TABLE_NAME)
+        .select("*");
 
-// NOME DIVERSO, NON supabase
-const client = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
+      if (error) {
+        document.getElementById("out").innerText =
+          "ERRORE: " + error.message;
+        return;
+      }
 
-async function carica() {
-  const { data, error } = await client
-    .from("Articoli")
-    .select("*");
+      if (!data || data.length === 0) {
+        document.getElementById("out").innerText =
+          "Nessun dato trovato";
+        return;
+      }
 
-  if (error) {
-    document.getElementById("out").innerText =
-      "ERRORE: " + error.message;
-    return;
-  }
+      // Stampa semplice (debug)
+      document.getElementById("out").innerHTML =
+        data.map(r => `<pre>${JSON.stringify(r, null, 2)}</pre>`).join("");
+    }
 
-  document.getElementById("out").innerHTML =
-    data.map(r => `<pre>${JSON.stringify(r, null, 2)}</pre>`).join("");
-}
-
-carica();
-</script>
-
+    carica();
+    setInterval(carica, 5000);
+  </script>
 </body>
 </html>
-
-
-
