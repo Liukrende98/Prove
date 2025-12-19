@@ -14,6 +14,9 @@
   <!-- Tesseract.js per OCR -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 
+  <!-- Chart.js per grafici -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
   <style>
     * {
       margin: 0;
@@ -23,25 +26,27 @@
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #0a0a0a;
       min-height: 100vh;
       padding-bottom: 40px;
+      color: #e5e7eb;
     }
 
     /* HEADER */
     .header {
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(18, 18, 18, 0.95);
       backdrop-filter: blur(10px);
       padding: 20px;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
       position: sticky;
       top: 0;
       z-index: 1000;
+      border-bottom: 1px solid #1f1f1f;
     }
 
     h1 {
       text-align: center;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -49,6 +54,20 @@
       font-weight: 800;
       letter-spacing: -1px;
       margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .pikachu-logo {
+      font-size: 40px;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
     }
 
     /* TABS */
@@ -72,14 +91,14 @@
     }
 
     .tab:hover {
-      background: rgba(102, 126, 234, 0.1);
-      color: #667eea;
+      background: rgba(251, 191, 36, 0.1);
+      color: #fbbf24;
     }
 
     .tab.active {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #0a0a0a;
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
     }
 
     .tab-content {
@@ -108,19 +127,21 @@
     }
 
     .stat-card {
-      background: white;
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
       padding: 28px;
       border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
       position: relative;
       overflow: hidden;
       transition: all 0.3s ease;
       cursor: pointer;
+      border: 1px solid #2a2a2a;
     }
 
     .stat-card:hover {
       transform: translateY(-8px);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 20px 60px rgba(251, 191, 36, 0.3);
+      border-color: #fbbf24;
     }
 
     .stat-card::before {
@@ -130,23 +151,23 @@
       left: 0;
       right: 0;
       height: 5px;
-      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
     }
 
     .stat-card.green::before {
-      background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
+      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
     }
 
     .stat-card.orange::before {
-      background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+      background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
     }
 
     .stat-card.blue::before {
-      background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+      background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
     }
 
     .stat-card.red::before {
-      background: linear-gradient(90deg, #fa709a 0%, #fee140 100%);
+      background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
     }
 
     .stat-icon {
@@ -158,29 +179,29 @@
       justify-content: center;
       font-size: 28px;
       margin-bottom: 16px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #0a0a0a;
+      box-shadow: 0 8px 24px rgba(251, 191, 36, 0.3);
     }
 
     .stat-card.green .stat-icon {
-      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-      box-shadow: 0 8px 24px rgba(56, 239, 125, 0.3);
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
     }
 
     .stat-card.orange .stat-icon {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      box-shadow: 0 8px 24px rgba(245, 87, 108, 0.3);
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      box-shadow: 0 8px 24px rgba(249, 115, 22, 0.3);
     }
 
     .stat-card.blue .stat-icon {
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-      box-shadow: 0 8px 24px rgba(79, 172, 254, 0.3);
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
     }
 
     .stat-card.red .stat-icon {
-      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-      box-shadow: 0 8px 24px rgba(250, 112, 154, 0.3);
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);
     }
 
     .stat-label {
@@ -195,9 +216,25 @@
     .stat-value {
       font-size: 36px;
       font-weight: 800;
-      color: #1f2937;
+      color: #fbbf24;
       line-height: 1;
       margin-bottom: 8px;
+    }
+
+    .stat-card.green .stat-value {
+      color: #10b981;
+    }
+
+    .stat-card.orange .stat-value {
+      color: #f97316;
+    }
+
+    .stat-card.blue .stat-value {
+      color: #3b82f6;
+    }
+
+    .stat-card.red .stat-value {
+      color: #ef4444;
     }
 
     .stat-subtext {
@@ -206,37 +243,20 @@
       font-weight: 500;
     }
 
-    .stat-trend {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-top: 8px;
-    }
-
-    .stat-trend.up {
-      background: #d1fae5;
-      color: #065f46;
-    }
-
-    .stat-trend.down {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-
     /* BOX */
     .box {
-      background: white;
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
       padding: 24px;
       border-radius: 20px;
       margin-bottom: 24px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
       transition: all 0.3s ease;
+      border: 1px solid #2a2a2a;
     }
 
     .box:hover {
-      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 15px 50px rgba(251, 191, 36, 0.2);
+      border-color: #3a3a3a;
     }
 
     /* FILTRI STILOSI */
@@ -249,35 +269,40 @@
     .filters input {
       padding: 14px 18px;
       border-radius: 12px;
-      border: 2px solid #e5e7eb;
+      border: 2px solid #2a2a2a;
       font-size: 15px;
       transition: all 0.3s ease;
-      background: #f9fafb;
+      background: #0f0f0f;
+      color: #e5e7eb;
+    }
+
+    .filters input::placeholder {
+      color: #6b7280;
     }
 
     .filters input:focus {
       outline: none;
-      border-color: #667eea;
-      background: white;
-      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+      border-color: #fbbf24;
+      background: #1a1a1a;
+      box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.1);
     }
 
     .filters button {
       padding: 14px 28px;
       border-radius: 12px;
       border: none;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #0a0a0a;
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
     }
 
     .filters button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
     }
 
     /* FORM FIGO */
@@ -299,7 +324,7 @@
       display: block;
       margin-bottom: 8px;
       font-weight: 600;
-      color: #374151;
+      color: #d1d5db;
       font-size: 14px;
     }
 
@@ -309,18 +334,24 @@
       width: 100%;
       padding: 14px 18px;
       border-radius: 12px;
-      border: 2px solid #e5e7eb;
+      border: 2px solid #2a2a2a;
       font-size: 15px;
       transition: all 0.3s ease;
-      background: #f9fafb;
+      background: #0f0f0f;
+      color: #e5e7eb;
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: #6b7280;
     }
 
     .form-group input:focus,
     .form-group textarea:focus {
       outline: none;
-      border-color: #667eea;
-      background: white;
-      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+      border-color: #fbbf24;
+      background: #1a1a1a;
+      box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.1);
     }
 
     .form-group textarea {
@@ -330,8 +361,8 @@
     }
 
     .form-group input:disabled {
-      background: #f3f4f6;
-      color: #9ca3af;
+      background: #0a0a0a;
+      color: #6b7280;
       cursor: not-allowed;
     }
 
@@ -339,14 +370,16 @@
       display: flex;
       align-items: center;
       padding: 14px 18px;
-      background: #f9fafb;
+      background: #0f0f0f;
       border-radius: 12px;
       cursor: pointer;
       transition: all 0.3s ease;
+      border: 2px solid #2a2a2a;
     }
 
     .checkbox-wrapper:hover {
-      background: #f3f4f6;
+      background: #1a1a1a;
+      border-color: #3a3a3a;
     }
 
     .checkbox-wrapper input[type="checkbox"] {
@@ -381,19 +414,19 @@
       padding: 18px;
       border-radius: 12px;
       border: none;
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: white;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #0a0a0a;
       font-size: 16px;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
       margin-bottom: 20px;
     }
 
     .btn-scan:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+      box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
     }
 
     /* TABELLA DESKTOP PREMIUM */
@@ -408,7 +441,7 @@
     }
 
     thead {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
       border-radius: 12px;
     }
 
@@ -417,7 +450,7 @@
       text-align: left;
       font-size: 13px;
       font-weight: 700;
-      color: white;
+      color: #0a0a0a;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -432,26 +465,20 @@
 
     td {
       padding: 16px;
-      border-bottom: 1px solid #f3f4f6;
+      border-bottom: 1px solid #2a2a2a;
       font-size: 14px;
       vertical-align: middle;
+      color: #e5e7eb;
     }
 
     tbody tr {
       cursor: pointer;
       transition: all 0.2s ease;
+      background: #0f0f0f;
     }
 
     tbody tr:hover {
-      background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-    }
-
-    tbody tr:last-child td:first-child {
-      border-bottom-left-radius: 12px;
-    }
-
-    tbody tr:last-child td:last-child {
-      border-bottom-right-radius: 12px;
+      background: linear-gradient(90deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
     }
 
     /* MOBILE CARDS SUPER FIGHE */
@@ -460,30 +487,32 @@
     }
 
     .card {
-      background: white;
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
       margin-bottom: 16px;
       border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
       overflow: hidden;
       transition: all 0.3s ease;
+      border: 1px solid #2a2a2a;
     }
 
     .card:hover {
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 8px 30px rgba(251, 191, 36, 0.3);
       transform: translateY(-4px);
+      border-color: #fbbf24;
     }
 
     .card-header {
       padding: 18px;
-      background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-      border-bottom: 2px solid #e5e7eb;
+      background: linear-gradient(135deg, #1f1f1f 0%, #1a1a1a 100%);
+      border-bottom: 2px solid #2a2a2a;
       cursor: pointer;
     }
 
     .card-title {
       font-weight: 700;
       font-size: 17px;
-      color: #1f2937;
+      color: #fbbf24;
       margin-bottom: 6px;
       display: flex;
       justify-content: space-between;
@@ -492,14 +521,14 @@
 
     .card-subtitle {
       font-size: 13px;
-      color: #6b7280;
+      color: #9ca3af;
       font-weight: 500;
     }
 
     .card-body {
       padding: 18px;
       display: none;
-      background: white;
+      background: #0f0f0f;
     }
 
     .card.expanded .card-body {
@@ -516,7 +545,7 @@
       display: flex;
       justify-content: space-between;
       padding: 12px 0;
-      border-bottom: 1px solid #f3f4f6;
+      border-bottom: 1px solid #2a2a2a;
     }
 
     .card-row:last-child {
@@ -525,7 +554,7 @@
 
     .card-label {
       font-weight: 600;
-      color: #6b7280;
+      color: #9ca3af;
       font-size: 13px;
       flex-shrink: 0;
       margin-right: 12px;
@@ -533,7 +562,7 @@
 
     .card-value {
       text-align: right;
-      color: #1f2937;
+      color: #e5e7eb;
       font-weight: 500;
       word-break: break-word;
     }
@@ -559,13 +588,15 @@
     }
 
     .badge.presente {
-      background: #d1fae5;
-      color: #065f46;
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+      border: 1px solid #10b981;
     }
 
     .badge.assente {
-      background: #fee2e2;
-      color: #991b1b;
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      border: 1px solid #ef4444;
     }
 
     /* PULSANTI AZIONE */
@@ -584,7 +615,7 @@
 
     .btn-edit {
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      color: white;
+      color: #0a0a0a;
       box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
     }
 
@@ -616,12 +647,12 @@
     }
 
     .btn-cancel {
-      background: #f3f4f6;
-      color: #6b7280;
+      background: #2a2a2a;
+      color: #e5e7eb;
     }
 
     .btn-cancel:hover {
-      background: #e5e7eb;
+      background: #3a3a3a;
     }
 
     /* MESSAGGI */
@@ -632,6 +663,7 @@
       display: none;
       font-weight: 600;
       animation: slideIn 0.3s ease;
+      border: 2px solid;
     }
 
     @keyframes slideIn {
@@ -640,21 +672,21 @@
     }
 
     .msg.success {
-      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-      color: #065f46;
-      border-left: 4px solid #10b981;
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+      border-color: #10b981;
     }
 
     .msg.error {
-      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-      color: #991b1b;
-      border-left: 4px solid #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border-color: #ef4444;
     }
 
     .msg.info {
-      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-      color: #1e40af;
-      border-left: 4px solid #3b82f6;
+      background: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+      border-color: #3b82f6;
     }
 
     /* MODAL */
@@ -665,7 +697,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.9);
       backdrop-filter: blur(4px);
       z-index: 2000;
       align-items: center;
@@ -679,15 +711,16 @@
     }
 
     .modal-content {
-      background: white;
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
       border-radius: 20px;
       padding: 32px;
-      max-width: 600px;
+      max-width: 900px;
       width: 100%;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
       animation: scaleIn 0.3s ease;
+      border: 1px solid #2a2a2a;
     }
 
     @keyframes scaleIn {
@@ -705,7 +738,7 @@
     .modal-title {
       font-size: 24px;
       font-weight: 800;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -716,26 +749,26 @@
       height: 40px;
       border-radius: 10px;
       border: none;
-      background: #f3f4f6;
+      background: #2a2a2a;
       cursor: pointer;
       font-size: 20px;
-      color: #6b7280;
+      color: #e5e7eb;
       transition: all 0.2s ease;
     }
 
     .modal-close:hover {
-      background: #e5e7eb;
+      background: #3a3a3a;
       transform: rotate(90deg);
     }
 
     .info-box {
-      background: #eff6ff;
-      border: 2px solid #93c5fd;
+      background: rgba(59, 130, 246, 0.1);
+      border: 2px solid #3b82f6;
       border-radius: 12px;
       padding: 12px 16px;
       margin-bottom: 16px;
       font-size: 13px;
-      color: #1e40af;
+      color: #60a5fa;
       font-weight: 500;
     }
 
@@ -754,6 +787,7 @@
       border-radius: 12px;
       margin: 16px 0;
       display: none;
+      border: 2px solid #fbbf24;
     }
 
     #capturedImage {
@@ -761,12 +795,26 @@
       border-radius: 12px;
       margin: 16px 0;
       display: none;
+      border: 2px solid #10b981;
+    }
+
+    /* CHART CONTAINER */
+    .chart-container {
+      margin-top: 24px;
+      padding: 20px;
+      background: #0a0a0a;
+      border-radius: 12px;
+      border: 1px solid #2a2a2a;
     }
 
     /* RESPONSIVE */
     @media (max-width: 768px) {
       h1 {
         font-size: 24px;
+      }
+
+      .pikachu-logo {
+        font-size: 30px;
       }
 
       .filters {
@@ -801,6 +849,10 @@
       .action-buttons {
         flex-direction: column;
       }
+
+      .modal-content {
+        max-width: 100%;
+      }
     }
   </style>
 </head>
@@ -809,7 +861,10 @@
 
   <!-- HEADER -->
   <div class="header">
-    <h1><i class="fas fa-gem"></i> Liuk & Tremon</h1>
+    <h1>
+      <span class="pikachu-logo">⚡</span>
+      Liuk & Tremon
+    </h1>
     
     <div class="tabs">
       <button class="tab active" onclick="switchTab('archivio')">
@@ -826,35 +881,35 @@
     
     <!-- CRUSCOTTO MEGA -->
     <div class="dashboard" id="dashboard">
-      <div class="stat-card">
+      <div class="stat-card" onclick="apriGrafico('totale')">
         <div class="stat-icon"><i class="fas fa-boxes"></i></div>
         <div class="stat-label">Totale Articoli</div>
         <div class="stat-value" id="statTotale">0</div>
         <div class="stat-subtext">nella collezione</div>
       </div>
       
-      <div class="stat-card green">
+      <div class="stat-card green" onclick="apriGrafico('valore')">
         <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
         <div class="stat-label">Valore Totale</div>
         <div class="stat-value" id="statValore">0 €</div>
         <div class="stat-subtext">valore di mercato</div>
       </div>
       
-      <div class="stat-card orange">
+      <div class="stat-card orange" onclick="apriGrafico('spesa')">
         <div class="stat-icon"><i class="fas fa-credit-card"></i></div>
         <div class="stat-label">Spesa Totale</div>
         <div class="stat-value" id="statSpesa">0 €</div>
         <div class="stat-subtext">investimento iniziale</div>
       </div>
       
-      <div class="stat-card blue">
+      <div class="stat-card blue" onclick="apriGrafico('performance')">
         <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
         <div class="stat-label">Performance</div>
         <div class="stat-value" id="statDelta">0 €</div>
         <div class="stat-subtext" id="statDeltaPercent">0%</div>
       </div>
       
-      <div class="stat-card red">
+      <div class="stat-card red" onclick="apriGrafico('presenti')">
         <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
         <div class="stat-label">Articoli Presenti</div>
         <div class="stat-value" id="statPresenti">0</div>
@@ -887,7 +942,7 @@
           </thead>
           <tbody id="tableOut">
             <tr><td colspan="8" style="text-align: center; padding: 40px;">
-              <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #667eea;"></i>
+              <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #fbbf24;"></i>
               <div style="margin-top: 12px; color: #6b7280;">Caricamento...</div>
             </td></tr>
           </tbody>
@@ -933,7 +988,7 @@
         <div class="form-grid">
           <div class="form-group">
             <label><i class="fas fa-tag"></i> Nome *</label>
-            <input type="text" name="Nome" id="nomeInput" required placeholder="Es. ETB Fiamme Spettrali">
+            <input type="text" name="Nome" id="nomeInput" required placeholder="Es. Pikachu VMAX">
           </div>
 
           <div class="form-group">
@@ -957,7 +1012,7 @@
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-chart-line"></i> Guadagno/Perdita (€) <span style="color: #667eea;">(auto)</span></label>
+            <label><i class="fas fa-chart-line"></i> Guadagno/Perdita (€) <span style="color: #fbbf24;">(auto)</span></label>
             <input type="number" step="0.01" name="Delta" id="deltaAdd" placeholder="0.00" readonly disabled>
           </div>
 
@@ -980,6 +1035,20 @@
       </form>
     </div>
 
+  </div>
+
+  <!-- MODAL GRAFICO -->
+  <div id="modalGrafico" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="graficoTitolo"><i class="fas fa-chart-bar"></i> Statistiche</h2>
+        <button class="modal-close" onclick="chiudiGrafico()">✕</button>
+      </div>
+      
+      <div class="chart-container">
+        <canvas id="chartCanvas"></canvas>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL MODIFICA -->
@@ -1027,7 +1096,7 @@
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-chart-line"></i> Guadagno/Perdita (€) <span style="color: #667eea;">(auto)</span></label>
+            <label><i class="fas fa-chart-line"></i> Guadagno/Perdita (€) <span style="color: #fbbf24;">(auto)</span></label>
             <input type="number" step="0.01" id="editDelta" name="Delta" readonly disabled>
           </div>
 
@@ -1053,7 +1122,7 @@
           </button>
         </div>
 
-        <div style="margin-top: 24px; padding-top: 24px; border-top: 2px solid #f3f4f6;">
+        <div style="margin-top: 24px; padding-top: 24px; border-top: 2px solid #2a2a2a;">
           <button type="button" class="btn-action btn-delete" style="width: 100%;" onclick="eliminaArticolo()">
             <i class="fas fa-trash"></i> Elimina Articolo
           </button>
@@ -1069,6 +1138,219 @@
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let stream = null;
+    let currentChart = null;
+    let allData = [];
+
+    // APRI GRAFICO
+    async function apriGrafico(tipo) {
+      // Carica tutti i dati
+      const { data, error } = await client.from("Articoli").select("*").order('created_at', { ascending: true });
+      
+      if (error || !data || data.length === 0) {
+        alert('Nessun dato disponibile per il grafico');
+        return;
+      }
+
+      allData = data;
+
+      const modal = document.getElementById('modalGrafico');
+      modal.classList.add('active');
+
+      // Distruggi grafico esistente
+      if (currentChart) {
+        currentChart.destroy();
+      }
+
+      const ctx = document.getElementById('chartCanvas').getContext('2d');
+
+      let chartData, chartTitle, chartColor;
+
+      switch(tipo) {
+        case 'totale':
+          chartTitle = '📦 Crescita Collezione nel Tempo';
+          chartColor = '#fbbf24';
+          chartData = generaGraficoCrescita(data);
+          break;
+        
+        case 'valore':
+          chartTitle = '💰 Valore Totale nel Tempo';
+          chartColor = '#10b981';
+          chartData = generaGraficoValore(data);
+          break;
+        
+        case 'spesa':
+          chartTitle = '💳 Spesa Cumulativa';
+          chartColor = '#f97316';
+          chartData = generaGraficoSpesa(data);
+          break;
+        
+        case 'performance':
+          chartTitle = '📈 Performance (Guadagno/Perdita)';
+          chartColor = '#3b82f6';
+          chartData = generaGraficoPerformance(data);
+          break;
+        
+        case 'presenti':
+          chartTitle = '✅ Articoli Presenti vs Assenti';
+          chartColor = '#ef4444';
+          chartData = generaGraficoPresenti(data);
+          break;
+      }
+
+      document.getElementById('graficoTitolo').innerHTML = `<i class="fas fa-chart-bar"></i> ${chartTitle}`;
+
+      currentChart = new Chart(ctx, {
+        type: chartData.type,
+        data: chartData.data,
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              labels: {
+                color: '#e5e7eb',
+                font: {
+                  size: 14,
+                  weight: 'bold'
+                }
+              }
+            }
+          },
+          scales: chartData.type !== 'doughnut' ? {
+            x: {
+              ticks: { color: '#9ca3af' },
+              grid: { color: '#2a2a2a' }
+            },
+            y: {
+              ticks: { color: '#9ca3af' },
+              grid: { color: '#2a2a2a' }
+            }
+          } : {}
+        }
+      });
+    }
+
+    // GENERA GRAFICO CRESCITA
+    function generaGraficoCrescita(data) {
+      const labels = data.map(r => new Date(r.created_at).toLocaleDateString('it-IT'));
+      const values = data.map((r, i) => i + 1);
+
+      return {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Numero Articoli',
+            data: values,
+            borderColor: '#fbbf24',
+            backgroundColor: 'rgba(251, 191, 36, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        }
+      };
+    }
+
+    // GENERA GRAFICO VALORE
+    function generaGraficoValore(data) {
+      const labels = data.map(r => new Date(r.created_at).toLocaleDateString('it-IT'));
+      let cumulative = 0;
+      const values = data.map(r => {
+        cumulative += Number(r.ValoreAttuale || 0);
+        return cumulative;
+      });
+
+      return {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Valore Totale (€)',
+            data: values,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        }
+      };
+    }
+
+    // GENERA GRAFICO SPESA
+    function generaGraficoSpesa(data) {
+      const labels = data.map(r => new Date(r.created_at).toLocaleDateString('it-IT'));
+      let cumulative = 0;
+      const values = data.map(r => {
+        cumulative += Number(r.PrezzoPagato || 0);
+        return cumulative;
+      });
+
+      return {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Spesa Totale (€)',
+            data: values,
+            borderColor: '#f97316',
+            backgroundColor: 'rgba(249, 115, 22, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        }
+      };
+    }
+
+    // GENERA GRAFICO PERFORMANCE
+    function generaGraficoPerformance(data) {
+      const labels = data.map(r => r.Nome);
+      const values = data.map(r => Number(r.ValoreAttuale || 0) - Number(r.PrezzoPagato || 0));
+
+      return {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Guadagno/Perdita (€)',
+            data: values,
+            backgroundColor: values.map(v => v >= 0 ? 'rgba(16, 185, 129, 0.8)' : 'rgba(239, 68, 68, 0.8)'),
+            borderColor: values.map(v => v >= 0 ? '#10b981' : '#ef4444'),
+            borderWidth: 2
+          }]
+        }
+      };
+    }
+
+    // GENERA GRAFICO PRESENTI
+    function generaGraficoPresenti(data) {
+      const presenti = data.filter(r => r.Presente).length;
+      const assenti = data.length - presenti;
+
+      return {
+        type: 'doughnut',
+        data: {
+          labels: ['Presenti', 'Assenti'],
+          datasets: [{
+            data: [presenti, assenti],
+            backgroundColor: [
+              'rgba(16, 185, 129, 0.8)',
+              'rgba(239, 68, 68, 0.8)'
+            ],
+            borderColor: ['#10b981', '#ef4444'],
+            borderWidth: 2
+          }]
+        }
+      };
+    }
+
+    // CHIUDI GRAFICO
+    function chiudiGrafico() {
+      document.getElementById('modalGrafico').classList.remove('active');
+      if (currentChart) {
+        currentChart.destroy();
+        currentChart = null;
+      }
+    }
 
     // AVVIA SCANSIONE
     async function avviaScansione() {
@@ -1076,9 +1358,8 @@
       const scanMsg = document.getElementById('scanMsg');
       
       try {
-        // Richiedi accesso alla fotocamera
         stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: 'environment' } // Usa fotocamera posteriore su mobile
+          video: { facingMode: 'environment' }
         });
         
         video.srcObject = stream;
@@ -1088,7 +1369,6 @@
         scanMsg.style.display = 'block';
         scanMsg.innerHTML = '<i class="fas fa-info-circle"></i> Inquadra la carta Pokémon e clicca per scattare';
         
-        // Al click scatta la foto
         video.onclick = () => scattaFoto();
         
       } catch (err) {
@@ -1110,7 +1390,6 @@
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0);
       
-      // Ferma la camera
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
@@ -1120,7 +1399,6 @@
       scanMsg.className = 'msg info';
       scanMsg.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Elaborazione immagine in corso...';
       
-      // Processa l'immagine
       processaImmagine(canvas);
     }
 
@@ -1131,7 +1409,6 @@
       try {
         const imageData = canvas.toDataURL('image/png');
         
-        // Usa Tesseract.js per OCR
         const result = await Tesseract.recognize(imageData, 'eng', {
           logger: m => {
             if (m.status === 'recognizing text') {
@@ -1141,8 +1418,6 @@
         });
         
         const testoRiconosciuto = result.data.text;
-        
-        // Estrai nome carta e sigla espansione
         const info = estraiInfoCarta(testoRiconosciuto);
         
         if (info.nome) {
@@ -1152,7 +1427,6 @@
           scanMsg.className = 'msg success';
           scanMsg.innerHTML = `✅ Carta riconosciuta: <strong>${info.nome}</strong>${info.espansione ? ' - ' + info.espansione : ''}`;
           
-          // Nascondi il canvas dopo 3 secondi
           setTimeout(() => {
             canvas.style.display = 'none';
             scanMsg.style.display = 'none';
@@ -1171,18 +1445,14 @@
 
     // ESTRAI INFO DALLA CARTA
     function estraiInfoCarta(testo) {
-      // Pulisci il testo
       const linee = testo.split('\n').map(l => l.trim()).filter(l => l.length > 0);
       
       let nome = '';
       let espansione = '';
       
-      // Il nome della carta è di solito nella parte superiore
-      // Le carte Pokémon hanno il nome in alto in grande
       for (let i = 0; i < Math.min(5, linee.length); i++) {
         const linea = linee[i];
         
-        // Cerca pattern tipici delle carte Pokémon
         if (linea.length > 3 && linea.length < 30 && !linea.includes('HP') && !linea.match(/^\d/)) {
           if (!nome) {
             nome = linea;
@@ -1190,8 +1460,6 @@
         }
       }
       
-      // Cerca la sigla dell'espansione (es: "SV06", "PAL", "TEF")
-      // Di solito è in basso a sinistra con formato XXX 000/000
       const patternEspansione = /([A-Z]{2,4})\s*\d+\/\d+/i;
       const matchEspansione = testo.match(patternEspansione);
       
@@ -1220,7 +1488,6 @@
 
     // SWITCH TAB
     function switchTab(tabName) {
-      // Ferma la camera se attiva
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
         document.getElementById('cameraView').style.display = 'none';
@@ -1535,6 +1802,12 @@
     document.getElementById('modalModifica').addEventListener('click', function(e) {
       if (e.target === this) {
         chiudiModale();
+      }
+    });
+
+    document.getElementById('modalGrafico').addEventListener('click', function(e) {
+      if (e.target === this) {
+        chiudiGrafico();
       }
     });
   </script>
