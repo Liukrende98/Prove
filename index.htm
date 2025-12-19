@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Liukson & Nandons</title>
+  <title>Liuk & Tremon</title>
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -324,6 +324,12 @@
       min-height: 100px;
       resize: vertical;
       font-family: inherit;
+    }
+
+    .form-group input:disabled {
+      background: #f3f4f6;
+      color: #9ca3af;
+      cursor: not-allowed;
     }
 
     .checkbox-wrapper {
@@ -682,6 +688,21 @@
       transform: rotate(90deg);
     }
 
+    .info-box {
+      background: #eff6ff;
+      border: 2px solid #93c5fd;
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #1e40af;
+      font-weight: 500;
+    }
+
+    .info-box i {
+      margin-right: 8px;
+    }
+
     /* RESPONSIVE */
     @media (max-width: 768px) {
       h1 {
@@ -724,7 +745,7 @@
 
   <!-- HEADER -->
   <div class="header">
-    <h1><i class="fas fa-gem"></i> GESTIONE ARTICOLI PRO</h1>
+    <h1><i class="fas fa-gem"></i>Liuk & Tremon</h1>
     
     <div class="tabs">
       <button class="tab active" onclick="switchTab('archivio')">
@@ -794,7 +815,7 @@
               <th><i class="fas fa-folder"></i> Categoria</th>
               <th><i class="fas fa-dollar-sign"></i> Valore</th>
               <th><i class="fas fa-receipt"></i> Prezzo</th>
-              <th><i class="fas fa-chart-line"></i> Delta</th>
+              <th><i class="fas fa-chart-line"></i> Guadagno/Perdita</th>
               <th><i class="fas fa-star"></i> Stato</th>
               <th><i class="fas fa-check"></i> Presente</th>
               <th><i class="fas fa-cog"></i> Azioni</th>
@@ -827,17 +848,22 @@
     <div class="box">
       <div id="formMsg" class="msg"></div>
 
+      <div class="info-box">
+        <i class="fas fa-info-circle"></i>
+        Il campo <strong>Guadagno/Perdita</strong> viene calcolato automaticamente come: <strong>Valore Attuale - Prezzo Pagato</strong>
+      </div>
+
       <form id="formAggiungi" onsubmit="aggiungi(event)">
         
         <div class="form-grid">
           <div class="form-group">
             <label><i class="fas fa-tag"></i> Nome *</label>
-            <input type="text" name="Nome" required placeholder="Es. iPhone 15 Pro">
+            <input type="text" name="Nome" required placeholder="Es. ETB Fiamme Spettrali">
           </div>
 
           <div class="form-group">
             <label><i class="fas fa-folder"></i> Categoria</label>
-            <input type="text" name="Categoria" placeholder="Es. Elettronica">
+            <input type="text" name="Categoria" placeholder="Es. ETB, Carta singola">
           </div>
 
           <div class="form-group full">
@@ -847,17 +873,17 @@
 
           <div class="form-group">
             <label><i class="fas fa-dollar-sign"></i> Valore Attuale (€) *</label>
-            <input type="number" step="0.01" name="ValoreAttuale" required placeholder="0.00">
+            <input type="number" step="0.01" name="ValoreAttuale" id="valoreAttualeAdd" required placeholder="0.00" oninput="calcolaDeltaAdd()">
           </div>
 
           <div class="form-group">
             <label><i class="fas fa-receipt"></i> Prezzo Pagato (€) *</label>
-            <input type="number" step="0.01" name="PrezzoPagato" required placeholder="0.00">
+            <input type="number" step="0.01" name="PrezzoPagato" id="prezzoPagatoAdd" required placeholder="0.00" oninput="calcolaDeltaAdd()">
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-chart-line"></i> Delta (€)</label>
-            <input type="number" step="0.01" name="Delta" placeholder="0.00">
+            <label><i class="fas fa-chart-line"></i> Guadagno/Perdita (€) <span style="color: #667eea;">(auto)</span></label>
+            <input type="number" step="0.01" name="Delta" id="deltaAdd" placeholder="0.00" readonly disabled>
           </div>
 
           <div class="form-group">
@@ -891,6 +917,11 @@
 
       <div id="modalMsg" class="msg"></div>
 
+      <div class="info-box">
+        <i class="fas fa-info-circle"></i>
+        Il campo <strong>Guadagno/Perdita</strong> viene calcolato automaticamente come: <strong>Valore Attuale - Prezzo Pagato</strong>
+      </div>
+
       <form id="formModifica" onsubmit="salvaModifica(event)">
         <input type="hidden" id="editId" name="id">
         
@@ -912,17 +943,17 @@
 
           <div class="form-group">
             <label><i class="fas fa-dollar-sign"></i> Valore Attuale (€) *</label>
-            <input type="number" step="0.01" id="editValoreAttuale" name="ValoreAttuale" required>
+            <input type="number" step="0.01" id="editValoreAttuale" name="ValoreAttuale" required oninput="calcolaDeltaEdit()">
           </div>
 
           <div class="form-group">
             <label><i class="fas fa-receipt"></i> Prezzo Pagato (€) *</label>
-            <input type="number" step="0.01" id="editPrezzoPagato" name="PrezzoPagato" required>
+            <input type="number" step="0.01" id="editPrezzoPagato" name="PrezzoPagato" required oninput="calcolaDeltaEdit()">
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-chart-line"></i> Delta (€)</label>
-            <input type="number" step="0.01" id="editDelta" name="Delta">
+            <label><i class="fas fa-chart-line"></i> Guadagno/Perdita (€) <span style="color: #667eea;">(auto)</span></label>
+            <input type="number" step="0.01" id="editDelta" name="Delta" readonly disabled>
           </div>
 
           <div class="form-group">
@@ -955,6 +986,22 @@
     const SUPABASE_ANON_KEY = "sb_publishable_Uf5-1uzQzL-OqI6dA-tl_g_RHpYxNds";
 
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // CALCOLA DELTA AUTOMATICAMENTE - FORM AGGIUNGI
+    function calcolaDeltaAdd() {
+      const valore = parseFloat(document.getElementById('valoreAttualeAdd').value) || 0;
+      const prezzo = parseFloat(document.getElementById('prezzoPagatoAdd').value) || 0;
+      const delta = valore - prezzo;
+      document.getElementById('deltaAdd').value = delta.toFixed(2);
+    }
+
+    // CALCOLA DELTA AUTOMATICAMENTE - FORM MODIFICA
+    function calcolaDeltaEdit() {
+      const valore = parseFloat(document.getElementById('editValoreAttuale').value) || 0;
+      const prezzo = parseFloat(document.getElementById('editPrezzoPagato').value) || 0;
+      const delta = valore - prezzo;
+      document.getElementById('editDelta').value = delta.toFixed(2);
+    }
 
     // SWITCH TAB
     function switchTab(tabName) {
@@ -1026,6 +1073,9 @@
       // TABELLA DESKTOP
       tableOut.innerHTML = "";
       data.forEach(r => {
+        // CALCOLA DELTA = ValoreAttuale - PrezzoPagato
+        const delta = (Number(r.ValoreAttuale) || 0) - (Number(r.PrezzoPagato) || 0);
+        
         const presenteBadge = r.Presente 
           ? '<span class="badge presente"><i class="fas fa-check"></i> Presente</span>' 
           : '<span class="badge assente"><i class="fas fa-times"></i> Assente</span>';
@@ -1040,8 +1090,8 @@
             <td>${r.Categoria ?? "—"}</td>
             <td style="font-weight: 600; color: #10b981;">${Number(r.ValoreAttuale || 0).toFixed(2)} €</td>
             <td>${Number(r.PrezzoPagato || 0).toFixed(2)} €</td>
-            <td style="font-weight: 600; color: ${(r.Delta || 0) >= 0 ? '#10b981' : '#ef4444'};">
-              ${(r.Delta || 0) >= 0 ? '+' : ''}${Number(r.Delta || 0).toFixed(2)} €
+            <td style="font-weight: 700; color: ${delta >= 0 ? '#10b981' : '#ef4444'};">
+              ${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €
             </td>
             <td>${statoStelle}</td>
             <td>${presenteBadge}</td>
@@ -1056,6 +1106,9 @@
       // CARDS MOBILE
       cardsOut.innerHTML = "";
       data.forEach(r => {
+        // CALCOLA DELTA = ValoreAttuale - PrezzoPagato
+        const delta = (Number(r.ValoreAttuale) || 0) - (Number(r.PrezzoPagato) || 0);
+        
         const presenteBadge = r.Presente 
           ? '<span class="badge presente"><i class="fas fa-check"></i> Presente</span>' 
           : '<span class="badge assente"><i class="fas fa-times"></i> Assente</span>';
@@ -1093,9 +1146,9 @@
                 <span class="card-value">${Number(r.PrezzoPagato || 0).toFixed(2)} €</span>
               </div>
               <div class="card-row">
-                <span class="card-label"><i class="fas fa-chart-line"></i> Delta</span>
-                <span class="card-value" style="color: ${(r.Delta || 0) >= 0 ? '#10b981' : '#ef4444'}; font-weight: 700;">
-                  ${(r.Delta || 0) >= 0 ? '+' : ''}${Number(r.Delta || 0).toFixed(2)} €
+                <span class="card-label"><i class="fas fa-chart-line"></i> Guadagno/Perdita</span>
+                <span class="card-value" style="color: ${delta >= 0 ? '#10b981' : '#ef4444'}; font-weight: 700;">
+                  ${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €
                 </span>
               </div>
               <div class="card-row">
@@ -1129,9 +1182,11 @@
       document.getElementById('editDescrizione').value = articolo.Descrizione || '';
       document.getElementById('editValoreAttuale').value = articolo.ValoreAttuale || '';
       document.getElementById('editPrezzoPagato').value = articolo.PrezzoPagato || '';
-      document.getElementById('editDelta').value = articolo.Delta || '';
       document.getElementById('editValutazioneStato').value = articolo.ValutazioneStato || '';
       document.getElementById('editPresente').checked = articolo.Presente || false;
+
+      // Calcola il delta
+      calcolaDeltaEdit();
 
       document.getElementById('modalModifica').classList.add('active');
       document.getElementById('modalMsg').className = 'msg';
@@ -1150,13 +1205,17 @@
       const formData = new FormData(form);
       const id = formData.get('id');
       
+      const valore = parseFloat(formData.get('ValoreAttuale'));
+      const prezzo = parseFloat(formData.get('PrezzoPagato'));
+      const delta = valore - prezzo;
+      
       const articolo = {
         Nome: formData.get('Nome'),
         Descrizione: formData.get('Descrizione') || null,
         Categoria: formData.get('Categoria') || null,
-        ValoreAttuale: parseFloat(formData.get('ValoreAttuale')),
-        PrezzoPagato: parseFloat(formData.get('PrezzoPagato')),
-        Delta: formData.get('Delta') ? parseFloat(formData.get('Delta')) : null,
+        ValoreAttuale: valore,
+        PrezzoPagato: prezzo,
+        Delta: delta,
         ValutazioneStato: formData.get('ValutazioneStato') ? parseInt(formData.get('ValutazioneStato')) : null,
         Presente: formData.get('Presente') === 'on'
       };
@@ -1186,13 +1245,17 @@
       const form = e.target;
       const formData = new FormData(form);
       
+      const valore = parseFloat(formData.get('ValoreAttuale'));
+      const prezzo = parseFloat(formData.get('PrezzoPagato'));
+      const delta = valore - prezzo;
+      
       const articolo = {
         Nome: formData.get('Nome'),
         Descrizione: formData.get('Descrizione') || null,
         Categoria: formData.get('Categoria') || null,
-        ValoreAttuale: parseFloat(formData.get('ValoreAttuale')),
-        PrezzoPagato: parseFloat(formData.get('PrezzoPagato')),
-        Delta: formData.get('Delta') ? parseFloat(formData.get('Delta')) : null,
+        ValoreAttuale: valore,
+        PrezzoPagato: prezzo,
+        Delta: delta,
         ValutazioneStato: formData.get('ValutazioneStato') ? parseInt(formData.get('ValutazioneStato')) : null,
         Presente: formData.get('Presente') === 'on'
       };
@@ -1208,6 +1271,7 @@
         msg.className = 'msg success';
         msg.textContent = '✅ Articolo aggiunto con successo!';
         form.reset();
+        document.getElementById('deltaAdd').value = '';
         
         setTimeout(() => {
           switchTab('archivio');
