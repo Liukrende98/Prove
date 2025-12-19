@@ -13,8 +13,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-const SUPABASE_URL = "https://TUO-PROGETTO.supabase.co";
-const SUPABASE_ANON_KEY = "ANON_PUBLIC_KEY";
+const SUPABASE_URL = "https://abcd1234efgh.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
 
 // NOME DIVERSO, NON supabase
 const client = window.supabase.createClient(
@@ -24,7 +24,7 @@ const client = window.supabase.createClient(
 
 async function carica() {
   const { data, error } = await client
-    .from("nome_tabella")
+    .from("Articoli")
     .select("*");
 
   if (error) {
@@ -42,5 +42,6 @@ carica();
 
 </body>
 </html>
+
 
 
