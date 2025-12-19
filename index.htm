@@ -3,52 +3,183 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard Articoli</title>
+  <title>Archivio Articoli</title>
 
-  <!-- Supabase JS -->
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 16px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .box {
+      background: white;
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 10px;
+    }
+
+    .filters input {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .filters button {
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: none;
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background: #2563eb;
+      color: white;
+      padding: 10px;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      font-size: 14px;
+    }
+
+    tr:nth-child(even) {
+      background: #f9fafb;
+    }
+
+    .price {
+      text-align: right;
+      font-weight: bold;
+    }
+
+    @media (max-width: 700px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+
+      th {
+        display: none;
+      }
+
+      td {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px;
+      }
+
+      td::before {
+        content: attr(data-label);
+        font-weight: bold;
+      }
+    }
+  </style>
 </head>
 
 <body>
-  <h2>Dati</h2>
-  <div id="out">carico...</div>
 
-  <script>
-    // === DATI REALI ===
-    const SUPABASE_URL = "https://xoagoblnzvdqnktpfhlk.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_Uf5-1uzQzL-OqI6dA-tl_g_RHpYxNds";
-    const TABLE_NAME = "Articoli";
+  <h1>ARCHIVIO</h1>
 
-    // Client Supabase (NON chiamarlo 'supabase')
-    const client = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_ANON_KEY
-    );
+  <!-- FILTRI -->
+  <div class="box filters">
+    <input id="fNome" placeholder="Nome articolo">
+    <input id="fCategoria" placeholder="Categoria">
+    <button onclick="carica()">Filtra</button>
+  </div>
 
-    async function carica() {
-      const { data, error } = await client
-        .from(TABLE_NAME)
-        .select("*");
+  <!-- TABELLA -->
+  <div class="box">
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Descrizione</th>
+          <th>Categoria</th>
+          <th>Valore attuale</th>
+          <th>Prezzo pagato</th>
+        </tr>
+      </thead>
+      <tbody id="out">
+        <tr><td colspan="5">Caricamento…</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-      if (error) {
-        document.getElementById("out").innerText =
-          "ERRORE: " + error.message;
-        return;
-      }
+<script>
+  const SUPABASE_URL = "https://xoagoblnzvdqnktpfhlk.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_Uf5-1uzQzL-OqI6dA-tl_g_RHpYxNds";
 
-      if (!data || data.length === 0) {
-        document.getElementById("out").innerText =
-          "Nessun dato trovato";
-        return;
-      }
+  const client = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
 
-      // Stampa semplice (debug)
-      document.getElementById("out").innerHTML =
-        data.map(r => `<pre>${JSON.stringify(r, null, 2)}</pre>`).join("");
+  async function carica() {
+    const nome = document.getElementById("fNome").value;
+    const categoria = document.getElementById("fCategoria").value;
+
+    let query = client.from("Articoli").select("*");
+
+    if (nome)
+      query = query.ilike("Nome", `%${nome}%`);
+
+    if (categoria)
+      query = query.ilike("Categoria", `%${categoria}%`);
+
+    const { data, error } = await query;
+
+    const out = document.getElementById("out");
+    out.innerHTML = "";
+
+    if (error) {
+      out.innerHTML = `<tr><td colspan="5">${error.message}</td></tr>`;
+      return;
     }
 
-    carica();
-    setInterval(carica, 5000);
-  </script>
+    if (!data || data.length === 0) {
+      out.innerHTML = `<tr><td colspan="5">Nessun risultato</td></tr>`;
+      return;
+    }
+
+    data.forEach(r => {
+      out.innerHTML += `
+        <tr>
+          <td data-label="Nome">${r.Nome ?? ""}</td>
+          <td data-label="Descrizione">${r.Descrizione ?? ""}</td>
+          <td data-label="Categoria">${r.Categoria ?? ""}</td>
+          <td data-label="Valore">${Number(r.ValoreAttuale).toFixed(2)} €</td>
+          <td data-label="Prezzo">${Number(r.PrezzoPagato).toFixed(2)} €</td>
+        </tr>`;
+    });
+  }
+
+  carica();
+</script>
+
 </body>
 </html>
