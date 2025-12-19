@@ -61,53 +61,10 @@
   }
 
   /* RANGE */
-@media (max-width: 430px) {
-
-  /* FIX RANGE VALORE - iPhone */
   .range-inputs {
-    display: flex;
+    grid-template-columns: 1fr;
     gap: 10px;
-    width: 100%;
   }
-
-  .range-inputs input {
-    flex: 1;
-    min-width: 0;
-    padding: 16px;
-    font-size: 16px;
-    text-align: center;
-    border-radius: 16px;
-  }
-
-  .range-separator {
-    display: none;
-  }
-
-}
-@media (max-width: 430px) {
-
-  /* RANGE VALORE - A CAPO SU IPHONE */
-  .range-inputs {
-    display: flex;
-    flex-direction: column; /* <-- QUESTO È IL FIX */
-    gap: 12px;
-    width: 100%;
-  }
-
-  .range-inputs input {
-    width: 100%;
-    padding: 16px;
-    font-size: 16px; /* evita zoom iOS */
-    text-align: center;
-    border-radius: 16px;
-  }
-
-  .range-separator {
-    display: none;
-  }
-
-}
-
 
   .range-separator {
     display: none;
@@ -1658,50 +1615,6 @@
         gap: 12px;
       }
     }
-
-    /* ===== SLIDER DOPPIO iOS STYLE ===== */
-
-.range-slider {
-  margin-bottom: 24px;
-}
-
-.slider-wrapper {
-  position: relative;
-  height: 44px;
-}
-
-.slider-wrapper input[type="range"] {
-  position: absolute;
-  width: 100%;
-  height: 44px;
-  appearance: none;
-  background: none;
-  pointer-events: none;
-}
-
-.slider-wrapper input[type="range"]::-webkit-slider-thumb {
-  appearance: none;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  box-shadow: 0 0 15px rgba(251,191,36,0.8);
-  cursor: pointer;
-  pointer-events: all;
-}
-
-.slider-wrapper input[type="range"]::-webkit-slider-runnable-track {
-  height: 8px;
-  border-radius: 10px;
-  background: #1a1a1a;
-}
-
-@media (max-width: 430px) {
-  .slider-wrapper {
-    margin-top: 12px;
-  }
-}
-
   </style>
 </head>
 
@@ -1795,26 +1708,22 @@
             </div>
           </div>
 
-     <div class="range-group range-slider">
-  <div class="range-header">
-    <div class="range-label">
-      <i class="fas fa-euro-sign"></i>
-      Range Valore Attuale
-    </div>
-    <div class="range-value" id="rangeValoreDisplay">0€ - 1000€</div>
-  </div>
+          <div class="range-group">
+            <div class="range-header">
+              <div class="range-label">
+                <i class="fas fa-euro-sign"></i>
+                Range Valore Attuale
+              </div>
+              <div class="range-value" id="rangeValoreDisplay">0€ - 1000€</div>
+            </div>
+            <div class="range-inputs">
+              <input type="number" id="fValoreMin" placeholder="Min" value="0" oninput="updateRangeDisplay()">
+              <span class="range-separator">—</span>
+              <input type="number" id="fValoreMax" placeholder="Max" value="1000" oninput="updateRangeDisplay()">
+            </div>
+          </div>
 
-  <!-- SLIDER -->
-  <div class="slider-wrapper">
-    <input type="range" min="0" max="1000" value="0" id="sliderMin">
-    <input type="range" min="0" max="1000" value="1000" id="sliderMax">
-  </div>
-
-  <!-- INPUT NASCOSTI (restano per i filtri) -->
-  <input type="hidden" id="fValoreMin" value="0">
-  <input type="hidden" id="fValoreMax" value="1000">
-</div>
-
+          <div class="range-group">
             <div class="range-header">
               <div class="range-label">
                 <i class="fas fa-star"></i>
@@ -3093,39 +3002,5 @@
     });
   </script>
 
-  <script>
-  const sliderMin = document.getElementById("sliderMin");
-  const sliderMax = document.getElementById("sliderMax");
-  const inputMin = document.getElementById("fValoreMin");
-  const inputMax = document.getElementById("fValoreMax");
-  const display = document.getElementById("rangeValoreDisplay");
-
-  function syncSlider() {
-    let min = Math.min(+sliderMin.value, +sliderMax.value - 1);
-    let max = Math.max(+sliderMax.value, +sliderMin.value + 1);
-
-    sliderMin.value = min;
-    sliderMax.value = max;
-
-    inputMin.value = min;
-    inputMax.value = max;
-
-    display.textContent = `${min}€ - ${max}€`;
-  }
-
-  sliderMin.addEventListener("input", syncSlider);
-  sliderMax.addEventListener("input", syncSlider);
-
-  syncSlider();
-</script>
-
-
 </body>
 </html>
-
-
-
-
-
-
-
