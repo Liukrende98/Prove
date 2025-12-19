@@ -66,6 +66,78 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
+    /* CRUSCOTTO */
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      border-radius: 12px;
+      color: white;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.1);
+      transform: rotate(45deg);
+    }
+
+    .stat-card.green {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      box-shadow: 0 4px 12px rgba(56, 239, 125, 0.4);
+    }
+
+    .stat-card.orange {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+    }
+
+    .stat-card.blue {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+    }
+
+    .stat-card.red {
+      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+      box-shadow: 0 4px 12px rgba(250, 112, 154, 0.4);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      opacity: 0.9;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-subtext {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 4px;
+      position: relative;
+      z-index: 1;
+    }
+
     /* FILTRI */
     .filters {
       display: grid;
@@ -91,8 +163,18 @@
     }
 
     /* FORM AGGIUNGI */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
     .form-group {
       margin-bottom: 16px;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
     }
 
     .form-group label {
@@ -100,10 +182,12 @@
       margin-bottom: 6px;
       font-weight: 600;
       color: #374151;
+      font-size: 14px;
     }
 
     .form-group input,
-    .form-group textarea {
+    .form-group textarea,
+    .form-group select {
       width: 100%;
       padding: 10px;
       border-radius: 8px;
@@ -115,6 +199,16 @@
     .form-group textarea {
       min-height: 80px;
       resize: vertical;
+    }
+
+    .form-group input[type="checkbox"] {
+      width: auto;
+      margin-right: 8px;
+    }
+
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
     }
 
     .btn-submit {
@@ -221,11 +315,14 @@
     .card-label {
       font-weight: 600;
       color: #374151;
+      flex-shrink: 0;
+      margin-right: 12px;
     }
 
     .card-value {
       text-align: right;
       color: #1f2937;
+      word-break: break-word;
     }
 
     .expand-icon {
@@ -256,6 +353,24 @@
       display: block;
     }
 
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge.presente {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .badge.assente {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
     /* MOBILE (IPHONE) */
     @media (max-width: 768px) {
       .filters {
@@ -268,6 +383,18 @@
 
       .mobile-cards {
         display: block;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .stat-value {
+        font-size: 24px;
       }
     }
   </style>
@@ -286,6 +413,31 @@
   <!-- TAB ARCHIVIO -->
   <div id="tab-archivio" class="tab-content active">
     
+    <!-- CRUSCOTTO -->
+    <div class="dashboard" id="dashboard">
+      <div class="stat-card">
+        <div class="stat-label">Totale Articoli</div>
+        <div class="stat-value" id="statTotale">0</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">Valore Totale</div>
+        <div class="stat-value" id="statValore">0 €</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-label">Spesa Totale</div>
+        <div class="stat-value" id="statSpesa">0 €</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-label">Guadagno/Perdita</div>
+        <div class="stat-value" id="statDelta">0 €</div>
+        <div class="stat-subtext" id="statDeltaPercent">0%</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-label">Articoli Presenti</div>
+        <div class="stat-value" id="statPresenti">0</div>
+      </div>
+    </div>
+
     <!-- FILTRI -->
     <div class="box filters">
       <input id="fNome" placeholder="Nome articolo">
@@ -299,14 +451,15 @@
         <thead>
           <tr>
             <th>Nome</th>
-            <th>Descrizione</th>
             <th>Categoria</th>
             <th>Valore attuale</th>
             <th>Prezzo pagato</th>
+            <th>Delta</th>
+            <th>Presente</th>
           </tr>
         </thead>
         <tbody id="tableOut">
-          <tr><td colspan="5">Caricamento…</td></tr>
+          <tr><td colspan="6">Caricamento…</td></tr>
         </tbody>
       </table>
     </div>
@@ -328,29 +481,48 @@
 
       <form id="formAggiungi" onsubmit="aggiungi(event)">
         
-        <div class="form-group">
-          <label>Nome *</label>
-          <input type="text" name="Nome" required>
-        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nome *</label>
+            <input type="text" name="Nome" required>
+          </div>
 
-        <div class="form-group">
-          <label>Descrizione</label>
-          <textarea name="Descrizione"></textarea>
-        </div>
+          <div class="form-group">
+            <label>Categoria</label>
+            <input type="text" name="Categoria">
+          </div>
 
-        <div class="form-group">
-          <label>Categoria</label>
-          <input type="text" name="Categoria">
-        </div>
+          <div class="form-group full">
+            <label>Descrizione</label>
+            <textarea name="Descrizione"></textarea>
+          </div>
 
-        <div class="form-group">
-          <label>Valore Attuale (€) *</label>
-          <input type="number" step="0.01" name="ValoreAttuale" required>
-        </div>
+          <div class="form-group">
+            <label>Valore Attuale (€) *</label>
+            <input type="number" step="0.01" name="ValoreAttuale" required>
+          </div>
 
-        <div class="form-group">
-          <label>Prezzo Pagato (€) *</label>
-          <input type="number" step="0.01" name="PrezzoPagato" required>
+          <div class="form-group">
+            <label>Prezzo Pagato (€) *</label>
+            <input type="number" step="0.01" name="PrezzoPagato" required>
+          </div>
+
+          <div class="form-group">
+            <label>Delta (€)</label>
+            <input type="number" step="0.01" name="Delta">
+          </div>
+
+          <div class="form-group">
+            <label>Valutazione Stato (1-10)</label>
+            <input type="number" min="1" max="10" name="ValutazioneStato">
+          </div>
+
+          <div class="form-group full">
+            <label class="checkbox-wrapper">
+              <input type="checkbox" name="Presente" checked>
+              Articolo Presente
+            </label>
+          </div>
         </div>
 
         <button type="submit" class="btn-submit">Aggiungi Articolo</button>
@@ -367,18 +539,32 @@
 
     // SWITCH TAB
     function switchTab(tabName) {
-      // Rimuovi active da tutti i tab
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
-      // Attiva il tab selezionato
       document.querySelector(`.tab:nth-child(${tabName === 'archivio' ? 1 : 2})`).classList.add('active');
       document.getElementById(`tab-${tabName}`).classList.add('active');
 
-      // Ricarica dati se torno su archivio
       if (tabName === 'archivio') {
         carica();
       }
+    }
+
+    // AGGIORNA CRUSCOTTO
+    function aggiornaCruscotto(data) {
+      const totale = data.length;
+      const valoreAttuale = data.reduce((sum, r) => sum + (Number(r.ValoreAttuale) || 0), 0);
+      const prezzoPagato = data.reduce((sum, r) => sum + (Number(r.PrezzoPagato) || 0), 0);
+      const delta = valoreAttuale - prezzoPagato;
+      const deltaPercent = prezzoPagato > 0 ? ((delta / prezzoPagato) * 100) : 0;
+      const presenti = data.filter(r => r.Presente).length;
+
+      document.getElementById('statTotale').textContent = totale;
+      document.getElementById('statValore').textContent = valoreAttuale.toFixed(2) + ' €';
+      document.getElementById('statSpesa').textContent = prezzoPagato.toFixed(2) + ' €';
+      document.getElementById('statDelta').textContent = delta.toFixed(2) + ' €';
+      document.getElementById('statDeltaPercent').textContent = (delta >= 0 ? '+' : '') + deltaPercent.toFixed(1) + '%';
+      document.getElementById('statPresenti').textContent = presenti + '/' + totale;
     }
 
     // CARICA ARTICOLI
@@ -397,33 +583,40 @@
       const cardsOut = document.getElementById("cardsOut");
 
       if (error) {
-        tableOut.innerHTML = `<tr><td colspan="5">${error.message}</td></tr>`;
+        tableOut.innerHTML = `<tr><td colspan="6">${error.message}</td></tr>`;
         cardsOut.innerHTML = `<div class="card"><div class="card-header">${error.message}</div></div>`;
         return;
       }
 
       if (!data || data.length === 0) {
-        tableOut.innerHTML = `<tr><td colspan="5">Nessun risultato</td></tr>`;
+        tableOut.innerHTML = `<tr><td colspan="6">Nessun risultato</td></tr>`;
         cardsOut.innerHTML = `<div class="card"><div class="card-header">Nessun risultato</div></div>`;
+        aggiornaCruscotto([]);
         return;
       }
+
+      // AGGIORNA CRUSCOTTO
+      aggiornaCruscotto(data);
 
       // TABELLA DESKTOP
       tableOut.innerHTML = "";
       data.forEach(r => {
+        const presenteBadge = r.Presente ? '<span class="badge presente">Presente</span>' : '<span class="badge assente">Assente</span>';
         tableOut.innerHTML += `
-          <tr onclick="alert('${r.Nome}\\n\\n${r.Descrizione || 'Nessuna descrizione'}\\n\\nCategoria: ${r.Categoria || 'N/A'}\\nValore: ${Number(r.ValoreAttuale).toFixed(2)} €\\nPrezzo: ${Number(r.PrezzoPagato).toFixed(2)} €')">
+          <tr onclick='mostraDettaglio(${JSON.stringify(r).replace(/'/g, "&apos;")})'>
             <td>${r.Nome ?? ""}</td>
-            <td>${r.Descrizione ?? ""}</td>
-            <td>${r.Categoria ?? ""}</td>
-            <td>${Number(r.ValoreAttuale).toFixed(2)} €</td>
-            <td>${Number(r.PrezzoPagato).toFixed(2)} €</td>
+            <td>${r.Categoria ?? "—"}</td>
+            <td>${Number(r.ValoreAttuale || 0).toFixed(2)} €</td>
+            <td>${Number(r.PrezzoPagato || 0).toFixed(2)} €</td>
+            <td>${Number(r.Delta || 0).toFixed(2)} €</td>
+            <td>${presenteBadge}</td>
           </tr>`;
       });
 
       // CARDS MOBILE
       cardsOut.innerHTML = "";
       data.forEach(r => {
+        const presenteBadge = r.Presente ? '<span class="badge presente">Presente</span>' : '<span class="badge assente">Assente</span>';
         cardsOut.innerHTML += `
           <div class="card" onclick="toggleCard(this)">
             <div class="card-header">
@@ -434,20 +627,57 @@
             </div>
             <div class="card-body">
               <div class="card-row">
+                <span class="card-label">ID</span>
+                <span class="card-value">${r.id}</span>
+              </div>
+              <div class="card-row">
+                <span class="card-label">Creato il</span>
+                <span class="card-value">${new Date(r.created_at).toLocaleDateString('it-IT')}</span>
+              </div>
+              <div class="card-row">
                 <span class="card-label">Descrizione</span>
                 <span class="card-value">${r.Descrizione || "—"}</span>
               </div>
               <div class="card-row">
                 <span class="card-label">Valore Attuale</span>
-                <span class="card-value">${Number(r.ValoreAttuale).toFixed(2)} €</span>
+                <span class="card-value">${Number(r.ValoreAttuale || 0).toFixed(2)} €</span>
               </div>
               <div class="card-row">
                 <span class="card-label">Prezzo Pagato</span>
-                <span class="card-value">${Number(r.PrezzoPagato).toFixed(2)} €</span>
+                <span class="card-value">${Number(r.PrezzoPagato || 0).toFixed(2)} €</span>
+              </div>
+              <div class="card-row">
+                <span class="card-label">Delta</span>
+                <span class="card-value">${Number(r.Delta || 0).toFixed(2)} €</span>
+              </div>
+              <div class="card-row">
+                <span class="card-label">Valutazione Stato</span>
+                <span class="card-value">${r.ValutazioneStato ? r.ValutazioneStato + '/10' : '—'}</span>
+              </div>
+              <div class="card-row">
+                <span class="card-label">Presente</span>
+                <span class="card-value">${presenteBadge}</span>
               </div>
             </div>
           </div>`;
       });
+    }
+
+    // MOSTRA DETTAGLIO (DESKTOP)
+    function mostraDettaglio(r) {
+      const info = `
+ID: ${r.id}
+Creato il: ${new Date(r.created_at).toLocaleDateString('it-IT')}
+Nome: ${r.Nome}
+Descrizione: ${r.Descrizione || '—'}
+Categoria: ${r.Categoria || '—'}
+Valore Attuale: ${Number(r.ValoreAttuale || 0).toFixed(2)} €
+Prezzo Pagato: ${Number(r.PrezzoPagato || 0).toFixed(2)} €
+Delta: ${Number(r.Delta || 0).toFixed(2)} €
+Valutazione Stato: ${r.ValutazioneStato ? r.ValutazioneStato + '/10' : '—'}
+Presente: ${r.Presente ? 'Sì' : 'No'}
+      `.trim();
+      alert(info);
     }
 
     // TOGGLE CARD ESPANSIONE
@@ -464,10 +694,13 @@
       
       const articolo = {
         Nome: formData.get('Nome'),
-        Descrizione: formData.get('Descrizione'),
-        Categoria: formData.get('Categoria'),
+        Descrizione: formData.get('Descrizione') || null,
+        Categoria: formData.get('Categoria') || null,
         ValoreAttuale: parseFloat(formData.get('ValoreAttuale')),
-        PrezzoPagato: parseFloat(formData.get('PrezzoPagato'))
+        PrezzoPagato: parseFloat(formData.get('PrezzoPagato')),
+        Delta: formData.get('Delta') ? parseFloat(formData.get('Delta')) : null,
+        ValutazioneStato: formData.get('ValutazioneStato') ? parseInt(formData.get('ValutazioneStato')) : null,
+        Presente: formData.get('Presente') === 'on'
       };
 
       const { error } = await client.from('Articoli').insert([articolo]);
@@ -483,8 +716,8 @@
         form.reset();
         
         setTimeout(() => {
-          msg.className = 'msg';
-        }, 3000);
+          switchTab('archivio');
+        }, 1500);
       }
     }
 
