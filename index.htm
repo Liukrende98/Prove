@@ -8,97 +8,130 @@
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      margin: 0;
-      padding: 16px;
-    }
+ <style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    background: #f4f6f8;
+    margin: 0;
+    padding: 16px;
+  }
 
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
 
-    .box {
-      background: white;
-      padding: 16px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
+  .box {
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  /* FILTRI */
+  .filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 10px;
+  }
+
+  .filters input {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+  }
+
+  .filters button {
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    background: #2563eb;
+    color: white;
+    font-size: 14px;
+  }
+
+  /* DESKTOP TABLE */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    background: #2563eb;
+    color: white;
+    padding: 10px;
+    text-align: left;
+    font-size: 14px;
+  }
+
+  td {
+    padding: 10px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 14px;
+    vertical-align: top;
+  }
+
+  tr:nth-child(even) {
+    background: #f9fafb;
+  }
+
+  .price {
+    text-align: right;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+
+  /* ===== MOBILE (IPHONE) ===== */
+  @media (max-width: 768px) {
 
     .filters {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      gap: 10px;
+      grid-template-columns: 1fr;
     }
 
-    .filters input {
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+    table, thead {
+      display: none;
     }
 
-    .filters button {
-      padding: 8px 16px;
-      border-radius: 6px;
+    tbody {
+      display: block;
+    }
+
+    tbody tr {
+      display: block;
+      background: white;
+      margin-bottom: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    tbody td {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 6px 0;
       border: none;
-      background: #2563eb;
-      color: white;
-      cursor: pointer;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th {
-      background: #2563eb;
-      color: white;
-      padding: 10px;
-      text-align: left;
       font-size: 14px;
     }
 
-    td {
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-      font-size: 14px;
+    tbody td::before {
+      content: attr(data-label);
+      font-weight: 600;
+      color: #374151;
+      padding-right: 10px;
+      max-width: 45%;
+      flex-shrink: 0;
     }
 
-    tr:nth-child(even) {
-      background: #f9fafb;
-    }
-
-    .price {
+    tbody td span,
+    tbody td {
+      word-break: break-word;
       text-align: right;
-      font-weight: bold;
     }
-
-    @media (max-width: 700px) {
-      table, thead, tbody, th, td, tr {
-        display: block;
-      }
-
-      th {
-        display: none;
-      }
-
-      td {
-        display: flex;
-        justify-content: space-between;
-        padding: 8px;
-      }
-
-      td::before {
-        content: attr(data-label);
-        font-weight: bold;
-      }
-    }
-  </style>
+  }
+</style>
 </head>
 
 <body>
@@ -183,3 +216,4 @@
 
 </body>
 </html>
+
