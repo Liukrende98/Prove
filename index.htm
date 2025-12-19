@@ -10,14 +10,19 @@
 <h2>Dati</h2>
 <div id="out">carico...</div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-const supabase = supabase.createClient(
-  "https://TUO-PROGETTO.supabase.co",
-  "ANON_PUBLIC_KEY"
+const SUPABASE_URL = "https://TUO-PROGETTO.supabase.co";
+const SUPABASE_ANON_KEY = "ANON_PUBLIC_KEY";
+
+const sb = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
 );
 
 async function carica() {
-  const { data, error } = await supabase
+  const { data, error } = await sb
     .from("nome_tabella")
     .select("*");
 
@@ -27,12 +32,13 @@ async function carica() {
   }
 
   document.getElementById("out").innerHTML =
-    data.map(r => `<p>${r.nome} – ${r.valore}</p>`).join("");
+    data.map(r => `<p>${JSON.stringify(r)}</p>`).join("");
 }
 
 carica();
-setInterval(carica, 5000); // aggiornamento automatico
 </script>
+
 
 </body>
 </html>
+
