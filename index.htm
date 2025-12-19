@@ -16,7 +16,6 @@
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 
   <style>
@@ -35,7 +34,6 @@
       overflow-x: hidden;
     }
 
-    /* PARTICELLE ANIMATE */
     .particles {
       position: fixed;
       top: 0;
@@ -73,11 +71,10 @@
       }
     }
 
-    /* HEADER EPICO */
     .header {
       background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
       backdrop-filter: blur(20px);
-      padding: 24px 20px;
+      padding: 20px;
       box-shadow: 0 8px 40px rgba(251, 191, 36, 0.3);
       position: sticky;
       top: 0;
@@ -97,19 +94,19 @@
 
     h1 {
       text-align: center;
-      font-size: 48px;
+      font-size: 38px;
       font-weight: 900;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 20px;
+      gap: 16px;
       text-shadow: 0 0 40px rgba(251, 191, 36, 0.8);
       position: relative;
     }
 
     .pikachu-logo {
-      font-size: 72px;
+      font-size: 56px;
       filter: drop-shadow(0 0 30px #fbbf24);
       animation: pikachuBounce 2s ease-in-out infinite;
       cursor: pointer;
@@ -151,7 +148,6 @@
       100% { background-position: 300% center; }
     }
 
-    /* TABS MIGLIORATI */
     .tabs {
       display: flex;
       gap: 12px;
@@ -159,12 +155,12 @@
     }
 
     .tab {
-      padding: 14px 40px;
+      padding: 12px 36px;
       border-radius: 16px;
       border: 2px solid transparent;
       background: rgba(20, 20, 20, 0.6);
       color: #9ca3af;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -227,7 +223,6 @@
       }
     }
 
-    /* CRUSCOTTO ULTRA FIGO */
     .dashboard {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -396,7 +391,6 @@
       font-weight: 600;
     }
 
-    /* BOX */
     .box {
       background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
       padding: 28px;
@@ -412,53 +406,359 @@
       border-color: #3a3a3a;
     }
 
-    /* FILTRI */
-    .filters {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      gap: 16px;
+    .filter-panel {
+      background: linear-gradient(135deg, #1f1f1f 0%, #1a1a1a 100%);
+      border-radius: 20px;
+      padding: 24px;
+      border: 2px solid #2a2a2a;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
     }
 
-    .filters input {
-      padding: 16px 20px;
-      border-radius: 16px;
+    .filter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .filter-title {
+      font-size: 20px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .filter-toggle {
+      padding: 10px 20px;
+      border-radius: 12px;
+      border: 2px solid #fbbf24;
+      background: transparent;
+      color: #fbbf24;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-toggle:hover {
+      background: rgba(251, 191, 36, 0.1);
+      transform: scale(1.05);
+    }
+
+    .filter-toggle.expanded {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #000;
+    }
+
+    .filter-content {
+      display: none;
+      animation: slideDown 0.4s ease;
+    }
+
+    .filter-content.active {
+      display: block;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .filter-group {
+      position: relative;
+    }
+
+    .filter-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+      color: #fbbf24;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .filter-group input,
+    .filter-group select {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
       border: 2px solid #2a2a2a;
       font-size: 15px;
       transition: all 0.3s ease;
       background: #0a0a0a;
       color: #e5e7eb;
+      font-weight: 500;
     }
 
-    .filters input::placeholder {
+    .filter-group input::placeholder {
       color: #6b7280;
     }
 
-    .filters input:focus {
+    .filter-group input:focus,
+    .filter-group select:focus {
       outline: none;
       border-color: #fbbf24;
       background: #1a1a1a;
       box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.2);
+      transform: translateY(-2px);
     }
 
-    .filters button {
-      padding: 16px 32px;
-      border-radius: 16px;
-      border: none;
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      color: #000;
+    .filter-group select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23fbbf24' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+
+    .range-group {
+      margin-bottom: 20px;
+    }
+
+    .range-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .range-label {
+      font-weight: 700;
+      color: #fbbf24;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .range-value {
+      font-weight: 800;
+      color: #10b981;
       font-size: 16px;
+    }
+
+    .range-inputs {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .range-inputs input {
+      padding: 12px;
+      border-radius: 12px;
+      border: 2px solid #2a2a2a;
+      background: #0a0a0a;
+      color: #e5e7eb;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .range-separator {
+      color: #6b7280;
+      font-weight: 700;
+    }
+
+    .toggle-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .toggle-option {
+      position: relative;
+    }
+
+    .toggle-option input[type="checkbox"] {
+      display: none;
+    }
+
+    .toggle-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 2px solid #2a2a2a;
+      background: #0a0a0a;
+      color: #9ca3af;
+      font-size: 14px;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .toggle-option input:checked + .toggle-label {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-color: #10b981;
+      color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .toggle-label:hover {
+      border-color: #3a3a3a;
+      background: #1a1a1a;
+    }
+
+    .sort-controls {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .sort-select {
+      position: relative;
+    }
+
+    .sort-button {
+      padding: 14px 20px;
+      border-radius: 14px;
+      border: 2px solid #2a2a2a;
+      background: #0a0a0a;
+      color: #e5e7eb;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sort-button:hover {
+      border-color: #fbbf24;
+      background: #1a1a1a;
+      transform: translateY(-2px);
+    }
+
+    .sort-button.active {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      border-color: #fbbf24;
+      color: #000;
+    }
+
+    .filter-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .btn-filter {
+      padding: 16px;
+      border-radius: 14px;
+      border: none;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-apply {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #000;
       box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
     }
 
-    .filters button:hover {
+    .btn-apply:hover {
       transform: translateY(-3px);
       box-shadow: 0 10px 30px rgba(251, 191, 36, 0.6);
     }
 
-    /* FORM */
+    .btn-reset {
+      background: #2a2a2a;
+      color: #e5e7eb;
+    }
+
+    .btn-reset:hover {
+      background: #3a3a3a;
+      transform: translateY(-3px);
+    }
+
+    .results-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      background: linear-gradient(135deg, #1f1f1f 0%, #1a1a1a 100%);
+      border-radius: 16px;
+      margin-bottom: 20px;
+      border: 2px solid #2a2a2a;
+    }
+
+    .results-count {
+      font-weight: 700;
+      color: #fbbf24;
+      font-size: 15px;
+    }
+
+    .results-count span {
+      font-size: 24px;
+      font-weight: 900;
+      margin: 0 6px;
+    }
+
+    .view-toggle {
+      display: flex;
+      gap: 8px;
+    }
+
+    .view-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 2px solid #2a2a2a;
+      background: #0a0a0a;
+      color: #9ca3af;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .view-btn:hover {
+      border-color: #fbbf24;
+      color: #fbbf24;
+    }
+
+    .view-btn.active {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      border-color: #fbbf24;
+      color: #000;
+    }
+
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -609,7 +909,6 @@
       box-shadow: 0 15px 50px rgba(251, 191, 36, 0.8);
     }
 
-    /* TABELLA */
     .table-container {
       overflow-x: auto;
     }
@@ -662,7 +961,6 @@
       transform: scale(1.01);
     }
 
-    /* MOBILE CARDS */
     .mobile-cards {
       display: none;
     }
@@ -756,7 +1054,6 @@
       transform: rotate(180deg);
     }
 
-    /* BADGE */
     .badge {
       display: inline-flex;
       align-items: center;
@@ -783,7 +1080,6 @@
       box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
     }
 
-    /* PULSANTI AZIONE */
     .btn-action {
       padding: 10px 18px;
       border-radius: 12px;
@@ -841,7 +1137,6 @@
       background: #3a3a3a;
     }
 
-    /* MESSAGGI */
     .msg {
       padding: 18px 24px;
       border-radius: 16px;
@@ -879,7 +1174,6 @@
       box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
     }
 
-    /* MODAL */
     .modal {
       display: none;
       position: fixed;
@@ -980,7 +1274,6 @@
       gap: 12px;
     }
 
-    /* CAMERA SCAN */
     #cameraContainer {
       position: relative;
       display: none;
@@ -1001,7 +1294,6 @@
       background: #000;
     }
 
-    /* OVERLAY SCAN ZONE */
     .scan-zones {
       position: absolute;
       top: 0;
@@ -1114,7 +1406,6 @@
       box-shadow: 0 0 40px rgba(16, 185, 129, 0.5);
     }
 
-    /* CHART CONTAINER GIGANTE */
     .chart-container {
       margin-top: 24px;
       padding: 20px;
@@ -1161,17 +1452,24 @@
       box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
     }
 
-    /* RESPONSIVE */
     @media (max-width: 768px) {
       h1 {
-        font-size: 28px;
+        font-size: 24px;
       }
 
       .pikachu-logo {
-        font-size: 42px;
+        font-size: 36px;
       }
 
-      .filters {
+      .filter-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .filter-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .sort-controls {
         grid-template-columns: 1fr;
       }
 
@@ -1196,8 +1494,8 @@
       }
 
       .tab {
-        padding: 12px 24px;
-        font-size: 14px;
+        padding: 10px 20px;
+        font-size: 13px;
       }
 
       .action-buttons {
@@ -1211,15 +1509,18 @@
       .chart-container {
         min-height: 50vh;
       }
+
+      .results-info {
+        flex-direction: column;
+        gap: 12px;
+      }
     }
   </style>
 </head>
 
 <body>
-  <!-- PARTICELLE ANIMATE -->
   <div class="particles" id="particles"></div>
 
-  <!-- HEADER -->
   <div class="header">
     <h1>
       <span class="pikachu-logo" onclick="pikachuClick()">⚡</span>
@@ -1236,11 +1537,9 @@
       </button>
     </div>
   </div>
-
   <!-- TAB ARCHIVIO -->
   <div id="tab-archivio" class="tab-content active">
     
-    <!-- CRUSCOTTO MEGA -->
     <div class="dashboard" id="dashboard">
       <div class="stat-card" onclick="apriGrafico('totale')">
         <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
@@ -1278,15 +1577,159 @@
       </div>
     </div>
 
-    <!-- FILTRI -->
-    <div class="box filters">
-      <input id="fNome" placeholder="🔍 Cerca per nome carta...">
-      <input id="fCategoria" placeholder="📁 Filtra per categoria...">
-      <button onclick="carica()"><i class="fas fa-search"></i> CERCA</button>
+    <div class="box">
+      <div class="filter-panel">
+        <div class="filter-header">
+          <div class="filter-title">
+            <i class="fas fa-sliders-h"></i>
+            FILTRI AVANZATI
+          </div>
+          <button class="filter-toggle" onclick="toggleFilters()" id="filterToggle">
+            <i class="fas fa-chevron-down"></i>
+            <span>ESPANDI</span>
+          </button>
+        </div>
+
+        <div class="filter-content" id="filterContent">
+          <div class="filter-grid">
+            <div class="filter-group">
+              <label><i class="fas fa-search"></i> Cerca Nome</label>
+              <input type="text" id="fNome" placeholder="Es. Charizard, Pikachu...">
+            </div>
+
+            <div class="filter-group">
+              <label><i class="fas fa-tag"></i> Categoria</label>
+              <select id="fCategoria">
+                <option value="">Tutte le categorie</option>
+                <option value="Carta Singola">Carta Singola</option>
+                <option value="ETB">ETB (Elite Trainer Box)</option>
+                <option value="Booster">Booster Pack</option>
+                <option value="Collection Box">Collection Box</option>
+                <option value="Altro">Altro</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="range-group">
+            <div class="range-header">
+              <div class="range-label">
+                <i class="fas fa-euro-sign"></i>
+                Range Valore Attuale
+              </div>
+              <div class="range-value" id="rangeValoreDisplay">0€ - 1000€</div>
+            </div>
+            <div class="range-inputs">
+              <input type="number" id="fValoreMin" placeholder="Min" value="0" oninput="updateRangeDisplay()">
+              <span class="range-separator">—</span>
+              <input type="number" id="fValoreMax" placeholder="Max" value="1000" oninput="updateRangeDisplay()">
+            </div>
+          </div>
+
+          <div class="range-group">
+            <div class="range-header">
+              <div class="range-label">
+                <i class="fas fa-star"></i>
+                Valutazione Minima
+              </div>
+              <div class="range-value" id="rangeStatoDisplay">Tutte</div>
+            </div>
+            <div class="filter-group">
+              <select id="fStato" onchange="updateStatoDisplay()">
+                <option value="">Tutte le valutazioni</option>
+                <option value="10">10⭐ (Mint)</option>
+                <option value="9">9⭐+ (Near Mint+)</option>
+                <option value="8">8⭐+ (Near Mint)</option>
+                <option value="7">7⭐+ (Excellent)</option>
+                <option value="6">6⭐+ (Good)</option>
+                <option value="5">5⭐+ (Played)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="toggle-group">
+            <div class="toggle-option">
+              <input type="checkbox" id="fPresenti" checked>
+              <label for="fPresenti" class="toggle-label">
+                <i class="fas fa-check-circle"></i>
+                PRESENTI
+              </label>
+            </div>
+
+            <div class="toggle-option">
+              <input type="checkbox" id="fAssenti" checked>
+              <label for="fAssenti" class="toggle-label">
+                <i class="fas fa-times-circle"></i>
+                ASSENTI
+              </label>
+            </div>
+
+            <div class="toggle-option">
+              <input type="checkbox" id="fProfit">
+              <label for="fProfit" class="toggle-label">
+                <i class="fas fa-arrow-up"></i>
+                IN PROFITTO
+              </label>
+            </div>
+
+            <div class="toggle-option">
+              <input type="checkbox" id="fLoss">
+              <label for="fLoss" class="toggle-label">
+                <i class="fas fa-arrow-down"></i>
+                IN PERDITA
+              </label>
+            </div>
+          </div>
+
+          <div class="sort-controls">
+            <div class="filter-group">
+              <label><i class="fas fa-sort"></i> Ordina Per</label>
+              <select id="fSortBy">
+                <option value="created_at_desc">Più Recenti</option>
+                <option value="created_at_asc">Più Vecchi</option>
+                <option value="nome_asc">Nome (A-Z)</option>
+                <option value="nome_desc">Nome (Z-A)</option>
+                <option value="valore_desc">Valore (Alto → Basso)</option>
+                <option value="valore_asc">Valore (Basso → Alto)</option>
+                <option value="delta_desc">Profitto (Alto → Basso)</option>
+                <option value="delta_asc">Perdita (Alto → Basso)</option>
+                <option value="stato_desc">Stato (Alto → Basso)</option>
+              </select>
+            </div>
+
+            <button class="sort-button" id="sortDirBtn" onclick="toggleSortDirection()">
+              <i class="fas fa-sort-amount-down"></i>
+            </button>
+          </div>
+
+          <div class="filter-actions">
+            <button class="btn-filter btn-apply" onclick="applicaFiltri()">
+              <i class="fas fa-filter"></i>
+              APPLICA
+            </button>
+            <button class="btn-filter btn-reset" onclick="resetFiltri()">
+              <i class="fas fa-redo"></i>
+              RESET
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- TABELLA DESKTOP -->
-    <div class="box desktop-table">
+    <div class="results-info">
+      <div class="results-count">
+        Trovati <span id="resultsCount">0</span> articoli
+      </div>
+      <div class="view-toggle">
+        <button class="view-btn active" onclick="switchView('table')" id="viewTableBtn">
+          <i class="fas fa-table"></i>
+        </button>
+        <button class="view-btn" onclick="switchView('grid')" id="viewGridBtn">
+          <i class="fas fa-th-large"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="box desktop-table" id="desktopTable">
       <div class="table-container">
         <table>
           <thead>
@@ -1311,7 +1754,6 @@
       </div>
     </div>
 
-    <!-- CARDS MOBILE -->
     <div id="cardsOut" class="mobile-cards"></div>
 
   </div>
@@ -1322,12 +1764,10 @@
     <div class="box">
       <div id="formMsg" class="msg"></div>
 
-      <!-- PULSANTE SCANSIONE -->
       <button type="button" class="btn-scan" onclick="avviaScansionePokemon()">
         <i class="fas fa-camera-retro"></i> ⚡ SCANSIONA CARTA POKÉMON ⚡
       </button>
 
-      <!-- CAMERA CON OVERLAY -->
       <div id="cameraContainer">
         <video id="cameraView" autoplay playsinline></video>
         <div class="scan-zones">
@@ -1402,7 +1842,7 @@
 
   </div>
 
-  <!-- MODAL GRAFICO GIGANTE -->
+  <!-- MODAL GRAFICO -->
   <div id="modalGrafico" class="modal">
     <div class="modal-content graph-modal">
       <div class="modal-header">
@@ -1509,7 +1949,35 @@
     let stream = null;
     let currentChart = null;
 
-    // ========== PARTICELLE ANIMATE ==========
+    // DATABASE CARTE POKEMON
+    const POKEMON_DATABASE = {
+      // Espansioni principali
+      'SVI': { nome: 'Scarlatto e Violetto Base', max: 198 },
+      'PAL': { nome: 'Paldea Evolved', max: 279 },
+      'OBF': { nome: 'Obsidian Flames', max: 230 },
+      'PAR': { nome: 'Paradox Rift', max: 266 },
+      'PAF': { nome: 'Paldean Fates', max: 245 },
+      'TEF': { nome: 'Temporal Forces', max: 218 },
+      'TWM': { nome: 'Twilight Masquerade', max: 226 },
+      'SHR': { nome: 'Shrouded Fable', max: 99 },
+      'SCR': { nome: 'Stellar Crown', max: 175 },
+      'SSP': { nome: 'Surging Sparks', max: 252 },
+      
+      // Pokémon comuni
+      nomiComuni: [
+        'Pikachu', 'Charizard', 'Mewtwo', 'Mew', 'Lucario', 'Greninja', 
+        'Rayquaza', 'Garchomp', 'Gardevoir', 'Umbreon', 'Espeon', 'Eevee',
+        'Snorlax', 'Dragonite', 'Gyarados', 'Gengar', 'Alakazam', 'Machamp',
+        'Blastoise', 'Venusaur', 'Zapdos', 'Articuno', 'Moltres', 'Lugia',
+        'Ho-Oh', 'Celebi', 'Jirachi', 'Deoxys', 'Dialga', 'Palkia', 'Giratina',
+        'Arceus', 'Reshiram', 'Zekrom', 'Kyurem', 'Xerneas', 'Yveltal', 'Zygarde',
+        'Solgaleo', 'Lunala', 'Necrozma', 'Zacian', 'Zamazenta', 'Eternatus',
+        'Calyrex', 'Koraidon', 'Miraidon', 'Terapagos', 'Ogerpon', 'Pecharunt',
+        'Pawmo', 'Pawmi', 'Pawmot', 'Sprigatito', 'Floragato', 'Meowscarada',
+        'Fuecoco', 'Crocalor', 'Skeledirge', 'Quaxly', 'Quaxwell', 'Quaquaval'
+      ]
+    };
+
     function creaParticelle() {
       const container = document.getElementById('particles');
       for (let i = 0; i < 30; i++) {
@@ -1523,7 +1991,6 @@
     }
     creaParticelle();
 
-    // ========== PIKACHU CLICK ==========
     function pikachuClick() {
       const pikachus = document.querySelectorAll('.pikachu-logo');
       pikachus.forEach(p => {
@@ -1534,8 +2001,103 @@
       });
     }
 
-    // ========== SCANSIONE POKÉMON ALGORITHM SUPREMO ==========
-    
+    function toggleFilters() {
+      const content = document.getElementById('filterContent');
+      const toggle = document.getElementById('filterToggle');
+      const isExpanded = content.classList.contains('active');
+      
+      if (isExpanded) {
+        content.classList.remove('active');
+        toggle.classList.remove('expanded');
+        toggle.innerHTML = '<i class="fas fa-chevron-down"></i><span>ESPANDI</span>';
+      } else {
+        content.classList.add('active');
+        toggle.classList.add('expanded');
+        toggle.innerHTML = '<i class="fas fa-chevron-up"></i><span>CHIUDI</span>';
+      }
+    }
+
+    function updateRangeDisplay() {
+      const min = document.getElementById('fValoreMin').value || 0;
+      const max = document.getElementById('fValoreMax').value || 1000;
+      document.getElementById('rangeValoreDisplay').textContent = `${min}€ - ${max}€`;
+    }
+
+    function updateStatoDisplay() {
+      const stato = document.getElementById('fStato').value;
+      const display = document.getElementById('rangeStatoDisplay');
+      if (stato) {
+        display.textContent = stato + '⭐+';
+      } else {
+        display.textContent = 'Tutte';
+      }
+    }
+
+    function toggleSortDirection() {
+      const btn = document.getElementById('sortDirBtn');
+      const icon = btn.querySelector('i');
+      
+      if (icon.classList.contains('fa-sort-amount-down')) {
+        icon.classList.remove('fa-sort-amount-down');
+        icon.classList.add('fa-sort-amount-up');
+        btn.classList.add('active');
+      } else {
+        icon.classList.remove('fa-sort-amount-up');
+        icon.classList.add('fa-sort-amount-down');
+        btn.classList.remove('active');
+      }
+      
+      applicaFiltri();
+    }
+
+    function switchView(view) {
+      const tableBtn = document.getElementById('viewTableBtn');
+      const gridBtn = document.getElementById('viewGridBtn');
+      const desktopTable = document.getElementById('desktopTable');
+      const cardsOut = document.getElementById('cardsOut');
+      
+      if (view === 'table') {
+        tableBtn.classList.add('active');
+        gridBtn.classList.remove('active');
+        desktopTable.style.display = 'block';
+        cardsOut.style.display = 'none';
+      } else {
+        tableBtn.classList.remove('active');
+        gridBtn.classList.add('active');
+        desktopTable.style.display = 'none';
+        cardsOut.style.display = 'grid';
+        cardsOut.style.gridTemplateColumns = 'repeat(auto-fill, minmax(300px, 1fr))';
+        cardsOut.style.gap = '20px';
+      }
+    }
+
+    function applicaFiltri() {
+      carica();
+    }
+
+    function resetFiltri() {
+      document.getElementById('fNome').value = '';
+      document.getElementById('fCategoria').value = '';
+      document.getElementById('fValoreMin').value = '0';
+      document.getElementById('fValoreMax').value = '1000';
+      document.getElementById('fStato').value = '';
+      document.getElementById('fPresenti').checked = true;
+      document.getElementById('fAssenti').checked = true;
+      document.getElementById('fProfit').checked = false;
+      document.getElementById('fLoss').checked = false;
+      document.getElementById('fSortBy').value = 'created_at_desc';
+      
+      updateRangeDisplay();
+      updateStatoDisplay();
+      
+      const sortBtn = document.getElementById('sortDirBtn');
+      sortBtn.querySelector('i').classList.remove('fa-sort-amount-up');
+      sortBtn.querySelector('i').classList.add('fa-sort-amount-down');
+      sortBtn.classList.remove('active');
+      
+      carica();
+    }
+
     async function avviaScansionePokemon() {
       const video = document.getElementById('cameraView');
       const container = document.getElementById('cameraContainer');
@@ -1555,7 +2117,7 @@
         
         scanMsg.className = 'msg info';
         scanMsg.style.display = 'block';
-        scanMsg.innerHTML = '<i class="fas fa-camera"></i> <strong>⚡ FOTOCAMERA ATTIVA ⚡</strong> Inquadra la carta nelle zone evidenziate';
+        scanMsg.innerHTML = '<i class="fas fa-camera"></i> <strong>⚡ FOTOCAMERA ATTIVA ⚡</strong>';
         
         video.onclick = () => scansionaCartaPokemon();
         
@@ -1586,7 +2148,7 @@
       canvas.style.display = 'block';
       
       scanMsg.className = 'msg info';
-      scanMsg.innerHTML = '<i class="fas fa-cog fa-spin"></i> <strong>⚡ ELABORAZIONE ALGORITMO SUPREMO ⚡</strong>';
+      scanMsg.innerHTML = '<i class="fas fa-cog fa-spin"></i> <strong>⚡ ANALISI AVANZATA CON DATABASE ⚡</strong>';
       
       await elaborazioneSupremaPokemon(canvas, ctx);
     }
@@ -1597,7 +2159,6 @@
       const h = canvas.height;
       
       try {
-        // ZONA NOME: Top 6-16%, Centro orizzontale 12-88%
         const nomeCanvas = document.createElement('canvas');
         const nomeCtx = nomeCanvas.getContext('2d');
         nomeCanvas.width = Math.floor(w * 0.76);
@@ -1608,21 +2169,18 @@
           0, 0, nomeCanvas.width, nomeCanvas.height
         );
         
-        // Pre-elabora zona nome
         preprocessPokemonZone(nomeCtx, nomeCanvas.width, nomeCanvas.height, 'nome');
         
-        scanMsg.innerHTML = '<i class="fas fa-bolt fa-spin"></i> <strong>SCANSIONE NOME...</strong> 25%';
+        scanMsg.innerHTML = '<i class="fas fa-bolt fa-spin"></i> <strong>SCANSIONE NOME...</strong> 30%';
         
-        // OCR ZONA NOME
         const nomeResult = await Tesseract.recognize(nomeCanvas.toDataURL('image/png'), 'eng+ita', {
           logger: () => {},
           tessedit_pageseg_mode: Tesseract.PSM.SINGLE_LINE,
           tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÀÈÉÌÒÙàèéìòù '
         });
         
-        console.log('NOME RAW:', nomeResult.data.text);
+        console.log('🎴 NOME RAW:', nomeResult.data.text);
         
-        // ZONA ESPANSIONE: Bottom 5-13%, Left 3-42%
         const expCanvas = document.createElement('canvas');
         const expCtx = expCanvas.getContext('2d');
         expCanvas.width = Math.floor(w * 0.39);
@@ -1633,21 +2191,21 @@
           0, 0, expCanvas.width, expCanvas.height
         );
         
-        // Pre-elabora zona espansione
         preprocessPokemonZone(expCtx, expCanvas.width, expCanvas.height, 'expansion');
         
-        scanMsg.innerHTML = '<i class="fas fa-bolt fa-spin"></i> <strong>SCANSIONE ESPANSIONE...</strong> 75%';
+        scanMsg.innerHTML = '<i class="fas fa-bolt fa-spin"></i> <strong>SCANSIONE ESPANSIONE...</strong> 70%';
         
-        // OCR ZONA ESPANSIONE
         const expResult = await Tesseract.recognize(expCanvas.toDataURL('image/png'), 'eng', {
           logger: () => {},
           tessedit_pageseg_mode: Tesseract.PSM.SINGLE_LINE,
           tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/ '
         });
         
-        console.log('ESPANSIONE RAW:', expResult.data.text);
+        console.log('📦 ESPANSIONE RAW:', expResult.data.text);
         
-        const info = estraiDatiPokemonSupremo(nomeResult.data.text, expResult.data.text);
+        scanMsg.innerHTML = '<i class="fas fa-database fa-spin"></i> <strong>VALIDAZIONE CON DATABASE...</strong> 90%';
+        
+        const info = estraiDatiPokemonConDatabase(nomeResult.data.text, expResult.data.text);
         
         if (info.nome) {
           document.getElementById('nomeInput').value = info.nome;
@@ -1689,16 +2247,12 @@
         const g = data[i + 1];
         const b = data[i + 2];
         
-        // Calcola luminosità
         const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
         
-        // CONTRASTO ESTREMO per testo nero su sfondo chiaro
         let adjusted;
         if (tipo === 'nome') {
-          // Zona nome: testo nero su giallo/bianco
           adjusted = brightness > 140 ? 255 : brightness < 90 ? 0 : brightness;
         } else {
-          // Zona espansione: testo nero piccolo
           adjusted = brightness > 130 ? 255 : brightness < 100 ? 0 : brightness;
         }
         
@@ -1708,51 +2262,89 @@
       ctx.putImageData(imageData, 0, 0);
     }
 
-    function estraiDatiPokemonSupremo(testoNome, testoExp) {
-      console.log('=== ESTRAZIONE SUPREMA ===');
-      console.log('Nome:', testoNome);
-      console.log('Exp:', testoExp);
+    function estraiDatiPokemonConDatabase(testoNome, testoExp) {
+      console.log('=== 🔍 ESTRAZIONE CON DATABASE ===');
+      console.log('📝 Nome OCR:', testoNome);
+      console.log('📦 Exp OCR:', testoExp);
       
       // PULISCI NOME
-      let nome = testoNome
+      let nomeRaw = testoNome
         .trim()
-        .replace(/[^a-zA-ZÀ-ÿ\s]/g, '')  // Solo lettere
+        .replace(/[^a-zA-ZÀ-ÿ\s]/g, '')
         .replace(/\s+/g, ' ')
         .trim();
       
-      // Rimuovi prefissi comuni
-      nome = nome.replace(/^(HP|ATK|DEF|Basic|Stage|Evolution|Pokémon)\s*/gi, '').trim();
+      nomeRaw = nomeRaw.replace(/^(HP|ATK|DEF|Basic|Stage|Evolution|Pokémon)\s*/gi, '').trim();
+      
+      // MATCH CON DATABASE
+      let nomeTrovato = '';
+      const nomeLC = nomeRaw.toLowerCase();
+      
+      for (const pokemon of POKEMON_DATABASE.nomiComuni) {
+        if (nomeLC.includes(pokemon.toLowerCase()) || 
+            pokemon.toLowerCase().includes(nomeLC)) {
+          nomeTrovato = pokemon;
+          console.log('✅ MATCH NOME:', pokemon);
+          break;
+        }
+      }
+      
+      if (!nomeTrovato) nomeTrovato = nomeRaw;
       
       // ESTRAI ESPANSIONE E NUMERO
       let espansione = '';
       let numero = '';
+      let espansioneTrovata = false;
       
-      // Pattern: SVI 075/198, PAL 15/100, etc.
-      const pattern = /([A-Z]{2,4})\s*(\d{1,4})\s*\/\s*(\d{1,4})/;
+      // Pattern principale: SVI 075/198
+      const pattern = /([A-Z]{2,4})\s*(\d{1,4})\s*[\/\\]\s*(\d{1,4})/;
       const match = testoExp.match(pattern);
       
       if (match) {
-        espansione = match[1].toUpperCase();
-        const num1 = match[2].padStart(3, '0');
-        const num2 = match[3].padStart(3, '0');
-        numero = `${num1}/${num2}`;
-      } else {
-        // Fallback: cerca solo sigla
-        const siglaMatch = testoExp.match(/\b([A-Z]{2,4})\b/);
-        if (siglaMatch) {
-          espansione = siglaMatch[1].toUpperCase();
+        const sigla = match[1].toUpperCase();
+        const num1 = parseInt(match[2]);
+        const num2 = parseInt(match[3]);
+        
+        // VALIDA CON DATABASE
+        if (POKEMON_DATABASE[sigla]) {
+          espansione = sigla;
+          numero = `${String(num1).padStart(3, '0')}/${String(num2).padStart(3, '0')}`;
+          espansioneTrovata = true;
+          console.log('✅ MATCH ESPANSIONE:', sigla, '- Max carte:', POKEMON_DATABASE[sigla].max);
         }
       }
       
-      const descrizione = espansione && numero ? `${espansione} - ${numero}` : espansione;
+      // Se non trovata, cerca solo sigla
+      if (!espansioneTrovata) {
+        for (const sigla in POKEMON_DATABASE) {
+          if (sigla === 'nomiComuni') continue;
+          if (testoExp.includes(sigla)) {
+            espansione = sigla;
+            console.log('✅ MATCH SIGLA:', sigla);
+            break;
+          }
+        }
+      }
       
-      console.log('RISULTATO:', { nome, espansione, numero, descrizione });
+      const descrizione = espansione && numero ? 
+        `${espansione} - ${numero}` : 
+        espansione || '';
       
-      return { nome, espansione, numero, descrizione };
+      console.log('🎯 RISULTATO FINALE:', { 
+        nome: nomeTrovato, 
+        espansione, 
+        numero, 
+        descrizione 
+      });
+      
+      return { 
+        nome: nomeTrovato, 
+        espansione, 
+        numero, 
+        descrizione 
+      };
     }
 
-    // ========== GRAFICI INTERATTIVI GIGANTI ==========
-    
     async function apriGrafico(tipo) {
       const { data, error } = await client.from("Articoli").select("*").order('created_at', { ascending: true });
       
@@ -1774,23 +2366,108 @@
 
       switch(tipo) {
         case 'totale':
-          chartConfig = generaGraficoCrescita(data);
+          chartConfig = {
+            type: 'line',
+            data: {
+              labels: data.map(r => new Date(r.created_at).toLocaleDateString('it-IT')),
+              datasets: [{
+                label: '📦 Numero Articoli',
+                data: data.map((r, i) => i + 1),
+                borderColor: '#fbbf24',
+                backgroundColor: 'rgba(251, 191, 36, 0.2)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 4,
+                pointRadius: 6,
+                pointHoverRadius: 10,
+                pointBackgroundColor: '#fbbf24',
+                pointBorderColor: '#000',
+                pointBorderWidth: 3
+              }]
+            }
+          };
           document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-layer-group"></i> CRESCITA COLLEZIONE';
           break;
         case 'valore':
-          chartConfig = generaGraficoValore(data);
+          let cumVal = 0;
+          chartConfig = {
+            type: 'line',
+            data: {
+              labels: data.map(r => new Date(r.created_at).toLocaleDateString('it-IT')),
+              datasets: [{
+                label: '💎 Valore Totale (€)',
+                data: data.map(r => cumVal += Number(r.ValoreAttuale || 0)),
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 4,
+                pointRadius: 6,
+                pointHoverRadius: 10,
+                pointBackgroundColor: '#10b981',
+                pointBorderColor: '#000',
+                pointBorderWidth: 3
+              }]
+            }
+          };
           document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-gem"></i> VALORE NEL TEMPO';
           break;
         case 'spesa':
-          chartConfig = generaGraficoSpesa(data);
+          let cumSpe = 0;
+          chartConfig = {
+            type: 'line',
+            data: {
+              labels: data.map(r => new Date(r.created_at).toLocaleDateString('it-IT')),
+              datasets: [{
+                label: '💳 Spesa Totale (€)',
+                data: data.map(r => cumSpe += Number(r.PrezzoPagato || 0)),
+                borderColor: '#f97316',
+                backgroundColor: 'rgba(249, 115, 22, 0.2)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 4,
+                pointRadius: 6,
+                pointHoverRadius: 10,
+                pointBackgroundColor: '#f97316',
+                pointBorderColor: '#000',
+                pointBorderWidth: 3
+              }]
+            }
+          };
           document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-wallet"></i> INVESTIMENTO';
           break;
         case 'performance':
-          chartConfig = generaGraficoPerformance(data);
+          const values = data.map(r => Number(r.ValoreAttuale || 0) - Number(r.PrezzoPagato || 0));
+          chartConfig = {
+            type: 'bar',
+            data: {
+              labels: data.map(r => r.Nome),
+              datasets: [{
+                label: '📊 Guadagno/Perdita (€)',
+                data: values,
+                backgroundColor: values.map(v => v >= 0 ? 'rgba(16, 185, 129, 0.8)' : 'rgba(239, 68, 68, 0.8)'),
+                borderColor: values.map(v => v >= 0 ? '#10b981' : '#ef4444'),
+                borderWidth: 3
+              }]
+            }
+          };
           document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-rocket"></i> PERFORMANCE';
           break;
         case 'presenti':
-          chartConfig = generaGraficoPresenti(data);
+          const presenti = data.filter(r => r.Presente).length;
+          const assenti = data.length - presenti;
+          chartConfig = {
+            type: 'doughnut',
+            data: {
+              labels: ['✅ Presenti', '❌ Assenti'],
+              datasets: [{
+                data: [presenti, assenti],
+                backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)'],
+                borderColor: ['#10b981', '#ef4444'],
+                borderWidth: 4
+              }]
+            }
+          };
           document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-box-open"></i> MAGAZZINO';
           break;
       }
@@ -1872,111 +2549,6 @@
       }
     }
 
-    function generaGraficoCrescita(data) {
-      return {
-        type: 'line',
-        data: {
-          labels: data.map(r => new Date(r.created_at).toLocaleDateString('it-IT')),
-          datasets: [{
-            label: '📦 Numero Articoli',
-            data: data.map((r, i) => i + 1),
-            borderColor: '#fbbf24',
-            backgroundColor: 'rgba(251, 191, 36, 0.2)',
-            fill: true,
-            tension: 0.4,
-            borderWidth: 4,
-            pointRadius: 6,
-            pointHoverRadius: 10,
-            pointBackgroundColor: '#fbbf24',
-            pointBorderColor: '#000',
-            pointBorderWidth: 3
-          }]
-        }
-      };
-    }
-
-    function generaGraficoValore(data) {
-      let cumulative = 0;
-      return {
-        type: 'line',
-        data: {
-          labels: data.map(r => new Date(r.created_at).toLocaleDateString('it-IT')),
-          datasets: [{
-            label: '💎 Valore Totale (€)',
-            data: data.map(r => cumulative += Number(r.ValoreAttuale || 0)),
-            borderColor: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.2)',
-            fill: true,
-            tension: 0.4,
-            borderWidth: 4,
-            pointRadius: 6,
-            pointHoverRadius: 10,
-            pointBackgroundColor: '#10b981',
-            pointBorderColor: '#000',
-            pointBorderWidth: 3
-          }]
-        }
-      };
-    }
-
-    function generaGraficoSpesa(data) {
-      let cumulative = 0;
-      return {
-        type: 'line',
-        data: {
-          labels: data.map(r => new Date(r.created_at).toLocaleDateString('it-IT')),
-          datasets: [{
-            label: '💳 Spesa Totale (€)',
-            data: data.map(r => cumulative += Number(r.PrezzoPagato || 0)),
-            borderColor: '#f97316',
-            backgroundColor: 'rgba(249, 115, 22, 0.2)',
-            fill: true,
-            tension: 0.4,
-            borderWidth: 4,
-            pointRadius: 6,
-            pointHoverRadius: 10,
-            pointBackgroundColor: '#f97316',
-            pointBorderColor: '#000',
-            pointBorderWidth: 3
-          }]
-        }
-      };
-    }
-
-    function generaGraficoPerformance(data) {
-      const values = data.map(r => Number(r.ValoreAttuale || 0) - Number(r.PrezzoPagato || 0));
-      return {
-        type: 'bar',
-        data: {
-          labels: data.map(r => r.Nome),
-          datasets: [{
-            label: '📊 Guadagno/Perdita (€)',
-            data: values,
-            backgroundColor: values.map(v => v >= 0 ? 'rgba(16, 185, 129, 0.8)' : 'rgba(239, 68, 68, 0.8)'),
-            borderColor: values.map(v => v >= 0 ? '#10b981' : '#ef4444'),
-            borderWidth: 3
-          }]
-        }
-      };
-    }
-
-    function generaGraficoPresenti(data) {
-      const presenti = data.filter(r => r.Presente).length;
-      const assenti = data.length - presenti;
-      return {
-        type: 'doughnut',
-        data: {
-          labels: ['✅ Presenti', '❌ Assenti'],
-          datasets: [{
-            data: [presenti, assenti],
-            backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)'],
-            borderColor: ['#10b981', '#ef4444'],
-            borderWidth: 4
-          }]
-        }
-      };
-    }
-
     function chiudiGrafico() {
       document.getElementById('modalGrafico').classList.remove('active');
       if (currentChart) {
@@ -1985,8 +2557,6 @@
       }
     }
 
-    // ========== FUNZIONI STANDARD ==========
-    
     function calcolaDeltaAdd() {
       const valore = parseFloat(document.getElementById('valoreAttualeAdd').value) || 0;
       const prezzo = parseFloat(document.getElementById('prezzoPagatoAdd').value) || 0;
@@ -2037,16 +2607,96 @@
     async function carica() {
       const nome = document.getElementById("fNome").value;
       const categoria = document.getElementById("fCategoria").value;
+      const valoreMin = parseFloat(document.getElementById('fValoreMin').value) || 0;
+      const valoreMax = parseFloat(document.getElementById('fValoreMax').value) || 999999;
+      const statoMin = parseInt(document.getElementById('fStato').value) || 0;
+      const presenti = document.getElementById('fPresenti').checked;
+      const assenti = document.getElementById('fAssenti').checked;
+      const profit = document.getElementById('fProfit').checked;
+      const loss = document.getElementById('fLoss').checked;
+      const sortBy = document.getElementById('fSortBy').value;
 
-      let query = client.from("Articoli").select("*").order('created_at', { ascending: false });
+      let query = client.from("Articoli").select("*");
+
       if (nome) query = query.ilike("Nome", `%${nome}%`);
-      if (categoria) query = query.ilike("Categoria", `%${categoria}%`);
+      if (categoria) query = query.eq("Categoria", categoria);
+      query = query.gte('ValoreAttuale', valoreMin);
+      query = query.lte('ValoreAttuale', valoreMax);
+      if (statoMin > 0) query = query.gte('ValutazioneStato', statoMin);
 
       const { data, error } = await query;
+
+      if (error) {
+        console.error('Errore caricamento:', error);
+        return;
+      }
+
+      let filtered = data || [];
+
+      if (!presenti && !assenti) {
+        filtered = [];
+      } else if (!presenti) {
+        filtered = filtered.filter(r => !r.Presente);
+      } else if (!assenti) {
+        filtered = filtered.filter(r => r.Presente);
+      }
+
+      if (profit || loss) {
+        filtered = filtered.filter(r => {
+          const delta = (Number(r.ValoreAttuale) || 0) - (Number(r.PrezzoPagato) || 0);
+          if (profit && loss) return true;
+          if (profit) return delta > 0;
+          if (loss) return delta < 0;
+          return false;
+        });
+      }
+
+      const [field, dir] = sortBy.split('_');
+      const sortIcon = document.getElementById('sortDirBtn').querySelector('i');
+      const isReverse = sortIcon.classList.contains('fa-sort-amount-up');
+
+      filtered.sort((a, b) => {
+        let valA, valB;
+        
+        switch(field) {
+          case 'created':
+            valA = new Date(a.created_at);
+            valB = new Date(b.created_at);
+            break;
+          case 'nome':
+            valA = (a.Nome || '').toLowerCase();
+            valB = (b.Nome || '').toLowerCase();
+            break;
+          case 'valore':
+            valA = Number(a.ValoreAttuale) || 0;
+            valB = Number(b.ValoreAttuale) || 0;
+            break;
+          case 'delta':
+            valA = (Number(a.ValoreAttuale) || 0) - (Number(a.PrezzoPagato) || 0);
+            valB = (Number(b.ValoreAttuale) || 0) - (Number(b.PrezzoPagato) || 0);
+            break;
+          case 'stato':
+            valA = Number(a.ValutazioneStato) || 0;
+            valB = Number(b.ValutazioneStato) || 0;
+            break;
+          default:
+            valA = new Date(a.created_at);
+            valB = new Date(b.created_at);
+        }
+
+        let result = valA > valB ? 1 : valA < valB ? -1 : 0;
+        if (dir === 'desc') result *= -1;
+        if (isReverse) result *= -1;
+        
+        return result;
+      });
+
+      document.getElementById('resultsCount').textContent = filtered.length;
+
       const tableOut = document.getElementById("tableOut");
       const cardsOut = document.getElementById("cardsOut");
 
-      if (error || !data || data.length === 0) {
+      if (filtered.length === 0) {
         const emptyMsg = '<i class="fas fa-inbox" style="font-size: 48px; opacity: 0.3;"></i><div style="margin-top: 16px;">Nessun risultato</div>';
         tableOut.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 50px; color: #6b7280;">${emptyMsg}</td></tr>`;
         cardsOut.innerHTML = `<div class="card"><div class="card-header">${emptyMsg}</div></div>`;
@@ -2054,10 +2704,10 @@
         return;
       }
 
-      aggiornaCruscotto(data);
+      aggiornaCruscotto(filtered);
 
       tableOut.innerHTML = "";
-      data.forEach(r => {
+      filtered.forEach(r => {
         const delta = (Number(r.ValoreAttuale) || 0) - (Number(r.PrezzoPagato) || 0);
         const presenteBadge = r.Presente 
           ? '<span class="badge presente"><i class="fas fa-check"></i> YES</span>' 
@@ -2084,7 +2734,7 @@
       });
 
       cardsOut.innerHTML = "";
-      data.forEach(r => {
+      filtered.forEach(r => {
         const delta = (Number(r.ValoreAttuale) || 0) - (Number(r.PrezzoPagato) || 0);
         const presenteBadge = r.Presente 
           ? '<span class="badge presente"><i class="fas fa-check"></i> PRESENTE</span>' 
@@ -2107,10 +2757,6 @@
                 <span class="card-value">${r.id}</span>
               </div>
               <div class="card-row">
-                <span class="card-label"><i class="fas fa-calendar"></i> DATA</span>
-                <span class="card-value">${new Date(r.created_at).toLocaleDateString('it-IT')}</span>
-              </div>
-              <div class="card-row">
                 <span class="card-label"><i class="fas fa-scroll"></i> DESCRIZIONE</span>
                 <span class="card-value">${r.Descrizione || "—"}</span>
               </div>
@@ -2119,18 +2765,10 @@
                 <span class="card-value" style="color: #10b981; font-weight: 700;">${Number(r.ValoreAttuale || 0).toFixed(2)} €</span>
               </div>
               <div class="card-row">
-                <span class="card-label"><i class="fas fa-receipt"></i> PREZZO</span>
-                <span class="card-value">${Number(r.PrezzoPagato || 0).toFixed(2)} €</span>
-              </div>
-              <div class="card-row">
                 <span class="card-label"><i class="fas fa-chart-line"></i> GAIN/LOSS</span>
                 <span class="card-value" style="color: ${delta >= 0 ? '#10b981' : '#ef4444'}; font-weight: 800;">
                   ${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €
                 </span>
-              </div>
-              <div class="card-row">
-                <span class="card-label"><i class="fas fa-star"></i> STATO</span>
-                <span class="card-value">${r.ValutazioneStato ? r.ValutazioneStato + '/10 ⭐' : '—'}</span>
               </div>
               <div class="card-row">
                 <span class="card-label"><i class="fas fa-warehouse"></i> STOCK</span>
@@ -2161,7 +2799,6 @@
       document.getElementById('editPresente').checked = articolo.Presente || false;
       calcolaDeltaEdit();
       document.getElementById('modalModifica').classList.add('active');
-      document.getElementById('modalMsg').className = 'msg';
     }
 
     function chiudiModale() {
@@ -2171,7 +2808,7 @@
     async function eliminaArticolo() {
       const id = document.getElementById('editId').value;
       const nome = document.getElementById('editNome').value;
-      if (!confirm(`⚠️ ELIMINARE "${nome}"?\n\nAzione IRREVERSIBILE!`)) return;
+      if (!confirm(`⚠️ ELIMINARE "${nome}"?`)) return;
 
       const { error } = await client.from('Articoli').delete().eq('id', id);
       const msg = document.getElementById('modalMsg');
@@ -2179,9 +2816,11 @@
       if (error) {
         msg.className = 'msg error';
         msg.textContent = '❌ ERRORE: ' + error.message;
+        msg.style.display = 'block';
       } else {
         msg.className = 'msg success';
         msg.textContent = '✅ ELIMINATO!';
+        msg.style.display = 'block';
         setTimeout(() => { chiudiModale(); carica(); }, 1500);
       }
     }
@@ -2210,9 +2849,11 @@
       if (error) {
         msg.className = 'msg error';
         msg.textContent = '❌ ERRORE: ' + error.message;
+        msg.style.display = 'block';
       } else {
         msg.className = 'msg success';
         msg.textContent = '✅ SALVATO!';
+        msg.style.display = 'block';
         setTimeout(() => { chiudiModale(); carica(); }, 1500);
       }
     }
@@ -2244,7 +2885,7 @@
         msg.style.display = 'block';
       } else {
         msg.className = 'msg success';
-        msg.textContent = '✅ AGGIUNTO ALLA COLLEZIONE!';
+        msg.textContent = '✅ AGGIUNTO!';
         msg.style.display = 'block';
         form.reset();
         document.getElementById('deltaAdd').value = '';
