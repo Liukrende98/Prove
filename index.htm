@@ -570,6 +570,17 @@
       box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
     }
 
+    .btn-delete {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-delete:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    }
+
     .btn-save {
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: white;
@@ -703,6 +714,11 @@
       margin-right: 8px;
     }
 
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
     /* RESPONSIVE */
     @media (max-width: 768px) {
       h1 {
@@ -737,6 +753,10 @@
         padding: 10px 20px;
         font-size: 14px;
       }
+
+      .action-buttons {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
@@ -745,7 +765,7 @@
 
   <!-- HEADER -->
   <div class="header">
-    <h1><i class="fas fa-gem"></i>Liuk & Tremon</h1>
+    <h1><i class="fas fa-gem"></i> Liuk & Tremon</h1>
     
     <div class="tabs">
       <button class="tab active" onclick="switchTab('archivio')">
@@ -977,6 +997,12 @@
             <i class="fas fa-times"></i> Annulla
           </button>
         </div>
+
+        <div style="margin-top: 24px; padding-top: 24px; border-top: 2px solid #f3f4f6;">
+          <button type="button" class="btn-action btn-delete" style="width: 100%;" onclick="eliminaArticolo()">
+            <i class="fas fa-trash"></i> Elimina Articolo
+          </button>
+        </div>
       </form>
     </div>
   </div>
@@ -1096,9 +1122,11 @@
             <td>${statoStelle}</td>
             <td>${presenteBadge}</td>
             <td>
-              <button class="btn-action btn-edit" onclick='apriModale(${JSON.stringify(r).replace(/'/g, "&apos;")})'>
-                <i class="fas fa-edit"></i> Modifica
-              </button>
+              <div class="action-buttons">
+                <button class="btn-action btn-edit" onclick='apriModale(${JSON.stringify(r).replace(/'/g, "&apos;")})'>
+                  <i class="fas fa-edit"></i> Modifica
+                </button>
+              </div>
             </td>
           </tr>`;
       });
@@ -1195,6 +1223,33 @@
     // CHIUDI MODALE
     function chiudiModale() {
       document.getElementById('modalModifica').classList.remove('active');
+    }
+
+    // ELIMINA ARTICOLO
+    async function eliminaArticolo() {
+      const id = document.getElementById('editId').value;
+      const nome = document.getElementById('editNome').value;
+
+      if (!confirm(`Sei sicuro di voler eliminare "${nome}"?\n\nQuesta azione è irreversibile!`)) {
+        return;
+      }
+
+      const { error } = await client.from('Articoli').delete().eq('id', id);
+
+      const msg = document.getElementById('modalMsg');
+
+      if (error) {
+        msg.className = 'msg error';
+        msg.textContent = '❌ Errore: ' + error.message;
+      } else {
+        msg.className = 'msg success';
+        msg.textContent = '✅ Articolo eliminato con successo!';
+        
+        setTimeout(() => {
+          chiudiModale();
+          carica();
+        }, 1500);
+      }
     }
 
     // SALVA MODIFICA
