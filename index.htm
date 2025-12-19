@@ -416,10 +416,12 @@
 
     .filter-header {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;   /* ← CHIAVE */
+      align-items: stretch;
+      gap: 16px;
       margin-bottom: 24px;
     }
+
 
     .filter-title {
       font-size: 20px;
@@ -446,6 +448,9 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      .filter-toggle {
+      width: 100%;              /* ← LARGO COME CONTENITORE */
+      justify-content: center;
     }
 
     .filter-toggle:hover {
@@ -2900,6 +2905,7 @@
 
 </body>
 </html>
+
 
 
 
