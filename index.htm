@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
-  <title> Liuk & Tremon </title>
+  <title>⚡ Liuk & Tremon - Pokémon Collection ⚡</title>
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -416,12 +416,10 @@
 
     .filter-header {
       display: flex;
-      flex-direction: column;   /* ← CHIAVE */
-      align-items: stretch;
-      gap: 16px;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 24px;
     }
-
 
     .filter-title {
       font-size: 20px;
@@ -448,9 +446,6 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      .filter-toggle {
-      width: 100%;              /* ← LARGO COME CONTENITORE */
-      justify-content: center;
     }
 
     .filter-toggle:hover {
@@ -1526,7 +1521,13 @@
 <body>
   <div class="particles" id="particles"></div>
 
-  <div class="header">    
+  <div class="header">
+    <h1>
+      <span class="pikachu-logo" onclick="pikachuClick()">⚡</span>
+      <span class="title-gradient">LIUK & TREMON</span>
+      <span class="pikachu-logo" onclick="pikachuClick()">⚡</span>
+    </h1>
+    
     <div class="tabs">
       <button class="tab active" onclick="switchTab('archivio')">
         <i class="fas fa-archive"></i> ARCHIVIO
@@ -1581,11 +1582,11 @@
         <div class="filter-header">
           <div class="filter-title">
             <i class="fas fa-sliders-h"></i>
-             
+            FILTRI AVANZATI
           </div>
           <button class="filter-toggle" onclick="toggleFilters()" id="filterToggle">
             <i class="fas fa-chevron-down"></i>
-            <span>FILTRA</span>
+            <span>ESPANDI</span>
           </button>
         </div>
 
@@ -2008,7 +2009,7 @@
       if (isExpanded) {
         content.classList.remove('active');
         toggle.classList.remove('expanded');
-        toggle.innerHTML = '<i class="fas fa-chevron-down"></i><span>FILTRA</span>';
+        toggle.innerHTML = '<i class="fas fa-chevron-down"></i><span>ESPANDI</span>';
       } else {
         content.classList.add('active');
         toggle.classList.add('expanded');
@@ -2709,7 +2710,7 @@
       filtered.forEach(r => {
         const delta = (Number(r.ValoreAttuale) || 0) - (Number(r.PrezzoPagato) || 0);
         const presenteBadge = r.Presente 
-          ? '<span class="badge presente"><i class="fas fa-check"></i> SI</span>' 
+          ? '<span class="badge presente"><i class="fas fa-check"></i> YES</span>' 
           : '<span class="badge assente"><i class="fas fa-times"></i> NO</span>';
         const statoStelle = r.ValutazioneStato ? '⭐'.repeat(Math.min(r.ValutazioneStato, 10)) : '—';
 
@@ -2726,7 +2727,7 @@
             <td>${presenteBadge}</td>
             <td>
               <button class="btn-action btn-edit" onclick='apriModale(${JSON.stringify(r).replace(/'/g, "&apos;")})'>
-                <i class="fas fa-edit"></i> MODIFICA
+                <i class="fas fa-edit"></i> EDIT
               </button>
             </td>
           </tr>`;
@@ -2764,7 +2765,7 @@
                 <span class="card-value" style="color: #10b981; font-weight: 700;">${Number(r.ValoreAttuale || 0).toFixed(2)} €</span>
               </div>
               <div class="card-row">
-                <span class="card-label"><i class="fas fa-chart-line"></i> GUADAGNO/PERDITA</span>
+                <span class="card-label"><i class="fas fa-chart-line"></i> GAIN/LOSS</span>
                 <span class="card-value" style="color: ${delta >= 0 ? '#10b981' : '#ef4444'}; font-weight: 800;">
                   ${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €
                 </span>
@@ -2905,9 +2906,3 @@
 
 </body>
 </html>
-
-
-
-
-
-
