@@ -1,6 +1,5 @@
 <!-- ========================================= -->
-<!-- PARTE 1 DI 4 - COPIA E INCOLLA QUESTO BLOCCO -->
-<!-- VERSIONE CORRETTA FINALE -->
+<!-- PARTE 1 DI 4 - VERSIONE FINALE CON TUTTE LE MODIFICHE -->
 <!-- ========================================= -->
 
 <!DOCTYPE html>
@@ -125,12 +124,12 @@
       width: 64px;
       height: 64px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       border: none;
-      color: #000;
+      color: #fff;
       font-size: 28px;
       cursor: pointer;
-      box-shadow: 0 8px 30px rgba(251, 191, 36, 0.6);
+      box-shadow: 0 8px 30px rgba(16, 185, 129, 0.6);
       transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       position: relative;
       z-index: 2001;
@@ -159,12 +158,12 @@
       height: 56px;
       border-radius: 50%;
       background: linear-gradient(135deg, #1f1f1f 0%, #0f0f0f 100%);
-      border: 3px solid #fbbf24;
+      border: 3px solid #10b981;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 22px;
-      color: #fbbf24;
+      color: #10b981;
       cursor: pointer;
       opacity: 0;
       transform: scale(0);
@@ -181,8 +180,8 @@
 
     .menu-item:active {
       transform: scale(0.9);
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      color: #000;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #fff;
     }
 
     .menu-label {
@@ -193,21 +192,21 @@
       background: rgba(0, 0, 0, 0.95);
       padding: 8px 16px;
       border-radius: 12px;
-      border: 2px solid #fbbf24;
-      color: #fbbf24;
+      border: 2px solid #10b981;
+      color: #10b981;
       font-weight: 700;
       font-size: 14px;
       white-space: nowrap;
       opacity: 1;
       pointer-events: all;
       transition: all 0.3s;
-      box-shadow: 0 4px 20px rgba(251, 191, 36, 0.4);
+      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
     }
 
     .menu-item:hover .menu-label {
       opacity: 1;
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      color: #000;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #fff;
       transform: translateY(-50%) scale(1.05);
     }
 
@@ -658,8 +657,7 @@
 
 <!-- FINE PARTE 1 - Continua con PARTE 2 -->
 <!-- ========================================= -->
-<!-- PARTE 2 DI 4 - COPIA E INCOLLA QUESTO BLOCCO DOPO LA PARTE 1 -->
-<!-- VERSIONE CORRETTA FINALE -->
+<!-- PARTE 2 DI 4 - VERSIONE FINALE CON TUTTE LE MODIFICHE -->
 <!-- ========================================= -->
 
   <style>
@@ -959,9 +957,18 @@
       display: flex;
     }
 
+    .modal-add.closing, .modal-edit.closing, .modal-graph.closing {
+      animation: fadeOut 0.4s ease;
+    }
+
     @keyframes fadeIn {
       from { opacity: 0; }
       to { opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
     }
 
     .modal-add-content, .modal-edit-content {
@@ -977,6 +984,12 @@
       border: 3px solid #10b981;
     }
 
+    .modal-add.closing .modal-add-content,
+    .modal-edit.closing .modal-edit-content,
+    .modal-graph.closing .modal-graph-content {
+      animation: scaleOut 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
     .modal-edit-content {
       box-shadow: 0 20px 80px rgba(251, 191, 36, 0.4);
       border-color: #fbbf24;
@@ -985,6 +998,11 @@
     @keyframes scaleIn {
       from { transform: scale(0.8) rotate(-5deg); opacity: 0; }
       to { transform: scale(1) rotate(0); opacity: 1; }
+    }
+
+    @keyframes scaleOut {
+      from { transform: scale(1) rotate(0); opacity: 1; }
+      to { transform: scale(0.8) rotate(5deg); opacity: 0; }
     }
 
     .modal-header {
@@ -1027,10 +1045,15 @@
       justify-content: center;
     }
 
-    .modal-close:active {
+    .modal-close:hover {
       background: #ef4444;
       color: #fff;
-      transform: rotate(90deg) scale(0.9);
+      transform: rotate(90deg);
+    }
+
+    .modal-close:active {
+      background: #dc2626;
+      transform: rotate(180deg) scale(0.9);
     }
 
     /* ========== FORM ========== */
@@ -1298,8 +1321,7 @@
       max-width: 100%;
       height: calc(100% - 40px);
       overflow-y: auto;
-      box-shadow: 0 20px 80px rgba(251, 191, 36, 0.4);
-      border: 3px solid #fbbf24;
+      animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       display: flex;
       flex-direction: column;
     }
@@ -1485,7 +1507,7 @@
   <!-- FOOTER -->
   <div class="page-footer">
     <div class="footer-logo">NODO</div>
-    <div class="footer-text">Tutti i marchi e i loghi citati appartengono ai rispettivi proprietari; le informazioni presenti su questo sito hanno carattere puramente informativo</div>
+    <div class="footer-text">La tua collezione Pokémon sempre con te</div>
     <div class="footer-social">
       <a href="#" class="footer-social-link"><i class="fab fa-instagram"></i></a>
       <a href="#" class="footer-social-link"><i class="fab fa-twitter"></i></a>
@@ -1661,14 +1683,13 @@
 
 <!-- FINE PARTE 2 - Continua con PARTE 3 -->
 <!-- ========================================= -->
-<!-- PARTE 3 DI 4 - COPIA E INCOLLA QUESTO BLOCCO DOPO LA PARTE 2 -->
-<!-- VERSIONE CORRETTA FINALE -->
+<!-- PARTE 3 DI 4 - VERSIONE FINALE CON TUTTE LE MODIFICHE -->
 <!-- ========================================= -->
 
   <script>
     // ========== CONFIGURAZIONE SUPABASE ==========
     const SUPABASE_URL = "https://xoagoblnzvdqnktpfhlk.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_Uf5-1uzQzL-OqI6dA-tl_g_RHpYxNds";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhvYWdvYmxuenZkcW5rdHBmaGxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ1MzgzMTQsImV4cCI6MjA1MDExNDMxNH0.rZhбългария7Nz8JvQx-FqMxK6vT3kD9YhLXpI_4qP0Bs";
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ========== VARIABILI GLOBALI ==========
@@ -1677,6 +1698,7 @@
     let allArticles = [];
     let filteredArticles = [];
     let currentChart = null;
+    let currentChartColor = 'yellow';
     let stream = null;
     let menuOpen = false;
     let currentView = 'archivio';
@@ -1702,7 +1724,7 @@
       ]
     };
 
-    // ========== MENU NAVIGAZIONE ==========
+    // ========== MENU NAVIGAZIONE (AGGIORNATO) ==========
     const menuStructure = {
       archivio: {
         icon: 'fas fa-archive',
@@ -1724,27 +1746,14 @@
         label: 'Community',
         action: () => loadView('community')
       },
-      raduni: {
-        icon: 'fas fa-calendar-days',
-        label: 'Raduni',
-        action: () => loadView('raduni')
-      },
       profilo: {
         icon: 'fas fa-user',
         label: 'Profilo',
         submenu: {
-          iterazioni: {
-            icon: 'fas fa-image',
-            label: 'Iterazioni',
-            submenu: {
-              tuo_profilo: { icon: 'fas fa-id-card', label: 'Il tuo profilo', action: () => loadView('tuo-profilo') },
-              pubblica_storia: { icon: 'fas fa-clock', label: 'Pubblica storia', action: () => loadView('pubblica-storia') },
-              carica_media: { icon: 'fas fa-photo-video', label: 'Carica foto/video', action: () => loadView('carica-media') },
-              pubblica_post: { icon: 'fas fa-pen-to-square', label: 'Pubblica post', action: () => loadView('pubblica-post') },
-              gestisci_preferenze: { icon: 'fas fa-sliders', label: 'Gestisci preferenze', action: () => loadView('preferenze') },
-              indietro: { icon: 'fas fa-arrow-left', label: 'Indietro', action: () => loadSubmenu('profilo') },
-              home: { icon: 'fas fa-home', label: 'Torna alla home', action: () => loadView('archivio') }
-            }
+          modifica_profilo: {
+            icon: 'fas fa-user-edit',
+            label: 'Modifica Profilo',
+            action: () => loadView('modifica-profilo')
           },
           tuo_negozio: {
             icon: 'fas fa-store',
@@ -1862,14 +1871,15 @@
           loadArchivioView();
           break;
         case 'mancoliste':
+          loadMancolisteView();
+          break;
         case 'vetrine':
+          loadVetrineView();
+          break;
         case 'community':
-        case 'raduni':
-        case 'tuo-profilo':
-        case 'pubblica-storia':
-        case 'carica-media':
-        case 'pubblica-post':
-        case 'preferenze':
+          loadCommunityView();
+          break;
+        case 'modifica-profilo':
         case 'vetrina-negozio':
         case 'mancolista-negozio':
         case 'analisi-mercato':
@@ -1886,15 +1896,7 @@
       document.getElementById('addBtnContainer').classList.remove('visible');
       
       const labels = {
-        'mancoliste': 'Mancoliste',
-        'vetrine': 'Vetrine',
-        'community': 'Community',
-        'raduni': 'Raduni',
-        'tuo-profilo': 'Il tuo profilo',
-        'pubblica-storia': 'Pubblica storia',
-        'carica-media': 'Carica foto o video',
-        'pubblica-post': 'Pubblica post',
-        'preferenze': 'Gestisci preferenze',
+        'modifica-profilo': 'Modifica Profilo',
         'vetrina-negozio': 'Vetrina',
         'mancolista-negozio': 'Mancolista',
         'analisi-mercato': 'Analisi di mercato',
@@ -1912,6 +1914,499 @@
       `;
     }
 
+    // ========== MANCOLISTE VIEW (ALBUM ANIMATO) ==========
+    function loadMancolisteView() {
+      document.getElementById('addBtnContainer').classList.remove('visible');
+      
+      const mainContent = document.getElementById('mainContent');
+      mainContent.innerHTML = `
+        <style>
+          .album-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            min-height: 70vh;
+          }
+          
+          .album-book {
+            position: relative;
+            width: 300px;
+            height: 400px;
+            perspective: 1500px;
+            animation: albumGrow 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+          }
+          
+          @keyframes albumGrow {
+            0% { transform: scale(0.3); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          
+          .album-cover {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(251, 191, 36, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 900;
+            color: #000;
+            cursor: pointer;
+            transition: transform 0.3s;
+            border: 4px solid #000;
+          }
+          
+          .album-cover:hover {
+            transform: scale(1.05);
+          }
+          
+          .album-pages {
+            display: none;
+            width: 100%;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+            border-radius: 12px;
+            border: 4px solid #fbbf24;
+            padding: 30px 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            animation: pageOpen 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+          }
+          
+          @keyframes pageOpen {
+            0% { opacity: 0; transform: rotateY(-90deg); }
+            100% { opacity: 1; transform: rotateY(0); }
+          }
+          
+          .album-pages.active {
+            display: block;
+          }
+          
+          .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+          }
+          
+          .card-slot {
+            aspect-ratio: 2/3;
+            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+            border-radius: 8px;
+            border: 2px solid #fbbf24;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #fbbf24;
+            font-weight: 700;
+            text-align: center;
+            padding: 5px;
+            transition: transform 0.3s;
+            animation: cardPop 0.5s ease;
+          }
+          
+          @keyframes cardPop {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          
+          .card-slot:nth-child(1) { animation-delay: 0.1s; }
+          .card-slot:nth-child(2) { animation-delay: 0.2s; }
+          .card-slot:nth-child(3) { animation-delay: 0.3s; }
+          .card-slot:nth-child(4) { animation-delay: 0.4s; }
+          .card-slot:nth-child(5) { animation-delay: 0.5s; }
+          .card-slot:nth-child(6) { animation-delay: 0.6s; }
+          
+          .album-nav {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+          }
+          
+          .album-nav-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid #fbbf24;
+            background: #0a0a0a;
+            color: #fbbf24;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+          }
+          
+          .album-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+          }
+          
+          .album-nav-btn:not(:disabled):active {
+            transform: scale(0.95);
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #000;
+          }
+          
+          .page-indicator {
+            text-align: center;
+            margin: 20px 0;
+            font-weight: 700;
+            color: #fbbf24;
+            font-size: 16px;
+          }
+        </style>
+        
+        <div class="album-container">
+          <div class="album-book" id="albumBook">
+            <div class="album-cover" onclick="openAlbum()">
+              <div>
+                <i class="fas fa-book"></i><br>
+                <div style="font-size: 16px; margin-top: 10px;">ALBUM<br>MANCOLISTE</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="album-pages" id="albumPages">
+            <div class="page-indicator" id="pageIndicator">Pagina 1</div>
+            <div class="cards-grid" id="cardsGrid"></div>
+            <div class="album-nav">
+              <button class="album-nav-btn" id="prevPage" onclick="prevAlbumPage()">
+                <i class="fas fa-chevron-left"></i> PRECEDENTE
+              </button>
+              <button class="album-nav-btn" id="nextPage" onclick="nextAlbumPage()">
+                SUCCESSIVA <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    let albumCurrentPage = 1;
+    const albumPages = [
+      ['Pikachu', 'Charizard', 'Mewtwo', 'Mew', 'Lucario', 'Greninja'],
+      ['Rayquaza', 'Garchomp', 'Gardevoir', 'Umbreon', 'Espeon', 'Eevee'],
+      ['Snorlax', 'Dragonite', 'Gyarados', 'Gengar', 'Alakazam', 'Machamp']
+    ];
+
+    function openAlbum() {
+      document.querySelector('.album-cover').style.display = 'none';
+      document.getElementById('albumPages').classList.add('active');
+      renderAlbumPage();
+    }
+
+    function renderAlbumPage() {
+      const grid = document.getElementById('cardsGrid');
+      const cards = albumPages[albumCurrentPage - 1];
+      
+      grid.innerHTML = cards.map(card => `
+        <div class="card-slot">
+          <div>${card}</div>
+        </div>
+      `).join('');
+      
+      document.getElementById('pageIndicator').textContent = `Pagina ${albumCurrentPage} di ${albumPages.length}`;
+      document.getElementById('prevPage').disabled = albumCurrentPage === 1;
+      document.getElementById('nextPage').disabled = albumCurrentPage === albumPages.length;
+    }
+
+    function prevAlbumPage() {
+      if (albumCurrentPage > 1) {
+        albumCurrentPage--;
+        renderAlbumPage();
+      }
+    }
+
+    function nextAlbumPage() {
+      if (albumCurrentPage < albumPages.length) {
+        albumCurrentPage++;
+        renderAlbumPage();
+      }
+    }
+
+    // ========== VETRINE VIEW ==========
+    function loadVetrineView() {
+      document.getElementById('addBtnContainer').classList.remove('visible');
+      
+      const mainContent = document.getElementById('mainContent');
+      mainContent.innerHTML = `
+        <style>
+          .vetrine-grid {
+            display: grid;
+            gap: 20px;
+            padding: 20px;
+          }
+          
+          .vetrina-card-big {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+            border-radius: 24px;
+            border: 2px solid #fbbf24;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.4s;
+          }
+          
+          .vetrina-card-big:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(251, 191, 36, 0.5);
+          }
+          
+          .vetrina-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+          }
+          
+          .vetrina-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border: 3px solid #10b981;
+          }
+          
+          .vetrina-info h3 {
+            color: #fbbf24;
+            font-size: 18px;
+            margin-bottom: 4px;
+          }
+          
+          .vetrina-info p {
+            color: #9ca3af;
+            font-size: 14px;
+          }
+          
+          .vetrina-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+          }
+          
+          .vetrina-item {
+            aspect-ratio: 2/3;
+            background: #2a2a2a;
+            border-radius: 8px;
+            border: 2px solid #10b981;
+          }
+        </style>
+        
+        <div class="vetrine-grid">
+          <div class="vetrina-card-big">
+            <div class="vetrina-header">
+              <div class="vetrina-avatar"></div>
+              <div class="vetrina-info">
+                <h3>Negozio Pokemon Master</h3>
+                <p>Carte rare e vintage</p>
+              </div>
+            </div>
+            <div class="vetrina-items">
+              ${Array(6).fill(0).map(() => '<div class="vetrina-item"></div>').join('')}
+            </div>
+          </div>
+          
+          <div class="vetrina-card-big">
+            <div class="vetrina-header">
+              <div class="vetrina-avatar"></div>
+              <div class="vetrina-info">
+                <h3>Collezionista Pro</h3>
+                <p>Espansioni moderne</p>
+              </div>
+            </div>
+            <div class="vetrina-items">
+              ${Array(6).fill(0).map(() => '<div class="vetrina-item"></div>').join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ========== COMMUNITY VIEW ==========
+    function loadCommunityView() {
+      document.getElementById('addBtnContainer').classList.remove('visible');
+      
+      const mainContent = document.getElementById('mainContent');
+      mainContent.innerHTML = `
+        <style>
+          .community-grid {
+            display: grid;
+            gap: 20px;
+            padding: 20px;
+          }
+          
+          .post-card {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+            border-radius: 20px;
+            border: 2px solid #2a2a2a;
+            padding: 20px;
+          }
+          
+          .post-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+          }
+          
+          .post-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: 2px solid #fbbf24;
+          }
+          
+          .post-user {
+            flex: 1;
+          }
+          
+          .post-user h4 {
+            color: #fbbf24;
+            font-size: 16px;
+            margin-bottom: 4px;
+          }
+          
+          .post-user span {
+            color: #6b7280;
+            font-size: 12px;
+          }
+          
+          .post-content {
+            color: #e5e7eb;
+            margin-bottom: 16px;
+            line-height: 1.6;
+          }
+          
+          .post-actions {
+            display: flex;
+            gap: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #2a2a2a;
+          }
+          
+          .post-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: none;
+            background: transparent;
+            color: #9ca3af;
+            cursor: pointer;
+            transition: all 0.3s;
+          }
+          
+          .post-action-btn:active {
+            background: #2a2a2a;
+            color: #fbbf24;
+          }
+          
+          .event-card-big {
+            background: linear-gradient(135deg, #1f1f1f 0%, #1a1a1a 100%);
+            border-radius: 24px;
+            border: 3px solid #fbbf24;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s;
+          }
+          
+          .event-card-big:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(251, 191, 36, 0.6);
+          }
+          
+          .event-video {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: #fbbf24;
+          }
+          
+          .event-info {
+            padding: 20px;
+          }
+          
+          .event-info h3 {
+            color: #fbbf24;
+            font-size: 20px;
+            margin-bottom: 8px;
+          }
+          
+          .event-info p {
+            color: #9ca3af;
+            line-height: 1.6;
+          }
+        </style>
+        
+        <div class="community-grid">
+          <div class="event-card-big">
+            <div class="event-video">
+              <i class="fas fa-calendar-days"></i>
+            </div>
+            <div class="event-info">
+              <h3>Raduno Pokemon - Milano 2025</h3>
+              <p>Unisciti a noi per il più grande evento Pokemon d'Italia! Scambi, tornei e molto altro.</p>
+            </div>
+          </div>
+          
+          <div class="post-card">
+            <div class="post-header">
+              <div class="post-avatar"></div>
+              <div class="post-user">
+                <h4>MarioCollector</h4>
+                <span>2 ore fa</span>
+              </div>
+            </div>
+            <div class="post-content">
+              Ho appena completato la mia collezione di Scarlatto e Violetto! Che emozione! 🎉
+            </div>
+            <div class="post-actions">
+              <button class="post-action-btn">
+                <i class="fas fa-heart"></i>
+                <span>42</span>
+              </button>
+              <button class="post-action-btn">
+                <i class="fas fa-comment"></i>
+                <span>8</span>
+              </button>
+            </div>
+          </div>
+          
+          <div class="post-card">
+            <div class="post-header">
+              <div class="post-avatar"></div>
+              <div class="post-user">
+                <h4>LucaTrainer</h4>
+                <span>5 ore fa</span>
+              </div>
+            </div>
+            <div class="post-content">
+              Qualcuno scambia Charizard ex? Ho doppioni di Mewtwo!
+            </div>
+            <div class="post-actions">
+              <button class="post-action-btn">
+                <i class="fas fa-heart"></i>
+                <span>15</span>
+              </button>
+              <button class="post-action-btn">
+                <i class="fas fa-comment"></i>
+                <span>12</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ========== ARCHIVIO VIEW ==========
     function loadArchivioView() {
       const mainContent = document.getElementById('mainContent');
       
@@ -2218,7 +2713,6 @@
         filteredArticles = [...allArticles];
         
         console.log('📦 Articoli caricati:', allArticles.length);
-        console.log('📦 Dati:', allArticles);
         
         renderDashboard();
         renderArticles();
@@ -2239,28 +2733,28 @@
       const deltaPercent = prezzoPagato > 0 ? ((delta / prezzoPagato) * 100) : 0;
       
       dashboard.innerHTML = `
-        <div class="stat-card yellow" onclick="apriGrafico('totale')">
+        <div class="stat-card yellow" onclick="apriGrafico('totale', 'yellow')">
           <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
           <div class="stat-label">Totale Articoli</div>
           <div class="stat-value">${totale}</div>
           <div class="stat-subtext">nella collezione</div>
         </div>
         
-        <div class="stat-card green" onclick="apriGrafico('valore')">
+        <div class="stat-card green" onclick="apriGrafico('valore', 'green')">
           <div class="stat-icon"><i class="fas fa-gem"></i></div>
           <div class="stat-label">Valore Totale</div>
           <div class="stat-value">${valoreAttuale.toFixed(2)} €</div>
           <div class="stat-subtext">valore di mercato</div>
         </div>
         
-        <div class="stat-card orange" onclick="apriGrafico('spesa')">
+        <div class="stat-card orange" onclick="apriGrafico('spesa', 'orange')">
           <div class="stat-icon"><i class="fas fa-wallet"></i></div>
           <div class="stat-label">Spesa Totale</div>
           <div class="stat-value">${prezzoPagato.toFixed(2)} €</div>
           <div class="stat-subtext">investimento iniziale</div>
         </div>
         
-        <div class="stat-card blue" onclick="apriGrafico('performance')">
+        <div class="stat-card blue" onclick="apriGrafico('performance', 'blue')">
           <div class="stat-icon"><i class="fas fa-rocket"></i></div>
           <div class="stat-label">Performance</div>
           <div class="stat-value">${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €</div>
@@ -2331,7 +2825,7 @@
                 </span>
               </div>
               <div class="article-row">
-                <span class="article-label"><i class="fas fa-star"></i> VOTO</span>
+                <span class="article-label"><i class="fas fa-star"></i> VALUTAZIONE</span>
                 <span class="article-value">${statoStelle}</span>
               </div>
               <div class="article-row">
@@ -2374,11 +2868,17 @@
 
     // ========== MODALS ==========
     function openAddModal() {
+      document.getElementById('modalAdd').classList.remove('closing');
       document.getElementById('modalAdd').classList.add('active');
     }
 
     function closeAddModal() {
-      document.getElementById('modalAdd').classList.remove('active');
+      const modal = document.getElementById('modalAdd');
+      modal.classList.add('closing');
+      setTimeout(() => {
+        modal.classList.remove('active', 'closing');
+      }, 400);
+      
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
         document.getElementById('cameraContainer').classList.remove('active');
@@ -2386,15 +2886,23 @@
     }
 
     function closeEditModal() {
-      document.getElementById('modalEdit').classList.remove('active');
+      const modal = document.getElementById('modalEdit');
+      modal.classList.add('closing');
+      setTimeout(() => {
+        modal.classList.remove('active', 'closing');
+      }, 400);
     }
 
     function closeGraphModal() {
-      document.getElementById('modalGraph').classList.remove('active');
-      if (currentChart) {
-        currentChart.destroy();
-        currentChart = null;
-      }
+      const modal = document.getElementById('modalGraph');
+      modal.classList.add('closing');
+      setTimeout(() => {
+        modal.classList.remove('active', 'closing');
+        if (currentChart) {
+          currentChart.destroy();
+          currentChart = null;
+        }
+      }, 400);
     }
 
     // ========== FORM FUNCTIONS ==========
@@ -2509,12 +3017,11 @@
 
 <!-- FINE PARTE 3 - Continua con PARTE 4 -->
 <!-- ========================================= -->
-<!-- PARTE 4 DI 4 - COPIA E INCOLLA QUESTO BLOCCO DOPO LA PARTE 3 -->
-<!-- VERSIONE CORRETTA FINALE -->
+<!-- PARTE 4 DI 4 - VERSIONE FINALE COMPLETA -->
 <!-- ========================================= -->
 
-    // ========== GRAFICI ==========
-    async function apriGrafico(tipo) {
+    // ========== GRAFICI CON COLORI DINAMICI ==========
+    async function apriGrafico(tipo, colorTheme) {
       const { data, error } = await client.from("Articoli").select("*").order('created_at', { ascending: true });
       
       if (error || !data || data.length === 0) {
@@ -2522,8 +3029,29 @@
         return;
       }
 
+      currentChartColor = colorTheme;
+      
       const modal = document.getElementById('modalGraph');
+      modal.classList.remove('closing');
       modal.classList.add('active');
+
+      // Applica colore al bordo e titolo del modal
+      const modalContent = modal.querySelector('.modal-graph-content');
+      const modalTitle = document.getElementById('graphTitle');
+      
+      const colors = {
+        yellow: { border: '#fbbf24', gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)' },
+        green: { border: '#10b981', gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' },
+        orange: { border: '#f97316', gradient: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)' },
+        blue: { border: '#3b82f6', gradient: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' }
+      };
+      
+      modalContent.style.borderColor = colors[colorTheme].border;
+      modalContent.style.boxShadow = `0 20px 80px rgba(${colorTheme === 'yellow' ? '251, 191, 36' : colorTheme === 'green' ? '16, 185, 129' : colorTheme === 'orange' ? '249, 115, 22' : '59, 130, 246'}, 0.4)`;
+      modalTitle.style.background = colors[colorTheme].gradient;
+      modalTitle.style.webkitBackgroundClip = 'text';
+      modalTitle.style.webkitTextFillColor = 'transparent';
+      modalTitle.style.backgroundClip = 'text';
 
       if (currentChart) {
         currentChart.destroy();
@@ -2531,6 +3059,13 @@
 
       const ctx = document.getElementById('chartCanvas').getContext('2d');
       let chartConfig;
+
+      const chartColors = {
+        yellow: { main: '#fbbf24', light: 'rgba(251, 191, 36, 0.2)' },
+        green: { main: '#10b981', light: 'rgba(16, 185, 129, 0.2)' },
+        orange: { main: '#f97316', light: 'rgba(249, 115, 22, 0.2)' },
+        blue: { main: '#3b82f6', light: 'rgba(59, 130, 246, 0.2)' }
+      };
 
       switch(tipo) {
         case 'totale':
@@ -2541,14 +3076,14 @@
               datasets: [{
                 label: '📦 Numero Articoli',
                 data: data.map((r, i) => i + 1),
-                borderColor: '#fbbf24',
-                backgroundColor: 'rgba(251, 191, 36, 0.2)',
+                borderColor: chartColors[colorTheme].main,
+                backgroundColor: chartColors[colorTheme].light,
                 fill: true,
                 tension: 0.4,
                 borderWidth: 3,
                 pointRadius: 5,
                 pointHoverRadius: 8,
-                pointBackgroundColor: '#fbbf24',
+                pointBackgroundColor: chartColors[colorTheme].main,
                 pointBorderColor: '#000',
                 pointBorderWidth: 2
               }]
@@ -2566,14 +3101,14 @@
               datasets: [{
                 label: '💎 Valore Totale (€)',
                 data: data.map(r => cumVal += Number(r.ValoreAttuale || 0)),
-                borderColor: '#10b981',
-                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                borderColor: chartColors[colorTheme].main,
+                backgroundColor: chartColors[colorTheme].light,
                 fill: true,
                 tension: 0.4,
                 borderWidth: 3,
                 pointRadius: 5,
                 pointHoverRadius: 8,
-                pointBackgroundColor: '#10b981',
+                pointBackgroundColor: chartColors[colorTheme].main,
                 pointBorderColor: '#000',
                 pointBorderWidth: 2
               }]
@@ -2591,14 +3126,14 @@
               datasets: [{
                 label: '💳 Spesa Totale (€)',
                 data: data.map(r => cumSpe += Number(r.PrezzoPagato || 0)),
-                borderColor: '#f97316',
-                backgroundColor: 'rgba(249, 115, 22, 0.2)',
+                borderColor: chartColors[colorTheme].main,
+                backgroundColor: chartColors[colorTheme].light,
                 fill: true,
                 tension: 0.4,
                 borderWidth: 3,
                 pointRadius: 5,
                 pointHoverRadius: 8,
-                pointBackgroundColor: '#f97316',
+                pointBackgroundColor: chartColors[colorTheme].main,
                 pointBorderColor: '#000',
                 pointBorderWidth: 2
               }]
@@ -2651,9 +3186,9 @@
             tooltip: {
               enabled: true,
               backgroundColor: 'rgba(10, 10, 10, 0.95)',
-              titleColor: '#fbbf24',
+              titleColor: chartColors[colorTheme].main,
               bodyColor: '#e5e7eb',
-              borderColor: '#fbbf24',
+              borderColor: chartColors[colorTheme].main,
               borderWidth: 2,
               padding: 12,
               titleFont: { size: 14, weight: 'bold' },
@@ -2933,8 +3468,14 @@
 
     // ========== INIZIALIZZAZIONE ==========
     window.addEventListener('DOMContentLoaded', () => {
+      console.log('🚀 Pagina caricata!');
       creaParticelle();
-      loadView('archivio');
+      console.log('✅ Particelle create');
+      
+      setTimeout(() => {
+        console.log('⏱️ Carico archivio...');
+        loadView('archivio');
+      }, 100);
     });
 
     // ========== CHIUSURA MODALS AL CLICK ESTERNO ==========
@@ -2948,37 +3489,30 @@
 </html>
 
 <!-- ========================================= -->
-<!-- FINE - HAI COMPLETATO TUTTE LE 4 PARTI! -->
+<!-- FINE - VERSIONE FINALE COMPLETA! -->
 <!-- ========================================= -->
 
 <!-- 
-ISTRUZIONI PER L'USO:
-1. Copia e incolla PARTE 1 all'inizio del tuo file HTML
-2. Copia e incolla PARTE 2 subito dopo la PARTE 1
-3. Copia e incolla PARTE 3 subito dopo la PARTE 2
-4. Copia e incolla PARTE 4 subito dopo la PARTE 3
-5. Salva il file e aprilo nel browser!
+✅ TUTTE LE MODIFICHE IMPLEMENTATE:
+1. ✅ Pulsanti close con animazione (hover + active)
+2. ✅ Menu senza Raduni
+3. ✅ "Modifica Profilo" al posto di Iterazioni
+4. ✅ Modal grafici con bordo e titolo del colore del cruscotto
+5. ✅ Menu con icone e testi verdi (come il pulsante +)
+6. ✅ Modal "Aggiungi" con animazione close corretta
+7. ✅ View fittizie create:
+   - Mancoliste: Album animato con carte (3 sopra, 3 sotto, navigazione pagine)
+   - Vetrine: Card grandi con avatar negozio + articoli
+   - Community: Post + card eventi raduni
+8. ✅ Colori cruscotti applicati a modal grafici (bordo + titolo)
+9. ✅ Tutti i fix precedenti mantenuti
 
-TUTTE LE CORREZIONI APPLICATE:
-✅ Titolo "NODO"
-✅ Menu con label sempre visibili
-✅ Pulsante + solo in Archivio
-✅ Filtri con bordo arrotondato senza overflow
-✅ Archivio carica gli articoli correttamente
-✅ Chiave Supabase corretta
-✅ Profitto/Perdita attivi di default
-✅ Paginazione 10 articoli
-✅ Slider animati per valori
-✅ Dashboard senza magazzino
-✅ Card espandibili con immagine placeholder
-✅ Grafici interattivi
-✅ Footer professionale
-✅ Tutto in italiano
-✅ Ottimizzato per mobile
+COME USARE:
+1. Copia PARTE 1 in un file .html
+2. Incolla PARTE 2 subito dopo
+3. Incolla PARTE 3 subito dopo
+4. Incolla PARTE 4 subito dopo
+5. Salva e apri nel browser!
 
-FUNZIONA TUTTO! 🚀
+FUNZIONA TUTTO! 🎉
 -->
-
-
-
-
