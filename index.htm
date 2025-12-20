@@ -348,18 +348,12 @@
       justify-content: space-between;
       align-items: center;
       padding: 20px;
-      position: sticky;
-      top: 80px;
-      z-index: 100;
       background: linear-gradient(135deg, #1f1f1f 0%, #1a1a1a 100%);
       border-radius: 24px 24px 0 0;
       border-bottom: 2px solid transparent;
-      transition: all 0.3s ease;
-    }
-
-    .filter-header.scrolled {
-      border-bottom-color: #fbbf24;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      transition: border-bottom-color 0.3s ease;
+      position: relative;
+      z-index: 10;
     }
 
     .filter-title {
@@ -2060,22 +2054,6 @@
         <div class="articles-grid" id="articlesGrid"></div>
       `;
 
-      let lastScrollTop = 0;
-      window.addEventListener('scroll', () => {
-        const filterHeader = document.getElementById('filterHeader');
-        if (!filterHeader) return;
-        
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        
-        if (scrollTop > 100) {
-          filterHeader.classList.add('scrolled');
-        } else {
-          filterHeader.classList.remove('scrolled');
-        }
-        
-        lastScrollTop = scrollTop;
-      });
-
       updateRangeSlider();
       caricaArticoli();
     }
@@ -3000,4 +2978,5 @@ TUTTE LE CORREZIONI APPLICATE:
 
 FUNZIONA TUTTO! 🚀
 -->
+
 
