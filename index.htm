@@ -183,7 +183,7 @@
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
       color: #000;
     }
-
+    
     .menu-label {
       position: absolute;
       left: 70px;
@@ -197,14 +197,17 @@
       font-weight: 700;
       font-size: 14px;
       white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
+      opacity: 1;  /* CAMBIATO DA 0 A 1 */
+      pointer-events: all;  /* CAMBIATO DA none A all */
       transition: opacity 0.3s;
       box-shadow: 0 4px 20px rgba(251, 191, 36, 0.4);
     }
-
+    
     .menu-item:hover .menu-label {
       opacity: 1;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #000;
+      transform: translateY(-50%) scale(1.05);
     }
 
     /* ========== DASHBOARD CRUSCOTTI ========== */
@@ -1672,6 +1675,21 @@
     let stream = null;
     let menuOpen = false;
     let currentView = 'archivio';
+
+    // Inizializza particelle
+function creaParticelle() {
+  const container = document.getElementById('particles');
+  if (!container) return;
+  for (let i = 0; i < 30; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.animationDelay = Math.random() * 15 + 's';
+    particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+    container.appendChild(particle);
+  }
+}
+creaParticelle();
     let currentSubmenu = null;
 
     // ========== DATABASE POKEMON ==========
@@ -2504,6 +2522,12 @@
         }, 1500);
       }
     }
+    
+    // ========== INIZIALIZZAZIONE ==========
+window.addEventListener('DOMContentLoaded', () => {
+  creaParticelle();
+  loadView('archivio'); // Carica subito archivio invece di mancoliste
+});
 
 <!-- FINE PARTE 3 - Continua con PARTE 4 -->
 <!-- ========================================= -->
@@ -2948,3 +2972,4 @@
 <!-- ========================================= -->
 
 <!-- 
+
