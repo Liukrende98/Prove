@@ -1,9 +1,13 @@
+<!-- ========================================= -->
+<!-- PARTE 1 DI 4 - COPIA E INCOLLA QUESTO BLOCCO -->
+<!-- ========================================= -->
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
-  <title> Liuk & Tremon - Pokémon Collection </title>
+  <title>Nodo - Pokémon Collection</title>
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -16,109 +20,9 @@
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 
   <style>
-@media (max-width: 430px) {
-
-  /* PANEL */
-  .filter-panel {
-    padding: 16px;
-    border-radius: 18px;
-  }
-
-  /* HEADER */
-  .filter-header {
-    flex-direction: column;
-    gap: 12px;
-    align-items: stretch;
-  }
-
-  .filter-title {
-    font-size: 18px;
-    justify-content: center;
-  }
-
-  .filter-toggle {
-    width: 100%;
-    justify-content: center;
-    font-size: 15px;
-    padding: 14px;
-  }
-
-  /* GRID -> COLONNA SINGOLA */
-  .filter-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-
-  /* INPUT / SELECT */
-  .filter-group input,
-  .filter-group select {
-    padding: 16px;
-    font-size: 16px; /* evita zoom iOS */
-    border-radius: 16px;
-  }
-
-  /* RANGE */
-  .range-inputs {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .range-separator {
-    display: none;
-  }
-
-  .range-value {
-    font-size: 15px;
-  }
-
-  /* TOGGLE */
-  .toggle-group {
-    grid-template-columns: 1fr;
-  }
-
-  .toggle-label {
-    padding: 16px;
-    font-size: 15px;
-  }
-
-  /* SORT */
-  .sort-controls {
-    grid-template-columns: 1fr;
-  }
-
-  .sort-button {
-    width: 100%;
-    justify-content: center;
-    padding: 16px;
-  }
-
-  /* AZIONI */
-  .filter-actions {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-
-  .btn-filter {
-    padding: 18px;
-    font-size: 16px;
-  }
-
-  /* RISULTATI */
-  .results-info {
-    flex-direction: column;
-    gap: 12px;
-    text-align: center;
-  }
-
-  .view-toggle {
-    justify-content: center;
-  }
-}
-
-    
+    /* ========== RESET E BASE ========== */
     * {
       margin: 0;
       padding: 0;
@@ -129,11 +33,12 @@
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
       background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
       min-height: 100vh;
-      padding-bottom: 40px;
+      padding-bottom: 120px;
       color: #e5e7eb;
       overflow-x: hidden;
     }
 
+    /* ========== PARTICELLE ANIMATE ========== */
     .particles {
       position: fixed;
       top: 0;
@@ -159,18 +64,15 @@
         opacity: 0;
         transform: translateY(0) translateX(0) scale(0);
       }
-      10% {
-        opacity: 1;
-      }
-      90% {
-        opacity: 1;
-      }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
       100% {
         opacity: 0;
         transform: translateY(-100vh) translateX(50px) scale(1);
       }
     }
 
+    /* ========== HEADER ========== */
     .header {
       background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
       backdrop-filter: blur(20px);
@@ -184,54 +86,16 @@
     }
 
     @keyframes headerGlow {
-      0%, 100% {
-        box-shadow: 0 8px 40px rgba(251, 191, 36, 0.3);
-      }
-      50% {
-        box-shadow: 0 8px 60px rgba(251, 191, 36, 0.6);
-      }
+      0%, 100% { box-shadow: 0 8px 40px rgba(251, 191, 36, 0.3); }
+      50% { box-shadow: 0 8px 60px rgba(251, 191, 36, 0.6); }
     }
 
     h1 {
       text-align: center;
       font-size: 38px;
       font-weight: 900;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
+      margin-bottom: 0;
       text-shadow: 0 0 40px rgba(251, 191, 36, 0.8);
-      position: relative;
-    }
-
-    .pikachu-logo {
-      font-size: 56px;
-      filter: drop-shadow(0 0 30px #fbbf24);
-      animation: pikachuBounce 2s ease-in-out infinite;
-      cursor: pointer;
-    }
-
-    .pikachu-logo:hover {
-      animation: pikachuShake 0.5s ease-in-out infinite;
-    }
-
-    @keyframes pikachuBounce {
-      0%, 100% { 
-        transform: translateY(0) rotate(0deg);
-      }
-      25% {
-        transform: translateY(-20px) rotate(-8deg);
-      }
-      75% {
-        transform: translateY(-15px) rotate(8deg);
-      }
-    }
-
-    @keyframes pikachuShake {
-      0%, 100% { transform: rotate(0deg); }
-      25% { transform: rotate(-15deg) scale(1.1); }
-      75% { transform: rotate(15deg) scale(1.1); }
     }
 
     .title-gradient {
@@ -248,91 +112,114 @@
       100% { background-position: 300% center; }
     }
 
-    .tabs {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
+    /* ========== MENU NAVIGAZIONE BOTTOM ========== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 2000;
     }
 
-    .tab {
-      padding: 12px 36px;
-      border-radius: 16px;
-      border: 2px solid transparent;
-      background: rgba(20, 20, 20, 0.6);
-      color: #9ca3af;
-      font-size: 15px;
-      font-weight: 700;
+    .menu-main-btn {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      border: none;
+      color: #000;
+      font-size: 28px;
       cursor: pointer;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 30px rgba(251, 191, 36, 0.6);
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       position: relative;
-      overflow: hidden;
+      z-index: 2001;
     }
 
-    .tab::before {
-      content: '';
+    .menu-main-btn:active {
+      transform: scale(0.95);
+    }
+
+    .menu-main-btn.active {
+      transform: rotate(45deg);
+    }
+
+    .menu-items {
       position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.3), transparent);
-      transition: left 0.5s;
+      bottom: 0;
+      left: 0;
+      pointer-events: none;
     }
 
-    .tab:hover::before {
-      left: 100%;
-    }
-
-    .tab:hover {
-      background: rgba(251, 191, 36, 0.15);
+    .menu-item {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1f1f1f 0%, #0f0f0f 100%);
+      border: 3px solid #fbbf24;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
       color: #fbbf24;
-      border-color: rgba(251, 191, 36, 0.3);
-      transform: translateY(-3px);
+      cursor: pointer;
+      opacity: 0;
+      transform: scale(0);
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      pointer-events: none;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     }
 
-    .tab.active {
+    .menu-item.active {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: all;
+    }
+
+    .menu-item:active {
+      transform: scale(0.9);
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
       color: #000;
-      box-shadow: 0 8px 30px rgba(251, 191, 36, 0.6);
-      border-color: #fbbf24;
-      transform: translateY(-2px);
     }
 
-    .tab-content {
-      display: none;
-      padding: 32px 16px;
-      max-width: 1400px;
-      margin: 0 auto;
+    .menu-label {
+      position: absolute;
+      left: 70px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.95);
+      padding: 8px 16px;
+      border-radius: 12px;
+      border: 2px solid #fbbf24;
+      color: #fbbf24;
+      font-weight: 700;
+      font-size: 14px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      box-shadow: 0 4px 20px rgba(251, 191, 36, 0.4);
+    }
+
+    .menu-item:hover .menu-label {
+      opacity: 1;
+    }
+
+    /* ========== DASHBOARD CRUSCOTTI ========== */
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin: 20px;
       position: relative;
       z-index: 1;
     }
 
-    .tab-content.active {
-      display: block;
-      animation: fadeInUp 0.6s ease;
-    }
-
-    @keyframes fadeInUp {
-      from { 
-        opacity: 0; 
-        transform: translateY(30px);
-      }
-      to { 
-        opacity: 1; 
-        transform: translateY(0);
-      }
-    }
-
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 24px;
-      margin-bottom: 40px;
-    }
-
     .stat-card {
       background: linear-gradient(135deg, #1f1f1f 0%, #0f0f0f 100%);
-      padding: 32px;
+      padding: 28px;
       border-radius: 24px;
       box-shadow: 0 12px 50px rgba(0, 0, 0, 0.7);
       position: relative;
@@ -349,19 +236,16 @@
       left: -50%;
       width: 200%;
       height: 200%;
-      background: radial-gradient(circle, rgba(251, 191, 36, 0.15) 0%, transparent 70%);
       transform: scale(0);
       transition: transform 0.6s;
     }
 
-    .stat-card:hover::before {
+    .stat-card:active::before {
       transform: scale(1);
     }
 
-    .stat-card:hover {
-      transform: translateY(-12px) scale(1.03);
-      box-shadow: 0 20px 80px rgba(251, 191, 36, 0.5);
-      border-color: #fbbf24;
+    .stat-card:active {
+      transform: translateY(-8px) scale(1.02);
     }
 
     .stat-card::after {
@@ -371,24 +255,28 @@
       left: 0;
       right: 0;
       height: 6px;
-      background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
     }
 
-    .stat-card.green::after {
-      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
-    }
+    /* Colori specifici per ogni card */
+    .stat-card.yellow::before { background: radial-gradient(circle, rgba(251, 191, 36, 0.15) 0%, transparent 70%); }
+    .stat-card.yellow::after { background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%); }
+    .stat-card.yellow .stat-icon { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); box-shadow: 0 10px 30px rgba(251, 191, 36, 0.5); }
+    .stat-card.yellow .stat-value { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
-    .stat-card.orange::after {
-      background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
-    }
+    .stat-card.green::before { background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%); }
+    .stat-card.green::after { background: linear-gradient(90deg, #10b981 0%, #059669 100%); }
+    .stat-card.green .stat-icon { background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 10px 30px rgba(16, 185, 129, 0.5); }
+    .stat-card.green .stat-value { background: linear-gradient(135deg, #10b981 0%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
-    .stat-card.blue::after {
-      background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
-    }
+    .stat-card.orange::before { background: radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, transparent 70%); }
+    .stat-card.orange::after { background: linear-gradient(90deg, #f97316 0%, #ea580c 100%); }
+    .stat-card.orange .stat-icon { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); box-shadow: 0 10px 30px rgba(249, 115, 22, 0.5); }
+    .stat-card.orange .stat-value { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
-    .stat-card.red::after {
-      background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
-    }
+    .stat-card.blue::before { background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%); }
+    .stat-card.blue::after { background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%); }
+    .stat-card.blue .stat-icon { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); box-shadow: 0 10px 30px rgba(59, 130, 246, 0.5); }
+    .stat-card.blue .stat-value { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
     .stat-icon {
       width: 70px;
@@ -399,45 +287,17 @@
       justify-content: center;
       font-size: 32px;
       margin-bottom: 20px;
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
       color: #000;
-      box-shadow: 0 10px 30px rgba(251, 191, 36, 0.5);
       animation: iconPulse 2s ease-in-out infinite;
     }
 
     @keyframes iconPulse {
-      0%, 100% {
-        transform: scale(1);
-        box-shadow: 0 10px 30px rgba(251, 191, 36, 0.5);
-      }
-      50% {
-        transform: scale(1.08);
-        box-shadow: 0 15px 50px rgba(251, 191, 36, 0.8);
-      }
-    }
-
-    .stat-card.green .stat-icon {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.5);
-    }
-
-    .stat-card.orange .stat-icon {
-      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-      box-shadow: 0 10px 30px rgba(249, 115, 22, 0.5);
-    }
-
-    .stat-card.blue .stat-icon {
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.5);
-    }
-
-    .stat-card.red .stat-icon {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-      box-shadow: 0 10px 30px rgba(239, 68, 68, 0.5);
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
     }
 
     .stat-label {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       color: #9ca3af;
       text-transform: uppercase;
@@ -446,79 +306,55 @@
     }
 
     .stat-value {
-      font-size: 42px;
+      font-size: 38px;
       font-weight: 900;
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
       line-height: 1;
       margin-bottom: 10px;
-      text-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
-    }
-
-    .stat-card.green .stat-value {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .stat-card.orange .stat-value {
-      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .stat-card.blue .stat-value {
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .stat-card.red .stat-value {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
     }
 
     .stat-subtext {
-      font-size: 14px;
+      font-size: 13px;
       color: #6b7280;
       font-weight: 600;
     }
 
-    .box {
-      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-      padding: 28px;
-      border-radius: 24px;
-      margin-bottom: 28px;
-      box-shadow: 0 12px 50px rgba(0, 0, 0, 0.7);
-      transition: all 0.4s ease;
-      border: 2px solid #2a2a2a;
+    /* ========== CONTENITORE PRINCIPALE ========== */
+    .main-content {
+      padding: 0 20px 40px 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
 
-    .box:hover {
-      box-shadow: 0 20px 70px rgba(251, 191, 36, 0.3);
-      border-color: #3a3a3a;
-    }
-
-    .filter-panel {
+    /* ========== BOX FILTRI ========== */
+    .filter-box {
       background: linear-gradient(135deg, #1f1f1f 0%, #1a1a1a 100%);
-      border-radius: 20px;
-      padding: 24px;
+      border-radius: 24px;
+      padding: 0;
       border: 2px solid #2a2a2a;
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      margin-bottom: 20px;
+      position: relative;
     }
 
     .filter-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
+      padding: 20px;
+      position: sticky;
+      top: 80px;
+      z-index: 100;
+      background: linear-gradient(135deg, #1f1f1f 0%, #1a1a1a 100%);
+      border-radius: 24px 24px 0 0;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .filter-header.scrolled {
+      border-bottom-color: #fbbf24;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     }
 
     .filter-title {
@@ -534,53 +370,51 @@
     }
 
     .filter-toggle {
-      padding: 10px 20px;
-      border-radius: 12px;
+      padding: 12px 20px;
+      border-radius: 16px;
       border: 2px solid #fbbf24;
       background: transparent;
       color: #fbbf24;
       font-size: 14px;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
-    .filter-toggle:hover {
-      background: rgba(251, 191, 36, 0.1);
-      transform: scale(1.05);
+    .filter-toggle:active {
+      transform: scale(0.95) rotate(180deg);
     }
 
     .filter-toggle.expanded {
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
       color: #000;
+      transform: rotate(180deg);
     }
 
     .filter-content {
-      display: none;
-      animation: slideDown 0.4s ease;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 0 20px;
     }
 
     .filter-content.active {
-      display: block;
+      max-height: 2000px;
+      padding: 20px;
     }
 
     .filter-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 20px;
       margin-bottom: 20px;
-    }
-
-    .filter-group {
-      position: relative;
     }
 
     .filter-group label {
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       font-weight: 700;
       color: #fbbf24;
       font-size: 13px;
@@ -591,13 +425,13 @@
       gap: 6px;
     }
 
-    .filter-group input,
+    .filter-group input[type="text"],
     .filter-group select {
       width: 100%;
-      padding: 14px 16px;
-      border-radius: 14px;
+      padding: 16px;
+      border-radius: 16px;
       border: 2px solid #2a2a2a;
-      font-size: 15px;
+      font-size: 16px;
       transition: all 0.3s ease;
       background: #0a0a0a;
       color: #e5e7eb;
@@ -614,7 +448,6 @@
       border-color: #fbbf24;
       background: #1a1a1a;
       box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.2);
-      transform: translateY(-2px);
     }
 
     .filter-group select {
@@ -626,15 +459,16 @@
       padding-right: 36px;
     }
 
+    /* ========== RANGE SLIDER ========== */
     .range-group {
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
 
     .range-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
     .range-label {
@@ -651,41 +485,94 @@
     .range-value {
       font-weight: 800;
       color: #10b981;
-      font-size: 16px;
+      font-size: 18px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
-    .range-inputs {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 12px;
-      align-items: center;
+    .range-slider-container {
+      position: relative;
+      height: 60px;
+      padding: 0 10px;
     }
 
-    .range-inputs input {
-      padding: 12px;
-      border-radius: 12px;
-      border: 2px solid #2a2a2a;
-      background: #0a0a0a;
-      color: #e5e7eb;
-      font-size: 14px;
-      font-weight: 600;
-      text-align: center;
+    .range-track {
+      position: absolute;
+      top: 50%;
+      left: 10px;
+      right: 10px;
+      height: 8px;
+      background: linear-gradient(90deg, #2a2a2a 0%, #3a3a3a 100%);
+      border-radius: 10px;
+      transform: translateY(-50%);
     }
 
-    .range-separator {
-      color: #6b7280;
-      font-weight: 700;
+    .range-progress {
+      position: absolute;
+      height: 100%;
+      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+      border-radius: 10px;
+      transition: all 0.1s ease;
     }
 
+    .range-input {
+      position: absolute;
+      top: 50%;
+      width: calc(100% - 20px);
+      left: 10px;
+      transform: translateY(-50%);
+      height: 8px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      pointer-events: none;
+      outline: none;
+    }
+
+    .range-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      border: 4px solid #000;
+      cursor: pointer;
+      pointer-events: all;
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.5);
+      transition: all 0.2s ease;
+    }
+
+    .range-input::-webkit-slider-thumb:active {
+      transform: scale(1.3);
+      box-shadow: 0 6px 25px rgba(251, 191, 36, 0.8);
+    }
+
+    .range-input::-moz-range-thumb {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      border: 4px solid #000;
+      cursor: pointer;
+      pointer-events: all;
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.5);
+      transition: all 0.2s ease;
+    }
+
+    .range-input::-moz-range-thumb:active {
+      transform: scale(1.3);
+      box-shadow: 0 6px 25px rgba(251, 191, 36, 0.8);
+    }
+
+    /* ========== TOGGLE BUTTONS ========== */
     .toggle-group {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(2, 1fr);
       gap: 12px;
       margin-bottom: 20px;
-    }
-
-    .toggle-option {
-      position: relative;
     }
 
     .toggle-option input[type="checkbox"] {
@@ -697,15 +584,15 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 12px 16px;
-      border-radius: 12px;
+      padding: 16px;
+      border-radius: 16px;
       border: 2px solid #2a2a2a;
       background: #0a0a0a;
       color: #9ca3af;
       font-size: 14px;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -718,64 +605,26 @@
       box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
     }
 
-    .toggle-label:hover {
-      border-color: #3a3a3a;
-      background: #1a1a1a;
+    .toggle-label:active {
+      transform: scale(0.95);
     }
 
-    .sort-controls {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .sort-select {
-      position: relative;
-    }
-
-    .sort-button {
-      padding: 14px 20px;
-      border-radius: 14px;
-      border: 2px solid #2a2a2a;
-      background: #0a0a0a;
-      color: #e5e7eb;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .sort-button:hover {
-      border-color: #fbbf24;
-      background: #1a1a1a;
-      transform: translateY(-2px);
-    }
-
-    .sort-button.active {
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      border-color: #fbbf24;
-      color: #000;
-    }
-
+    /* ========== PULSANTI FILTRO ========== */
     .filter-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      margin-top: 20px;
+      margin-top: 24px;
     }
 
     .btn-filter {
-      padding: 16px;
-      border-radius: 14px;
+      padding: 18px;
+      border-radius: 16px;
       border: none;
       font-size: 15px;
       font-weight: 800;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       text-transform: uppercase;
       letter-spacing: 1px;
       display: flex;
@@ -790,8 +639,8 @@
       box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
     }
 
-    .btn-apply:hover {
-      transform: translateY(-3px);
+    .btn-apply:active {
+      transform: scale(0.95);
       box-shadow: 0 10px 30px rgba(251, 191, 36, 0.6);
     }
 
@@ -800,338 +649,192 @@
       color: #e5e7eb;
     }
 
-    .btn-reset:hover {
+    .btn-reset:active {
       background: #3a3a3a;
-      transform: translateY(-3px);
+      transform: scale(0.95);
     }
+  </style>
 
-    .results-info {
+<!-- FINE PARTE 1 - Continua con PARTE 2 -->
+<!-- ========================================= -->
+<!-- PARTE 2 DI 4 - COPIA E INCOLLA QUESTO BLOCCO DOPO LA PARTE 1 -->
+<!-- ========================================= -->
+
+  <style>
+    /* ========== PAGINAZIONE ========== */
+    .pagination-container {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px 20px;
+      padding: 20px;
       background: linear-gradient(135deg, #1f1f1f 0%, #1a1a1a 100%);
-      border-radius: 16px;
+      border-radius: 20px;
       margin-bottom: 20px;
       border: 2px solid #2a2a2a;
     }
 
-    .results-count {
+    .pagination-info {
       font-weight: 700;
       color: #fbbf24;
       font-size: 15px;
     }
 
-    .results-count span {
+    .pagination-info span {
       font-size: 24px;
       font-weight: 900;
       margin: 0 6px;
     }
 
-    .view-toggle {
+    .pagination-controls {
       display: flex;
-      gap: 8px;
+      gap: 12px;
     }
 
-    .view-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      border: 2px solid #2a2a2a;
+    .pagination-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      border: 2px solid #fbbf24;
       background: #0a0a0a;
-      color: #9ca3af;
+      color: #fbbf24;
+      font-size: 18px;
       cursor: pointer;
       transition: all 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
     }
 
-    .view-btn:hover {
-      border-color: #fbbf24;
-      color: #fbbf24;
-    }
-
-    .view-btn.active {
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      border-color: #fbbf24;
-      color: #000;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-    }
-
-    .form-group {
-      margin-bottom: 0;
-    }
-
-    .form-group.full {
-      grid-column: 1 / -1;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 10px;
-      font-weight: 700;
-      color: #fbbf24;
-      font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      padding: 16px 20px;
-      border-radius: 16px;
-      border: 2px solid #2a2a2a;
-      font-size: 15px;
-      transition: all 0.3s ease;
-      background: #0a0a0a;
-      color: #e5e7eb;
-    }
-
-    .form-group input::placeholder,
-    .form-group textarea::placeholder {
-      color: #6b7280;
-    }
-
-    .form-group input:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: #fbbf24;
-      background: #1a1a1a;
-      box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.2);
-    }
-
-    .form-group textarea {
-      min-height: 120px;
-      resize: vertical;
-      font-family: inherit;
-    }
-
-    .form-group input:disabled {
-      background: #0a0a0a;
-      color: #6b7280;
+    .pagination-btn:disabled {
+      opacity: 0.3;
       cursor: not-allowed;
-      border-color: #1a1a1a;
+      border-color: #2a2a2a;
+      color: #6b7280;
     }
 
-    .checkbox-wrapper {
-      display: flex;
-      align-items: center;
-      padding: 18px 20px;
-      background: #0a0a0a;
-      border-radius: 16px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: 2px solid #2a2a2a;
-    }
-
-    .checkbox-wrapper:hover {
-      background: #1a1a1a;
-      border-color: #3a3a3a;
-    }
-
-    .checkbox-wrapper input[type="checkbox"] {
-      width: 24px;
-      height: 24px;
-      margin-right: 14px;
-      cursor: pointer;
-      accent-color: #fbbf24;
-    }
-
-    .btn-submit {
-      width: 100%;
-      padding: 20px;
-      border-radius: 16px;
-      border: none;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: white;
-      font-size: 18px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: all 0.4s ease;
-      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-      margin-top: 24px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .btn-submit:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 35px rgba(16, 185, 129, 0.6);
-    }
-
-    .btn-scan {
-      width: 100%;
-      padding: 24px;
-      border-radius: 20px;
-      border: 3px solid #fbbf24;
+    .pagination-btn:not(:disabled):active {
+      transform: scale(0.9);
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
       color: #000;
-      font-size: 22px;
-      font-weight: 900;
-      cursor: pointer;
-      transition: all 0.4s ease;
-      box-shadow: 0 8px 30px rgba(251, 191, 36, 0.5);
-      margin-bottom: 24px;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      position: relative;
-      overflow: hidden;
     }
 
-    .btn-scan::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.3);
-      transform: translate(-50%, -50%);
-      transition: width 0.6s, height 0.6s;
+    /* ========== CARDS ARTICOLI ========== */
+    .articles-grid {
+      display: grid;
+      gap: 20px;
     }
 
-    .btn-scan:hover::before {
-      width: 500px;
-      height: 500px;
-    }
-
-    .btn-scan:hover {
-      transform: translateY(-6px) scale(1.02);
-      box-shadow: 0 15px 50px rgba(251, 191, 36, 0.8);
-    }
-
-    .table-container {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-    }
-
-    thead {
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      border-radius: 16px;
-    }
-
-    th {
-      padding: 18px;
-      text-align: left;
-      font-size: 13px;
-      font-weight: 800;
-      color: #000;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    th:first-child {
-      border-top-left-radius: 16px;
-    }
-
-    th:last-child {
-      border-top-right-radius: 16px;
-    }
-
-    td {
-      padding: 18px;
-      border-bottom: 1px solid #2a2a2a;
-      font-size: 14px;
-      vertical-align: middle;
-      color: #e5e7eb;
-    }
-
-    tbody tr {
-      cursor: pointer;
-      transition: all 0.3s ease;
-      background: #0f0f0f;
-    }
-
-    tbody tr:hover {
-      background: linear-gradient(90deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%);
-      transform: scale(1.01);
-    }
-
-    .mobile-cards {
-      display: none;
-    }
-
-    .card {
+    .article-card {
       background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-      margin-bottom: 20px;
-      border-radius: 20px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+      border-radius: 24px;
       overflow: hidden;
-      transition: all 0.4s ease;
       border: 2px solid #2a2a2a;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     }
 
-    .card:hover {
-      box-shadow: 0 12px 50px rgba(251, 191, 36, 0.4);
+    .article-card:active {
       transform: translateY(-6px);
+      box-shadow: 0 12px 50px rgba(251, 191, 36, 0.4);
       border-color: #fbbf24;
     }
 
-    .card-header {
+    .article-header {
       padding: 20px;
       background: linear-gradient(135deg, #1f1f1f 0%, #1a1a1a 100%);
       border-bottom: 3px solid #fbbf24;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 16px;
     }
 
-    .card-title {
+    .article-image-placeholder {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+      border: 3px solid #fbbf24;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 11px;
+      color: #fbbf24;
+      font-weight: 700;
+      text-align: center;
+      padding: 8px;
+    }
+
+    .article-header-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .article-title {
       font-weight: 800;
       font-size: 18px;
       color: #fbbf24;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 10px;
     }
 
-    .card-subtitle {
+    .article-title-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .expand-icon {
+      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .article-card.expanded .expand-icon {
+      transform: rotate(180deg);
+    }
+
+    .article-subtitle {
       font-size: 14px;
       color: #9ca3af;
       font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
-    .card-body {
-      padding: 20px;
-      display: none;
+    .article-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
       background: #0f0f0f;
     }
 
-    .card.expanded .card-body {
-      display: block;
-      animation: slideDown 0.4s ease;
+    .article-card.expanded .article-body {
+      max-height: 1000px;
     }
 
-    @keyframes slideDown {
-      from { opacity: 0; max-height: 0; }
-      to { opacity: 1; max-height: 2000px; }
+    .article-body-content {
+      padding: 20px;
     }
 
-    .card-row {
+    .article-row {
       display: flex;
       justify-content: space-between;
       padding: 14px 0;
       border-bottom: 1px solid #2a2a2a;
+      gap: 16px;
     }
 
-    .card-row:last-child {
+    .article-row:last-child {
       border-bottom: none;
     }
 
-    .card-label {
+    .article-label {
       font-weight: 700;
       color: #9ca3af;
       font-size: 13px;
@@ -1139,26 +842,18 @@
       letter-spacing: 0.5px;
     }
 
-    .card-value {
+    .article-value {
       text-align: right;
       color: #e5e7eb;
       font-weight: 600;
-    }
-
-    .expand-icon {
-      transition: transform 0.4s ease;
-      font-size: 16px;
-    }
-
-    .card.expanded .expand-icon {
-      transform: rotate(180deg);
+      flex-shrink: 0;
     }
 
     .badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 8px 14px;
+      padding: 6px 12px;
       border-radius: 10px;
       font-size: 12px;
       font-weight: 700;
@@ -1180,67 +875,366 @@
       box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
     }
 
-    .btn-action {
-      padding: 10px 18px;
-      border-radius: 12px;
-      border: none;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+    .article-actions {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 2px solid #2a2a2a;
     }
 
     .btn-edit {
+      width: 100%;
+      padding: 16px;
+      border-radius: 16px;
+      border: none;
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
       color: #000;
-      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
     }
 
-    .btn-edit:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(251, 191, 36, 0.6);
+    .btn-edit:active {
+      transform: scale(0.95);
+      box-shadow: 0 10px 30px rgba(251, 191, 36, 0.6);
+    }
+
+    /* ========== BUTTON AGGIUNGI ========== */
+    .add-btn-container {
+      position: fixed;
+      bottom: 100px;
+      right: 20px;
+      z-index: 1500;
+    }
+
+    .btn-add-main {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border: none;
+      color: #fff;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(16, 185, 129, 0.6);
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    .btn-add-main:active {
+      transform: scale(0.95) rotate(90deg);
+    }
+
+    /* ========== MODALS ========== */
+    .modal-add, .modal-edit, .modal-graph {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(8px);
+      z-index: 2500;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .modal-add.active, .modal-edit.active, .modal-graph.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-add-content, .modal-edit-content {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+      border-radius: 28px;
+      padding: 28px;
+      max-width: 95vw;
+      width: 100%;
+      max-height: 95vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 80px rgba(16, 185, 129, 0.4);
+      animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      border: 3px solid #10b981;
+    }
+
+    .modal-edit-content {
+      box-shadow: 0 20px 80px rgba(251, 191, 36, 0.4);
+      border-color: #fbbf24;
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.8) rotate(-5deg); opacity: 0; }
+      to { transform: scale(1) rotate(0); opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .modal-title {
+      font-size: 24px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .modal-edit-content .modal-title {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .modal-close {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: #2a2a2a;
+      cursor: pointer;
+      font-size: 24px;
+      color: #e5e7eb;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close:active {
+      background: #ef4444;
+      color: #fff;
+      transform: rotate(90deg) scale(0.9);
+    }
+
+    /* ========== FORM ========== */
+    .form-grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 700;
+      color: #fbbf24;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 16px;
+      border-radius: 16px;
+      border: 2px solid #2a2a2a;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: #0a0a0a;
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: #6b7280;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #10b981;
+      background: #1a1a1a;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      padding: 18px;
+      background: #0a0a0a;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid #2a2a2a;
+    }
+
+    .checkbox-wrapper:active {
+      background: #1a1a1a;
+      border-color: #3a3a3a;
+    }
+
+    .checkbox-wrapper input[type="checkbox"] {
+      width: 24px;
+      height: 24px;
+      margin-right: 14px;
+      cursor: pointer;
+      accent-color: #10b981;
+    }
+
+    .checkbox-wrapper span {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #e5e7eb;
+      font-weight: 600;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 20px;
+      border-radius: 16px;
+      border: none;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+      margin-top: 24px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-submit:active {
+      transform: scale(0.95);
+      box-shadow: 0 12px 35px rgba(16, 185, 129, 0.6);
+    }
+
+    .btn-scan {
+      width: 100%;
+      padding: 20px;
+      border-radius: 20px;
+      border: 3px solid #fbbf24;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #000;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      box-shadow: 0 8px 30px rgba(251, 191, 36, 0.5);
+      margin-bottom: 24px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-scan::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .btn-scan:active::before {
+      width: 500px;
+      height: 500px;
+    }
+
+    .btn-scan:active {
+      transform: scale(0.95);
+      box-shadow: 0 15px 50px rgba(251, 191, 36, 0.8);
     }
 
     .btn-delete {
+      width: 100%;
+      padding: 16px;
+      border-radius: 16px;
+      border: none;
       background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
       color: white;
-      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+      margin-top: 24px;
     }
 
-    .btn-delete:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.6);
+    .btn-delete:active {
+      transform: scale(0.95);
+      box-shadow: 0 10px 30px rgba(239, 68, 68, 0.6);
     }
 
-    .btn-save {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: white;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    /* ========== CAMERA ========== */
+    #cameraContainer {
+      position: relative;
+      display: none;
+      margin: 24px 0;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 4px solid #fbbf24;
+      box-shadow: 0 0 40px rgba(251, 191, 36, 0.5);
     }
 
-    .btn-save:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.6);
+    #cameraContainer.active {
+      display: block;
     }
 
-    .btn-cancel {
-      background: #2a2a2a;
-      color: #e5e7eb;
+    #cameraView {
+      width: 100%;
+      display: block;
+      background: #000;
     }
 
-    .btn-cancel:hover {
-      background: #3a3a3a;
+    #capturedCanvas {
+      max-width: 100%;
+      border-radius: 20px;
+      margin: 24px 0;
+      display: none;
+      border: 4px solid #10b981;
+      box-shadow: 0 0 40px rgba(16, 185, 129, 0.5);
     }
 
+    /* ========== MESSAGGI ========== */
     .msg {
       padding: 18px 24px;
       border-radius: 16px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       display: none;
       font-weight: 700;
       animation: slideIn 0.4s ease;
@@ -1274,86 +1268,6 @@
       box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
     }
 
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.95);
-      backdrop-filter: blur(8px);
-      z-index: 2000;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .modal.active {
-      display: flex;
-      animation: fadeIn 0.4s ease;
-    }
-
-    .modal-content {
-      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-      border-radius: 28px;
-      padding: 36px;
-      max-width: 95vw;
-      width: 100%;
-      max-height: 95vh;
-      overflow-y: auto;
-      box-shadow: 0 20px 80px rgba(251, 191, 36, 0.4);
-      animation: scaleIn 0.4s ease;
-      border: 3px solid #fbbf24;
-    }
-
-    .modal-content.graph-modal {
-      max-width: 98vw;
-      max-height: 98vh;
-      padding: 24px;
-    }
-
-    @keyframes scaleIn {
-      from { transform: scale(0.9); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 28px;
-    }
-
-    .modal-title {
-      font-size: 28px;
-      font-weight: 900;
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .modal-close {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      border: none;
-      background: #2a2a2a;
-      cursor: pointer;
-      font-size: 24px;
-      color: #e5e7eb;
-      transition: all 0.3s ease;
-    }
-
-    .modal-close:hover {
-      background: #fbbf24;
-      color: #000;
-      transform: rotate(90deg);
-    }
-
     .info-box {
       background: rgba(59, 130, 246, 0.15);
       border: 2px solid #3b82f6;
@@ -1369,537 +1283,237 @@
       margin-right: 10px;
     }
 
-    .action-buttons {
-      display: flex;
-      gap: 12px;
-    }
-
-    #cameraContainer {
-      position: relative;
-      display: none;
-      margin: 24px 0;
-      border-radius: 20px;
-      overflow: hidden;
-      border: 4px solid #fbbf24;
-      box-shadow: 0 0 40px rgba(251, 191, 36, 0.5);
-    }
-
-    #cameraContainer.active {
-      display: block;
-    }
-
-    #cameraView {
-      width: 100%;
-      display: block;
-      background: #000;
-    }
-
-    .scan-zones {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-
-    .zone-name {
-      position: absolute;
-      top: 8%;
-      left: 15%;
-      width: 70%;
-      height: 10%;
-      border: 4px dashed #10b981;
-      border-radius: 12px;
-      background: rgba(16, 185, 129, 0.15);
-      animation: zonePulse 2s infinite;
-    }
-
-    .zone-name::before {
-      content: 'NOME CARTA';
-      position: absolute;
-      top: -35px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #10b981;
-      color: #000;
-      padding: 8px 20px;
-      border-radius: 10px;
-      font-weight: 900;
-      font-size: 14px;
-      white-space: nowrap;
-      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.5);
-    }
-
-    .zone-expansion {
-      position: absolute;
-      bottom: 8%;
-      left: 5%;
-      width: 35%;
-      height: 8%;
-      border: 4px dashed #fbbf24;
-      border-radius: 12px;
-      background: rgba(251, 191, 36, 0.15);
-      animation: zonePulse 2s infinite 0.5s;
-    }
-
-    .zone-expansion::before {
-      content: 'ESPANSIONE + NUMERO';
-      position: absolute;
-      bottom: -35px;
-      left: 0;
-      background: #fbbf24;
-      color: #000;
-      padding: 8px 20px;
-      border-radius: 10px;
-      font-weight: 900;
-      font-size: 14px;
-      white-space: nowrap;
-      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.5);
-    }
-
-    @keyframes zonePulse {
-      0%, 100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-      50% {
-        opacity: 0.7;
-        transform: scale(1.03);
-      }
-    }
-
-    .scan-instruction {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.9);
-      color: #fbbf24;
-      padding: 20px 40px;
-      border-radius: 20px;
-      font-weight: 900;
-      font-size: 20px;
-      text-align: center;
-      border: 4px solid #fbbf24;
-      animation: instructionPulse 2s ease-in-out infinite;
-      box-shadow: 0 0 40px rgba(251, 191, 36, 0.8);
-    }
-
-    @keyframes instructionPulse {
-      0%, 100% {
-        transform: translate(-50%, -50%) scale(1);
-        box-shadow: 0 0 40px rgba(251, 191, 36, 0.8);
-      }
-      50% {
-        transform: translate(-50%, -50%) scale(1.05);
-        box-shadow: 0 0 60px rgba(251, 191, 36, 1);
-      }
-    }
-
-    #capturedCanvas {
+    /* ========== MODAL GRAFICO ========== */
+    .modal-graph-content {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+      border-radius: 28px;
+      padding: 24px;
       max-width: 100%;
-      border-radius: 20px;
-      margin: 24px 0;
-      display: none;
-      border: 4px solid #10b981;
-      box-shadow: 0 0 40px rgba(16, 185, 129, 0.5);
+      height: calc(100% - 40px);
+      overflow-y: auto;
+      box-shadow: 0 20px 80px rgba(251, 191, 36, 0.4);
+      border: 3px solid #fbbf24;
+      display: flex;
+      flex-direction: column;
     }
 
     .chart-container {
-      margin-top: 24px;
-      padding: 20px;
+      flex: 1;
+      position: relative;
+      min-height: 400px;
       background: #0a0a0a;
       border-radius: 20px;
       border: 2px solid #2a2a2a;
-      min-height: 70vh;
-      position: relative;
+      padding: 20px;
     }
 
     .chart-container canvas {
-      cursor: grab;
+      max-height: 100%;
     }
 
-    .chart-container canvas:active {
-      cursor: grabbing;
-    }
-
-    .zoom-controls {
-      position: absolute;
-      top: 20px;
-      right: 20px;
+    /* ========== WORK IN PROGRESS ========== */
+    .wip-container {
       display: flex;
-      gap: 10px;
-      z-index: 10;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      text-align: center;
     }
 
-    .zoom-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      border: none;
+    .wip-icon {
+      font-size: 80px;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: wipPulse 2s ease-in-out infinite;
+      margin-bottom: 24px;
+    }
+
+    @keyframes wipPulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+      }
+    }
+
+    .wip-text {
+      font-size: 28px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+    }
+
+    .wip-subtext {
+      font-size: 16px;
+      color: #9ca3af;
+      font-weight: 600;
+    }
+
+    /* ========== FOOTER ========== */
+    .page-footer {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+      padding: 40px 20px;
+      margin-top: 60px;
+      border-top: 3px solid #fbbf24;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-logo {
+      font-size: 32px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+    }
+
+    .footer-text {
+      color: #9ca3af;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+
+    .footer-social {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .footer-social-link {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1f1f1f 0%, #0f0f0f 100%);
+      border: 2px solid #fbbf24;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fbbf24;
+      font-size: 20px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .footer-social-link:active {
+      transform: scale(0.9);
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
       color: #000;
-      font-size: 20px;
-      font-weight: 900;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
     }
 
-    .zoom-btn:hover {
-      transform: scale(1.1);
-      box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
-    }
-
-    @media (max-width: 768px) {
-      h1 {
-        font-size: 24px;
-      }
-
-      .pikachu-logo {
-        font-size: 36px;
+    /* ========== RESPONSIVE ========== */
+    @media (min-width: 768px) {
+      .dashboard {
+        grid-template-columns: repeat(2, 1fr);
       }
 
       .filter-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
       }
 
-      .filter-actions {
-        grid-template-columns: 1fr;
-      }
-
-      .sort-controls {
-        grid-template-columns: 1fr;
-      }
-
-      .desktop-table {
-        display: none;
-      }
-
-      .mobile-cards {
-        display: block;
-      }
-
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .dashboard {
-        grid-template-columns: 1fr;
-      }
-
-      .stat-value {
-        font-size: 32px;
-      }
-
-      .tab {
-        padding: 10px 20px;
-        font-size: 13px;
-      }
-
-      .action-buttons {
-        flex-direction: column;
-      }
-
-      .modal-content {
-        padding: 24px;
-      }
-
-      .chart-container {
-        min-height: 50vh;
-      }
-
-      .results-info {
-        flex-direction: column;
-        gap: 12px;
+      .articles-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
 
-    @media (max-width: 768px) {
-  .range-inputs {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+    @media (min-width: 1024px) {
+      .dashboard {
+        grid-template-columns: repeat(4, 1fr);
+      }
 
-  .range-separator {
-    display: none;
-  }
-}
+      .articles-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* ========== UTILITY ========== */
+    .hidden {
+      display: none !important;
+    }
   </style>
 </head>
 
 <body>
   <div class="particles" id="particles"></div>
 
+  <!-- HEADER -->
   <div class="header">
     <h1>
-      <span class="title-gradient">LIUK & TREMON</span>
+      <span class="title-gradient">NODO</span>
     </h1>
-    
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab('archivio')">
-        <i class="fas fa-archive"></i> ARCHIVIO
-      </button>
-      <button class="tab" onclick="switchTab('aggiungi')">
-        <i class="fas fa-plus-circle"></i> AGGIUNGI
-      </button>
-    </div>
-  </div>
-  <!-- TAB ARCHIVIO -->
-  <div id="tab-archivio" class="tab-content active">
-    
-    <div class="dashboard" id="dashboard">
-      <div class="stat-card" onclick="apriGrafico('totale')">
-        <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
-        <div class="stat-label">Totale Articoli</div>
-        <div class="stat-value" id="statTotale">0</div>
-        <div class="stat-subtext">nella collezione</div>
-      </div>
-      
-      <div class="stat-card green" onclick="apriGrafico('valore')">
-        <div class="stat-icon"><i class="fas fa-gem"></i></div>
-        <div class="stat-label">Valore Totale</div>
-        <div class="stat-value" id="statValore">0 €</div>
-        <div class="stat-subtext">valore di mercato</div>
-      </div>
-      
-      <div class="stat-card orange" onclick="apriGrafico('spesa')">
-        <div class="stat-icon"><i class="fas fa-wallet"></i></div>
-        <div class="stat-label">Spesa Totale</div>
-        <div class="stat-value" id="statSpesa">0 €</div>
-        <div class="stat-subtext">investimento iniziale</div>
-      </div>
-      
-      <div class="stat-card blue" onclick="apriGrafico('performance')">
-        <div class="stat-icon"><i class="fas fa-rocket"></i></div>
-        <div class="stat-label">Performance</div>
-        <div class="stat-value" id="statDelta">0 €</div>
-        <div class="stat-subtext" id="statDeltaPercent">0%</div>
-      </div>
-      
-      <div class="stat-card red" onclick="apriGrafico('presenti')">
-        <div class="stat-icon"><i class="fas fa-box-open"></i></div>
-        <div class="stat-label">Magazzino</div>
-        <div class="stat-value" id="statPresenti">0</div>
-        <div class="stat-subtext" id="statPresentiSub">articoli presenti</div>
-      </div>
-    </div>
-
-    <div class="box">
-      <div class="filter-panel">
-        <div class="filter-header">
-          <div class="filter-title">
-            <i class="fas fa-sliders-h"></i>
-            FILTRI
-          </div>
-          <button class="filter-toggle" onclick="toggleFilters()" id="filterToggle">
-            <i class="fas fa-chevron-down"></i>
-            <span>ESPANDI</span>
-          </button>
-        </div>
-
-        <div class="filter-content" id="filterContent">
-          <div class="filter-grid">
-            <div class="filter-group">
-              <label><i class="fas fa-search"></i> Cerca Nome</label>
-              <input type="text" id="fNome" placeholder="Es. Charizard, Pikachu...">
-            </div>
-
-            <div class="filter-group">
-              <label><i class="fas fa-tag"></i> Categoria</label>
-              <select id="fCategoria">
-                <option value="">Tutte le categorie</option>
-                <option value="Carta Singola">Carta Singola</option>
-                <option value="ETB">ETB (Elite Trainer Box)</option>
-                <option value="Booster">Booster Pack</option>
-                <option value="Collection Box">Collection Box</option>
-                <option value="Altro">Altro</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="range-group">
-            <div class="range-header">
-              <div class="range-label">
-                <i class="fas fa-euro-sign"></i>
-                Range Valore Attuale
-              </div>
-              <div class="range-value" id="rangeValoreDisplay">0€ - 1000€</div>
-            </div>
-            <div class="range-inputs">
-              <input type="number" id="fValoreMin" placeholder="Min" value="0" oninput="updateRangeDisplay()">
-              <span class="range-separator">—</span>
-              <input type="number" id="fValoreMax" placeholder="Max" value="1000" oninput="updateRangeDisplay()">
-            </div>
-          </div>
-
-          <div class="range-group">
-            <div class="range-header">
-              <div class="range-label">
-                <i class="fas fa-star"></i>
-                Valutazione Minima
-              </div>
-              <div class="range-value" id="rangeStatoDisplay">Tutte</div>
-            </div>
-            <div class="filter-group">
-              <select id="fStato" onchange="updateStatoDisplay()">
-                <option value="">Tutte le valutazioni</option>
-                <option value="10">10⭐ (Mint)</option>
-                <option value="9">9⭐+ (Near Mint+)</option>
-                <option value="8">8⭐+ (Near Mint)</option>
-                <option value="7">7⭐+ (Eccellente)</option>
-                <option value="6">6⭐+ (Buona)</option>
-                <option value="5">5⭐+ (Cattiva)</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="toggle-group">
-            <div class="toggle-option">
-              <input type="checkbox" id="fPresenti" checked>
-              <label for="fPresenti" class="toggle-label">
-                <i class="fas fa-check-circle"></i>
-                PRESENTI
-              </label>
-            </div>
-
-            <div class="toggle-option">
-              <input type="checkbox" id="fAssenti" checked>
-              <label for="fAssenti" class="toggle-label">
-                <i class="fas fa-times-circle"></i>
-                ASSENTI
-              </label>
-            </div>
-
-            <div class="toggle-option">
-              <input type="checkbox" id="fProfit">
-              <label for="fProfit" class="toggle-label">
-                <i class="fas fa-arrow-up"></i>
-                IN PROFITTO
-              </label>
-            </div>
-
-            <div class="toggle-option">
-              <input type="checkbox" id="fLoss">
-              <label for="fLoss" class="toggle-label">
-                <i class="fas fa-arrow-down"></i>
-                IN PERDITA
-              </label>
-            </div>
-          </div>
-
-          <div class="sort-controls">
-            <div class="filter-group">
-              <label><i class="fas fa-sort"></i> Ordina Per</label>
-              <select id="fSortBy">
-                <option value="created_at_desc">Più Recenti</option>
-                <option value="created_at_asc">Più Vecchi</option>
-                <option value="nome_asc">Nome (A-Z)</option>
-                <option value="nome_desc">Nome (Z-A)</option>
-                <option value="valore_desc">Valore (Alto → Basso)</option>
-                <option value="valore_asc">Valore (Basso → Alto)</option>
-                <option value="delta_desc">Profitto (Alto → Basso)</option>
-                <option value="delta_asc">Perdita (Alto → Basso)</option>
-                <option value="stato_desc">Stato (Alto → Basso)</option>
-              </select>
-            </div>
-
-            <button class="sort-button" id="sortDirBtn" onclick="toggleSortDirection()">
-              <i class="fas fa-sort-amount-down"></i>
-            </button>
-          </div>
-
-          <div class="filter-actions">
-            <button class="btn-filter btn-apply" onclick="applicaFiltri()">
-              <i class="fas fa-filter"></i>
-              APPLICA
-            </button>
-            <button class="btn-filter btn-reset" onclick="resetFiltri()">
-              <i class="fas fa-redo"></i>
-              RESET
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="results-info">
-      <div class="results-count">
-        Trovati <span id="resultsCount">0</span> articoli
-      </div>
-      <div class="view-toggle">
-        <button class="view-btn active" onclick="switchView('table')" id="viewTableBtn">
-          <i class="fas fa-table"></i>
-        </button>
-        <button class="view-btn" onclick="switchView('grid')" id="viewGridBtn">
-          <i class="fas fa-th-large"></i>
-        </button>
-      </div>
-    </div>
-
-    <div class="box desktop-table" id="desktopTable">
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th><i class="fas fa-signature"></i> Nome</th>
-              <th><i class="fas fa-tags"></i> Categoria</th>
-              <th><i class="fas fa-coins"></i> Valore</th>
-              <th><i class="fas fa-money-bill-wave"></i> Prezzo</th>
-              <th><i class="fas fa-chart-line"></i> Guadagno/Perdita</th>
-              <th><i class="fas fa-star"></i> Stato</th>
-              <th><i class="fas fa-warehouse"></i> Presente</th>
-              <th><i class="fas fa-tools"></i> Azioni</th>
-            </tr>
-          </thead>
-          <tbody id="tableOut">
-            <tr><td colspan="8" style="text-align: center; padding: 50px;">
-              <i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #fbbf24;"></i>
-              <div style="margin-top: 16px; color: #6b7280; font-weight: 600;">Caricamento collezione...</div>
-            </td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div id="cardsOut" class="mobile-cards"></div>
-
   </div>
 
-  <!-- TAB AGGIUNGI -->
-  <div id="tab-aggiungi" class="tab-content">
-    
-    <div class="box">
-      <div id="formMsg" class="msg"></div>
+  <!-- MENU NAVIGAZIONE BOTTOM -->
+  <div class="bottom-nav">
+    <button class="menu-main-btn" id="menuBtn" onclick="toggleMenu()">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="menu-items" id="menuItems"></div>
+  </div>
 
-      <button type="button" class="btn-scan" onclick="avviaScansionePokemon()">
-        <i class="fas fa-camera-retro"></i> ⚡ SCANSIONA CARTA POKÉMON ⚡
+  <!-- BUTTON AGGIUNGI -->
+  <div class="add-btn-container">
+    <button class="btn-add-main" onclick="openAddModal()">
+      <i class="fas fa-plus"></i>
+    </button>
+  </div>
+
+  <!-- CONTENUTO PRINCIPALE -->
+  <div class="main-content" id="mainContent"></div>
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <div class="footer-logo">NODO</div>
+    <div class="footer-text">La tua collezione Pokémon sempre con te</div>
+    <div class="footer-social">
+      <a href="#" class="footer-social-link"><i class="fab fa-instagram"></i></a>
+      <a href="#" class="footer-social-link"><i class="fab fa-twitter"></i></a>
+      <a href="#" class="footer-social-link"><i class="fab fa-discord"></i></a>
+    </div>
+  </div>
+
+  <!-- MODAL AGGIUNGI -->
+  <div class="modal-add" id="modalAdd">
+    <div class="modal-add-content">
+      <div class="modal-header">
+        <h2 class="modal-title"><i class="fas fa-plus-circle"></i> Aggiungi Articolo</h2>
+        <button class="modal-close" onclick="closeAddModal()">✕</button>
+      </div>
+
+      <div id="addMsg" class="msg"></div>
+
+      <button type="button" class="btn-scan" onclick="avviaScansione()">
+        <i class="fas fa-camera-retro"></i> ⚡ SCANSIONA CARTA ⚡
       </button>
 
       <div id="cameraContainer">
         <video id="cameraView" autoplay playsinline></video>
-        <div class="scan-zones">
-          <div class="zone-name"></div>
-          <div class="zone-expansion"></div>
-        </div>
-        <div class="scan-instruction" id="scanInstruction">
-          ⚡ CLICCA PER SCATTARE ⚡
-        </div>
       </div>
       
       <canvas id="capturedCanvas"></canvas>
       
-      <div id="scanMsg" class="msg" style="display: none;"></div>
+      <div id="scanMsg" class="msg"></div>
 
       <div class="info-box">
         <i class="fas fa-lightbulb"></i>
         Il campo <strong>Guadagno/Perdita</strong> viene calcolato automaticamente
       </div>
 
-      <form id="formAggiungi" onsubmit="aggiungi(event)">
-        
+      <form id="formAdd" onsubmit="aggiungiArticolo(event)">
         <div class="form-grid">
           <div class="form-group">
             <label><i class="fas fa-bolt"></i> Nome Carta *</label>
@@ -1911,7 +1525,7 @@
             <input type="text" name="Categoria" id="categoriaInput" placeholder="Es. Carta Singola">
           </div>
 
-          <div class="form-group full">
+          <div class="form-group">
             <label><i class="fas fa-scroll"></i> Descrizione / Espansione</label>
             <textarea name="Descrizione" id="descrizioneInput" placeholder="Es. SVI - 075/198"></textarea>
           </div>
@@ -1933,14 +1547,14 @@
 
           <div class="form-group">
             <label><i class="fas fa-star-half-alt"></i> Valutazione Stato (1-10)</label>
-            <input type="number" min="1" max="10" name="ValutazioneStato" placeholder="10">
+            <input type="number" min="1" max="10" name="ValutazioneStato" id="statoAdd" placeholder="10">
           </div>
 
-          <div class="form-group full">
-            <label class="checkbox-wrapper">
-              <input type="checkbox" name="Presente" checked>
-              <span><i class="fas fa-box-open"></i> Articolo Presente </span>
-            </label>
+          <div class="form-group">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" name="Presente" id="presenteAdd" checked>
+              <span><i class="fas fa-box-open"></i> Articolo Presente</span>
+            </div>
           </div>
         </div>
 
@@ -1949,45 +1563,25 @@
         </button>
       </form>
     </div>
-
-  </div>
-
-  <!-- MODAL GRAFICO -->
-  <div id="modalGrafico" class="modal">
-    <div class="modal-content graph-modal">
-      <div class="modal-header">
-        <h2 class="modal-title" id="graficoTitolo"><i class="fas fa-chart-area"></i> STATISTICHE</h2>
-        <button class="modal-close" onclick="chiudiGrafico()">✕</button>
-      </div>
-      
-      <div class="chart-container">
-        <div class="zoom-controls">
-          <button class="zoom-btn" onclick="resetZoom()" title="Reset Zoom">
-            <i class="fas fa-sync-alt"></i>
-          </button>
-        </div>
-        <canvas id="chartCanvas"></canvas>
-      </div>
-    </div>
   </div>
 
   <!-- MODAL MODIFICA -->
-  <div id="modalModifica" class="modal">
-    <div class="modal-content">
+  <div class="modal-edit" id="modalEdit">
+    <div class="modal-edit-content">
       <div class="modal-header">
-        <h2 class="modal-title"><i class="fas fa-edit"></i> MODIFICA ARTICOLO</h2>
-        <button class="modal-close" onclick="chiudiModale()">✕</button>
+        <h2 class="modal-title"><i class="fas fa-edit"></i> Modifica Articolo</h2>
+        <button class="modal-close" onclick="closeEditModal()">✕</button>
       </div>
 
-      <div id="modalMsg" class="msg"></div>
+      <div id="editMsg" class="msg"></div>
 
       <div class="info-box">
         <i class="fas fa-lightbulb"></i>
         Il campo <strong>Guadagno/Perdita</strong> viene calcolato automaticamente
       </div>
 
-      <form id="formModifica" onsubmit="salvaModifica(event)">
-        <input type="hidden" id="editId" name="id">
+      <form id="formEdit" onsubmit="salvaModifica(event)">
+        <input type="hidden" id="editId">
         
         <div class="form-grid">
           <div class="form-group">
@@ -2000,7 +1594,7 @@
             <input type="text" id="editCategoria" name="Categoria">
           </div>
 
-          <div class="form-group full">
+          <div class="form-group">
             <label><i class="fas fa-scroll"></i> Descrizione</label>
             <textarea id="editDescrizione" name="Descrizione"></textarea>
           </div>
@@ -2022,46 +1616,66 @@
 
           <div class="form-group">
             <label><i class="fas fa-star-half-alt"></i> Valutazione Stato (1-10)</label>
-            <input type="number" min="1" max="10" id="editValutazioneStato" name="ValutazioneStato">
+            <input type="number" min="1" max="10" id="editStato" name="ValutazioneStato">
           </div>
 
-          <div class="form-group full">
-            <label class="checkbox-wrapper">
+          <div class="form-group">
+            <div class="checkbox-wrapper">
               <input type="checkbox" id="editPresente" name="Presente">
-              <span><i class="fas fa-box-open"></i> Articolo Presente </span>
-            </label>
+              <span><i class="fas fa-box-open"></i> Articolo Presente</span>
+            </div>
           </div>
         </div>
 
-        <div style="display: flex; gap: 16px; margin-top: 28px;">
-          <button type="submit" class="btn-action btn-save" style="flex: 1;">
-            <i class="fas fa-save"></i> SALVA
-          </button>
-          <button type="button" class="btn-action btn-cancel" onclick="chiudiModale()">
-            <i class="fas fa-times"></i> ANNULLA
-          </button>
-        </div>
+        <button type="submit" class="btn-submit">
+          <i class="fas fa-save"></i> SALVA MODIFICHE
+        </button>
 
-        <div style="margin-top: 28px; padding-top: 28px; border-top: 3px solid #2a2a2a;">
-          <button type="button" class="btn-action btn-delete" style="width: 100%;" onclick="eliminaArticolo()">
-            <i class="fas fa-trash-alt"></i> ELIMINA ARTICOLO
-          </button>
-        </div>
+        <button type="button" class="btn-delete" onclick="eliminaArticolo()">
+          <i class="fas fa-trash-alt"></i> ELIMINA ARTICOLO
+        </button>
       </form>
     </div>
   </div>
 
+  <!-- MODAL GRAFICO -->
+  <div class="modal-graph" id="modalGraph">
+    <div class="modal-graph-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="graphTitle"><i class="fas fa-chart-area"></i> Statistiche</h2>
+        <button class="modal-close" onclick="closeGraphModal()">✕</button>
+      </div>
+      
+      <div class="chart-container">
+        <canvas id="chartCanvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+<!-- FINE PARTE 2 - Continua con PARTE 3 -->
+<!-- ========================================= -->
+<!-- PARTE 3 DI 4 - COPIA E INCOLLA QUESTO BLOCCO DOPO LA PARTE 2 -->
+<!-- ========================================= -->
+
   <script>
+    // ========== CONFIGURAZIONE SUPABASE ==========
     const SUPABASE_URL = "https://xoagoblnzvdqnktpfhlk.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_Uf5-1uzQzL-OqI6dA-tl_g_RHpYxNds";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhvYWdvYmxuenZkcW5rdHBmaGxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ1MzgzMTQsImV4cCI6MjA1MDExNDMxNH0.rZhбългария7Nz8JvQx-FqMxK6vT3kD9YhLXpI_4qP0Bs";
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let stream = null;
+    // ========== VARIABILI GLOBALI ==========
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let allArticles = [];
+    let filteredArticles = [];
     let currentChart = null;
+    let stream = null;
+    let menuOpen = false;
+    let currentView = 'archivio';
+    let currentSubmenu = null;
 
-    // DATABASE CARTE POKEMON
+    // ========== DATABASE POKEMON ==========
     const POKEMON_DATABASE = {
-      // Espansioni principali
       'SVI': { nome: 'Scarlatto e Violetto Base', max: 198 },
       'PAL': { nome: 'Paldea Evolved', max: 279 },
       'OBF': { nome: 'Obsidian Flames', max: 230 },
@@ -2072,45 +1686,380 @@
       'SHR': { nome: 'Shrouded Fable', max: 99 },
       'SCR': { nome: 'Stellar Crown', max: 175 },
       'SSP': { nome: 'Surging Sparks', max: 252 },
-      
-      // Pokémon comuni
       nomiComuni: [
         'Pikachu', 'Charizard', 'Mewtwo', 'Mew', 'Lucario', 'Greninja', 
         'Rayquaza', 'Garchomp', 'Gardevoir', 'Umbreon', 'Espeon', 'Eevee',
         'Snorlax', 'Dragonite', 'Gyarados', 'Gengar', 'Alakazam', 'Machamp',
-        'Blastoise', 'Venusaur', 'Zapdos', 'Articuno', 'Moltres', 'Lugia',
-        'Ho-Oh', 'Celebi', 'Jirachi', 'Deoxys', 'Dialga', 'Palkia', 'Giratina',
-        'Arceus', 'Reshiram', 'Zekrom', 'Kyurem', 'Xerneas', 'Yveltal', 'Zygarde',
-        'Solgaleo', 'Lunala', 'Necrozma', 'Zacian', 'Zamazenta', 'Eternatus',
-        'Calyrex', 'Koraidon', 'Miraidon', 'Terapagos', 'Ogerpon', 'Pecharunt',
-        'Pawmo', 'Pawmi', 'Pawmot', 'Sprigatito', 'Floragato', 'Meowscarada',
-        'Fuecoco', 'Crocalor', 'Skeledirge', 'Quaxly', 'Quaxwell', 'Quaquaval'
+        'Blastoise', 'Venusaur', 'Zapdos', 'Articuno', 'Moltres', 'Lugia'
       ]
     };
 
-    function creaParticelle() {
-      const container = document.getElementById('particles');
-      for (let i = 0; i < 30; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.animationDelay = Math.random() * 15 + 's';
-        particle.style.animationDuration = (15 + Math.random() * 10) + 's';
-        container.appendChild(particle);
+    // ========== MENU NAVIGAZIONE ==========
+    const menuStructure = {
+      archivio: {
+        icon: 'fas fa-archive',
+        label: 'Archivio',
+        action: () => loadView('archivio')
+      },
+      mancoliste: {
+        icon: 'fas fa-list-check',
+        label: 'Mancoliste',
+        action: () => loadView('mancoliste')
+      },
+      vetrine: {
+        icon: 'fas fa-shop',
+        label: 'Vetrine',
+        action: () => loadView('vetrine')
+      },
+      community: {
+        icon: 'fas fa-users',
+        label: 'Community',
+        action: () => loadView('community')
+      },
+      raduni: {
+        icon: 'fas fa-calendar-days',
+        label: 'Raduni',
+        action: () => loadView('raduni')
+      },
+      profilo: {
+        icon: 'fas fa-user',
+        label: 'Profilo',
+        submenu: {
+          iterazioni: {
+            icon: 'fas fa-image',
+            label: 'Iterazioni',
+            submenu: {
+              tuo_profilo: { icon: 'fas fa-id-card', label: 'Il tuo profilo', action: () => loadView('tuo-profilo') },
+              pubblica_storia: { icon: 'fas fa-clock', label: 'Pubblica storia', action: () => loadView('pubblica-storia') },
+              carica_media: { icon: 'fas fa-photo-video', label: 'Carica foto/video', action: () => loadView('carica-media') },
+              pubblica_post: { icon: 'fas fa-pen-to-square', label: 'Pubblica post', action: () => loadView('pubblica-post') },
+              gestisci_preferenze: { icon: 'fas fa-sliders', label: 'Gestisci preferenze', action: () => loadView('preferenze') },
+              indietro: { icon: 'fas fa-arrow-left', label: 'Indietro', action: () => loadSubmenu('profilo') },
+              home: { icon: 'fas fa-home', label: 'Torna alla home', action: () => loadView('mancoliste') }
+            }
+          },
+          tuo_negozio: {
+            icon: 'fas fa-store',
+            label: 'Il tuo negozio',
+            submenu: {
+              vetrina: { icon: 'fas fa-shop-lock', label: 'Vetrina', action: () => loadView('vetrina-negozio') },
+              mancolista: { icon: 'fas fa-list-ul', label: 'Mancolista', action: () => loadView('mancolista-negozio') },
+              analisi: { icon: 'fas fa-chart-line', label: 'Analisi di mercato', action: () => loadView('analisi-mercato') },
+              promozioni: { icon: 'fas fa-tag', label: 'Promozioni', action: () => loadView('promozioni') },
+              indietro: { icon: 'fas fa-arrow-left', label: 'Indietro', action: () => loadSubmenu('profilo') },
+              home: { icon: 'fas fa-home', label: 'Torna alla home', action: () => loadView('mancoliste') }
+            }
+          },
+          indietro: { icon: 'fas fa-arrow-left', label: 'Indietro', action: () => { loadMenu(); currentSubmenu = null; } },
+          home: { icon: 'fas fa-home', label: 'Torna alla home', action: () => loadView('mancoliste') }
+        }
+      }
+    };
+
+    function toggleMenu() {
+      menuOpen = !menuOpen;
+      const menuBtn = document.getElementById('menuBtn');
+      const menuItems = document.getElementById('menuItems');
+      
+      menuBtn.classList.toggle('active');
+      
+      if (menuOpen) {
+        loadMenu();
+      } else {
+        menuItems.innerHTML = '';
       }
     }
-    creaParticelle();
 
-    function pikachuClick() {
-      const pikachus = document.querySelectorAll('.pikachu-logo');
-      pikachus.forEach(p => {
-        p.style.animation = 'pikachuShake 0.5s ease-in-out';
+    function loadMenu() {
+      const menuItems = document.getElementById('menuItems');
+      menuItems.innerHTML = '';
+      
+      const items = Object.entries(menuStructure);
+      
+      items.forEach(([key, item], index) => {
+        const menuItem = document.createElement('div');
+        menuItem.className = 'menu-item';
+        
+        const yOffset = 80 * (index + 1);
+        
         setTimeout(() => {
-          p.style.animation = 'pikachuBounce 2s ease-in-out infinite';
-        }, 500);
+          menuItem.classList.add('active');
+          menuItem.style.transform = `translateY(-${yOffset}px)`;
+        }, index * 50);
+        
+        menuItem.innerHTML = `
+          <i class="${item.icon}"></i>
+          <div class="menu-label">${item.label}</div>
+        `;
+        
+        menuItem.onclick = () => {
+          if (item.submenu) {
+            loadSubmenu(key);
+          } else if (item.action) {
+            item.action();
+            toggleMenu();
+          }
+        };
+        
+        menuItems.appendChild(menuItem);
       });
     }
 
+    function loadSubmenu(menuKey) {
+      const menuItems = document.getElementById('menuItems');
+      menuItems.innerHTML = '';
+      currentSubmenu = menuKey;
+      
+      const submenu = menuStructure[menuKey].submenu;
+      const items = Object.entries(submenu);
+      
+      items.forEach(([key, item], index) => {
+        const menuItem = document.createElement('div');
+        menuItem.className = 'menu-item';
+        
+        const yOffset = 80 * (index + 1);
+        
+        setTimeout(() => {
+          menuItem.classList.add('active');
+          menuItem.style.transform = `translateY(-${yOffset}px)`;
+        }, index * 50);
+        
+        menuItem.innerHTML = `
+          <i class="${item.icon}"></i>
+          <div class="menu-label">${item.label}</div>
+        `;
+        
+        menuItem.onclick = () => {
+          if (item.submenu) {
+            loadSubmenu(key);
+          } else if (item.action) {
+            item.action();
+            if (key !== 'indietro') {
+              toggleMenu();
+            }
+          }
+        };
+        
+        menuItems.appendChild(menuItem);
+      });
+    }
+
+    // ========== VIEWS ==========
+    function loadView(viewName) {
+      currentView = viewName;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      switch(viewName) {
+        case 'archivio':
+          loadArchivioView();
+          break;
+        case 'mancoliste':
+        case 'vetrine':
+        case 'community':
+        case 'raduni':
+        case 'tuo-profilo':
+        case 'pubblica-storia':
+        case 'carica-media':
+        case 'pubblica-post':
+        case 'preferenze':
+        case 'vetrina-negozio':
+        case 'mancolista-negozio':
+        case 'analisi-mercato':
+        case 'promozioni':
+          loadWIPView(viewName);
+          break;
+      }
+    }
+
+    function loadWIPView(viewName) {
+      const mainContent = document.getElementById('mainContent');
+      const labels = {
+        'mancoliste': 'Mancoliste',
+        'vetrine': 'Vetrine',
+        'community': 'Community',
+        'raduni': 'Raduni',
+        'tuo-profilo': 'Il tuo profilo',
+        'pubblica-storia': 'Pubblica storia',
+        'carica-media': 'Carica foto o video',
+        'pubblica-post': 'Pubblica post',
+        'preferenze': 'Gestisci preferenze',
+        'vetrina-negozio': 'Vetrina',
+        'mancolista-negozio': 'Mancolista',
+        'analisi-mercato': 'Analisi di mercato',
+        'promozioni': 'Promozioni'
+      };
+      
+      mainContent.innerHTML = `
+        <div class="wip-container">
+          <div class="wip-icon">
+            <i class="fas fa-hammer"></i>
+          </div>
+          <div class="wip-text">Work in Progress</div>
+          <div class="wip-subtext">${labels[viewName]} - In arrivo presto!</div>
+        </div>
+      `;
+    }
+
+    function loadArchivioView() {
+      const mainContent = document.getElementById('mainContent');
+      
+      mainContent.innerHTML = `
+        <div class="dashboard" id="dashboard"></div>
+
+        <div class="filter-box">
+          <div class="filter-header" id="filterHeader">
+            <div class="filter-title">
+              <i class="fas fa-sliders-h"></i>
+              FILTRI
+            </div>
+            <button class="filter-toggle" onclick="toggleFilters()" id="filterToggle">
+              <i class="fas fa-chevron-down"></i>
+            </button>
+          </div>
+
+          <div class="filter-content" id="filterContent">
+            <div class="filter-grid">
+              <div class="filter-group">
+                <label><i class="fas fa-search"></i> Cerca Nome</label>
+                <input type="text" id="fNome" placeholder="Es. Charizard, Pikachu...">
+              </div>
+
+              <div class="filter-group">
+                <label><i class="fas fa-tag"></i> Categoria</label>
+                <select id="fCategoria">
+                  <option value="">Tutte le categorie</option>
+                  <option value="Carta Singola">Carta Singola</option>
+                  <option value="ETB">ETB</option>
+                  <option value="Booster">Booster Pack</option>
+                  <option value="Collection Box">Collection Box</option>
+                  <option value="Altro">Altro</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="range-group">
+              <div class="range-header">
+                <div class="range-label">
+                  <i class="fas fa-euro-sign"></i>
+                  Valore Attuale
+                </div>
+                <div class="range-value" id="rangeValoreDisplay">0€ - 1000€</div>
+              </div>
+              <div class="range-slider-container">
+                <div class="range-track">
+                  <div class="range-progress" id="rangeProgress"></div>
+                </div>
+                <input type="range" class="range-input" id="fValoreMin" min="0" max="1000" value="0" oninput="updateRangeSlider()">
+                <input type="range" class="range-input" id="fValoreMax" min="0" max="1000" value="1000" oninput="updateRangeSlider()">
+              </div>
+            </div>
+
+            <div class="range-group">
+              <div class="range-header">
+                <div class="range-label">
+                  <i class="fas fa-star"></i>
+                  Valutazione Minima
+                </div>
+                <div class="range-value" id="rangeStatoDisplay">Tutte</div>
+              </div>
+              <div class="filter-group">
+                <select id="fStato" onchange="updateStatoDisplay()">
+                  <option value="">Tutte le valutazioni</option>
+                  <option value="10">10⭐ (Mint)</option>
+                  <option value="9">9⭐+ (Near Mint+)</option>
+                  <option value="8">8⭐+ (Near Mint)</option>
+                  <option value="7">7⭐+ (Eccellente)</option>
+                  <option value="6">6⭐+ (Buona)</option>
+                  <option value="5">5⭐+ (Cattiva)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="toggle-group">
+              <div class="toggle-option">
+                <input type="checkbox" id="fPresenti" checked>
+                <label for="fPresenti" class="toggle-label">
+                  <i class="fas fa-check-circle"></i>
+                  PRESENTI
+                </label>
+              </div>
+
+              <div class="toggle-option">
+                <input type="checkbox" id="fAssenti" checked>
+                <label for="fAssenti" class="toggle-label">
+                  <i class="fas fa-times-circle"></i>
+                  ASSENTI
+                </label>
+              </div>
+
+              <div class="toggle-option">
+                <input type="checkbox" id="fProfit" checked>
+                <label for="fProfit" class="toggle-label">
+                  <i class="fas fa-arrow-up"></i>
+                  PROFITTO
+                </label>
+              </div>
+
+              <div class="toggle-option">
+                <input type="checkbox" id="fLoss" checked>
+                <label for="fLoss" class="toggle-label">
+                  <i class="fas fa-arrow-down"></i>
+                  PERDITA
+                </label>
+              </div>
+            </div>
+
+            <div class="filter-actions">
+              <button class="btn-filter btn-apply" onclick="applicaFiltri()">
+                <i class="fas fa-filter"></i>
+                APPLICA
+              </button>
+              <button class="btn-filter btn-reset" onclick="resetFiltri()">
+                <i class="fas fa-redo"></i>
+                RESET
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pagination-container">
+          <div class="pagination-info">
+            Articolo <span id="pageStart">1</span>-<span id="pageEnd">10</span> di <span id="totalItems">0</span>
+          </div>
+          <div class="pagination-controls">
+            <button class="pagination-btn" id="prevBtn" onclick="previousPage()">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="pagination-btn" id="nextBtn" onclick="nextPage()">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="articles-grid" id="articlesGrid"></div>
+      `;
+
+      let lastScrollTop = 0;
+      window.addEventListener('scroll', () => {
+        const filterHeader = document.getElementById('filterHeader');
+        if (!filterHeader) return;
+        
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        if (scrollTop > 100) {
+          filterHeader.classList.add('scrolled');
+        } else {
+          filterHeader.classList.remove('scrolled');
+        }
+        
+        lastScrollTop = scrollTop;
+      });
+
+      updateRangeSlider();
+      caricaArticoli();
+    }
+
+    // ========== FILTRI ==========
     function toggleFilters() {
       const content = document.getElementById('filterContent');
       const toggle = document.getElementById('filterToggle');
@@ -2119,18 +2068,41 @@
       if (isExpanded) {
         content.classList.remove('active');
         toggle.classList.remove('expanded');
-        toggle.innerHTML = '<i class="fas fa-chevron-down"></i><span>ESPANDI</span>';
+        toggle.querySelector('i').className = 'fas fa-chevron-down';
       } else {
         content.classList.add('active');
         toggle.classList.add('expanded');
-        toggle.innerHTML = '<i class="fas fa-chevron-up"></i><span>CHIUDI</span>';
+        toggle.querySelector('i').className = 'fas fa-chevron-up';
       }
     }
 
-    function updateRangeDisplay() {
-      const min = document.getElementById('fValoreMin').value || 0;
-      const max = document.getElementById('fValoreMax').value || 1000;
-      document.getElementById('rangeValoreDisplay').textContent = `${min}€ - ${max}€`;
+    function updateRangeSlider() {
+      const minInput = document.getElementById('fValoreMin');
+      const maxInput = document.getElementById('fValoreMax');
+      const display = document.getElementById('rangeValoreDisplay');
+      const progress = document.getElementById('rangeProgress');
+      
+      if (!minInput || !maxInput) return;
+      
+      let min = parseInt(minInput.value);
+      let max = parseInt(maxInput.value);
+      
+      if (min > max - 10) {
+        min = max - 10;
+        minInput.value = min;
+      }
+      if (max < min + 10) {
+        max = min + 10;
+        maxInput.value = max;
+      }
+      
+      display.textContent = `${min}€ - ${max}€`;
+      
+      const minPercent = (min / 1000) * 100;
+      const maxPercent = (max / 1000) * 100;
+      
+      progress.style.left = minPercent + '%';
+      progress.style.width = (maxPercent - minPercent) + '%';
     }
 
     function updateStatoDisplay() {
@@ -2143,46 +2115,11 @@
       }
     }
 
-    function toggleSortDirection() {
-      const btn = document.getElementById('sortDirBtn');
-      const icon = btn.querySelector('i');
-      
-      if (icon.classList.contains('fa-sort-amount-down')) {
-        icon.classList.remove('fa-sort-amount-down');
-        icon.classList.add('fa-sort-amount-up');
-        btn.classList.add('active');
-      } else {
-        icon.classList.remove('fa-sort-amount-up');
-        icon.classList.add('fa-sort-amount-down');
-        btn.classList.remove('active');
-      }
-      
-      applicaFiltri();
-    }
-
-    function switchView(view) {
-      const tableBtn = document.getElementById('viewTableBtn');
-      const gridBtn = document.getElementById('viewGridBtn');
-      const desktopTable = document.getElementById('desktopTable');
-      const cardsOut = document.getElementById('cardsOut');
-      
-      if (view === 'table') {
-        tableBtn.classList.add('active');
-        gridBtn.classList.remove('active');
-        desktopTable.style.display = 'block';
-        cardsOut.style.display = 'none';
-      } else {
-        tableBtn.classList.remove('active');
-        gridBtn.classList.add('active');
-        desktopTable.style.display = 'none';
-        cardsOut.style.display = 'grid';
-        cardsOut.style.gridTemplateColumns = 'repeat(auto-fill, minmax(300px, 1fr))';
-        cardsOut.style.gap = '20px';
-      }
-    }
-
     function applicaFiltri() {
-      carica();
+      currentPage = 1;
+      filteredArticles = filterArticles();
+      renderArticles();
+      updatePagination();
     }
 
     function resetFiltri() {
@@ -2193,22 +2130,577 @@
       document.getElementById('fStato').value = '';
       document.getElementById('fPresenti').checked = true;
       document.getElementById('fAssenti').checked = true;
-      document.getElementById('fProfit').checked = false;
-      document.getElementById('fLoss').checked = false;
-      document.getElementById('fSortBy').value = 'created_at_desc';
+      document.getElementById('fProfit').checked = true;
+      document.getElementById('fLoss').checked = true;
       
-      updateRangeDisplay();
+      updateRangeSlider();
       updateStatoDisplay();
-      
-      const sortBtn = document.getElementById('sortDirBtn');
-      sortBtn.querySelector('i').classList.remove('fa-sort-amount-up');
-      sortBtn.querySelector('i').classList.add('fa-sort-amount-down');
-      sortBtn.classList.remove('active');
-      
-      carica();
+      applicaFiltri();
     }
 
-    async function avviaScansionePokemon() {
+    function filterArticles() {
+      const nome = document.getElementById('fNome').value.toLowerCase();
+      const categoria = document.getElementById('fCategoria').value;
+      const valoreMin = parseFloat(document.getElementById('fValoreMin').value) || 0;
+      const valoreMax = parseFloat(document.getElementById('fValoreMax').value) || 999999;
+      const statoMin = parseInt(document.getElementById('fStato').value) || 0;
+      const presenti = document.getElementById('fPresenti').checked;
+      const assenti = document.getElementById('fAssenti').checked;
+      const profit = document.getElementById('fProfit').checked;
+      const loss = document.getElementById('fLoss').checked;
+      
+      return allArticles.filter(article => {
+        if (nome && !article.Nome.toLowerCase().includes(nome)) return false;
+        if (categoria && article.Categoria !== categoria) return false;
+        
+        const valore = Number(article.ValoreAttuale) || 0;
+        if (valore < valoreMin || valore > valoreMax) return false;
+        
+        const stato = Number(article.ValutazioneStato) || 0;
+        if (statoMin > 0 && stato < statoMin) return false;
+        
+        if (!presenti && article.Presente) return false;
+        if (!assenti && !article.Presente) return false;
+        
+        const delta = valore - (Number(article.PrezzoPagato) || 0);
+        if (!profit && !loss) return true;
+        if (profit && !loss && delta <= 0) return false;
+        if (!profit && loss && delta >= 0) return false;
+        
+        return true;
+      });
+    }
+
+    // ========== PAGINAZIONE ==========
+    function previousPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderArticles();
+        updatePagination();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    function nextPage() {
+      const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderArticles();
+        updatePagination();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    function updatePagination() {
+      const totalItems = filteredArticles.length;
+      const totalPages = Math.ceil(totalItems / itemsPerPage);
+      const start = (currentPage - 1) * itemsPerPage + 1;
+      const end = Math.min(currentPage * itemsPerPage, totalItems);
+      
+      document.getElementById('pageStart').textContent = totalItems > 0 ? start : 0;
+      document.getElementById('pageEnd').textContent = end;
+      document.getElementById('totalItems').textContent = totalItems;
+      
+      document.getElementById('prevBtn').disabled = currentPage === 1;
+      document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+    }
+
+    // ========== CARICAMENTO ARTICOLI ==========
+    async function caricaArticoli() {
+      try {
+        const { data, error } = await client
+          .from("Articoli")
+          .select("*")
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        allArticles = data || [];
+        filteredArticles = [...allArticles];
+        
+        renderDashboard();
+        renderArticles();
+        updatePagination();
+      } catch (error) {
+        console.error('Errore caricamento:', error);
+      }
+    }
+
+    function renderDashboard() {
+      const dashboard = document.getElementById('dashboard');
+      if (!dashboard) return;
+      
+      const totale = allArticles.length;
+      const valoreAttuale = allArticles.reduce((sum, r) => sum + (Number(r.ValoreAttuale) || 0), 0);
+      const prezzoPagato = allArticles.reduce((sum, r) => sum + (Number(r.PrezzoPagato) || 0), 0);
+      const delta = valoreAttuale - prezzoPagato;
+      const deltaPercent = prezzoPagato > 0 ? ((delta / prezzoPagato) * 100) : 0;
+      
+      dashboard.innerHTML = `
+        <div class="stat-card yellow" onclick="apriGrafico('totale')">
+          <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
+          <div class="stat-label">Totale Articoli</div>
+          <div class="stat-value">${totale}</div>
+          <div class="stat-subtext">nella collezione</div>
+        </div>
+        
+        <div class="stat-card green" onclick="apriGrafico('valore')">
+          <div class="stat-icon"><i class="fas fa-gem"></i></div>
+          <div class="stat-label">Valore Totale</div>
+          <div class="stat-value">${valoreAttuale.toFixed(2)} €</div>
+          <div class="stat-subtext">valore di mercato</div>
+        </div>
+        
+        <div class="stat-card orange" onclick="apriGrafico('spesa')">
+          <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+          <div class="stat-label">Spesa Totale</div>
+          <div class="stat-value">${prezzoPagato.toFixed(2)} €</div>
+          <div class="stat-subtext">investimento iniziale</div>
+        </div>
+        
+        <div class="stat-card blue" onclick="apriGrafico('performance')">
+          <div class="stat-icon"><i class="fas fa-rocket"></i></div>
+          <div class="stat-label">Performance</div>
+          <div class="stat-value">${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €</div>
+          <div class="stat-subtext">${delta >= 0 ? '+' : ''}${deltaPercent.toFixed(1)}%</div>
+        </div>
+      `;
+    }
+
+    function renderArticles() {
+      const grid = document.getElementById('articlesGrid');
+      if (!grid) return;
+      
+      const start = (currentPage - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      const pageArticles = filteredArticles.slice(start, end);
+      
+      if (pageArticles.length === 0) {
+        grid.innerHTML = `
+          <div class="wip-container">
+            <div class="wip-icon"><i class="fas fa-inbox"></i></div>
+            <div class="wip-text">Nessun Articolo</div>
+            <div class="wip-subtext">Prova a modificare i filtri</div>
+          </div>
+        `;
+        return;
+      }
+      
+      grid.innerHTML = pageArticles.map(article => createArticleCard(article)).join('');
+    }
+
+    function createArticleCard(article) {
+      const delta = (Number(article.ValoreAttuale) || 0) - (Number(article.PrezzoPagato) || 0);
+      const statoStelle = article.ValutazioneStato ? '⭐'.repeat(Math.min(article.ValutazioneStato, 10)) : '—';
+      const presenteBadge = article.Presente 
+        ? '<span class="badge presente"><i class="fas fa-check"></i> PRESENTE</span>' 
+        : '<span class="badge assente"><i class="fas fa-times"></i> ASSENTE</span>';
+      
+      return `
+        <div class="article-card" id="card-${article.id}">
+          <div class="article-header" onclick="toggleArticleCard(${article.id})">
+            <div class="article-image-placeholder">
+              IMMAGINE DI PROVA
+            </div>
+            <div class="article-header-info">
+              <div class="article-title">
+                <span class="article-title-text">${article.Nome || 'Senza nome'}</span>
+                <span class="expand-icon">▼</span>
+              </div>
+              <div class="article-subtitle">
+                <i class="fas fa-layer-group"></i> ${article.Categoria || 'Nessuna categoria'}
+              </div>
+            </div>
+          </div>
+          <div class="article-body">
+            <div class="article-body-content">
+              <div class="article-row">
+                <span class="article-label"><i class="fas fa-gem"></i> VALORE</span>
+                <span class="article-value" style="color: #10b981; font-weight: 700;">${Number(article.ValoreAttuale || 0).toFixed(2)} €</span>
+              </div>
+              <div class="article-row">
+                <span class="article-label"><i class="fas fa-receipt"></i> PREZZO PAGATO</span>
+                <span class="article-value">${Number(article.PrezzoPagato || 0).toFixed(2)} €</span>
+              </div>
+              <div class="article-row">
+                <span class="article-label"><i class="fas fa-chart-line"></i> GUADAGNO/PERDITA</span>
+                <span class="article-value" style="color: ${delta >= 0 ? '#10b981' : '#ef4444'}; font-weight: 800;">
+                  ${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €
+                </span>
+              </div>
+              <div class="article-row">
+                <span class="article-label"><i class="fas fa-star"></i> VALUTAZIONE</span>
+                <span class="article-value">${statoStelle}</span>
+              </div>
+              <div class="article-row">
+                <span class="article-label"><i class="fas fa-warehouse"></i> STATO</span>
+                <span class="article-value">${presenteBadge}</span>
+              </div>
+              <div class="article-actions">
+                <button class="btn-edit" onclick="apriModifica(${article.id})">
+                  <i class="fas fa-edit"></i> MODIFICA
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleArticleCard(id) {
+      const card = document.getElementById(`card-${id}`);
+      if (card) {
+        card.classList.toggle('expanded');
+      }
+    }
+
+    function apriModifica(id) {
+      const article = allArticles.find(a => a.id === id);
+      if (!article) return;
+      
+      document.getElementById('editId').value = article.id;
+      document.getElementById('editNome').value = article.Nome || '';
+      document.getElementById('editCategoria').value = article.Categoria || '';
+      document.getElementById('editDescrizione').value = article.Descrizione || '';
+      document.getElementById('editValoreAttuale').value = article.ValoreAttuale || '';
+      document.getElementById('editPrezzoPagato').value = article.PrezzoPagato || '';
+      document.getElementById('editStato').value = article.ValutazioneStato || '';
+      document.getElementById('editPresente').checked = article.Presente || false;
+      calcolaDeltaEdit();
+      document.getElementById('modalEdit').classList.add('active');
+    }
+
+    // ========== MODALS ==========
+    function openAddModal() {
+      document.getElementById('modalAdd').classList.add('active');
+    }
+
+    function closeAddModal() {
+      document.getElementById('modalAdd').classList.remove('active');
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        document.getElementById('cameraContainer').classList.remove('active');
+      }
+    }
+
+    function closeEditModal() {
+      document.getElementById('modalEdit').classList.remove('active');
+    }
+
+    function closeGraphModal() {
+      document.getElementById('modalGraph').classList.remove('active');
+      if (currentChart) {
+        currentChart.destroy();
+        currentChart = null;
+      }
+    }
+
+    // ========== FORM FUNCTIONS ==========
+    function calcolaDeltaAdd() {
+      const valore = parseFloat(document.getElementById('valoreAttualeAdd').value) || 0;
+      const prezzo = parseFloat(document.getElementById('prezzoPagatoAdd').value) || 0;
+      document.getElementById('deltaAdd').value = (valore - prezzo).toFixed(2);
+    }
+
+    function calcolaDeltaEdit() {
+      const valore = parseFloat(document.getElementById('editValoreAttuale').value) || 0;
+      const prezzo = parseFloat(document.getElementById('editPrezzoPagato').value) || 0;
+      document.getElementById('editDelta').value = (valore - prezzo).toFixed(2);
+    }
+
+    async function aggiungiArticolo(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const valore = parseFloat(formData.get('ValoreAttuale'));
+      const prezzo = parseFloat(formData.get('PrezzoPagato'));
+
+      const articolo = {
+        Nome: formData.get('Nome'),
+        Descrizione: formData.get('Descrizione') || null,
+        Categoria: formData.get('Categoria') || null,
+        ValoreAttuale: valore,
+        PrezzoPagato: prezzo,
+        Delta: valore - prezzo,
+        ValutazioneStato: formData.get('ValutazioneStato') ? parseInt(formData.get('ValutazioneStato')) : null,
+        Presente: formData.get('Presente') === 'on'
+      };
+
+      const { error } = await client.from('Articoli').insert([articolo]);
+      const msg = document.getElementById('addMsg');
+
+      if (error) {
+        msg.className = 'msg error';
+        msg.textContent = '❌ ERRORE: ' + error.message;
+        msg.style.display = 'block';
+      } else {
+        msg.className = 'msg success';
+        msg.textContent = '✅ AGGIUNTO!';
+        msg.style.display = 'block';
+        form.reset();
+        document.getElementById('deltaAdd').value = '';
+        setTimeout(() => {
+          closeAddModal();
+          loadView('archivio');
+        }, 1500);
+      }
+    }
+
+    async function salvaModifica(e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const valore = parseFloat(formData.get('ValoreAttuale'));
+      const prezzo = parseFloat(formData.get('PrezzoPagato'));
+      const id = document.getElementById('editId').value;
+
+      const articolo = {
+        Nome: formData.get('Nome'),
+        Descrizione: formData.get('Descrizione') || null,
+        Categoria: formData.get('Categoria') || null,
+        ValoreAttuale: valore,
+        PrezzoPagato: prezzo,
+        Delta: valore - prezzo,
+        ValutazioneStato: formData.get('ValutazioneStato') ? parseInt(formData.get('ValutazioneStato')) : null,
+        Presente: formData.get('Presente') === 'on'
+      };
+
+      const { error } = await client.from('Articoli').update(articolo).eq('id', id);
+      const msg = document.getElementById('editMsg');
+
+      if (error) {
+        msg.className = 'msg error';
+        msg.textContent = '❌ ERRORE: ' + error.message;
+        msg.style.display = 'block';
+      } else {
+        msg.className = 'msg success';
+        msg.textContent = '✅ SALVATO!';
+        msg.style.display = 'block';
+        setTimeout(() => {
+          closeEditModal();
+          caricaArticoli();
+        }, 1500);
+      }
+    }
+
+    async function eliminaArticolo() {
+      const id = document.getElementById('editId').value;
+      const nome = document.getElementById('editNome').value;
+      if (!confirm(`⚠️ ELIMINARE "${nome}"?`)) return;
+
+      const { error } = await client.from('Articoli').delete().eq('id', id);
+      const msg = document.getElementById('editMsg');
+
+      if (error) {
+        msg.className = 'msg error';
+        msg.textContent = '❌ ERRORE: ' + error.message;
+        msg.style.display = 'block';
+      } else {
+        msg.className = 'msg success';
+        msg.textContent = '✅ ELIMINATO!';
+        msg.style.display = 'block';
+        setTimeout(() => {
+          closeEditModal();
+          caricaArticoli();
+        }, 1500);
+      }
+    }
+
+<!-- FINE PARTE 3 - Continua con PARTE 4 -->
+<!-- ========================================= -->
+<!-- PARTE 4 DI 4 - COPIA E INCOLLA QUESTO BLOCCO DOPO LA PARTE 3 -->
+<!-- ========================================= -->
+
+    // ========== GRAFICI ==========
+    async function apriGrafico(tipo) {
+      const { data, error } = await client.from("Articoli").select("*").order('created_at', { ascending: true });
+      
+      if (error || !data || data.length === 0) {
+        alert('⚠️ Nessun dato disponibile');
+        return;
+      }
+
+      const modal = document.getElementById('modalGraph');
+      modal.classList.add('active');
+
+      if (currentChart) {
+        currentChart.destroy();
+      }
+
+      const ctx = document.getElementById('chartCanvas').getContext('2d');
+      let chartConfig;
+
+      switch(tipo) {
+        case 'totale':
+          chartConfig = {
+            type: 'line',
+            data: {
+              labels: data.map(r => new Date(r.created_at).toLocaleDateString('it-IT')),
+              datasets: [{
+                label: '📦 Numero Articoli',
+                data: data.map((r, i) => i + 1),
+                borderColor: '#fbbf24',
+                backgroundColor: 'rgba(251, 191, 36, 0.2)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 3,
+                pointRadius: 5,
+                pointHoverRadius: 8,
+                pointBackgroundColor: '#fbbf24',
+                pointBorderColor: '#000',
+                pointBorderWidth: 2
+              }]
+            }
+          };
+          document.getElementById('graphTitle').innerHTML = '<i class="fas fa-layer-group"></i> CRESCITA COLLEZIONE';
+          break;
+
+        case 'valore':
+          let cumVal = 0;
+          chartConfig = {
+            type: 'line',
+            data: {
+              labels: data.map(r => new Date(r.created_at).toLocaleDateString('it-IT')),
+              datasets: [{
+                label: '💎 Valore Totale (€)',
+                data: data.map(r => cumVal += Number(r.ValoreAttuale || 0)),
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 3,
+                pointRadius: 5,
+                pointHoverRadius: 8,
+                pointBackgroundColor: '#10b981',
+                pointBorderColor: '#000',
+                pointBorderWidth: 2
+              }]
+            }
+          };
+          document.getElementById('graphTitle').innerHTML = '<i class="fas fa-gem"></i> VALORE NEL TEMPO';
+          break;
+
+        case 'spesa':
+          let cumSpe = 0;
+          chartConfig = {
+            type: 'line',
+            data: {
+              labels: data.map(r => new Date(r.created_at).toLocaleDateString('it-IT')),
+              datasets: [{
+                label: '💳 Spesa Totale (€)',
+                data: data.map(r => cumSpe += Number(r.PrezzoPagato || 0)),
+                borderColor: '#f97316',
+                backgroundColor: 'rgba(249, 115, 22, 0.2)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 3,
+                pointRadius: 5,
+                pointHoverRadius: 8,
+                pointBackgroundColor: '#f97316',
+                pointBorderColor: '#000',
+                pointBorderWidth: 2
+              }]
+            }
+          };
+          document.getElementById('graphTitle').innerHTML = '<i class="fas fa-wallet"></i> INVESTIMENTO';
+          break;
+
+        case 'performance':
+          const values = data.map(r => Number(r.ValoreAttuale || 0) - Number(r.PrezzoPagato || 0));
+          chartConfig = {
+            type: 'bar',
+            data: {
+              labels: data.map(r => r.Nome),
+              datasets: [{
+                label: '📊 Guadagno/Perdita (€)',
+                data: values,
+                backgroundColor: values.map(v => v >= 0 ? 'rgba(16, 185, 129, 0.8)' : 'rgba(239, 68, 68, 0.8)'),
+                borderColor: values.map(v => v >= 0 ? '#10b981' : '#ef4444'),
+                borderWidth: 2
+              }]
+            }
+          };
+          document.getElementById('graphTitle').innerHTML = '<i class="fas fa-rocket"></i> PERFORMANCE';
+          break;
+      }
+
+      currentChart = new Chart(ctx, {
+        type: chartConfig.type,
+        data: chartConfig.data,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+            duration: 1500,
+            easing: 'easeInOutQuart'
+          },
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              labels: {
+                color: '#e5e7eb',
+                font: { size: 14, weight: 'bold' },
+                padding: 15
+              }
+            },
+            tooltip: {
+              enabled: true,
+              backgroundColor: 'rgba(10, 10, 10, 0.95)',
+              titleColor: '#fbbf24',
+              bodyColor: '#e5e7eb',
+              borderColor: '#fbbf24',
+              borderWidth: 2,
+              padding: 12,
+              titleFont: { size: 14, weight: 'bold' },
+              bodyFont: { size: 13 },
+              cornerRadius: 10,
+              displayColors: true,
+              callbacks: {
+                label: function(context) {
+                  let label = context.dataset.label || '';
+                  if (label) {
+                    label += ': ';
+                  }
+                  if (context.parsed.y !== null) {
+                    label += context.parsed.y.toFixed(2);
+                  }
+                  return label;
+                }
+              }
+            }
+          },
+          scales: chartConfig.type !== 'doughnut' && chartConfig.type !== 'pie' ? {
+            x: {
+              ticks: { 
+                color: '#9ca3af',
+                font: { size: 11, weight: '600' },
+                maxRotation: 45,
+                minRotation: 0
+              },
+              grid: { 
+                color: '#2a2a2a',
+                lineWidth: 1
+              }
+            },
+            y: {
+              ticks: { 
+                color: '#9ca3af',
+                font: { size: 11, weight: '600' }
+              },
+              grid: { 
+                color: '#2a2a2a',
+                lineWidth: 1
+              }
+            }
+          } : {}
+        }
+      });
+    }
+
+    // ========== SCANSIONE CARTA ==========
+    async function avviaScansione() {
       const video = document.getElementById('cameraView');
       const container = document.getElementById('cameraContainer');
       const scanMsg = document.getElementById('scanMsg');
@@ -2227,9 +2719,9 @@
         
         scanMsg.className = 'msg info';
         scanMsg.style.display = 'block';
-        scanMsg.innerHTML = '<i class="fas fa-camera"></i> <strong>⚡ FOTOCAMERA ATTIVA ⚡</strong>';
+        scanMsg.innerHTML = '<i class="fas fa-camera"></i> <strong>⚡ FOTOCAMERA ATTIVA ⚡</strong> - Tocca per scattare';
         
-        video.onclick = () => scansionaCartaPokemon();
+        video.onclick = () => scansionaCarta();
         
       } catch (err) {
         scanMsg.className = 'msg error';
@@ -2238,7 +2730,7 @@
       }
     }
 
-    async function scansionaCartaPokemon() {
+    async function scansionaCarta() {
       const video = document.getElementById('cameraView');
       const canvas = document.getElementById('capturedCanvas');
       const container = document.getElementById('cameraContainer');
@@ -2258,12 +2750,12 @@
       canvas.style.display = 'block';
       
       scanMsg.className = 'msg info';
-      scanMsg.innerHTML = '<i class="fas fa-cog fa-spin"></i> <strong>⚡ ANALISI AVANZATA CON DATABASE ⚡</strong>';
+      scanMsg.innerHTML = '<i class="fas fa-cog fa-spin"></i> <strong>⚡ ANALISI IN CORSO ⚡</strong>';
       
-      await elaborazioneSupremaPokemon(canvas, ctx);
+      await elaborazioneCarta(canvas, ctx);
     }
 
-    async function elaborazioneSupremaPokemon(canvas, ctx) {
+    async function elaborazioneCarta(canvas, ctx) {
       const scanMsg = document.getElementById('scanMsg');
       const w = canvas.width;
       const h = canvas.height;
@@ -2279,7 +2771,7 @@
           0, 0, nomeCanvas.width, nomeCanvas.height
         );
         
-        preprocessPokemonZone(nomeCtx, nomeCanvas.width, nomeCanvas.height, 'nome');
+        preprocessZona(nomeCtx, nomeCanvas.width, nomeCanvas.height);
         
         scanMsg.innerHTML = '<i class="fas fa-bolt fa-spin"></i> <strong>SCANSIONE NOME...</strong> 30%';
         
@@ -2288,8 +2780,6 @@
           tessedit_pageseg_mode: Tesseract.PSM.SINGLE_LINE,
           tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÀÈÉÌÒÙàèéìòù '
         });
-        
-        console.log('🎴 NOME RAW:', nomeResult.data.text);
         
         const expCanvas = document.createElement('canvas');
         const expCtx = expCanvas.getContext('2d');
@@ -2301,7 +2791,7 @@
           0, 0, expCanvas.width, expCanvas.height
         );
         
-        preprocessPokemonZone(expCtx, expCanvas.width, expCanvas.height, 'expansion');
+        preprocessZona(expCtx, expCanvas.width, expCanvas.height);
         
         scanMsg.innerHTML = '<i class="fas fa-bolt fa-spin"></i> <strong>SCANSIONE ESPANSIONE...</strong> 70%';
         
@@ -2311,11 +2801,9 @@
           tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/ '
         });
         
-        console.log('📦 ESPANSIONE RAW:', expResult.data.text);
+        scanMsg.innerHTML = '<i class="fas fa-database fa-spin"></i> <strong>VALIDAZIONE...</strong> 90%';
         
-        scanMsg.innerHTML = '<i class="fas fa-database fa-spin"></i> <strong>VALIDAZIONE CON DATABASE...</strong> 90%';
-        
-        const info = estraiDatiPokemonConDatabase(nomeResult.data.text, expResult.data.text);
+        const info = estraiDatiCarta(nomeResult.data.text, expResult.data.text);
         
         if (info.nome) {
           document.getElementById('nomeInput').value = info.nome;
@@ -2323,18 +2811,17 @@
           
           scanMsg.className = 'msg success';
           scanMsg.innerHTML = `
-            <i class="fas fa-check-circle"></i> <strong>⚡⚡⚡ CARTA RICONOSCIUTA! ⚡⚡⚡</strong><br>
-            <div style="margin-top: 10px; font-size: 18px;">
-              🎴 <strong>${info.nome}</strong><br>
-              ${info.espansione ? '📦 <strong>' + info.espansione + '</strong>' : ''}
-              ${info.numero ? ' • 🔢 <strong>' + info.numero + '</strong>' : ''}
+            <i class="fas fa-check-circle"></i> <strong>⚡ CARTA RICONOSCIUTA! ⚡</strong><br>
+            <div style="margin-top: 10px; font-size: 16px;">
+              🎴 <strong>${info.nome}</strong>
+              ${info.descrizione ? '<br>📦 <strong>' + info.descrizione + '</strong>' : ''}
             </div>
           `;
           
           setTimeout(() => {
             canvas.style.display = 'none';
             scanMsg.style.display = 'none';
-          }, 7000);
+          }, 5000);
           
         } else {
           scanMsg.className = 'msg error';
@@ -2348,7 +2835,7 @@
       }
     }
 
-    function preprocessPokemonZone(ctx, width, height, tipo) {
+    function preprocessZona(ctx, width, height) {
       const imageData = ctx.getImageData(0, 0, width, height);
       const data = imageData.data;
       
@@ -2358,13 +2845,7 @@
         const b = data[i + 2];
         
         const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
-        
-        let adjusted;
-        if (tipo === 'nome') {
-          adjusted = brightness > 140 ? 255 : brightness < 90 ? 0 : brightness;
-        } else {
-          adjusted = brightness > 130 ? 255 : brightness < 100 ? 0 : brightness;
-        }
+        const adjusted = brightness > 140 ? 255 : brightness < 90 ? 0 : brightness;
         
         data[i] = data[i + 1] = data[i + 2] = adjusted;
       }
@@ -2372,12 +2853,7 @@
       ctx.putImageData(imageData, 0, 0);
     }
 
-    function estraiDatiPokemonConDatabase(testoNome, testoExp) {
-      console.log('=== 🔍 ESTRAZIONE CON DATABASE ===');
-      console.log('📝 Nome OCR:', testoNome);
-      console.log('📦 Exp OCR:', testoExp);
-      
-      // PULISCI NOME
+    function estraiDatiCarta(testoNome, testoExp) {
       let nomeRaw = testoNome
         .trim()
         .replace(/[^a-zA-ZÀ-ÿ\s]/g, '')
@@ -2386,7 +2862,6 @@
       
       nomeRaw = nomeRaw.replace(/^(HP|ATK|DEF|Basic|Stage|Evolution|Pokémon)\s*/gi, '').trim();
       
-      // MATCH CON DATABASE
       let nomeTrovato = '';
       const nomeLC = nomeRaw.toLowerCase();
       
@@ -2394,19 +2869,15 @@
         if (nomeLC.includes(pokemon.toLowerCase()) || 
             pokemon.toLowerCase().includes(nomeLC)) {
           nomeTrovato = pokemon;
-          console.log('✅ MATCH NOME:', pokemon);
           break;
         }
       }
       
       if (!nomeTrovato) nomeTrovato = nomeRaw;
       
-      // ESTRAI ESPANSIONE E NUMERO
       let espansione = '';
       let numero = '';
-      let espansioneTrovata = false;
       
-      // Pattern principale: SVI 075/198
       const pattern = /([A-Z]{2,4})\s*(\d{1,4})\s*[\/\\]\s*(\d{1,4})/;
       const match = testoExp.match(pattern);
       
@@ -2415,22 +2886,17 @@
         const num1 = parseInt(match[2]);
         const num2 = parseInt(match[3]);
         
-        // VALIDA CON DATABASE
         if (POKEMON_DATABASE[sigla]) {
           espansione = sigla;
           numero = `${String(num1).padStart(3, '0')}/${String(num2).padStart(3, '0')}`;
-          espansioneTrovata = true;
-          console.log('✅ MATCH ESPANSIONE:', sigla, '- Max carte:', POKEMON_DATABASE[sigla].max);
         }
       }
       
-      // Se non trovata, cerca solo sigla
-      if (!espansioneTrovata) {
+      if (!espansione) {
         for (const sigla in POKEMON_DATABASE) {
           if (sigla === 'nomiComuni') continue;
           if (testoExp.includes(sigla)) {
             espansione = sigla;
-            console.log('✅ MATCH SIGLA:', sigla);
             break;
           }
         }
@@ -2440,13 +2906,6 @@
         `${espansione} - ${numero}` : 
         espansione || '';
       
-      console.log('🎯 RISULTATO FINALE:', { 
-        nome: nomeTrovato, 
-        espansione, 
-        numero, 
-        descrizione 
-      });
-      
       return { 
         nome: nomeTrovato, 
         espansione, 
@@ -2455,568 +2914,37 @@
       };
     }
 
-    async function apriGrafico(tipo) {
-      const { data, error } = await client.from("Articoli").select("*").order('created_at', { ascending: true });
-      
-      if (error || !data || data.length === 0) {
-        alert('⚠️ Nessun dato disponibile');
-        return;
-      }
-
-      const modal = document.getElementById('modalGrafico');
-      modal.classList.add('active');
-
-      if (currentChart) {
-        currentChart.destroy();
-      }
-
-      const ctx = document.getElementById('chartCanvas').getContext('2d');
-
-      let chartConfig;
-
-      switch(tipo) {
-        case 'totale':
-          chartConfig = {
-            type: 'line',
-            data: {
-              labels: data.map(r => new Date(r.created_at).toLocaleDateString('it-IT')),
-              datasets: [{
-                label: '📦 Numero Articoli',
-                data: data.map((r, i) => i + 1),
-                borderColor: '#fbbf24',
-                backgroundColor: 'rgba(251, 191, 36, 0.2)',
-                fill: true,
-                tension: 0.4,
-                borderWidth: 4,
-                pointRadius: 6,
-                pointHoverRadius: 10,
-                pointBackgroundColor: '#fbbf24',
-                pointBorderColor: '#000',
-                pointBorderWidth: 3
-              }]
-            }
-          };
-          document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-layer-group"></i> CRESCITA COLLEZIONE';
-          break;
-        case 'valore':
-          let cumVal = 0;
-          chartConfig = {
-            type: 'line',
-            data: {
-              labels: data.map(r => new Date(r.created_at).toLocaleDateString('it-IT')),
-              datasets: [{
-                label: '💎 Valore Totale (€)',
-                data: data.map(r => cumVal += Number(r.ValoreAttuale || 0)),
-                borderColor: '#10b981',
-                backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                fill: true,
-                tension: 0.4,
-                borderWidth: 4,
-                pointRadius: 6,
-                pointHoverRadius: 10,
-                pointBackgroundColor: '#10b981',
-                pointBorderColor: '#000',
-                pointBorderWidth: 3
-              }]
-            }
-          };
-          document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-gem"></i> VALORE NEL TEMPO';
-          break;
-        case 'spesa':
-          let cumSpe = 0;
-          chartConfig = {
-            type: 'line',
-            data: {
-              labels: data.map(r => new Date(r.created_at).toLocaleDateString('it-IT')),
-              datasets: [{
-                label: '💳 Spesa Totale (€)',
-                data: data.map(r => cumSpe += Number(r.PrezzoPagato || 0)),
-                borderColor: '#f97316',
-                backgroundColor: 'rgba(249, 115, 22, 0.2)',
-                fill: true,
-                tension: 0.4,
-                borderWidth: 4,
-                pointRadius: 6,
-                pointHoverRadius: 10,
-                pointBackgroundColor: '#f97316',
-                pointBorderColor: '#000',
-                pointBorderWidth: 3
-              }]
-            }
-          };
-          document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-wallet"></i> INVESTIMENTO';
-          break;
-        case 'performance':
-          const values = data.map(r => Number(r.ValoreAttuale || 0) - Number(r.PrezzoPagato || 0));
-          chartConfig = {
-            type: 'bar',
-            data: {
-              labels: data.map(r => r.Nome),
-              datasets: [{
-                label: '📊 Guadagno/Perdita (€)',
-                data: values,
-                backgroundColor: values.map(v => v >= 0 ? 'rgba(16, 185, 129, 0.8)' : 'rgba(239, 68, 68, 0.8)'),
-                borderColor: values.map(v => v >= 0 ? '#10b981' : '#ef4444'),
-                borderWidth: 3
-              }]
-            }
-          };
-          document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-rocket"></i> PERFORMANCE';
-          break;
-        case 'presenti':
-          const presenti = data.filter(r => r.Presente).length;
-          const assenti = data.length - presenti;
-          chartConfig = {
-            type: 'doughnut',
-            data: {
-              labels: ['✅ Presenti', '❌ Assenti'],
-              datasets: [{
-                data: [presenti, assenti],
-                backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)'],
-                borderColor: ['#10b981', '#ef4444'],
-                borderWidth: 4
-              }]
-            }
-          };
-          document.getElementById('graficoTitolo').innerHTML = '<i class="fas fa-box-open"></i> MAGAZZINO';
-          break;
-      }
-
-      currentChart = new Chart(ctx, {
-        type: chartConfig.type,
-        data: chartConfig.data,
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: {
-            duration: 2000,
-            easing: 'easeInOutQuart'
-          },
-          plugins: {
-            legend: {
-              labels: {
-                color: '#e5e7eb',
-                font: { size: 16, weight: 'bold' },
-                padding: 20
-              }
-            },
-            tooltip: {
-              backgroundColor: 'rgba(10, 10, 10, 0.95)',
-              titleColor: '#fbbf24',
-              bodyColor: '#e5e7eb',
-              borderColor: '#fbbf24',
-              borderWidth: 3,
-              padding: 16,
-              titleFont: { size: 16, weight: 'bold' },
-              bodyFont: { size: 14 },
-              cornerRadius: 12
-            },
-            zoom: {
-              pan: {
-                enabled: true,
-                mode: 'xy'
-              },
-              zoom: {
-                wheel: {
-                  enabled: true
-                },
-                pinch: {
-                  enabled: true
-                },
-                mode: 'xy'
-              }
-            }
-          },
-          scales: chartConfig.type !== 'doughnut' && chartConfig.type !== 'pie' ? {
-            x: {
-              ticks: { 
-                color: '#9ca3af',
-                font: { size: 13, weight: '600' }
-              },
-              grid: { 
-                color: '#2a2a2a',
-                lineWidth: 2
-              }
-            },
-            y: {
-              ticks: { 
-                color: '#9ca3af',
-                font: { size: 13, weight: '600' }
-              },
-              grid: { 
-                color: '#2a2a2a',
-                lineWidth: 2
-              }
-            }
-          } : {}
-        }
-      });
-    }
-
-    function resetZoom() {
-      if (currentChart) {
-        currentChart.resetZoom();
+    // ========== PARTICELLE ==========
+    function creaParticelle() {
+      const container = document.getElementById('particles');
+      for (let i = 0; i < 30; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 15 + 's';
+        particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+        container.appendChild(particle);
       }
     }
 
-    function chiudiGrafico() {
-      document.getElementById('modalGrafico').classList.remove('active');
-      if (currentChart) {
-        currentChart.destroy();
-        currentChart = null;
-      }
-    }
-
-    function calcolaDeltaAdd() {
-      const valore = parseFloat(document.getElementById('valoreAttualeAdd').value) || 0;
-      const prezzo = parseFloat(document.getElementById('prezzoPagatoAdd').value) || 0;
-      document.getElementById('deltaAdd').value = (valore - prezzo).toFixed(2);
-    }
-
-    function calcolaDeltaEdit() {
-      const valore = parseFloat(document.getElementById('editValoreAttuale').value) || 0;
-      const prezzo = parseFloat(document.getElementById('editPrezzoPagato').value) || 0;
-      document.getElementById('editDelta').value = (valore - prezzo).toFixed(2);
-    }
-
-    function switchTab(tabName) {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-        document.getElementById('cameraContainer').classList.remove('active');
-        document.getElementById('capturedCanvas').style.display = 'none';
-        document.getElementById('scanMsg').style.display = 'none';
-      }
-      
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
-      const tabIndex = tabName === 'archivio' ? 1 : 2;
-      document.querySelector(`.tab:nth-child(${tabIndex})`).classList.add('active');
-      document.getElementById(`tab-${tabName}`).classList.add('active');
-
-      if (tabName === 'archivio') carica();
-    }
-
-    function aggiornaCruscotto(data) {
-      const totale = data.length;
-      const valoreAttuale = data.reduce((sum, r) => sum + (Number(r.ValoreAttuale) || 0), 0);
-      const prezzoPagato = data.reduce((sum, r) => sum + (Number(r.PrezzoPagato) || 0), 0);
-      const delta = valoreAttuale - prezzoPagato;
-      const deltaPercent = prezzoPagato > 0 ? ((delta / prezzoPagato) * 100) : 0;
-      const presenti = data.filter(r => r.Presente).length;
-
-      document.getElementById('statTotale').textContent = totale;
-      document.getElementById('statValore').textContent = valoreAttuale.toFixed(2) + ' €';
-      document.getElementById('statSpesa').textContent = prezzoPagato.toFixed(2) + ' €';
-      document.getElementById('statDelta').textContent = (delta >= 0 ? '+' : '') + delta.toFixed(2) + ' €';
-      document.getElementById('statDeltaPercent').textContent = (delta >= 0 ? '+' : '') + deltaPercent.toFixed(1) + '%';
-      document.getElementById('statPresenti').textContent = presenti;
-      document.getElementById('statPresentiSub').textContent = `${presenti} di ${totale}`;
-    }
-
-    async function carica() {
-      const nome = document.getElementById("fNome").value;
-      const categoria = document.getElementById("fCategoria").value;
-      const valoreMin = parseFloat(document.getElementById('fValoreMin').value) || 0;
-      const valoreMax = parseFloat(document.getElementById('fValoreMax').value) || 999999;
-      const statoMin = parseInt(document.getElementById('fStato').value) || 0;
-      const presenti = document.getElementById('fPresenti').checked;
-      const assenti = document.getElementById('fAssenti').checked;
-      const profit = document.getElementById('fProfit').checked;
-      const loss = document.getElementById('fLoss').checked;
-      const sortBy = document.getElementById('fSortBy').value;
-
-      let query = client.from("Articoli").select("*");
-
-      if (nome) query = query.ilike("Nome", `%${nome}%`);
-      if (categoria) query = query.eq("Categoria", categoria);
-      query = query.gte('ValoreAttuale', valoreMin);
-      query = query.lte('ValoreAttuale', valoreMax);
-      if (statoMin > 0) query = query.gte('ValutazioneStato', statoMin);
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error('Errore caricamento:', error);
-        return;
-      }
-
-      let filtered = data || [];
-
-      if (!presenti && !assenti) {
-        filtered = [];
-      } else if (!presenti) {
-        filtered = filtered.filter(r => !r.Presente);
-      } else if (!assenti) {
-        filtered = filtered.filter(r => r.Presente);
-      }
-
-      if (profit || loss) {
-        filtered = filtered.filter(r => {
-          const delta = (Number(r.ValoreAttuale) || 0) - (Number(r.PrezzoPagato) || 0);
-          if (profit && loss) return true;
-          if (profit) return delta > 0;
-          if (loss) return delta < 0;
-          return false;
-        });
-      }
-
-      const [field, dir] = sortBy.split('_');
-      const sortIcon = document.getElementById('sortDirBtn').querySelector('i');
-      const isReverse = sortIcon.classList.contains('fa-sort-amount-up');
-
-      filtered.sort((a, b) => {
-        let valA, valB;
-        
-        switch(field) {
-          case 'created':
-            valA = new Date(a.created_at);
-            valB = new Date(b.created_at);
-            break;
-          case 'nome':
-            valA = (a.Nome || '').toLowerCase();
-            valB = (b.Nome || '').toLowerCase();
-            break;
-          case 'valore':
-            valA = Number(a.ValoreAttuale) || 0;
-            valB = Number(b.ValoreAttuale) || 0;
-            break;
-          case 'delta':
-            valA = (Number(a.ValoreAttuale) || 0) - (Number(a.PrezzoPagato) || 0);
-            valB = (Number(b.ValoreAttuale) || 0) - (Number(b.PrezzoPagato) || 0);
-            break;
-          case 'stato':
-            valA = Number(a.ValutazioneStato) || 0;
-            valB = Number(b.ValutazioneStato) || 0;
-            break;
-          default:
-            valA = new Date(a.created_at);
-            valB = new Date(b.created_at);
-        }
-
-        let result = valA > valB ? 1 : valA < valB ? -1 : 0;
-        if (dir === 'desc') result *= -1;
-        if (isReverse) result *= -1;
-        
-        return result;
-      });
-
-      document.getElementById('resultsCount').textContent = filtered.length;
-
-      const tableOut = document.getElementById("tableOut");
-      const cardsOut = document.getElementById("cardsOut");
-
-      if (filtered.length === 0) {
-        const emptyMsg = '<i class="fas fa-inbox" style="font-size: 48px; opacity: 0.3;"></i><div style="margin-top: 16px;">Nessun risultato</div>';
-        tableOut.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 50px; color: #6b7280;">${emptyMsg}</td></tr>`;
-        cardsOut.innerHTML = `<div class="card"><div class="card-header">${emptyMsg}</div></div>`;
-        aggiornaCruscotto([]);
-        return;
-      }
-
-      aggiornaCruscotto(filtered);
-
-      tableOut.innerHTML = "";
-      filtered.forEach(r => {
-        const delta = (Number(r.ValoreAttuale) || 0) - (Number(r.PrezzoPagato) || 0);
-        const presenteBadge = r.Presente 
-          ? '<span class="badge presente"><i class="fas fa-check"></i> YES</span>' 
-          : '<span class="badge assente"><i class="fas fa-times"></i> NO</span>';
-        const statoStelle = r.ValutazioneStato ? '⭐'.repeat(Math.min(r.ValutazioneStato, 10)) : '—';
-
-        tableOut.innerHTML += `
-          <tr>
-            <td style="font-weight: 700;">${r.Nome ?? ""}</td>
-            <td>${r.Categoria ?? "—"}</td>
-            <td style="font-weight: 700; color: #10b981;">${Number(r.ValoreAttuale || 0).toFixed(2)} €</td>
-            <td>${Number(r.PrezzoPagato || 0).toFixed(2)} €</td>
-            <td style="font-weight: 800; color: ${delta >= 0 ? '#10b981' : '#ef4444'};">
-              ${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €
-            </td>
-            <td>${statoStelle}</td>
-            <td>${presenteBadge}</td>
-            <td>
-              <button class="btn-action btn-edit" onclick='apriModale(${JSON.stringify(r).replace(/'/g, "&apos;")})'>
-                <i class="fas fa-edit"></i> EDIT
-              </button>
-            </td>
-          </tr>`;
-      });
-
-      cardsOut.innerHTML = "";
-      filtered.forEach(r => {
-        const delta = (Number(r.ValoreAttuale) || 0) - (Number(r.PrezzoPagato) || 0);
-        const presenteBadge = r.Presente 
-          ? '<span class="badge presente"><i class="fas fa-check"></i> PRESENTE</span>' 
-          : '<span class="badge assente"><i class="fas fa-times"></i> ASSENTE</span>';
-
-        cardsOut.innerHTML += `
-          <div class="card">
-            <div class="card-header" onclick="toggleCard(this.parentElement)">
-              <div class="card-title">
-                ${r.Nome ?? ""}
-                <span class="expand-icon">▼</span>
-              </div>
-              <div class="card-subtitle">
-                <i class="fas fa-layer-group"></i> ${r.Categoria ?? "Nessuna categoria"}
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="card-row">
-                <span class="card-label"><i class="fas fa-hashtag"></i> ID</span>
-                <span class="card-value">${r.id}</span>
-              </div>
-              <div class="card-row">
-                <span class="card-label"><i class="fas fa-scroll"></i> DESCRIZIONE</span>
-                <span class="card-value">${r.Descrizione || "—"}</span>
-              </div>
-              <div class="card-row">
-                <span class="card-label"><i class="fas fa-gem"></i> VALORE</span>
-                <span class="card-value" style="color: #10b981; font-weight: 700;">${Number(r.ValoreAttuale || 0).toFixed(2)} €</span>
-              </div>
-              <div class="card-row">
-                <span class="card-label"><i class="fas fa-chart-line"></i> GUADAGNO/PERDITA</span>
-                <span class="card-value" style="color: ${delta >= 0 ? '#10b981' : '#ef4444'}; font-weight: 800;">
-                  ${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €
-                </span>
-              </div>
-              <div class="card-row">
-                <span class="card-label"><i class="fas fa-warehouse"></i> MAGAZZINO</span>
-                <span class="card-value">${presenteBadge}</span>
-              </div>
-              <div style="margin-top: 20px;">
-                <button class="btn-action btn-edit" style="width: 100%;" onclick='apriModale(${JSON.stringify(r).replace(/'/g, "&apos;")})'>
-                  <i class="fas fa-edit"></i> MODIFICA
-                </button>
-              </div>
-            </div>
-          </div>`;
-      });
-    }
-
-    function toggleCard(card) {
-      card.classList.toggle('expanded');
-    }
-
-    function apriModale(articolo) {
-      document.getElementById('editId').value = articolo.id;
-      document.getElementById('editNome').value = articolo.Nome || '';
-      document.getElementById('editCategoria').value = articolo.Categoria || '';
-      document.getElementById('editDescrizione').value = articolo.Descrizione || '';
-      document.getElementById('editValoreAttuale').value = articolo.ValoreAttuale || '';
-      document.getElementById('editPrezzoPagato').value = articolo.PrezzoPagato || '';
-      document.getElementById('editValutazioneStato').value = articolo.ValutazioneStato || '';
-      document.getElementById('editPresente').checked = articolo.Presente || false;
-      calcolaDeltaEdit();
-      document.getElementById('modalModifica').classList.add('active');
-    }
-
-    function chiudiModale() {
-      document.getElementById('modalModifica').classList.remove('active');
-    }
-
-    async function eliminaArticolo() {
-      const id = document.getElementById('editId').value;
-      const nome = document.getElementById('editNome').value;
-      if (!confirm(`⚠️ ELIMINARE "${nome}"?`)) return;
-
-      const { error } = await client.from('Articoli').delete().eq('id', id);
-      const msg = document.getElementById('modalMsg');
-
-      if (error) {
-        msg.className = 'msg error';
-        msg.textContent = '❌ ERRORE: ' + error.message;
-        msg.style.display = 'block';
-      } else {
-        msg.className = 'msg success';
-        msg.textContent = '✅ ELIMINATO!';
-        msg.style.display = 'block';
-        setTimeout(() => { chiudiModale(); carica(); }, 1500);
-      }
-    }
-
-    async function salvaModifica(e) {
-      e.preventDefault();
-      const form = e.target;
-      const formData = new FormData(form);
-      const valore = parseFloat(formData.get('ValoreAttuale'));
-      const prezzo = parseFloat(formData.get('PrezzoPagato'));
-
-      const articolo = {
-        Nome: formData.get('Nome'),
-        Descrizione: formData.get('Descrizione') || null,
-        Categoria: formData.get('Categoria') || null,
-        ValoreAttuale: valore,
-        PrezzoPagato: prezzo,
-        Delta: valore - prezzo,
-        ValutazioneStato: formData.get('ValutazioneStato') ? parseInt(formData.get('ValutazioneStato')) : null,
-        Presente: formData.get('Presente') === 'on'
-      };
-
-      const { error } = await client.from('Articoli').update(articolo).eq('id', formData.get('id'));
-      const msg = document.getElementById('modalMsg');
-
-      if (error) {
-        msg.className = 'msg error';
-        msg.textContent = '❌ ERRORE: ' + error.message;
-        msg.style.display = 'block';
-      } else {
-        msg.className = 'msg success';
-        msg.textContent = '✅ SALVATO!';
-        msg.style.display = 'block';
-        setTimeout(() => { chiudiModale(); carica(); }, 1500);
-      }
-    }
-
-    async function aggiungi(e) {
-      e.preventDefault();
-      const form = e.target;
-      const formData = new FormData(form);
-      const valore = parseFloat(formData.get('ValoreAttuale'));
-      const prezzo = parseFloat(formData.get('PrezzoPagato'));
-
-      const articolo = {
-        Nome: formData.get('Nome'),
-        Descrizione: formData.get('Descrizione') || null,
-        Categoria: formData.get('Categoria') || null,
-        ValoreAttuale: valore,
-        PrezzoPagato: prezzo,
-        Delta: valore - prezzo,
-        ValutazioneStato: formData.get('ValutazioneStato') ? parseInt(formData.get('ValutazioneStato')) : null,
-        Presente: formData.get('Presente') === 'on'
-      };
-
-      const { error } = await client.from('Articoli').insert([articolo]);
-      const msg = document.getElementById('formMsg');
-
-      if (error) {
-        msg.className = 'msg error';
-        msg.textContent = '❌ ERRORE: ' + error.message;
-        msg.style.display = 'block';
-      } else {
-        msg.className = 'msg success';
-        msg.textContent = '✅ AGGIUNTO!';
-        msg.style.display = 'block';
-        form.reset();
-        document.getElementById('deltaAdd').value = '';
-        setTimeout(() => switchTab('archivio'), 2000);
-      }
-    }
-
-    carica();
-
-    document.getElementById('modalModifica').addEventListener('click', function(e) {
-      if (e.target === this) chiudiModale();
+    // ========== INIZIALIZZAZIONE ==========
+    window.addEventListener('DOMContentLoaded', () => {
+      creaParticelle();
+      loadView('mancoliste');
     });
 
-    document.getElementById('modalGrafico').addEventListener('click', function(e) {
-      if (e.target === this) chiudiGrafico();
+    // ========== CHIUSURA MODALS AL CLICK ESTERNO ==========
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'modalAdd') closeAddModal();
+      if (e.target.id === 'modalEdit') closeEditModal();
+      if (e.target.id === 'modalGraph') closeGraphModal();
     });
   </script>
-
 </body>
 </html>
 
+<!-- ========================================= -->
+<!-- FINE - HAI COMPLETATO TUTTE LE 4 PARTI! -->
+<!-- ========================================= -->
 
-
-
+<!-- 
