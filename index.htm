@@ -331,16 +331,15 @@
     }
 
     /* ========== BOX FILTRI ========== */
-.filter-box {
-  background: linear-gradient(135deg, #1f1f1f 0%, #1a1a1a 100%);
-  border-radius: 24px;
-  padding: 0;
-  border: 2px solid #2a2a2a;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-  margin-bottom: 20px;
-  position: relative;
-  overflow: hidden; /* AGGIUNTO - taglia tutto ciò che esce */
-}
+    .filter-box {
+      background: linear-gradient(135deg, #1f1f1f 0%, #1a1a1a 100%);
+      border-radius: 24px;
+      padding: 0;
+      border: 2px solid #2a2a2a;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      margin-bottom: 20px;
+      position: relative;
+    }
 
     .filter-header {
       display: flex;
@@ -398,19 +397,17 @@
       transform: rotate(180deg);
     }
 
-.filter-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  padding: 0 20px;
-  background: transparent; /* AGGIUNTO */
-}
+    .filter-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 0 20px;
+    }
 
-.filter-content.active {
-  max-height: 2000px;
-  padding: 20px;
-  padding-bottom: 30px; /* AGGIUNTO - più spazio in basso */
-}
+    .filter-content.active {
+      max-height: 2000px;
+      padding: 20px;
+    }
 
     .filter-grid {
       display: grid;
@@ -912,18 +909,13 @@
       box-shadow: 0 10px 30px rgba(251, 191, 36, 0.6);
     }
 
-/* ========== BUTTON AGGIUNGI ========== */
-.add-btn-container {
-  position: fixed;
-  bottom: 100px;
-  right: 20px;
-  z-index: 1500;
-  display: none; /* NASCOSTO di default */
-}
-
-.add-btn-container.visible {
-  display: block; /* VISIBILE solo quando ha classe .visible */
-}
+    /* ========== BUTTON AGGIUNGI ========== */
+    .add-btn-container {
+      position: fixed;
+      bottom: 100px;
+      right: 20px;
+      z-index: 1500;
+    }
 
     .btn-add-main {
       width: 64px;
@@ -1897,13 +1889,9 @@ creaParticelle();
       }
     }
 
-function loadWIPView(viewName) {
-  const mainContent = document.getElementById('mainContent');
-  
-  // NASCONDI IL PULSANTE AGGIUNGI
-  document.querySelector('.add-btn-container').classList.remove('visible');
-  
-  const labels = {
+    function loadWIPView(viewName) {
+      const mainContent = document.getElementById('mainContent');
+      const labels = {
         'mancoliste': 'Mancoliste',
         'vetrine': 'Vetrine',
         'community': 'Community',
@@ -1930,14 +1918,7 @@ function loadWIPView(viewName) {
       `;
     }
 
-function loadArchivioView() {
-  const mainContent = document.getElementById('mainContent');
-  
-  // MOSTRA IL PULSANTE AGGIUNGI
-  document.querySelector('.add-btn-container').classList.add('visible');
-  
-  mainContent.innerHTML = `
-    <!-- Dashboard -->
+    function loadArchivioView() {
       const mainContent = document.getElementById('mainContent');
       
       mainContent.innerHTML = `
@@ -2991,5 +2972,3 @@ window.addEventListener('DOMContentLoaded', () => {
 <!-- ========================================= -->
 
 <!-- 
-
-
