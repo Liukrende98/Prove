@@ -1686,13 +1686,20 @@
 
 <!-- FINE PARTE 2 - Continua con PARTE 3 -->
 <!-- ========================================= -->
+
+
+
+
+
+
+<!-- ========================================= -->
 <!-- PARTE 3 DI 4 - VERSIONE FINALE CON TUTTE LE MODIFICHE -->
 <!-- ========================================= -->
 
   <script>
     // ========== CONFIGURAZIONE SUPABASE ==========
     const SUPABASE_URL = "https://xoagoblnzvdqnktpfhlk.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_Uf5-1uzQzL-OqI6dA-tl_g_RHpYxNds";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhvYWdvYmxuenZkcW5rdHBmaGxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ1MzgzMTQsImV4cCI6MjA1MDExNDMxNH0.rZhбългария7Nz8JvQx-FqMxK6vT3kD9YhLXpI_4qP0Bs";
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ========== VARIABILI GLOBALI ==========
@@ -1898,6 +1905,19 @@
       // NASCONDI PULSANTE AGGIUNGI
       document.getElementById('addBtnContainer').classList.remove('visible');
       
+      // Pagine complete
+      if (viewName === 'modifica-profilo') {
+        loadModificaProfiloPage();
+        return;
+      }
+      
+      if (viewName === 'vetrina-negozio' || viewName === 'mancolista-negozio' || 
+          viewName === 'analisi-mercato' || viewName === 'promozioni') {
+        loadTuoNegozioPage(viewName);
+        return;
+      }
+      
+      // Default WIP per altre pagine
       const labels = {
         'modifica-profilo': 'Modifica Profilo',
         'vetrina-negozio': 'Vetrina',
@@ -1913,6 +1933,344 @@
           </div>
           <div class="wip-text">Work in Progress</div>
           <div class="wip-subtext">${labels[viewName]} - In arrivo presto!</div>
+        </div>
+      `;
+    }
+    
+    // ========== MODIFICA PROFILO ==========
+    function loadModificaProfiloPage() {
+      const mainContent = document.getElementById('mainContent');
+      mainContent.innerHTML = `
+        <style>
+          .profile-page {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+          }
+          
+          .profile-header {
+            text-align: center;
+            margin-bottom: 32px;
+          }
+          
+          .profile-avatar-big {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border: 4px solid #10b981;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: #000;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.3s;
+          }
+          
+          .profile-avatar-big:active {
+            transform: scale(0.95);
+          }
+          
+          .change-avatar-btn {
+            color: #10b981;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: underline;
+          }
+          
+          .profile-form {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+            border-radius: 24px;
+            padding: 28px;
+            border: 2px solid #10b981;
+          }
+          
+          .profile-section {
+            margin-bottom: 24px;
+          }
+          
+          .profile-section h3 {
+            color: #fbbf24;
+            font-size: 18px;
+            margin-bottom: 16px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+          
+          .btn-save-profile {
+            width: 100%;
+            padding: 18px;
+            border-radius: 16px;
+            border: none;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+          }
+          
+          .btn-save-profile:active {
+            transform: scale(0.95);
+          }
+        </style>
+        
+        <div class="profile-page">
+          <div class="profile-header">
+            <div class="profile-avatar-big" onclick="alert('📷 Cambio foto: Funzione in arrivo!')">
+              <i class="fas fa-user"></i>
+            </div>
+            <div class="change-avatar-btn" onclick="alert('📷 Cambio foto: Funzione in arrivo!')">
+              Cambia foto profilo
+            </div>
+          </div>
+          
+          <div class="profile-form">
+            <div class="profile-section">
+              <h3><i class="fas fa-user-circle"></i> Informazioni Personali</h3>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label><i class="fas fa-signature"></i> Nome Utente</label>
+                  <input type="text" value="CollectorePro" placeholder="Il tuo nickname">
+                </div>
+                
+                <div class="form-group">
+                  <label><i class="fas fa-envelope"></i> Email</label>
+                  <input type="email" value="collector@pokemon.it" placeholder="email@example.com">
+                </div>
+                
+                <div class="form-group">
+                  <label><i class="fas fa-map-marker-alt"></i> Città</label>
+                  <input type="text" value="Milano" placeholder="La tua città">
+                </div>
+              </div>
+            </div>
+            
+            <div class="profile-section">
+              <h3><i class="fas fa-cog"></i> Preferenze</h3>
+              <div class="form-grid">
+                <div class="form-group">
+                  <div class="checkbox-wrapper">
+                    <input type="checkbox" id="notifiche" checked>
+                    <span><i class="fas fa-bell"></i> Notifiche email</span>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <div class="checkbox-wrapper">
+                    <input type="checkbox" id="newsletter" checked>
+                    <span><i class="fas fa-newspaper"></i> Newsletter settimanale</span>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <div class="checkbox-wrapper">
+                    <input type="checkbox" id="pubblico">
+                    <span><i class="fas fa-users"></i> Profilo pubblico</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="profile-section">
+              <h3><i class="fas fa-info-circle"></i> Bio</h3>
+              <div class="form-group">
+                <textarea placeholder="Racconta qualcosa di te e della tua collezione..." style="min-height: 120px;">Collezionista appassionato dal 1999! Amo le carte vintage e le espansioni giapponesi. Sempre disponibile per scambi!</textarea>
+              </div>
+            </div>
+            
+            <button class="btn-save-profile" onclick="alert('💾 Profilo salvato con successo!')">
+              <i class="fas fa-save"></i> SALVA MODIFICHE
+            </button>
+          </div>
+        </div>
+      `;
+    }
+    
+    // ========== IL TUO NEGOZIO ==========
+    function loadTuoNegozioPage(section) {
+      const mainContent = document.getElementById('mainContent');
+      
+      const sections = {
+        'vetrina-negozio': { icon: 'shop-lock', title: 'La Tua Vetrina', desc: 'Gestisci i tuoi articoli in vendita' },
+        'mancolista-negozio': { icon: 'list-ul', title: 'Mancolista Negozio', desc: 'Articoli che cerchi per il tuo stock' },
+        'analisi-mercato': { icon: 'chart-line', title: 'Analisi di Mercato', desc: 'Statistiche e trend di vendita' },
+        'promozioni': { icon: 'tag', title: 'Promozioni', desc: 'Crea offerte speciali per i clienti' }
+      };
+      
+      const current = sections[section];
+      
+      mainContent.innerHTML = `
+        <style>
+          .shop-page {
+            padding: 20px;
+          }
+          
+          .shop-header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 3px solid #fbbf24;
+          }
+          
+          .shop-header h2 {
+            color: #fbbf24;
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+          
+          .shop-header p {
+            color: #9ca3af;
+            font-size: 14px;
+          }
+          
+          .shop-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+          }
+          
+          .shop-stat-card {
+            background: linear-gradient(135deg, #1f1f1f 0%, #1a1a1a 100%);
+            border-radius: 20px;
+            padding: 20px;
+            border: 2px solid #2a2a2a;
+          }
+          
+          .shop-stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 20px;
+            margin-bottom: 12px;
+          }
+          
+          .shop-stat-value {
+            font-size: 28px;
+            font-weight: 900;
+            color: #fbbf24;
+            margin-bottom: 4px;
+          }
+          
+          .shop-stat-label {
+            font-size: 13px;
+            color: #9ca3af;
+            text-transform: uppercase;
+            font-weight: 700;
+          }
+          
+          .shop-actions {
+            display: grid;
+            gap: 12px;
+          }
+          
+          .shop-action-btn {
+            padding: 18px;
+            border-radius: 16px;
+            border: 2px solid #10b981;
+            background: #0a0a0a;
+            color: #e5e7eb;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+          
+          .shop-action-btn i {
+            color: #10b981;
+            font-size: 18px;
+          }
+          
+          .shop-action-btn:active {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #000;
+            transform: scale(0.98);
+          }
+          
+          .shop-action-btn:active i {
+            color: #000;
+          }
+        </style>
+        
+        <div class="shop-page">
+          <div class="shop-header">
+            <h2>
+              <i class="fas fa-${current.icon}"></i>
+              ${current.title}
+            </h2>
+            <p>${current.desc}</p>
+          </div>
+          
+          <div class="shop-stats">
+            <div class="shop-stat-card">
+              <div class="shop-stat-icon"><i class="fas fa-box"></i></div>
+              <div class="shop-stat-value">127</div>
+              <div class="shop-stat-label">Articoli attivi</div>
+            </div>
+            
+            <div class="shop-stat-card">
+              <div class="shop-stat-icon"><i class="fas fa-chart-line"></i></div>
+              <div class="shop-stat-value">3.456€</div>
+              <div class="shop-stat-label">Valore totale</div>
+            </div>
+            
+            <div class="shop-stat-card">
+              <div class="shop-stat-icon"><i class="fas fa-users"></i></div>
+              <div class="shop-stat-value">89</div>
+              <div class="shop-stat-label">Clienti attivi</div>
+            </div>
+            
+            <div class="shop-stat-card">
+              <div class="shop-stat-icon"><i class="fas fa-star"></i></div>
+              <div class="shop-stat-value">4.8</div>
+              <div class="shop-stat-label">Valutazione media</div>
+            </div>
+          </div>
+          
+          <div class="shop-actions">
+            <button class="shop-action-btn" onclick="alert('➕ Aggiungi articolo: Funzione in arrivo!')">
+              <i class="fas fa-plus-circle"></i>
+              <span>Aggiungi nuovo articolo in vendita</span>
+            </button>
+            
+            <button class="shop-action-btn" onclick="alert('📊 Report: Funzione in arrivo!')">
+              <i class="fas fa-file-chart-line"></i>
+              <span>Visualizza report vendite</span>
+            </button>
+            
+            <button class="shop-action-btn" onclick="alert('💬 Messaggi: Funzione in arrivo!')">
+              <i class="fas fa-messages"></i>
+              <span>Messaggi clienti (3 nuovi)</span>
+            </button>
+            
+            <button class="shop-action-btn" onclick="alert('⚙️ Impostazioni: Funzione in arrivo!')">
+              <i class="fas fa-gear"></i>
+              <span>Impostazioni negozio</span>
+            </button>
+          </div>
         </div>
       `;
     }
@@ -2131,6 +2489,8 @@
     }
 
     // ========== VETRINE VIEW ==========
+    let expandedShowcases = [];
+    
     function loadVetrineView() {
       document.getElementById('addBtnContainer').classList.remove('visible');
       
@@ -2147,17 +2507,21 @@
             background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
             border-radius: 24px;
             border: 2px solid #fbbf24;
-            padding: 24px;
-            cursor: pointer;
+            overflow: hidden;
             transition: all 0.4s;
           }
           
-          .vetrina-card-big:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 60px rgba(251, 191, 36, 0.5);
+          .vetrina-header {
+            padding: 24px;
+            cursor: pointer;
+            border-bottom: 2px solid #2a2a2a;
           }
           
-          .vetrina-header {
+          .vetrina-card-big:not(.expanded) .vetrina-header:hover {
+            background: #1f1f1f;
+          }
+          
+          .vetrina-top {
             display: flex;
             align-items: center;
             gap: 16px;
@@ -2165,28 +2529,86 @@
           }
           
           .vetrina-avatar {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
             border: 3px solid #10b981;
+            flex-shrink: 0;
+          }
+          
+          .vetrina-info {
+            flex: 1;
           }
           
           .vetrina-info h3 {
             color: #fbbf24;
-            font-size: 18px;
-            margin-bottom: 4px;
+            font-size: 20px;
+            margin-bottom: 6px;
+            font-weight: 800;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          
+          .vetrina-expand-icon {
+            font-size: 16px;
+            transition: transform 0.3s;
+          }
+          
+          .vetrina-card-big.expanded .vetrina-expand-icon {
+            transform: rotate(180deg);
           }
           
           .vetrina-info p {
             color: #9ca3af;
             font-size: 14px;
+            margin-bottom: 4px;
           }
           
-          .vetrina-items {
+          .vetrina-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #fbbf24;
+            font-size: 14px;
+            font-weight: 700;
+          }
+          
+          .vetrina-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 0 24px 24px;
+          }
+          
+          .vetrina-stat {
+            text-align: center;
+            padding: 12px;
+            background: #0a0a0a;
+            border-radius: 12px;
+            border: 2px solid #2a2a2a;
+          }
+          
+          .vetrina-stat-value {
+            font-size: 20px;
+            font-weight: 900;
+            color: #10b981;
+            margin-bottom: 4px;
+          }
+          
+          .vetrina-stat-label {
+            font-size: 11px;
+            color: #6b7280;
+            text-transform: uppercase;
+            font-weight: 700;
+          }
+          
+          .vetrina-items-preview {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             gap: 12px;
+            padding: 0 24px 24px;
           }
           
           .vetrina-item {
@@ -2194,40 +2616,146 @@
             background: #2a2a2a;
             border-radius: 8px;
             border: 2px solid #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #9ca3af;
+            text-align: center;
+            padding: 8px;
+            transition: all 0.3s;
+          }
+          
+          .vetrina-item:active {
+            transform: scale(0.95);
+            border-color: #fbbf24;
+          }
+          
+          .vetrina-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+          }
+          
+          .vetrina-card-big.expanded .vetrina-details {
+            max-height: 2000px;
+          }
+          
+          .vetrina-full-catalog {
+            padding: 20px 24px 24px;
+            background: #0a0a0a;
+          }
+          
+          .vetrina-full-catalog h4 {
+            color: #fbbf24;
+            font-size: 18px;
+            margin-bottom: 16px;
+            font-weight: 800;
+          }
+          
+          .vetrina-catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
           }
         </style>
         
         <div class="vetrine-grid">
-          <div class="vetrina-card-big">
-            <div class="vetrina-header">
+          ${createShowcaseCard(1, 'Pokemon Master Shop', 'Carte rare e vintage dal 1999', 4.8, 156, 1240, 89, 
+            ['Charizard Base Set', 'Pikachu 1st Ed', 'Mewtwo EX', 'Lugia Legend', 'Rayquaza VMAX', 'Umbreon GX'])}
+          
+          ${createShowcaseCard(2, 'Collezionista Pro', 'Espansioni moderne e sealed', 4.9, 203, 890, 95,
+            ['ETB Surging Sparks', 'Booster TEF', 'Tin Box Charizard', 'Elite Trainer Box', 'Premium Collection', 'Battle Deck'])}
+          
+          ${createShowcaseCard(3, 'Tokyo Cards Italia', 'Import esclusivo dal Giappone', 4.7, 98, 560, 78,
+            ['Carte JAP Promo', 'Sleeves Limited', 'Deck Box Tokyo', 'Play Mat Exclusive', 'Binder Premium', 'Card Case'])}
+          
+          ${createShowcaseCard(4, 'Vintage Pokémon', 'Nostalgia anni 90 e 2000', 5.0, 67, 2100, 100,
+            ['Base Set Holo', 'Fossil Rare', 'Jungle 1st', 'Neo Genesis', 'Team Rocket', 'Gym Heroes'])}
+          
+          ${createShowcaseCard(5, 'Competitive TCG', 'Carte competitive per tornei', 4.6, 189, 430, 82,
+            ['Meta Deck Cards', 'Tournament Ready', 'Staple Trainers', 'Energy Full Art', 'ACE SPEC', 'Supporter SR'])}
+        </div>
+      `;
+    }
+    
+    function createShowcaseCard(id, shopName, description, rating, reviews, articles, satisfaction, items) {
+      const isExpanded = expandedShowcases.includes(id);
+      const previewItems = isExpanded ? [] : items.slice(0, 6);
+      const fullItems = items.concat([
+        'Articolo 7', 'Articolo 8', 'Articolo 9', 'Articolo 10',
+        'Articolo 11', 'Articolo 12', 'Articolo 13', 'Articolo 14'
+      ]);
+      
+      return `
+        <div class="vetrina-card-big ${isExpanded ? 'expanded' : ''}" id="showcase-${id}">
+          <div class="vetrina-header" onclick="toggleShowcase(${id})">
+            <div class="vetrina-top">
               <div class="vetrina-avatar"></div>
               <div class="vetrina-info">
-                <h3>Negozio Pokemon Master</h3>
-                <p>Carte rare e vintage</p>
+                <h3>
+                  ${shopName}
+                  <span class="vetrina-expand-icon">▼</span>
+                </h3>
+                <p>${description}</p>
+                <div class="vetrina-rating">
+                  <span>⭐ ${rating.toFixed(1)}</span>
+                  <span style="color: #6b7280;">•</span>
+                  <span style="color: #9ca3af;">${reviews} recensioni</span>
+                </div>
               </div>
-            </div>
-            <div class="vetrina-items">
-              ${Array(6).fill(0).map(() => '<div class="vetrina-item"></div>').join('')}
             </div>
           </div>
           
-          <div class="vetrina-card-big">
-            <div class="vetrina-header">
-              <div class="vetrina-avatar"></div>
-              <div class="vetrina-info">
-                <h3>Collezionista Pro</h3>
-                <p>Espansioni moderne</p>
-              </div>
+          <div class="vetrina-stats">
+            <div class="vetrina-stat">
+              <div class="vetrina-stat-value">${articles}</div>
+              <div class="vetrina-stat-label">Articoli</div>
             </div>
-            <div class="vetrina-items">
-              ${Array(6).fill(0).map(() => '<div class="vetrina-item"></div>').join('')}
+            <div class="vetrina-stat">
+              <div class="vetrina-stat-value">${satisfaction}%</div>
+              <div class="vetrina-stat-label">Soddisfazione</div>
+            </div>
+            <div class="vetrina-stat">
+              <div class="vetrina-stat-value">${reviews}</div>
+              <div class="vetrina-stat-label">Vendite</div>
+            </div>
+          </div>
+          
+          ${!isExpanded ? `
+          <div class="vetrina-items-preview">
+            ${previewItems.map(item => `<div class="vetrina-item">${item}</div>`).join('')}
+          </div>
+          ` : ''}
+          
+          <div class="vetrina-details">
+            <div class="vetrina-full-catalog">
+              <h4><i class="fas fa-box-open"></i> Catalogo Completo</h4>
+              <div class="vetrina-catalog-grid">
+                ${fullItems.map(item => `<div class="vetrina-item">${item}</div>`).join('')}
+              </div>
             </div>
           </div>
         </div>
       `;
     }
+    
+    function toggleShowcase(id) {
+      const idx = expandedShowcases.indexOf(id);
+      if (idx > -1) {
+        expandedShowcases.splice(idx, 1);
+      } else {
+        expandedShowcases.push(id);
+      }
+      loadVetrineView();
+      setTimeout(() => {
+        document.getElementById(`showcase-${id}`).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    }
 
     // ========== COMMUNITY VIEW ==========
+    let expandedEvents = [];
+    
     function loadCommunityView() {
       document.getElementById('addBtnContainer').classList.remove('visible');
       
@@ -2245,6 +2773,7 @@
             border-radius: 20px;
             border: 2px solid #2a2a2a;
             padding: 20px;
+            transition: all 0.3s;
           }
           
           .post-header {
@@ -2260,6 +2789,12 @@
             border-radius: 50%;
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             border: 2px solid #fbbf24;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #000;
+            font-weight: 900;
           }
           
           .post-user {
@@ -2270,6 +2805,7 @@
             color: #fbbf24;
             font-size: 16px;
             margin-bottom: 4px;
+            font-weight: 700;
           }
           
           .post-user span {
@@ -2301,11 +2837,16 @@
             color: #9ca3af;
             cursor: pointer;
             transition: all 0.3s;
+            font-weight: 600;
+          }
+          
+          .post-action-btn.liked {
+            color: #ef4444;
           }
           
           .post-action-btn:active {
             background: #2a2a2a;
-            color: #fbbf24;
+            transform: scale(0.95);
           }
           
           .event-card-big {
@@ -2313,13 +2854,16 @@
             border-radius: 24px;
             border: 3px solid #fbbf24;
             overflow: hidden;
-            cursor: pointer;
             transition: all 0.4s;
           }
           
-          .event-card-big:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 60px rgba(251, 191, 36, 0.6);
+          .event-header {
+            cursor: pointer;
+            position: relative;
+          }
+          
+          .event-card-big:not(.expanded) .event-header:hover {
+            transform: translateY(-4px);
           }
           
           .event-video {
@@ -2331,6 +2875,21 @@
             justify-content: center;
             font-size: 48px;
             color: #fbbf24;
+            position: relative;
+            overflow: hidden;
+          }
+          
+          .event-video::before {
+            content: '▶';
+            position: absolute;
+            font-size: 80px;
+            opacity: 0.3;
+            animation: pulse 2s infinite;
+          }
+          
+          @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.1); opacity: 0.6; }
           }
           
           .event-info {
@@ -2341,72 +2900,271 @@
             color: #fbbf24;
             font-size: 20px;
             margin-bottom: 8px;
+            font-weight: 800;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          
+          .event-expand-icon {
+            font-size: 16px;
+            transition: transform 0.3s;
+          }
+          
+          .event-card-big.expanded .event-expand-icon {
+            transform: rotate(180deg);
           }
           
           .event-info p {
             color: #9ca3af;
             line-height: 1.6;
           }
+          
+          .event-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+          }
+          
+          .event-card-big.expanded .event-details {
+            max-height: 3000px;
+          }
+          
+          .event-meta {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 20px;
+            background: #0a0a0a;
+            border-radius: 16px;
+            margin: 20px 0;
+          }
+          
+          .event-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #e5e7eb;
+            font-size: 14px;
+            font-weight: 600;
+          }
+          
+          .event-meta-item i {
+            color: #fbbf24;
+            width: 20px;
+          }
+          
+          .vendor-section {
+            margin-top: 20px;
+          }
+          
+          .vendor-section h4 {
+            color: #fbbf24;
+            font-size: 18px;
+            margin-bottom: 16px;
+            font-weight: 800;
+          }
+          
+          .vendor-grid {
+            display: grid;
+            gap: 16px;
+          }
+          
+          .vendor-booth {
+            background: #0a0a0a;
+            border-radius: 16px;
+            padding: 16px;
+            border: 2px solid #2a2a2a;
+            transition: all 0.3s;
+          }
+          
+          .vendor-booth:active {
+            border-color: #10b981;
+            transform: translateY(-2px);
+          }
+          
+          .vendor-booth-header {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+          }
+          
+          .vendor-photo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border: 3px solid #10b981;
+            flex-shrink: 0;
+          }
+          
+          .vendor-info h5 {
+            color: #10b981;
+            font-size: 16px;
+            margin-bottom: 4px;
+            font-weight: 700;
+          }
+          
+          .vendor-info p {
+            color: #6b7280;
+            font-size: 13px;
+          }
+          
+          .vendor-articles {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+          }
+          
+          .vendor-article-mini {
+            aspect-ratio: 2/3;
+            background: #1a1a1a;
+            border-radius: 8px;
+            border: 2px solid #fbbf24;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #9ca3af;
+            text-align: center;
+            padding: 4px;
+          }
         </style>
         
         <div class="community-grid">
-          <div class="event-card-big">
+          ${createEventCard(1, 'Raduno Pokemon - Milano 2025', 'Milano Fiera', '15 Gennaio 2025', '500+ partecipanti', 'Il più grande evento Pokemon d\'Italia! Scambi, tornei, incontri con giocatori professionisti e tanto altro.')}
+          
+          ${createEventCard(2, 'Pokemon TCG Championship', 'Roma Convention Center', '22 Febbraio 2025', '300+ giocatori', 'Torneo nazionale ufficiale con premi incredibili e carte esclusive per tutti i partecipanti!')}
+          
+          ${createPostCard('MC', 'MarioCollector', '2 ore fa', 'Ho appena completato la mia collezione di Scarlatto e Violetto! Che emozione! 🎉', 42, 8, false)}
+          
+          ${createEventCard(3, 'Fiera del Collezionismo', 'Bologna Expo', '10 Marzo 2025', '200+ stand', 'La più grande fiera di collezionismo del centro Italia. Migliaia di carte, action figures e memorabilia!')}
+          
+          ${createPostCard('LT', 'LucaTrainer', '5 ore fa', 'Qualcuno scambia Charizard ex? Ho doppioni di Mewtwo! 🔥', 15, 12, false)}
+          
+          ${createPostCard('GP', 'GiuliaPokemon', '1 giorno fa', 'Appena aperto un ETB di Surging Sparks... PIKACHU EX FULL ART! 😱⚡', 89, 23, false)}
+          
+          ${createPostCard('AS', 'AndreaShiny', '2 giorni fa', 'Chi viene al raduno di Milano? Organizziamo un meet! 🤝', 34, 18, false)}
+          
+          ${createPostCard('FC', 'FrancescaCards', '3 giorni fa', 'La mia collezione ha superato le 1000 carte! Grazie a questa community per i consigli! ❤️', 67, 15, false)}
+        </div>
+      `;
+    }
+    
+    function createEventCard(id, title, location, date, attendance, description) {
+      const isExpanded = expandedEvents.includes(id);
+      return `
+        <div class="event-card-big ${isExpanded ? 'expanded' : ''}" id="event-${id}">
+          <div class="event-header" onclick="toggleEvent(${id})">
             <div class="event-video">
               <i class="fas fa-calendar-days"></i>
             </div>
             <div class="event-info">
-              <h3>Raduno Pokemon - Milano 2025</h3>
-              <p>Unisciti a noi per il più grande evento Pokemon d'Italia! Scambi, tornei e molto altro.</p>
+              <h3>
+                ${title}
+                <span class="event-expand-icon">▼</span>
+              </h3>
+              <p>${description}</p>
             </div>
           </div>
           
-          <div class="post-card">
-            <div class="post-header">
-              <div class="post-avatar"></div>
-              <div class="post-user">
-                <h4>MarioCollector</h4>
-                <span>2 ore fa</span>
+          <div class="event-details">
+            <div style="padding: 0 20px 20px;">
+              <div class="event-meta">
+                <div class="event-meta-item">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <span>${location}</span>
+                </div>
+                <div class="event-meta-item">
+                  <i class="fas fa-calendar"></i>
+                  <span>${date}</span>
+                </div>
+                <div class="event-meta-item">
+                  <i class="fas fa-users"></i>
+                  <span>${attendance}</span>
+                </div>
+                <div class="event-meta-item">
+                  <i class="fas fa-ticket"></i>
+                  <span>Ingresso gratuito</span>
+                </div>
               </div>
-            </div>
-            <div class="post-content">
-              Ho appena completato la mia collezione di Scarlatto e Violetto! Che emozione! 🎉
-            </div>
-            <div class="post-actions">
-              <button class="post-action-btn">
-                <i class="fas fa-heart"></i>
-                <span>42</span>
-              </button>
-              <button class="post-action-btn">
-                <i class="fas fa-comment"></i>
-                <span>8</span>
-              </button>
-            </div>
-          </div>
-          
-          <div class="post-card">
-            <div class="post-header">
-              <div class="post-avatar"></div>
-              <div class="post-user">
-                <h4>LucaTrainer</h4>
-                <span>5 ore fa</span>
+              
+              <div class="vendor-section">
+                <h4><i class="fas fa-store"></i> Venditori Presenti</h4>
+                <div class="vendor-grid">
+                  ${createVendorBooth('CardsMaster Shop', 'Carte Rare & Vintage', ['Charizard ex', 'Pikachu VMAX', 'Mewtwo GX'])}
+                  ${createVendorBooth('Pokemon Paradise', 'Nuove Espansioni', ['Booster TEF', 'ETB SVI', 'Tin Box'])}
+                  ${createVendorBooth('Collector\'s Dream', 'Grading & Slabs', ['PSA 10 Cards', 'CGC Slabs', 'BGS 9.5'])}
+                  ${createVendorBooth('Tokyo Cards Italia', 'Import Giapponese', ['Carte JAP', 'Promo Box', 'Sleeves'])}
+                </div>
               </div>
-            </div>
-            <div class="post-content">
-              Qualcuno scambia Charizard ex? Ho doppioni di Mewtwo!
-            </div>
-            <div class="post-actions">
-              <button class="post-action-btn">
-                <i class="fas fa-heart"></i>
-                <span>15</span>
-              </button>
-              <button class="post-action-btn">
-                <i class="fas fa-comment"></i>
-                <span>12</span>
-              </button>
             </div>
           </div>
         </div>
       `;
+    }
+    
+    function createVendorBooth(name, category, articles) {
+      return `
+        <div class="vendor-booth">
+          <div class="vendor-booth-header">
+            <div class="vendor-photo"></div>
+            <div class="vendor-info">
+              <h5>${name}</h5>
+              <p>${category}</p>
+            </div>
+          </div>
+          <div class="vendor-articles">
+            ${articles.map(art => `<div class="vendor-article-mini">${art}</div>`).join('')}
+          </div>
+        </div>
+      `;
+    }
+    
+    function createPostCard(avatar, username, time, content, likes, comments, isLiked) {
+      return `
+        <div class="post-card">
+          <div class="post-header">
+            <div class="post-avatar">${avatar}</div>
+            <div class="post-user">
+              <h4>${username}</h4>
+              <span>${time}</span>
+            </div>
+          </div>
+          <div class="post-content">${content}</div>
+          <div class="post-actions">
+            <button class="post-action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike(this)">
+              <i class="fas fa-heart"></i>
+              <span>${likes}</span>
+            </button>
+            <button class="post-action-btn" onclick="alert('💬 Commenti: Funzione in arrivo!')">
+              <i class="fas fa-comment"></i>
+              <span>${comments}</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+    
+    function toggleEvent(id) {
+      const idx = expandedEvents.indexOf(id);
+      if (idx > -1) {
+        expandedEvents.splice(idx, 1);
+      } else {
+        expandedEvents.push(id);
+      }
+      loadCommunityView();
+      setTimeout(() => {
+        document.getElementById(`event-${id}`).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    }
+    
+    function toggleLike(btn) {
+      btn.classList.toggle('liked');
+      const span = btn.querySelector('span');
+      const currentLikes = parseInt(span.textContent);
+      span.textContent = btn.classList.contains('liked') ? currentLikes + 1 : currentLikes - 1;
     }
 
     // ========== ARCHIVIO VIEW ==========
@@ -3055,7 +3813,18 @@
     }
 
 <!-- FINE PARTE 3 - Continua con PARTE 4 -->
-<!-- ========================================= -->
+
+
+
+
+
+
+
+
+
+
+
+  
 <!-- PARTE 4 DI 4 - VERSIONE FINALE COMPLETA -->
 <!-- ========================================= -->
 
@@ -3560,4 +4329,5 @@ COME USARE:
 
 FUNZIONA TUTTO! 🎉
 -->
+
 
