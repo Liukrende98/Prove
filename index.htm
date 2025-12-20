@@ -657,6 +657,7 @@
 
 <!-- FINE PARTE 1 - Continua con PARTE 2 -->
 <!-- ========================================= -->
+<!-- ========================================= -->
 <!-- PARTE 2 DI 4 - VERSIONE FINALE CON TUTTE LE MODIFICHE -->
 <!-- ========================================= -->
 
@@ -982,6 +983,8 @@
       box-shadow: 0 20px 80px rgba(16, 185, 129, 0.4);
       animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       border: 3px solid #10b981;
+      position: relative;
+      margin: auto;
     }
 
     .modal-add.closing .modal-add-content,
@@ -1689,7 +1692,7 @@
   <script>
     // ========== CONFIGURAZIONE SUPABASE ==========
     const SUPABASE_URL = "https://xoagoblnzvdqnktpfhlk.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_Uf5-1uzQzL-OqI6dA-tl_g_RHpYxNds";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhvYWdvYmxuenZkcW5rdHBmaGxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ1MzgzMTQsImV4cCI6MjA1MDExNDMxNH0.rZhбългария7Nz8JvQx-FqMxK6vT3kD9YhLXpI_4qP0Bs";
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ========== VARIABILI GLOBALI ==========
@@ -2614,6 +2617,7 @@
       filteredArticles = filterArticles();
       renderArticles();
       updatePagination();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function resetFiltri() {
@@ -2854,6 +2858,10 @@
       const article = allArticles.find(a => a.id === id);
       if (!article) return;
       
+      // Reset scroll e blocca body
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      document.body.style.overflow = 'hidden';
+      
       document.getElementById('editId').value = article.id;
       document.getElementById('editNome').value = article.Nome || '';
       document.getElementById('editCategoria').value = article.Categoria || '';
@@ -2863,18 +2871,41 @@
       document.getElementById('editStato').value = article.ValutazioneStato || '';
       document.getElementById('editPresente').checked = article.Presente || false;
       calcolaDeltaEdit();
-      document.getElementById('modalEdit').classList.add('active');
+      
+      const modal = document.getElementById('modalEdit');
+      modal.scrollTop = 0;
+      modal.classList.add('active');
     }
 
     // ========== MODALS ==========
     function openAddModal() {
-      document.getElementById('modalAdd').classList.remove('closing');
-      document.getElementById('modalAdd').classList.add('active');
+      const modal = document.getElementById('modalAdd');
+      const modalContent = modal.querySelector('.modal-add-content');
+      
+      // Reset scroll del modal e della pagina
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      modal.scrollTop = 0;
+      if (modalContent) modalContent.scrollTop = 0;
+      
+      // Blocca scroll della pagina
+      document.body.style.overflow = 'hidden';
+      
+      // Forza reflow per assicurare posizionamento corretto
+      modal.style.display = 'none';
+      modal.offsetHeight; // trigger reflow
+      
+      modal.classList.remove('closing');
+      modal.classList.add('active');
+      modal.style.display = '';
     }
 
     function closeAddModal() {
       const modal = document.getElementById('modalAdd');
       modal.classList.add('closing');
+      
+      // Riattiva scroll della pagina
+      document.body.style.overflow = '';
+      
       setTimeout(() => {
         modal.classList.remove('active', 'closing');
       }, 400);
@@ -2888,6 +2919,10 @@
     function closeEditModal() {
       const modal = document.getElementById('modalEdit');
       modal.classList.add('closing');
+      
+      // Riattiva scroll della pagina
+      document.body.style.overflow = '';
+      
       setTimeout(() => {
         modal.classList.remove('active', 'closing');
       }, 400);
@@ -2896,6 +2931,10 @@
     function closeGraphModal() {
       const modal = document.getElementById('modalGraph');
       modal.classList.add('closing');
+      
+      // Riattiva scroll della pagina
+      document.body.style.overflow = '';
+      
       setTimeout(() => {
         modal.classList.remove('active', 'closing');
         if (currentChart) {
@@ -3029,9 +3068,14 @@
         return;
       }
 
+      // Reset scroll e blocca body
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      document.body.style.overflow = 'hidden';
+
       currentChartColor = colorTheme;
       
       const modal = document.getElementById('modalGraph');
+      modal.scrollTop = 0;
       modal.classList.remove('closing');
       modal.classList.add('active');
 
@@ -3516,5 +3560,3 @@ COME USARE:
 
 FUNZIONA TUTTO! 🎉
 -->
-
-
