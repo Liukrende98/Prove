@@ -466,6 +466,11 @@ function closeGraphModal() {
   
   document.body.style.overflow = '';
   
+  // RIMUOVI EXPANDED DAI CRUSCOTTI
+  document.querySelectorAll('.stat-card.expanded').forEach(card => {
+    card.classList.remove('expanded');
+  });
+  
   setTimeout(() => {
     modal.classList.remove('active', 'closing');
     if (currentChart) {
