@@ -1,5 +1,5 @@
 // ========================================
-// LOGICA VETRINE - ARTICOLI REALI
+// LOGICA VETRINE - ARTICOLI REALI - OTTIMIZZATO MOBILE
 // ========================================
 
 async function loadVetrineContent() {
@@ -11,7 +11,7 @@ async function loadVetrineContent() {
       .from('Articoli')
       .select(`
         *,
-        Utenti!inner (
+        Utenti (
           id,
           username,
           citta,
@@ -93,12 +93,12 @@ function createVetrinaCard(userId, username, citta, totaleArticoli, valoreComple
           <div class="vetrina-avatar"></div>
           <div class="vetrina-info">
             <h3>
-              ${username}
+              <span class="vetrina-username">${username}</span>
               <span class="vetrina-expand-icon">▼</span>
             </h3>
             <p><i class="fas fa-map-marker-alt"></i> ${citta}</p>
             <div class="vetrina-rating">
-              <i class="fas fa-store"></i> ${totaleArticoli} articol${totaleArticoli === 1 ? 'o' : 'i'} in vendita
+              <i class="fas fa-store"></i> ${totaleArticoli} articol${totaleArticoli === 1 ? 'o' : 'i'}
             </div>
           </div>
         </div>
@@ -111,7 +111,7 @@ function createVetrinaCard(userId, username, citta, totaleArticoli, valoreComple
         </div>
         <div class="vetrina-stat">
           <div class="vetrina-stat-value">${valoreComplessivo}€</div>
-          <div class="vetrina-stat-label">Valore Totale</div>
+          <div class="vetrina-stat-label">Valore</div>
         </div>
         <div class="vetrina-stat">
           <div class="vetrina-stat-value">100%</div>
@@ -125,7 +125,7 @@ function createVetrinaCard(userId, username, citta, totaleArticoli, valoreComple
       
       <div class="vetrina-details">
         <div class="vetrina-full-catalog">
-          <h4><i class="fas fa-boxes"></i> CATALOGO COMPLETO (${totaleArticoli} articol${totaleArticoli === 1 ? 'o' : 'i'})</h4>
+          <h4><i class="fas fa-boxes"></i> CATALOGO (${totaleArticoli})</h4>
           <div class="vetrina-catalog-grid">
             ${articoli.map(art => createArticoloCompleto(art)).join('')}
           </div>
@@ -138,14 +138,14 @@ function createVetrinaCard(userId, username, citta, totaleArticoli, valoreComple
 function createArticoloPreview(articolo) {
   const foto = articolo.foto_principale || articolo.image_url || '';
   const imageHtml = foto 
-    ? `<img src="${foto}" style="width:100%; height:80px; object-fit:cover; border-radius:8px; margin-bottom:8px;">` 
-    : '<div style="width:100%; height:80px; background:#2a2a2a; border-radius:8px; margin-bottom:8px; display:flex; align-items:center; justify-content:center; color:#6b7280;"><i class="fas fa-image"></i></div>';
+    ? `<img src="${foto}" alt="${articolo.Nome}">` 
+    : '<div class="vetrina-item-placeholder"><i class="fas fa-image"></i></div>';
   
   return `
     <div class="vetrina-item" onclick="mostraDettaglioArticolo('${articolo.id}')">
       ${imageHtml}
-      <div style="font-weight:700; margin-bottom:4px; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${articolo.Nome}</div>
-      <div style="color:#10b981; font-weight:800; font-size:16px;">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
+      <div class="vetrina-item-name">${articolo.Nome}</div>
+      <div class="vetrina-item-price">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
     </div>
   `;
 }
@@ -153,18 +153,19 @@ function createArticoloPreview(articolo) {
 function createArticoloCompleto(articolo) {
   const foto = articolo.foto_principale || articolo.image_url || '';
   const imageHtml = foto 
-    ? `<img src="${foto}" style="width:100%; height:120px; object-fit:cover; border-radius:8px; margin-bottom:8px;">` 
-    : '<div style="width:100%; height:120px; background:#2a2a2a; border-radius:8px; margin-bottom:8px; display:flex; align-items:center; justify-content:center; color:#6b7280;"><i class="fas fa-image"></i></div>';
+    ? `<img src="${foto}" alt="${articolo.Nome}">` 
+    : '<div class="vetrina-item-placeholder"><i class="fas fa-image"></i></div>';
   
-  const stelle = articolo.ValutazioneStato ? '⭐'.repeat(Math.min(articolo.ValutazioneStato, 5)) : '—';
+  // Mostra numero + stella invece di tante stelle
+  const stelle = articolo.ValutazioneStato ? `${articolo.ValutazioneStato}/10 ⭐` : '—';
   
   return `
-    <div class="vetrina-item" onclick="mostraDettaglioArticolo('${articolo.id}')">
+    <div class="vetrina-catalog-item" onclick="mostraDettaglioArticolo('${articolo.id}')">
       ${imageHtml}
-      <div style="font-weight:700; margin-bottom:4px; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${articolo.Nome}</div>
-      <div style="color:#9ca3af; font-size:12px; margin-bottom:4px;">${articolo.Categoria || 'Varie'}</div>
-      <div style="color:#fbbf24; font-size:12px; margin-bottom:6px;">${stelle}</div>
-      <div style="color:#10b981; font-weight:800; font-size:18px;">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
+      <div class="vetrina-catalog-item-name">${articolo.Nome}</div>
+      <div class="vetrina-catalog-item-categoria">${articolo.Categoria || 'Varie'}</div>
+      <div class="vetrina-catalog-item-rating">${stelle}</div>
+      <div class="vetrina-catalog-item-price">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
     </div>
   `;
 }
@@ -213,72 +214,101 @@ async function mostraDettaglioArticolo(articoloId) {
           <img 
             src="${f}" 
             alt="Foto ${index + 1}"
-            style="width:100%; max-width:200px; height:200px; object-fit:cover; border-radius:12px; border:2px solid #10b981; cursor:pointer;"
+            class="modal-gallery-img"
             onclick="window.open('${f}', '_blank')"
           >
         `).join('')
-      : '<div style="width:100%; height:300px; background:#2a2a2a; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#6b7280;"><i class="fas fa-image" style="font-size:48px; margin-bottom:16px;"></i><div>Nessuna foto disponibile</div></div>';
+      : '<div class="modal-gallery-placeholder"><i class="fas fa-image" style="font-size:48px; margin-bottom:12px;"></i><div style="font-size:14px;">Nessuna foto</div></div>';
     
-    const stelle = articolo.ValutazioneStato ? '⭐'.repeat(Math.min(articolo.ValutazioneStato, 10)) : '—';
+    // Mostra numero + stella invece di tante stelle
+    const stelle = articolo.ValutazioneStato ? `${articolo.ValutazioneStato}/10 ⭐` : '—';
     
-    const dettaglioHtml = `
-      <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px; overflow-y:auto;" onclick="this.remove()">
-        <div style="background:linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%); border-radius:28px; padding:40px; max-width:900px; width:100%; max-height:90vh; overflow-y:auto; border:3px solid #10b981; box-shadow:0 20px 80px rgba(16, 185, 129, 0.5);" onclick="event.stopPropagation()">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-            <h2 style="font-size:28px; font-weight:900; background:linear-gradient(135deg, #10b981 0%, #059669 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin:0;">${articolo.Nome}</h2>
-            <button onclick="this.closest('div').parentElement.remove()" style="width:48px; height:48px; border-radius:50%; border:none; background:#2a2a2a; cursor:pointer; font-size:24px; color:#e5e7eb; transition:all 0.3s;">✕</button>
+    const modalHtml = `
+      <div class="modal-dettaglio-backdrop" onclick="chiudiModalDettaglio(event)">
+        <div class="modal-dettaglio-content" onclick="event.stopPropagation()">
+          <div class="modal-dettaglio-header">
+            <h2 class="modal-dettaglio-title">${articolo.Nome}</h2>
+            <button class="modal-dettaglio-close" onclick="chiudiModalDettaglio()">✕</button>
           </div>
           
-          <div style="margin-bottom:24px;">
-            <h3 style="color:#10b981; font-size:18px; font-weight:800; margin-bottom:16px;"><i class="fas fa-images"></i> GALLERIA FOTO</h3>
-            <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center;">
+          <div class="modal-dettaglio-gallery">
+            <h3><i class="fas fa-images"></i> FOTO</h3>
+            <div class="modal-gallery-grid">
               ${galleriaHtml}
             </div>
           </div>
           
-          <div style="background:#0a0a0a; padding:20px; border-radius:16px; margin-bottom:20px;">
-            <div style="display:grid; gap:16px;">
-              <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid #2a2a2a;">
-                <span style="color:#9ca3af; font-weight:700;"><i class="fas fa-layer-group"></i> CATEGORIA</span>
-                <span style="color:#e5e7eb; font-weight:600;">${articolo.Categoria || '—'}</span>
-              </div>
-              <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid #2a2a2a;">
-                <span style="color:#9ca3af; font-weight:700;"><i class="fas fa-star"></i> VALUTAZIONE</span>
-                <span style="color:#fbbf24; font-weight:600;">${stelle}</span>
-              </div>
-              <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid #2a2a2a;">
-                <span style="color:#9ca3af; font-weight:700;"><i class="fas fa-user"></i> VENDITORE</span>
-                <span style="color:#e5e7eb; font-weight:600;">${articolo.Utenti?.username || 'Anonimo'}</span>
-              </div>
-              <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid #2a2a2a;">
-                <span style="color:#9ca3af; font-weight:700;"><i class="fas fa-map-marker-alt"></i> CITTÀ</span>
-                <span style="color:#e5e7eb; font-weight:600;">${articolo.Utenti?.citta || '—'}</span>
-              </div>
-              <div style="display:flex; justify-content:space-between; padding:20px 0; padding-top:20px;">
-                <span style="color:#9ca3af; font-weight:700; font-size:20px;"><i class="fas fa-tag"></i> PREZZO</span>
-                <span style="color:#10b981; font-weight:900; font-size:32px;">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</span>
-              </div>
+          <div class="modal-dettaglio-info">
+            <div class="modal-info-row">
+              <span class="modal-info-label"><i class="fas fa-layer-group"></i> Categoria</span>
+              <span class="modal-info-value">${articolo.Categoria || '—'}</span>
+            </div>
+            <div class="modal-info-row">
+              <span class="modal-info-label"><i class="fas fa-star"></i> Valutazione</span>
+              <span class="modal-info-value" style="color:#fbbf24;">${stelle}</span>
+            </div>
+            <div class="modal-info-row">
+              <span class="modal-info-label"><i class="fas fa-user"></i> Venditore</span>
+              <span class="modal-info-value">${articolo.Utenti?.username || 'Anonimo'}</span>
+            </div>
+            <div class="modal-info-row">
+              <span class="modal-info-label"><i class="fas fa-map-marker-alt"></i> Città</span>
+              <span class="modal-info-value">${articolo.Utenti?.citta || '—'}</span>
+            </div>
+            <div class="modal-info-price">
+              <span class="modal-info-price-label"><i class="fas fa-tag"></i> Prezzo</span>
+              <span class="modal-info-price-value">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</span>
             </div>
           </div>
           
           ${articolo.Descrizione ? `
-            <div style="background:#0a0a0a; padding:20px; border-radius:16px; margin-bottom:20px;">
-              <h3 style="color:#10b981; font-size:18px; font-weight:800; margin-bottom:12px;"><i class="fas fa-align-left"></i> DESCRIZIONE</h3>
-              <p style="color:#e5e7eb; line-height:1.6; white-space:pre-wrap;">${articolo.Descrizione}</p>
+            <div class="modal-dettaglio-desc">
+              <h3><i class="fas fa-align-left"></i> DESCRIZIONE</h3>
+              <p>${articolo.Descrizione}</p>
             </div>
           ` : ''}
           
-          <button onclick="alert('📧 Contatta ${articolo.Utenti?.username} via email: ${articolo.Utenti?.email}')" style="width:100%; padding:20px; border-radius:16px; border:none; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#fff; font-size:18px; font-weight:800; cursor:pointer; box-shadow:0 6px 20px rgba(16, 185, 129, 0.4); text-transform:uppercase; transition:all 0.3s;">
+          <button class="modal-dettaglio-contact" onclick="contattaVenditore('${articolo.Utenti?.username}', '${articolo.Utenti?.email}', '${articolo.Nome}')">
             <i class="fas fa-envelope"></i> CONTATTA VENDITORE
           </button>
         </div>
       </div>
     `;
     
-    document.body.insertAdjacentHTML('beforeend', dettaglioHtml);
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Blocca scroll del body
+    document.body.style.overflow = 'hidden';
     
   } catch (error) {
     console.error('❌ Errore caricamento dettaglio:', error);
-    alert('❌ Errore nel caricamento del dettaglio: ' + error.message);
+    alert('❌ Errore: ' + error.message);
   }
+}
+
+function chiudiModalDettaglio(event) {
+  // Se event è undefined, chiudi sempre
+  // Se event esiste, chiudi solo se click sul backdrop
+  if (!event || event.currentTarget === event.target) {
+    const modal = document.querySelector('.modal-dettaglio-backdrop');
+    if (modal) {
+      modal.remove();
+      // Riabilita scroll del body
+      document.body.style.overflow = '';
+    }
+  }
+}
+
+function contattaVenditore(username, email, nomeArticolo) {
+  const messaggio = `Ciao ${username}! Sono interessato all'articolo "${nomeArticolo}". Possiamo parlarne?`;
+  const subject = `Interesse per: ${nomeArticolo}`;
+  const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(messaggio)}`;
+  
+  // Prova ad aprire l'app email
+  window.location.href = mailtoLink;
+  
+  // Fallback: mostra alert con email
+  setTimeout(() => {
+    alert(`📧 Contatta ${username} via email:\n${email}\n\nOppure chiama/scrivi su WhatsApp se disponibile.`);
+  }, 500);
 }
