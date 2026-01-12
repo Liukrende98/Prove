@@ -5,6 +5,8 @@
 // Variabili globali
 let allArticoli = [];
 let currentFilters = {
+  nome: '',
+  set: 'all',
   categoria: 'all',
   prezzoMin: '',
   prezzoMax: '',
@@ -160,8 +162,19 @@ function getCategorie() {
   return Array.from(categorie).sort();
 }
 
+function getSets() {
+  const sets = new Set();
+  allArticoli.forEach(art => {
+    if (art.Set) sets.add(art.Set);
+    if (art.Espansione) sets.add(art.Espansione);
+  });
+  return Array.from(sets).sort();
+}
+
 function getActiveFiltersCount() {
   let count = 0;
+  if (currentFilters.nome !== '') count++;
+  if (currentFilters.set !== 'all') count++;
   if (currentFilters.categoria !== 'all') count++;
   if (currentFilters.prezzoMin !== '') count++;
   if (currentFilters.prezzoMax !== '') count++;
@@ -179,6 +192,8 @@ function toggleFilter() {
 
 function applyFilters() {
   // Leggi valori filtri
+  currentFilters.nome = document.getElementById('filterNome').value.toLowerCase().trim();
+  currentFilters.set = document.getElementById('filterSet').value;
   currentFilters.categoria = document.getElementById('filterCategoria').value;
   currentFilters.prezzoMin = document.getElementById('filterPrezzoMin').value;
   currentFilters.prezzoMax = document.getElementById('filterPrezzoMax').value;
@@ -187,6 +202,28 @@ function applyFilters() {
   
   // Filtra articoli
   let articoliFiltrati = allArticoli.filter(art => {
+    // Filtro nome (ricerca in Nome, Descrizione, Set, Espansione)
+    if (currentFilters.nome !== '') {
+      const nomeArticolo = (art.Nome || '').toLowerCase();
+      const descrizione = (art.Descrizione || '').toLowerCase();
+      const set = (art.Set || '').toLowerCase();
+      const espansione = (art.Espansione || '').toLowerCase();
+      
+      if (!nomeArticolo.includes(currentFilters.nome) && 
+          !descrizione.includes(currentFilters.nome) &&
+          !set.includes(currentFilters.nome) &&
+          !espansione.includes(currentFilters.nome)) {
+        return false;
+      }
+    }
+    
+    // Filtro set/espansione
+    if (currentFilters.set !== 'all') {
+      if (art.Set !== currentFilters.set && art.Espansione !== currentFilters.set) {
+        return false;
+      }
+    }
+    
     // Filtro categoria
     if (currentFilters.categoria !== 'all' && art.Categoria !== currentFilters.categoria) {
       return false;
@@ -228,7 +265,7 @@ function applyFilters() {
   if (filterHeader) {
     filterHeader.innerHTML = `
       <div class="filter-title">
-        <i class="fas fa-filter"></i> FILTRI
+        <i class="fas fa-filter"></i> FILTRI E RICERCA
         ${getActiveFiltersCount() > 0 ? `<span class="filter-active-badge"><i class="fas fa-check"></i> ${getActiveFiltersCount()}</span>` : ''}
       </div>
       <i class="fas fa-chevron-down filter-toggle-icon"></i>
@@ -239,6 +276,8 @@ function applyFilters() {
 function resetFilters() {
   // Reset valori
   currentFilters = {
+    nome: '',
+    set: 'all',
     categoria: 'all',
     prezzoMin: '',
     prezzoMax: '',
@@ -247,6 +286,8 @@ function resetFilters() {
   };
   
   // Reset inputs
+  document.getElementById('filterNome').value = '';
+  document.getElementById('filterSet').value = 'all';
   document.getElementById('filterCategoria').value = 'all';
   document.getElementById('filterPrezzoMin').value = '';
   document.getElementById('filterPrezzoMax').value = '';
@@ -261,7 +302,7 @@ function resetFilters() {
   if (filterHeader) {
     filterHeader.innerHTML = `
       <div class="filter-title">
-        <i class="fas fa-filter"></i> FILTRI
+        <i class="fas fa-filter"></i> FILTRI E RICERCA
       </div>
       <i class="fas fa-chevron-down filter-toggle-icon"></i>
     `;
@@ -272,11 +313,20 @@ function renderVetrine(articoli) {
   const container = document.getElementById('vetrineList');
   
   if (!articoli || articoli.length === 0) {
+    let messaggioFiltri = '';
+    if (currentFilters.nome !== '') {
+      messaggioFiltri = `Nessuna carta trovata per "${currentFilters.nome}"`;
+    } else if (getActiveFiltersCount() > 0) {
+      messaggioFiltri = 'Nessun articolo corrisponde ai filtri';
+    } else {
+      messaggioFiltri = 'Nessun articolo disponibile';
+    }
+    
     container.innerHTML = `
       <div class="wip-container" style="margin-top: 20px;">
-        <div class="wip-icon"><i class="fas fa-filter"></i></div>
-        <div class="wip-text">NESSUN RISULTATO</div>
-        <div class="wip-subtext">Prova a modificare i filtri</div>
+        <div class="wip-icon"><i class="fas fa-search"></i></div>
+        <div class="wip-text">${messaggioFiltri}</div>
+        <div class="wip-subtext">Prova a modificare i filtri o la ricerca</div>
       </div>
     `;
     return;
