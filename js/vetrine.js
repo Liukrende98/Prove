@@ -83,18 +83,14 @@ async function loadVetrineContent() {
 }
 
 function createVetrinaCard(userId, username, citta, totaleArticoli, valoreComplessivo, articoli) {
-  // Prendi primi 6 articoli per preview
-  const preview = articoli.slice(0, 6);
-  
   return `
     <div class="vetrina-card-big" id="vetrina-${userId}">
-      <div class="vetrina-header" onclick="toggleVetrina('${userId}')">
+      <div class="vetrina-header">
         <div class="vetrina-top">
           <div class="vetrina-avatar"></div>
           <div class="vetrina-info">
             <h3>
               <span class="vetrina-username">${username}</span>
-              <span class="vetrina-expand-icon">▼</span>
             </h3>
             <p><i class="fas fa-map-marker-alt"></i> ${citta}</p>
             <div class="vetrina-rating">
@@ -111,70 +107,66 @@ function createVetrinaCard(userId, username, citta, totaleArticoli, valoreComple
         </div>
         <div class="vetrina-stat">
           <div class="vetrina-stat-value">${valoreComplessivo}€</div>
-          <div class="vetrina-stat-label">Valore</div>
+          <div class="vetrina-stat-label">Valore Totale</div>
         </div>
         <div class="vetrina-stat">
-          <div class="vetrina-stat-value">100%</div>
+          <div class="vetrina-stat-value">${articoli.filter(a => a.Presente).length}</div>
           <div class="vetrina-stat-label">Disponibili</div>
         </div>
       </div>
       
-      <div class="vetrina-items-preview">
-        ${preview.map(art => createArticoloPreview(art)).join('')}
-      </div>
-      
-      <div class="vetrina-details">
-        <div class="vetrina-full-catalog">
-          <h4><i class="fas fa-boxes"></i> CATALOGO (${totaleArticoli})</h4>
-          <div class="vetrina-catalog-grid">
-            ${articoli.map(art => createArticoloCompleto(art)).join('')}
-          </div>
+      <div class="vetrina-products-scroll" style="position: relative;">
+        <div class="vetrina-products-container">
+          ${articoli.map(art => createArticoloCard(art)).join('')}
         </div>
+        ${articoli.length > 2 ? '<div class="scroll-indicator"><i class="fas fa-chevron-right"></i></div>' : ''}
+      </div>
+    </div>
+  `;
+}
+
+function createArticoloCard(articolo) {
+  const foto = articolo.foto_principale || articolo.image_url || '';
+  const imageHtml = foto 
+    ? `<img src="${foto}" alt="${articolo.Nome}">` 
+    : '<div class="vetrina-product-placeholder"><i class="fas fa-image"></i></div>';
+  
+  // Badge disponibilità
+  const disponibile = articolo.Presente === true;
+  const badgeHtml = disponibile
+    ? '<div class="product-availability-badge badge-disponibile"><i class="fas fa-check"></i> DISPONIBILE</div>'
+    : '<div class="product-availability-badge badge-non-disponibile"><i class="fas fa-times"></i> NON DISPONIBILE</div>';
+  
+  // Rating
+  const rating = articolo.ValutazioneStato || 0;
+  const ratingHtml = rating > 0 ? `
+    <div class="vetrina-product-rating">
+      <i class="fas fa-star"></i> ${rating}/10
+    </div>
+  ` : '';
+  
+  return `
+    <div class="vetrina-product-card" onclick="mostraDettaglioArticolo('${articolo.id}')">
+      <div class="vetrina-product-image">
+        ${imageHtml}
+        ${badgeHtml}
+        ${ratingHtml}
+      </div>
+      <div class="vetrina-product-info">
+        <div class="vetrina-product-name">${articolo.Nome}</div>
+        <div class="vetrina-product-category">${articolo.Categoria || 'Varie'}</div>
+        <div class="vetrina-product-price">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
       </div>
     </div>
   `;
 }
 
 function createArticoloPreview(articolo) {
-  const foto = articolo.foto_principale || articolo.image_url || '';
-  const imageHtml = foto 
-    ? `<img src="${foto}" alt="${articolo.Nome}">` 
-    : '<div class="vetrina-item-placeholder"><i class="fas fa-image"></i></div>';
-  
-  return `
-    <div class="vetrina-item" onclick="mostraDettaglioArticolo('${articolo.id}')">
-      ${imageHtml}
-      <div class="vetrina-item-name">${articolo.Nome}</div>
-      <div class="vetrina-item-price">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
-    </div>
-  `;
+  return createArticoloCard(articolo);
 }
 
 function createArticoloCompleto(articolo) {
-  const foto = articolo.foto_principale || articolo.image_url || '';
-  const imageHtml = foto 
-    ? `<img src="${foto}" alt="${articolo.Nome}">` 
-    : '<div class="vetrina-item-placeholder"><i class="fas fa-image"></i></div>';
-  
-  // Mostra numero + stella invece di tante stelle
-  const stelle = articolo.ValutazioneStato ? `${articolo.ValutazioneStato}/10 ⭐` : '—';
-  
-  return `
-    <div class="vetrina-catalog-item" onclick="mostraDettaglioArticolo('${articolo.id}')">
-      ${imageHtml}
-      <div class="vetrina-catalog-item-name">${articolo.Nome}</div>
-      <div class="vetrina-catalog-item-categoria">${articolo.Categoria || 'Varie'}</div>
-      <div class="vetrina-catalog-item-rating">${stelle}</div>
-      <div class="vetrina-catalog-item-price">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
-    </div>
-  `;
-}
-
-function toggleVetrina(userId) {
-  const card = document.getElementById(`vetrina-${userId}`);
-  if (card) {
-    card.classList.toggle('expanded');
-  }
+  return createArticoloCard(articolo);
 }
 
 async function mostraDettaglioArticolo(articoloId) {
@@ -223,6 +215,12 @@ async function mostraDettaglioArticolo(articoloId) {
     // Mostra numero + stella invece di tante stelle
     const stelle = articolo.ValutazioneStato ? `${articolo.ValutazioneStato}/10 ⭐` : '—';
     
+    // Badge disponibilità
+    const disponibile = articolo.Presente === true;
+    const badgeDisponibilitaHtml = disponibile
+      ? '<div style="display:inline-block; padding:8px 16px; background:rgba(34,197,94,0.9); color:white; border-radius:20px; font-size:12px; font-weight:800; margin-bottom:15px;"><i class="fas fa-check"></i> DISPONIBILE IN MAGAZZINO</div>'
+      : '<div style="display:inline-block; padding:8px 16px; background:rgba(239,68,68,0.9); color:white; border-radius:20px; font-size:12px; font-weight:800; margin-bottom:15px;"><i class="fas fa-times"></i> NON DISPONIBILE</div>';
+    
     const modalHtml = `
       <div class="modal-dettaglio-backdrop" onclick="chiudiModalDettaglio(event)">
         <div class="modal-dettaglio-content" onclick="event.stopPropagation()">
@@ -230,6 +228,8 @@ async function mostraDettaglioArticolo(articoloId) {
             <h2 class="modal-dettaglio-title">${articolo.Nome}</h2>
             <button class="modal-dettaglio-close" onclick="chiudiModalDettaglio()">✕</button>
           </div>
+          
+          ${badgeDisponibilitaHtml}
           
           <div class="modal-dettaglio-gallery">
             <h3><i class="fas fa-images"></i> FOTO</h3>
@@ -239,6 +239,12 @@ async function mostraDettaglioArticolo(articoloId) {
           </div>
           
           <div class="modal-dettaglio-info">
+            <div class="modal-info-row">
+              <span class="modal-info-label"><i class="fas fa-box"></i> Disponibilità</span>
+              <span class="modal-info-value" style="color: ${disponibile ? '#22c55e' : '#ef4444'};">
+                ${disponibile ? 'IN MAGAZZINO' : 'NON DISPONIBILE'}
+              </span>
+            </div>
             <div class="modal-info-row">
               <span class="modal-info-label"><i class="fas fa-layer-group"></i> Categoria</span>
               <span class="modal-info-value">${articolo.Categoria || '—'}</span>
