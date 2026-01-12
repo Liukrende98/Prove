@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Il Tuo Profilo - NODO</title>
+  
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    .profile-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .profile-card {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+      border-radius: 28px;
+      padding: 40px;
+      border: 3px solid #3b82f6;
+      box-shadow: 0 20px 80px rgba(59, 130, 246, 0.4);
+      margin-bottom: 30px;
+    }
+
+    .profile-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .profile-avatar-big {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      border: 5px solid #3b82f6;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      color: #fff;
+      box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
+      animation: profilePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes profilePulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(59, 130, 246, 0.6); }
+      50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(59, 130, 246, 0.9); }
+    }
+
+    .profile-name {
+      font-size: 32px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+
+    .profile-email {
+      color: #9ca3af;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 30px;
+    }
+
+    .profile-section-title {
+      font-size: 20px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-logout {
+      width: 100%;
+      padding: 16px;
+      border-radius: 16px;
+      border: none;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+      margin-top: 30px;
+    }
+
+    .btn-logout:active {
+      transform: scale(0.95);
+      box-shadow: 0 10px 30px rgba(239, 68, 68, 0.6);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="particles" id="particles"></div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>
+      <div class="header-logo">
+        <div class="header-logo-ring header-logo-ring-1"></div>
+        <div class="header-logo-ring header-logo-ring-2"></div>
+      </div>
+      <span class="title-gradient">NODO</span>
+    </h1>
+  </div>
+
+  <!-- MENU NAVIGAZIONE -->
+  <div class="bottom-nav">
+    <button class="menu-main-btn" id="menuBtn" onclick="toggleMenu()">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="menu-items" id="menuItems"></div>
+  </div>
+
+  <!-- CONTENUTO PRINCIPALE -->
+  <div class="main-content">
+    <div class="profile-container">
+      <div class="profile-card">
+        <div class="profile-header">
+          <div class="profile-avatar-big">
+            <i class="fas fa-user"></i>
+          </div>
+          <h2 class="profile-name" id="displayUsername">Caricamento...</h2>
+          <div class="profile-email" id="displayEmail">caricamento@example.com</div>
+        </div>
+
+        <div id="profileMsg" class="msg"></div>
+
+        <h3 class="profile-section-title">
+          <i class="fas fa-user-edit"></i>
+          MODIFICA DATI ACCOUNT
+        </h3>
+
+        <form id="formProfile" onsubmit="handleUpdateProfile(event)">
+          <input type="hidden" id="userId">
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label><i class="fas fa-user"></i> Username</label>
+              <input type="text" id="profileUsername" required placeholder="username">
+            </div>
+
+            <div class="form-group">
+              <label><i class="fas fa-envelope"></i> Email</label>
+              <input type="email" id="profileEmail" required placeholder="email@example.com">
+            </div>
+
+            <div class="form-group">
+              <label><i class="fas fa-user-circle"></i> Nome Completo</label>
+              <input type="text" id="profileNomeCompleto" placeholder="es. Mario Rossi">
+            </div>
+
+            <div class="form-group">
+              <label><i class="fas fa-map-marker-alt"></i> Città</label>
+              <input type="text" id="profileCitta" placeholder="es. Milano">
+            </div>
+
+            <div class="form-group">
+              <label><i class="fas fa-comment"></i> Bio</label>
+              <textarea id="profileBio" placeholder="Raccontaci qualcosa di te..."></textarea>
+            </div>
+          </div>
+
+          <h3 class="profile-section-title" style="margin-top: 40px;">
+            <i class="fas fa-key"></i>
+            CAMBIA PASSWORD
+          </h3>
+
+          <div class="info-box">
+            <i class="fas fa-info-circle"></i>
+            Lascia vuoto se non vuoi cambiare la password
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label><i class="fas fa-lock"></i> Nuova Password</label>
+              <input type="password" id="profileNewPassword" minlength="6" placeholder="minimo 6 caratteri (opzionale)">
+            </div>
+
+            <div class="form-group">
+              <label><i class="fas fa-lock"></i> Conferma Nuova Password</label>
+              <input type="password" id="profileNewPasswordConfirm" minlength="6" placeholder="ripeti password">
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit">
+            <i class="fas fa-save"></i> SALVA MODIFICHE
+          </button>
+        </form>
+
+        <button class="btn-logout" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> LOGOUT
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <div class="footer-logo">NODO</div>
+    <div class="footer-text">La tua collezione Pokémon sempre con te</div>
+    <div class="footer-social">
+      <a href="#" class="footer-social-link"><i class="fab fa-instagram"></i></a>
+      <a href="#" class="footer-social-link"><i class="fab fa-twitter"></i></a>
+      <a href="#" class="footer-social-link"><i class="fab fa-discord"></i></a>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="js/config.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/menu.js"></script>
+  <script src="js/auth.js"></script>
+
+  <script>
+    // Proteggi pagina
+    requireAuth();
+
+    // Carica dati utente
+    window.addEventListener('DOMContentLoaded', async () => {
+      const user = getCurrentUser();
+      
+      // Carica dati completi da database
+      const { data, error } = await supabaseClient
+        .from('Utenti')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (data) {
+        document.getElementById('displayUsername').textContent = data.username;
+        document.getElementById('displayEmail').textContent = data.email;
+        document.getElementById('userId').value = data.id;
+        document.getElementById('profileUsername').value = data.username;
+        document.getElementById('profileEmail').value = data.email;
+        document.getElementById('profileNomeCompleto').value = data.nome_completo || '';
+        document.getElementById('profileCitta').value = data.citta || '';
+        document.getElementById('profileBio').value = data.bio || '';
+      }
+    });
+
+    async function handleUpdateProfile(e) {
+      e.preventDefault();
+      
+      const userId = document.getElementById('userId').value;
+      const username = document.getElementById('profileUsername').value;
+      const email = document.getElementById('profileEmail').value;
+      const nomeCompleto = document.getElementById('profileNomeCompleto').value;
+      const citta = document.getElementById('profileCitta').value;
+      const bio = document.getElementById('profileBio').value;
+      const newPassword = document.getElementById('profileNewPassword').value;
+      const newPasswordConfirm = document.getElementById('profileNewPasswordConfirm').value;
+      const msg = document.getElementById('profileMsg');
+      
+      // Verifica password
+      if (newPassword && newPassword !== newPasswordConfirm) {
+        msg.className = 'msg error';
+        msg.textContent = '❌ Le password non coincidono';
+        msg.style.display = 'block';
+        return;
+      }
+      
+      msg.className = 'msg info';
+      msg.textContent = '⏳ Salvataggio in corso...';
+      msg.style.display = 'block';
+      
+      const updates = {
+        username: username,
+        email: email,
+        nome_completo: nomeCompleto || null,
+        citta: citta || null,
+        bio: bio || null
+      };
+      
+      if (newPassword) {
+        updates.password = newPassword;
+      }
+      
+      const result = await updateProfile(userId, updates);
+      
+      if (result.success) {
+        msg.className = 'msg success';
+        msg.textContent = '✅ Profilo aggiornato con successo!';
+        
+        // Aggiorna visualizzazione
+        document.getElementById('displayUsername').textContent = result.user.username;
+        document.getElementById('displayEmail').textContent = result.user.email;
+        
+        // Pulisci campi password
+        document.getElementById('profileNewPassword').value = '';
+        document.getElementById('profileNewPasswordConfirm').value = '';
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        msg.className = 'msg error';
+        msg.textContent = '❌ ' + result.message;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  </script>
+</body>
+</html>
