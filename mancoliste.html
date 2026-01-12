@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mancoliste - NODO</title>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    .album-container {
+      perspective: 1500px;
+      margin: 40px auto;
+      max-width: 1200px;
+    }
+
+    .album-cover {
+      background: linear-gradient(135deg, #1f1f1f 0%, #0f0f0f 100%);
+      border-radius: 28px;
+      padding: 60px 40px;
+      text-align: center;
+      border: 4px solid #fbbf24;
+      box-shadow: 0 20px 80px rgba(251, 191, 36, 0.5);
+      cursor: pointer;
+      transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .album-cover::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(251, 191, 36, 0.1) 0%, transparent 70%);
+      animation: rotate 10s linear infinite;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .album-cover:hover {
+      transform: scale(1.05) rotateY(5deg);
+      box-shadow: 0 30px 100px rgba(251, 191, 36, 0.7);
+    }
+
+    .album-logo {
+      font-size: 120px;
+      margin-bottom: 30px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .album-title {
+      font-size: 48px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+    }
+
+    .album-subtitle {
+      font-size: 20px;
+      color: #9ca3af;
+      font-weight: 600;
+      margin-bottom: 40px;
+    }
+
+    .expansion-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .expansion-chip {
+      padding: 12px 24px;
+      border-radius: 20px;
+      background: #0a0a0a;
+      border: 2px solid #2a2a2a;
+      color: #9ca3af;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .expansion-chip:hover {
+      border-color: #fbbf24;
+      color: #fbbf24;
+      transform: translateY(-3px);
+    }
+
+    .expansion-chip.active {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      border-color: #fbbf24;
+      color: #000;
+      transform: scale(1.1);
+      box-shadow: 0 6px 20px rgba(251, 191, 36, 0.5);
+    }
+
+    .album-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 40px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #000;
+      font-size: 20px;
+      font-weight: 900;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 40px rgba(251, 191, 36, 0.5);
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .album-cta:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 60px rgba(251, 191, 36, 0.8);
+    }
+
+    #albumPages {
+      display: none;
+      background: linear-gradient(135deg, #1f1f1f 0%, #0f0f0f 100%);
+      border-radius: 28px;
+      padding: 40px;
+      border: 4px solid #fbbf24;
+      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.7);
+    }
+
+    #albumPages.active {
+      display: block;
+    }
+
+    .expansion-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #0a0a0a;
+      border-radius: 20px;
+      border: 2px solid #2a2a2a;
+    }
+
+    .expansion-nav-title {
+      text-align: center;
+      flex: 1;
+    }
+
+    .expansion-nav-code {
+      display: block;
+      font-size: 32px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .expansion-nav-name {
+      display: block;
+      font-size: 16px;
+      color: #9ca3af;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    .expansion-nav-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: #1a1a1a;
+      border: 2px solid #fbbf24;
+      color: #fbbf24;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .expansion-nav-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      border-color: #2a2a2a;
+      color: #6b7280;
+    }
+
+    .expansion-nav-btn:not(:disabled):hover {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #000;
+      transform: scale(1.1);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .card-slot {
+      aspect-ratio: 2.5 / 3.5;
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+      border-radius: 16px;
+      border: 3px solid #2a2a2a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #9ca3af;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      padding: 12px;
+    }
+
+    .card-slot:hover {
+      border-color: #fbbf24;
+      background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(251, 191, 36, 0.3);
+    }
+
+    .album-page-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .page-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: #1a1a1a;
+      border: 2px solid #fbbf24;
+      color: #fbbf24;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .page-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      border-color: #2a2a2a;
+      color: #6b7280;
+    }
+
+    .page-btn:not(:disabled):hover {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #000;
+      transform: scale(1.1);
+    }
+
+    .page-indicator {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fbbf24;
+    }
+
+    @media (max-width: 768px) {
+      .album-title { font-size: 32px; }
+      .album-logo { font-size: 80px; }
+      .cards-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="particles" id="particles"></div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>
+      <div class="header-logo">
+        <div class="header-logo-ring header-logo-ring-1"></div>
+        <div class="header-logo-ring header-logo-ring-2"></div>
+      </div>
+      <span class="title-gradient">MANCOLISTE</span>
+    </h1>
+  </div>
+
+  <!-- MENU NAVIGAZIONE -->
+  <div class="bottom-nav">
+    <button class="menu-main-btn" id="menuBtn" onclick="toggleMenu()">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="menu-items" id="menuItems"></div>
+  </div>
+
+  <!-- CONTENUTO PRINCIPALE -->
+  <div class="main-content">
+    <div class="album-container">
+      <div class="album-cover" onclick="openAlbum()">
+        <div class="album-logo">📖</div>
+        <h2 class="album-title">Album Collezione</h2>
+        <p class="album-subtitle">Tieni traccia delle tue carte mancanti</p>
+        
+        <div class="expansion-chips">
+          <span class="expansion-chip active" onclick="event.stopPropagation(); changeExpansion(0)">SVI</span>
+          <span class="expansion-chip" onclick="event.stopPropagation(); changeExpansion(1)">PAL</span>
+          <span class="expansion-chip" onclick="event.stopPropagation(); changeExpansion(2)">OBF</span>
+          <span class="expansion-chip" onclick="event.stopPropagation(); changeExpansion(3)">PAR</span>
+          <span class="expansion-chip" onclick="event.stopPropagation(); changeExpansion(4)">TEF</span>
+          <span class="expansion-chip" onclick="event.stopPropagation(); changeExpansion(5)">TWM</span>
+          <span class="expansion-chip" onclick="event.stopPropagation(); changeExpansion(6)">SHR</span>
+          <span class="expansion-chip" onclick="event.stopPropagation(); changeExpansion(7)">SCR</span>
+          <span class="expansion-chip" onclick="event.stopPropagation(); changeExpansion(8)">SSP</span>
+        </div>
+        
+        <button class="album-cta">
+          <i class="fas fa-book-open"></i>
+          APRI ALBUM
+        </button>
+      </div>
+
+      <div id="albumPages">
+        <div class="expansion-nav">
+          <button class="expansion-nav-btn" id="prevExpansion" onclick="prevExpansion()">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          
+          <div class="expansion-nav-title">
+            <span class="expansion-nav-code">SVI</span>
+            <span class="expansion-nav-name">Scarlatto e Violetto</span>
+          </div>
+          
+          <button class="expansion-nav-btn" id="nextExpansion" onclick="nextExpansion()">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+
+        <div class="cards-grid" id="cardsGrid"></div>
+
+        <div class="album-page-controls">
+          <button class="page-btn" id="prevPage" onclick="prevAlbumPage()">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <span class="page-indicator" id="pageIndicator">Pagina 1 di 1</span>
+          <button class="page-btn" id="nextPage" onclick="nextAlbumPage()">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <div class="footer-logo">NODO</div>
+    <div class="footer-text">La tua collezione Pokémon sempre con te</div>
+    <div class="footer-social">
+      <a href="#" class="footer-social-link"><i class="fab fa-instagram"></i></a>
+      <a href="#" class="footer-social-link"><i class="fab fa-twitter"></i></a>
+      <a href="#" class="footer-social-link"><i class="fab fa-discord"></i></a>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="js/common.js"></script>
+  <script src="js/menu.js"></script>
+  <script src="js/mancoliste.js"></script>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      updateExpansionNav();
+    });
+  </script>
+</body>
+</html>
