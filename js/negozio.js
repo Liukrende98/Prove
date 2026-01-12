@@ -1,5 +1,5 @@
 // ========================================
-// LOGICA IL TUO NEGOZIO
+// LOGICA IL TUO NEGOZIO - CON AUTENTICAZIONE E FOTO MULTIPLE
 // ========================================
 
 let currentPage = 1;
@@ -10,15 +10,15 @@ let currentChart = null;
 let currentChartColor = 'yellow';
 let stream = null;
 
-// ========== CARICAMENTO ARTICOLI ==========
+// ========== CARICAMENTO ARTICOLI (SOLO DELL'UTENTE LOGGATO) ==========
 async function caricaArticoli() {
   try {
-    const user = getCurrentUser(); // AGGIUNGI QUESTA RIGA
+    const user = getCurrentUser();
     
     const { data, error } = await supabaseClient
       .from("Articoli")
       .select("*")
-      .eq('user_id', user.id) // AGGIUNGI QUESTA RIGA
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
     
     if (error) throw error;
@@ -90,7 +90,7 @@ function renderArticles() {
       <div class="wip-container">
         <div class="wip-icon"><i class="fas fa-inbox"></i></div>
         <div class="wip-text">Nessun Articolo</div>
-        <div class="wip-subtext">Prova a modificare i filtri</div>
+        <div class="wip-subtext">Aggiungi il tuo primo articolo o modifica i filtri</div>
       </div>
     `;
     return;
@@ -106,9 +106,14 @@ function createArticleCard(article) {
     ? '<span class="badge presente"><i class="fas fa-check"></i> PRESENTE</span>' 
     : '<span class="badge assente"><i class="fas fa-times"></i> ASSENTE</span>';
   
-  const imagePlaceholder = article.image_url 
-    ? `<img src="${article.image_url}" alt="${article.Nome}">` 
+  const foto = article.foto_principale || article.image_url || '';
+  const imagePlaceholder = foto 
+    ? `<img src="${foto}" alt="${article.Nome}">` 
     : 'NESSUNA IMMAGINE';
+  
+  const vetrinaBadge = article.in_vetrina 
+    ? '<span class="badge presente" style="margin-top:8px;"><i class="fas fa-store"></i> IN VETRINA</span>' 
+    : '';
   
   return `
     <div class="article-card" id="card-${article.id}">
@@ -150,6 +155,13 @@ function createArticleCard(article) {
             <span class="article-label"><i class="fas fa-warehouse"></i> STATO</span>
             <span class="article-value">${presenteBadge}</span>
           </div>
+          ${article.in_vetrina ? `
+          <div class="article-row">
+            <span class="article-label"><i class="fas fa-tag"></i> PREZZO VENDITA</span>
+            <span class="article-value" style="color: #10b981; font-weight: 800;">${Number(article.prezzo_vendita || 0).toFixed(2)} €</span>
+          </div>
+          ` : ''}
+          ${vetrinaBadge}
           <div class="article-actions">
             <button class="btn-edit" onclick="apriModifica(${article.id})">
               <i class="fas fa-edit"></i> MODIFICA
@@ -391,15 +403,66 @@ function apriModifica(id) {
   document.getElementById('editPrezzoPagato').value = article.PrezzoPagato || '';
   document.getElementById('editStato').value = article.ValutazioneStato || '';
   document.getElementById('editPresente').checked = article.Presente || false;
-  document.getElementById('editCurrentImageUrl').value = article.image_url || '';
   
+  // Foto principale
+  document.getElementById('editCurrentImageUrl').value = article.foto_principale || article.image_url || '';
   const editPreview = document.getElementById('imagePreviewEdit');
-  if (article.image_url) {
-    editPreview.src = article.image_url;
+  if (article.foto_principale || article.image_url) {
+    editPreview.src = article.foto_principale || article.image_url;
     editPreview.style.display = 'block';
   } else {
     editPreview.style.display = 'none';
   }
+  
+  // Foto 2
+  document.getElementById('editCurrentImageUrl2').value = article.foto_2 || '';
+  if (article.foto_2) {
+    document.getElementById('imagePreviewEdit2').src = article.foto_2;
+    document.getElementById('imagePreviewEdit2').style.display = 'block';
+  } else {
+    document.getElementById('imagePreviewEdit2').style.display = 'none';
+  }
+  
+  // Foto 3
+  document.getElementById('editCurrentImageUrl3').value = article.foto_3 || '';
+  if (article.foto_3) {
+    document.getElementById('imagePreviewEdit3').src = article.foto_3;
+    document.getElementById('imagePreviewEdit3').style.display = 'block';
+  } else {
+    document.getElementById('imagePreviewEdit3').style.display = 'none';
+  }
+  
+  // Foto 4
+  document.getElementById('editCurrentImageUrl4').value = article.foto_4 || '';
+  if (article.foto_4) {
+    document.getElementById('imagePreviewEdit4').src = article.foto_4;
+    document.getElementById('imagePreviewEdit4').style.display = 'block';
+  } else {
+    document.getElementById('imagePreviewEdit4').style.display = 'none';
+  }
+  
+  // Foto 5
+  document.getElementById('editCurrentImageUrl5').value = article.foto_5 || '';
+  if (article.foto_5) {
+    document.getElementById('imagePreviewEdit5').src = article.foto_5;
+    document.getElementById('imagePreviewEdit5').style.display = 'block';
+  } else {
+    document.getElementById('imagePreviewEdit5').style.display = 'none';
+  }
+  
+  // Foto 6
+  document.getElementById('editCurrentImageUrl6').value = article.foto_6 || '';
+  if (article.foto_6) {
+    document.getElementById('imagePreviewEdit6').src = article.foto_6;
+    document.getElementById('imagePreviewEdit6').style.display = 'block';
+  } else {
+    document.getElementById('imagePreviewEdit6').style.display = 'none';
+  }
+  
+  // Vetrina
+  document.getElementById('editInVetrina').checked = article.in_vetrina || false;
+  document.getElementById('editPrezzoVendita').value = article.prezzo_vendita || '';
+  document.getElementById('prezzoVenditaGroupEdit').style.display = article.in_vetrina ? 'block' : 'none';
   
   calcolaDeltaEdit();
   
@@ -502,16 +565,39 @@ async function aggiungiArticolo(e) {
   const formData = new FormData(form);
   const valore = parseFloat(formData.get('ValoreAttuale'));
   const prezzo = parseFloat(formData.get('PrezzoPagato'));
-  const user = getCurrentUser(); // AGGIUNGI QUESTA RIGA
+  const user = getCurrentUser();
 
-  let imageUrl = null;
+  // Upload foto principale
+  let fotoPrincipale = null;
   const imageFile = document.getElementById('imageInput').files[0];
   if (imageFile) {
-    imageUrl = await uploadImage(imageFile);
+    fotoPrincipale = await uploadImage(imageFile);
   }
 
+  // Upload foto aggiuntive
+  let foto2 = null, foto3 = null, foto4 = null, foto5 = null, foto6 = null;
+  
+  const imageFile2 = document.getElementById('imageInput2').files[0];
+  if (imageFile2) foto2 = await uploadImage(imageFile2);
+  
+  const imageFile3 = document.getElementById('imageInput3').files[0];
+  if (imageFile3) foto3 = await uploadImage(imageFile3);
+  
+  const imageFile4 = document.getElementById('imageInput4').files[0];
+  if (imageFile4) foto4 = await uploadImage(imageFile4);
+  
+  const imageFile5 = document.getElementById('imageInput5').files[0];
+  if (imageFile5) foto5 = await uploadImage(imageFile5);
+  
+  const imageFile6 = document.getElementById('imageInput6').files[0];
+  if (imageFile6) foto6 = await uploadImage(imageFile6);
+
+  // Dati vetrina
+  const inVetrina = document.getElementById('inVetrinaAdd').checked;
+  const prezzoVendita = inVetrina ? parseFloat(document.getElementById('prezzoVenditaAdd').value) : null;
+
   const articolo = {
-    user_id: user.id, // AGGIUNGI QUESTA RIGA
+    user_id: user.id,
     Nome: formData.get('Nome'),
     Descrizione: formData.get('Descrizione') || null,
     Categoria: formData.get('Categoria') || null,
@@ -520,7 +606,15 @@ async function aggiungiArticolo(e) {
     Delta: valore - prezzo,
     ValutazioneStato: formData.get('ValutazioneStato') ? parseInt(formData.get('ValutazioneStato')) : null,
     Presente: formData.get('Presente') === 'on',
-    image_url: imageUrl
+    image_url: fotoPrincipale,
+    foto_principale: fotoPrincipale,
+    foto_2: foto2,
+    foto_3: foto3,
+    foto_4: foto4,
+    foto_5: foto5,
+    foto_6: foto6,
+    in_vetrina: inVetrina,
+    prezzo_vendita: prezzoVendita
   };
 
   const { error } = await supabaseClient.from('Articoli').insert([articolo]);
@@ -537,6 +631,11 @@ async function aggiungiArticolo(e) {
     form.reset();
     document.getElementById('deltaAdd').value = '';
     document.getElementById('imagePreviewAdd').style.display = 'none';
+    document.getElementById('imagePreviewAdd2').style.display = 'none';
+    document.getElementById('imagePreviewAdd3').style.display = 'none';
+    document.getElementById('imagePreviewAdd4').style.display = 'none';
+    document.getElementById('imagePreviewAdd5').style.display = 'none';
+    document.getElementById('imagePreviewAdd6').style.display = 'none';
     setTimeout(() => {
       closeAddModal();
       caricaArticoli();
@@ -551,12 +650,57 @@ async function salvaModifica(e) {
   const prezzo = parseFloat(formData.get('PrezzoPagato'));
   const id = document.getElementById('editId').value;
   
-  let imageUrl = document.getElementById('editCurrentImageUrl').value;
+  // Foto principale
+  let fotoPrincipale = document.getElementById('editCurrentImageUrl').value;
   const imageFile = document.getElementById('editImageInput').files[0];
   if (imageFile) {
     const newUrl = await uploadImage(imageFile);
-    if (newUrl) imageUrl = newUrl;
+    if (newUrl) fotoPrincipale = newUrl;
   }
+  
+  // Foto 2
+  let foto2 = document.getElementById('editCurrentImageUrl2').value;
+  const imageFile2 = document.getElementById('editImageInput2').files[0];
+  if (imageFile2) {
+    const newUrl = await uploadImage(imageFile2);
+    if (newUrl) foto2 = newUrl;
+  }
+  
+  // Foto 3
+  let foto3 = document.getElementById('editCurrentImageUrl3').value;
+  const imageFile3 = document.getElementById('editImageInput3').files[0];
+  if (imageFile3) {
+    const newUrl = await uploadImage(imageFile3);
+    if (newUrl) foto3 = newUrl;
+  }
+  
+  // Foto 4
+  let foto4 = document.getElementById('editCurrentImageUrl4').value;
+  const imageFile4 = document.getElementById('editImageInput4').files[0];
+  if (imageFile4) {
+    const newUrl = await uploadImage(imageFile4);
+    if (newUrl) foto4 = newUrl;
+  }
+  
+  // Foto 5
+  let foto5 = document.getElementById('editCurrentImageUrl5').value;
+  const imageFile5 = document.getElementById('editImageInput5').files[0];
+  if (imageFile5) {
+    const newUrl = await uploadImage(imageFile5);
+    if (newUrl) foto5 = newUrl;
+  }
+  
+  // Foto 6
+  let foto6 = document.getElementById('editCurrentImageUrl6').value;
+  const imageFile6 = document.getElementById('editImageInput6').files[0];
+  if (imageFile6) {
+    const newUrl = await uploadImage(imageFile6);
+    if (newUrl) foto6 = newUrl;
+  }
+  
+  // Vetrina
+  const inVetrina = document.getElementById('editInVetrina').checked;
+  const prezzoVendita = inVetrina ? parseFloat(document.getElementById('editPrezzoVendita').value) : null;
 
   const articolo = {
     Nome: formData.get('Nome'),
@@ -567,7 +711,15 @@ async function salvaModifica(e) {
     Delta: valore - prezzo,
     ValutazioneStato: formData.get('ValutazioneStato') ? parseInt(formData.get('ValutazioneStato')) : null,
     Presente: formData.get('Presente') === 'on',
-    image_url: imageUrl
+    image_url: fotoPrincipale,
+    foto_principale: fotoPrincipale,
+    foto_2: foto2 || null,
+    foto_3: foto3 || null,
+    foto_4: foto4 || null,
+    foto_5: foto5 || null,
+    foto_6: foto6 || null,
+    in_vetrina: inVetrina,
+    prezzo_vendita: prezzoVendita
   };
 
   const { error } = await supabaseClient.from('Articoli').update(articolo).eq('id', id);
@@ -613,12 +765,12 @@ async function eliminaArticolo() {
 
 // ========== GRAFICI ==========
 async function apriGrafico(tipo, colorTheme) {
-  const user = getCurrentUser(); // AGGIUNGI QUESTA RIGA
+  const user = getCurrentUser();
   
   const { data, error } = await supabaseClient
     .from("Articoli")
     .select("*")
-    .eq('user_id', user.id) // AGGIUNGI QUESTA RIGA
+    .eq('user_id', user.id)
     .order('created_at', { ascending: true });
   
   if (error || !data || data.length === 0) {
