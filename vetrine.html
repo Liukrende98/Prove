@@ -50,6 +50,11 @@
   border: 3px solid #fbbf24;
   box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
   animation: avatarPulse 2s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #0a0a0a;
 }
 
 @keyframes avatarPulse {
@@ -609,6 +614,243 @@
 
   .modal-gallery-grid {
     grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* FILTRO FIGO */
+.vetrine-filter {
+  margin: 20px 12px 0 12px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+  border-radius: 20px;
+  border: 2px solid rgba(251, 191, 36, 0.3);
+  overflow: hidden;
+  box-shadow: 0 6px 30px rgba(251, 191, 36, 0.2);
+}
+
+.filter-header {
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, transparent 100%);
+  border-bottom: 2px solid #fbbf24;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.filter-title {
+  font-size: 16px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-toggle-icon {
+  font-size: 14px;
+  color: #fbbf24;
+  transition: transform 0.3s ease;
+}
+
+.vetrine-filter.expanded .filter-toggle-icon {
+  transform: rotate(180deg);
+}
+
+.filter-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.vetrine-filter.expanded .filter-content {
+  max-height: 600px;
+}
+
+.filter-body {
+  padding: 16px;
+}
+
+.filter-group {
+  margin-bottom: 16px;
+}
+
+.filter-group:last-child {
+  margin-bottom: 0;
+}
+
+.filter-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 2px solid rgba(251, 191, 36, 0.3);
+  background: #0a0a0a;
+  color: #e5e7eb;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #fbbf24;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+}
+
+.filter-price-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.filter-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 2px solid rgba(251, 191, 36, 0.3);
+  background: #0a0a0a;
+  color: #e5e7eb;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: #fbbf24;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+}
+
+.filter-input::placeholder {
+  color: #6b7280;
+}
+
+.filter-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.filter-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(251, 191, 36, 0.05);
+  border-radius: 12px;
+  border: 2px solid rgba(251, 191, 36, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.filter-checkbox-item:active {
+  transform: scale(0.98);
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.filter-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: #fbbf24;
+  cursor: pointer;
+}
+
+.filter-checkbox-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e5e7eb;
+  cursor: pointer;
+  flex: 1;
+}
+
+.filter-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 2px solid rgba(251, 191, 36, 0.2);
+}
+
+.filter-btn {
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  font-size: 14px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.filter-btn-apply {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #0a0a0a;
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+}
+
+.filter-btn-apply:active {
+  transform: scale(0.97);
+  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
+}
+
+.filter-btn-reset {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 2px solid rgba(239, 68, 68, 0.3);
+}
+
+.filter-btn-reset:active {
+  transform: scale(0.97);
+  background: rgba(239, 68, 68, 0.25);
+}
+
+.filter-active-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: rgba(251, 191, 36, 0.2);
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fbbf24;
+}
+
+@media (max-width: 375px) {
+  .vetrine-filter {
+    margin: 15px 10px 0 10px;
+  }
+
+  .filter-header {
+    padding: 14px;
+  }
+
+  .filter-title {
+    font-size: 14px;
   }
 }
   </style>
