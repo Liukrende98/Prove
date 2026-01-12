@@ -13,9 +13,12 @@ let stream = null;
 // ========== CARICAMENTO ARTICOLI ==========
 async function caricaArticoli() {
   try {
+    const user = getCurrentUser(); // AGGIUNGI QUESTA RIGA
+    
     const { data, error } = await supabaseClient
       .from("Articoli")
       .select("*")
+      .eq('user_id', user.id) // AGGIUNGI QUESTA RIGA
       .order('created_at', { ascending: false });
     
     if (error) throw error;
@@ -499,6 +502,7 @@ async function aggiungiArticolo(e) {
   const formData = new FormData(form);
   const valore = parseFloat(formData.get('ValoreAttuale'));
   const prezzo = parseFloat(formData.get('PrezzoPagato'));
+  const user = getCurrentUser(); // AGGIUNGI QUESTA RIGA
 
   let imageUrl = null;
   const imageFile = document.getElementById('imageInput').files[0];
@@ -507,6 +511,7 @@ async function aggiungiArticolo(e) {
   }
 
   const articolo = {
+    user_id: user.id, // AGGIUNGI QUESTA RIGA
     Nome: formData.get('Nome'),
     Descrizione: formData.get('Descrizione') || null,
     Categoria: formData.get('Categoria') || null,
@@ -608,7 +613,13 @@ async function eliminaArticolo() {
 
 // ========== GRAFICI ==========
 async function apriGrafico(tipo, colorTheme) {
-  const { data, error } = await supabaseClient.from("Articoli").select("*").order('created_at', { ascending: true });
+  const user = getCurrentUser(); // AGGIUNGI QUESTA RIGA
+  
+  const { data, error } = await supabaseClient
+    .from("Articoli")
+    .select("*")
+    .eq('user_id', user.id) // AGGIUNGI QUESTA RIGA
+    .order('created_at', { ascending: true });
   
   if (error || !data || data.length === 0) {
     alert('⚠️ Nessun dato disponibile');
