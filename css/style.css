@@ -2173,3 +2173,70 @@ h1 {
     font-size: 15px;
   }
 }
+
+
+/* ========================================= */
+/* MENU OVERLAY BLUR - GLOBALE PER TUTTE LE PAGINE */
+/* ========================================= */
+
+/* Overlay Blur */
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menu-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Blur Content quando menu attivo */
+body.menu-active .main-content,
+body.menu-active .header,
+body.menu-active .add-btn-container,
+body.menu-active .dashboard,
+body.menu-active .filter-box,
+body.menu-active .articles-grid,
+body.menu-active .page-footer {
+  filter: blur(8px);
+  -webkit-filter: blur(8px);
+  pointer-events: none;
+  user-select: none;
+  transition: filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.menu-active {
+  overflow: hidden;
+}
+
+/* Menu Button Active State */
+.menu-main-btn.active {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  box-shadow: 0 6px 30px rgba(239, 68, 68, 0.6) !important;
+  transform: rotate(45deg);
+}
+
+.menu-main-btn.active i {
+  color: white;
+}
+
+/* Menu Items Animation */
+.menu-item {
+  opacity: 0;
+  transform: translateY(0);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menu-item.active {
+  opacity: 1;
+}
