@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
+  <title>Il Tuo Negozio - NODO</title>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Tesseract.js -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div class="particles" id="particles"></div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>
+      <div class="header-logo">
+        <div class="header-logo-ring header-logo-ring-1"></div>
+        <div class="header-logo-ring header-logo-ring-2"></div>
+      </div>
+      <span class="title-gradient">IL TUO NEGOZIO</span>
+    </h1>
+  </div>
+
+  <!-- MENU NAVIGAZIONE -->
+  <div class="bottom-nav">
+    <button class="menu-main-btn" id="menuBtn" onclick="toggleMenu()">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="menu-items" id="menuItems"></div>
+  </div>
+
+  <!-- BUTTON AGGIUNGI -->
+  <div class="add-btn-container visible" id="addBtnContainer">
+    <button class="btn-add-main" onclick="openAddModal()">
+      <i class="fas fa-plus"></i>
+    </button>
+  </div>
+
+  <!-- CONTENUTO PRINCIPALE -->
+  <div class="main-content">
+    <div class="dashboard" id="dashboard"></div>
+
+    <div class="filter-box">
+      <div class="filter-header" id="filterHeader" onclick="toggleFilters()">
+        <div class="filter-title">
+          <i class="fas fa-sliders-h"></i>
+          FILTRI
+        </div>
+        <button class="filter-toggle" id="filterToggle">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+
+      <div class="filter-content" id="filterContent">
+        <div class="filter-grid">
+          <div class="filter-group">
+            <label><i class="fas fa-search"></i> Cerca Nome</label>
+            <input type="text" id="fNome" placeholder="Es. Charizard, Pikachu...">
+          </div>
+
+          <div class="filter-group">
+            <label><i class="fas fa-tag"></i> Categoria</label>
+            <select id="fCategoria">
+              <option value="">Tutte le categorie</option>
+              <option value="Carta Singola">Carta Singola</option>
+              <option value="ETB">ETB</option>
+              <option value="Booster">Booster Pack</option>
+              <option value="Collection Box">Collection Box</option>
+              <option value="Altro">Altro</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="range-group">
+          <div class="range-header">
+            <div class="range-label">
+              <i class="fas fa-euro-sign"></i>
+              Valore Attuale
+            </div>
+            <div class="range-value" id="rangeValoreDisplay">0€ - 1000€</div>
+          </div>
+          <div class="range-slider-container">
+            <div class="range-track">
+              <div class="range-progress" id="rangeProgress"></div>
+            </div>
+            <input type="range" class="range-input" id="fValoreMin" min="0" max="1000" value="0" oninput="updateRangeSlider()">
+            <input type="range" class="range-input" id="fValoreMax" min="0" max="1000" value="1000" oninput="updateRangeSlider()">
+          </div>
+        </div>
+
+        <div class="range-group">
+          <div class="range-header">
+            <div class="range-label">
+              <i class="fas fa-star"></i>
+              Valutazione Minima
+            </div>
+            <div class="range-value" id="rangeStatoDisplay">Tutte</div>
+          </div>
+          <div class="filter-group">
+            <select id="fStato" onchange="updateStatoDisplay()">
+              <option value="">Tutte le valutazioni</option>
+              <option value="10">10⭐ (Mint)</option>
+              <option value="9">9⭐+ (Near Mint+)</option>
+              <option value="8">8⭐+ (Near Mint)</option>
+              <option value="7">7⭐+ (Eccellente)</option>
+              <option value="6">6⭐+ (Buona)</option>
+              <option value="5">5⭐+ (Cattiva)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="toggle-group">
+          <div class="toggle-option">
+            <input type="checkbox" id="fPresenti" checked>
+            <label for="fPresenti" class="toggle-label">
+              <i class="fas fa-check-circle"></i>
+              PRESENTI
+            </label>
+          </div>
+
+          <div class="toggle-option">
+            <input type="checkbox" id="fAssenti" checked>
+            <label for="fAssenti" class="toggle-label">
+              <i class="fas fa-times-circle"></i>
+              ASSENTI
+            </label>
+          </div>
+
+          <div class="toggle-option">
+            <input type="checkbox" id="fProfit" checked>
+            <label for="fProfit" class="toggle-label">
+              <i class="fas fa-arrow-up"></i>
+              PROFITTO
+            </label>
+          </div>
+
+          <div class="toggle-option">
+            <input type="checkbox" id="fLoss" checked>
+            <label for="fLoss" class="toggle-label">
+              <i class="fas fa-arrow-down"></i>
+              PERDITA
+            </label>
+          </div>
+        </div>
+
+        <div class="filter-actions">
+          <button class="btn-filter btn-apply" onclick="applicaFiltri()">
+            <i class="fas fa-filter"></i>
+            APPLICA
+          </button>
+          <button class="btn-filter btn-reset" onclick="resetFiltri()">
+            <i class="fas fa-redo"></i>
+            RESET
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pagination-container">
+      <div class="pagination-info">
+        Articolo <span id="pageStart">1</span>-<span id="pageEnd">10</span> di <span id="totalItems">0</span>
+      </div>
+      <div class="pagination-controls">
+        <button class="pagination-btn" id="prevBtn" onclick="previousPage()">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="pagination-btn" id="nextBtn" onclick="nextPage()">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="articles-grid" id="articlesGrid"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <div class="footer-logo">NODO</div>
+    <div class="footer-text">La tua collezione Pokémon sempre con te</div>
+    <div class="footer-social">
+      <a href="#" class="footer-social-link"><i class="fab fa-instagram"></i></a>
+      <a href="#" class="footer-social-link"><i class="fab fa-twitter"></i></a>
+      <a href="#" class="footer-social-link"><i class="fab fa-discord"></i></a>
+    </div>
+  </div>
+
+  <!-- MODAL AGGIUNGI -->
+  <div class="modal-add" id="modalAdd">
+    <div class="modal-add-content">
+      <div class="modal-header">
+        <h2 class="modal-title"><i class="fas fa-plus-circle"></i> Aggiungi Articolo</h2>
+        <button class="modal-close" onclick="closeAddModal()">✕</button>
+      </div>
+
+      <div id="addMsg" class="msg"></div>
+
+      <button type="button" class="btn-scan" onclick="alert('Scansione OCR - In sviluppo')">
+        <i class="fas fa-camera-retro"></i> ⚡ SCANSIONA CARTA ⚡
+      </button>
+
+      <div id="cameraContainer">
+        <video id="cameraView" autoplay playsinline></video>
+      </div>
+      
+      <canvas id="capturedCanvas"></canvas>
+      
+      <div id="scanMsg" class="msg"></div>
+
+      <div class="info-box">
+        <i class="fas fa-lightbulb"></i>
+        Il campo <strong>Guadagno/Perdita</strong> viene calcolato automaticamente
+      </div>
+
+      <form id="formAdd" onsubmit="aggiungiArticolo(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label><i class="fas fa-image"></i> Immagine Carta</label>
+            <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd')">
+            <img id="imagePreviewAdd" class="image-preview" style="display:none;">
+          </div>
+        
+          <div class="form-group">
+            <label><i class="fas fa-bolt"></i> Nome Carta *</label>
+            <input type="text" name="Nome" id="nomeInput" required placeholder="Es. Charizard ex">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-layer-group"></i> Categoria</label>
+            <input type="text" name="Categoria" id="categoriaInput" placeholder="Es. Carta Singola">
+          </div>
+
+         <div class="form-group">
+            <label><i class="fas fa-scroll"></i> Descrizione / Espansione</label>
+            <textarea name="Descrizione" id="descrizioneInput" placeholder="Es. SVI - Scarlatto e Violetto Base"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-gem"></i> Valore Attuale (€) *</label>
+            <input type="number" name="ValoreAttuale" id="valoreAttualeAdd" step="0.01" required oninput="calcolaDeltaAdd()" placeholder="Es. 50.00">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-receipt"></i> Prezzo Pagato (€) *</label>
+            <input type="number" name="PrezzoPagato" id="prezzoPagatoAdd" step="0.01" required oninput="calcolaDeltaAdd()" placeholder="Es. 30.00">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-chart-line"></i> Guadagno/Perdita (€)</label>
+            <input type="text" id="deltaAdd" readonly placeholder="Calcolato automaticamente" style="background: #1a1a1a; cursor: not-allowed; color: #10b981; font-weight: 700;">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-star"></i> Valutazione Stato (1-10)</label>
+            <input type="number" name="ValutazioneStato" min="1" max="10" placeholder="Da 1 (Cattive) a 10 (Mint)">
+          </div>
+
+          <div class="form-group">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" name="Presente" id="presenteAdd" checked>
+              <span><i class="fas fa-warehouse"></i> Articolo Presente</span>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit">
+          <i class="fas fa-save"></i> SALVA ARTICOLO
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL MODIFICA -->
+  <div class="modal-edit" id="modalEdit">
+    <div class="modal-edit-content">
+      <div class="modal-header">
+        <h2 class="modal-title"><i class="fas fa-edit"></i> Modifica Articolo</h2>
+        <button class="modal-close" onclick="closeEditModal()">✕</button>
+      </div>
+
+      <div id="editMsg" class="msg"></div>
+
+      <form id="formEdit" onsubmit="salvaModifica(event)">
+        <input type="hidden" id="editId">
+        <input type="hidden" id="editCurrentImageUrl">
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label><i class="fas fa-image"></i> Immagine Carta</label>
+            <input type="file" id="editImageInput" accept="image/*" onchange="previewImage(this, 'imagePreviewEdit')">
+            <img id="imagePreviewEdit" class="image-preview" style="display:none;">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-bolt"></i> Nome Carta *</label>
+            <input type="text" name="Nome" id="editNome" required>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-layer-group"></i> Categoria</label>
+            <input type="text" name="Categoria" id="editCategoria">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-scroll"></i> Descrizione / Espansione</label>
+            <textarea name="Descrizione" id="editDescrizione"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-gem"></i> Valore Attuale (€) *</label>
+            <input type="number" name="ValoreAttuale" id="editValoreAttuale" step="0.01" required oninput="calcolaDeltaEdit()">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-receipt"></i> Prezzo Pagato (€) *</label>
+            <input type="number" name="PrezzoPagato" id="editPrezzoPagato" step="0.01" required oninput="calcolaDeltaEdit()">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-chart-line"></i> Guadagno/Perdita (€)</label>
+            <input type="text" id="editDelta" readonly style="background: #1a1a1a; cursor: not-allowed; color: #10b981; font-weight: 700;">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-star"></i> Valutazione Stato (1-10)</label>
+            <input type="number" name="ValutazioneStato" id="editStato" min="1" max="10">
+          </div>
+
+          <div class="form-group">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" name="Presente" id="editPresente">
+              <span><i class="fas fa-warehouse"></i> Articolo Presente</span>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit">
+          <i class="fas fa-save"></i> SALVA MODIFICHE
+        </button>
+
+        <button type="button" class="btn-delete" onclick="eliminaArticolo()">
+          <i class="fas fa-trash"></i> ELIMINA ARTICOLO
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL GRAFICO -->
+  <div class="modal-graph" id="modalGraph">
+    <div class="modal-graph-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="graphTitle"><i class="fas fa-chart-line"></i> GRAFICO</h2>
+        <button class="modal-close" onclick="closeGraphModal()">✕</button>
+      </div>
+      <div class="chart-container">
+        <canvas id="chartCanvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="js/config.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/menu.js"></script>
+  <script src="js/negozio.js"></script>
+
+  <script>
+    // Inizializza
+    window.addEventListener('DOMContentLoaded', () => {
+      updateRangeSlider();
+      caricaArticoli();
+    });
+  </script>
+</body>
+</html>
