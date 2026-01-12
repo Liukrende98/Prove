@@ -1601,8 +1601,8 @@ function openModalDettaglioOptimized(articolo) {
   if (articolo.Foto5) immagini.push(articolo.Foto5);
   
   const disponibile = articolo.Presente === true;
-  const badgeClass = disponibile ? 'badge-disponibile' : 'badge-non-disponibile';
-  const badgeText = disponibile ? '<i class="fas fa-check"></i> DISPONIBILE' : '<i class="fas fa-times"></i> NON DISPONIBILE';
+  const badgeClass = disponibile ? 'disponibile' : 'non-disponibile';
+  const badgeText = disponibile ? '<i class="fas fa-check"></i> DISPONIBILE IN MAGAZZINO' : '<i class="fas fa-times"></i> NON DISPONIBILE';
   
   const modalHtml = `
     <div class="modal-dettaglio-backdrop" id="modalDettaglio" onclick="closeModalDettaglio(event)">
@@ -1645,31 +1645,31 @@ function openModalDettaglioOptimized(articolo) {
             `}
           </div>
           
-          <div class="modal-badge-container">
-            <div class="product-availability-badge-modal ${badgeClass}">
+          <div class="modal-content-section">
+            <div class="modal-badge-disponibilita ${badgeClass}">
               ${badgeText}
             </div>
-          </div>
-          
-          <div class="modal-price-big">
-            <div class="modal-price-label">
-              <i class="fas fa-tag"></i> PREZZO
+            
+            <div class="modal-price-mega">
+              <div class="modal-price-label">
+                <i class="fas fa-tag"></i> PREZZO
+              </div>
+              <div class="modal-price-value">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
             </div>
-            <div class="modal-price-value">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
+            
+            ${createModalInfoBox(articolo)}
+            
+            ${articolo.Descrizione ? `
+              <div class="modal-description-box">
+                <h4><i class="fas fa-align-left"></i> DESCRIZIONE</h4>
+                <p>${articolo.Descrizione}</p>
+              </div>
+            ` : ''}
+            
+            <button class="modal-contact-mega-btn" onclick="contattaVenditore('${articolo.Utenti?.username || 'Venditore'}', '${articolo.Utenti?.email || ''}', '${articolo.Nome || 'Prodotto'}')">
+              <i class="fas fa-envelope"></i> CONTATTA VENDITORE
+            </button>
           </div>
-          
-          ${createModalInfo(articolo)}
-          
-          ${articolo.Descrizione ? `
-            <div class="modal-description">
-              <h4><i class="fas fa-align-left"></i> DESCRIZIONE</h4>
-              <p>${articolo.Descrizione}</p>
-            </div>
-          ` : ''}
-          
-          <button class="modal-contact-btn" onclick="contattaVenditore('${articolo.Utenti?.username || 'Venditore'}', '${articolo.Utenti?.email || ''}', '${articolo.Nome || 'Prodotto'}')">
-            <i class="fas fa-envelope"></i> CONTATTA VENDITORE
-          </button>
         </div>
       </div>
     </div>
@@ -1683,7 +1683,7 @@ function openModalDettaglioOptimized(articolo) {
   }
 }
 
-function createModalInfo(articolo) {
+function createModalInfoBox(articolo) {
   const fields = [];
   
   if (articolo.Categoria) fields.push({icon: 'fa-tag', label: 'Categoria', value: articolo.Categoria});
@@ -1697,13 +1697,13 @@ function createModalInfo(articolo) {
   if (fields.length === 0) return '';
   
   return `
-    <div class="modal-info-section">
-      <div class="modal-info-section-title">
+    <div class="modal-info-box">
+      <div class="modal-info-title">
         <i class="fas fa-info-circle"></i> INFORMAZIONI
       </div>
       <div class="modal-info-grid">
         ${fields.map(f => `
-          <div class="modal-info-item">
+          <div class="modal-info-row">
             <div class="modal-info-label"><i class="fas ${f.icon}"></i> ${f.label}</div>
             <div class="modal-info-value">${f.value}</div>
           </div>
