@@ -6,6 +6,7 @@
 let allArticoli = [];
 let currentFilters = {
   nome: '',
+  venditore: '',
   set: 'all',
   categoria: 'all',
   prezzoMin: '',
@@ -177,10 +178,11 @@ function getSets() {
 function getActiveFiltersCount() {
   let count = 0;
   if (currentFilters.nome !== '') count++;
+  if (currentFilters.venditore !== '') count++;
   if (currentFilters.set !== 'all') count++;
   if (currentFilters.categoria !== 'all') count++;
-  if (currentFilters.prezzoMin !== '') count++;
-  if (currentFilters.prezzoMax !== '') count++;
+  if (currentFilters.prezzoMin !== '' && currentFilters.prezzoMin > 0) count++;
+  if (currentFilters.prezzoMax !== '' && currentFilters.prezzoMax < 10000) count++;
   if (currentFilters.disponibili) count++;
   if (currentFilters.ratingMin > 0) count++;
   return count;
@@ -1040,4 +1042,789 @@ function setupGallerySwipe() {
       prevImage();
     }
   }
+}
+// ============================================
+// VETRINE NODO - AGGIUNTE E OTTIMIZZAZIONI
+// ============================================
+
+// Variabili globali per carousel
+let carouselIndices = {}; // userId -> currentIndex
+
+// MODIFICA createVetrinaCard per aggiungere recensioni e carousel
+function createVetrinaCardNew(userId, username, citta, disponibili, acquisti, mediaRecensioni, percentualeRecensioni, articoli) {
+  // Inizializza indice carousel
+  carouselIndices[userId] = 0;
+  
+  // Recensioni venditore (sempre 10/10)
+  const reviewStars = '⭐'.repeat(10);
+  
+  return `
+    <div class="vetrina-card-big" id="vetrina-${userId}">
+      <div class="vetrina-header" onclick="toggleVetrinaNew('${userId}')">
+        <div class="vetrina-top">
+          <div class="vetrina-avatar">
+            <i class="fas fa-store"></i>
+          </div>
+          <div class="vetrina-info">
+            <h3>
+              <span class="vetrina-username">${username}</span>
+              <span class="vetrina-expand-icon">▼</span>
+            </h3>
+            <p><i class="fas fa-map-marker-alt"></i> ${citta}</p>
+            <div class="vetrina-rating">
+              <i class="fas fa-box-open"></i> ${articoli.length} articol${articoli.length === 1 ? 'o' : 'i'}
+            </div>
+            <div class="vetrina-seller-reviews">
+              <div class="vetrina-stars">${reviewStars}</div>
+              <div class="vetrina-review-score">10/10</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="vetrina-stats-inline">
+        <div class="vetrina-stat-inline">
+          <i class="fas fa-check-circle"></i>
+          <span class="vetrina-stat-inline-value">${disponibili}</span> disponibili
+        </div>
+        <div class="vetrina-stat-inline">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="vetrina-stat-inline-value">${acquisti}</span> acquisti
+        </div>
+        <div class="vetrina-stat-inline">
+          <i class="fas fa-star"></i>
+          <span class="vetrina-stat-inline-value">${mediaRecensioni}/10</span> (${percentualeRecensioni}%)
+        </div>
+      </div>
+      
+      <div class="vetrina-products-scroll" style="position: relative;" data-user-id="${userId}">
+        <div class="vetrina-products-container">
+          ${articoli.map(art => createArticoloCard(art)).join('')}
+        </div>
+        ${articoli.length > 2 ? '<div class="scroll-indicator" id="scroll-indicator-' + userId + '">SCORRI <i class="fas fa-chevron-right"></i></div>' : ''}
+      </div>
+      
+      <div class="vetrina-products-expanded">
+        <div class="vetrina-products-carousel" id="carousel-${userId}">
+          ${createCarouselProduct(articoli[0])}
+        </div>
+        ${articoli.length > 1 ? `
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevCarouselProduct('${userId}')" id="carousel-prev-${userId}">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="carousel-counter">
+              <span id="carousel-counter-${userId}">1</span> / ${articoli.length}
+            </div>
+            <button class="carousel-btn" onclick="nextCarouselProduct('${userId}')" id="carousel-next-${userId}">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
+// CREA PRODOTTO GRANDE CAROUSEL
+function createCarouselProduct(articolo) {
+  const disponibile = articolo.Presente === true;
+  const badgeClass = disponibile ? 'badge-disponibile' : 'badge-non-disponibile';
+  const badgeText = disponibile ? 'DISPONIBILE' : 'NON DISPONIBILE';
+  const badgeIcon = disponibile ? 'fa-check' : 'fa-times';
+  
+  const immagine = articolo.Foto1 || articolo.Foto2 || articolo.Foto3 || articolo.Foto4 || articolo.Foto5;
+  
+  return `
+    <div class="carousel-product-big" onclick='openModalDettaglioOptimized(${JSON.stringify(articolo).replace(/'/g, "&apos;")})'>
+      <div class="carousel-product-image">
+        ${immagine ? `<img src="${immagine}" alt="${articolo.Nome || 'Prodotto'}">` : 
+        `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;">
+          <i class="fas fa-image" style="font-size:60px;"></i>
+        </div>`}
+        <div class="product-availability-badge ${badgeClass}">
+          <i class="fas ${badgeIcon}"></i> ${badgeText}
+        </div>
+        ${articolo.ValutazioneStato ? `
+          <div class="vetrina-product-rating">
+            <i class="fas fa-star"></i> ${articolo.ValutazioneStato}/10
+          </div>
+        ` : ''}
+      </div>
+      <div class="carousel-product-info">
+        <div class="carousel-product-name">${articolo.Nome || 'Prodotto'}</div>
+        <div class="carousel-product-category">${articolo.Categoria || 'N/D'}</div>
+        <div class="carousel-product-price">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
+      </div>
+    </div>
+  `;
+}
+
+// TOGGLE ESPANSIONE VETRINA
+function toggleVetrinaNew(userId) {
+  const vetrina = document.getElementById(`vetrina-${userId}`);
+  if (vetrina) {
+    vetrina.classList.toggle('expanded');
+    
+    // Reset indice quando si richiude
+    if (!vetrina.classList.contains('expanded')) {
+      carouselIndices[userId] = 0;
+    }
+  }
+}
+
+// CAROUSEL NAVIGATION
+function nextCarouselProduct(userId) {
+  const vetrina = allArticoli.filter(a => a.user_id === userId);
+  if (!vetrina.length) return;
+  
+  const currentIndex = carouselIndices[userId] || 0;
+  if (currentIndex < vetrina.length - 1) {
+    carouselIndices[userId] = currentIndex + 1;
+    updateCarousel(userId, vetrina);
+  }
+}
+
+function prevCarouselProduct(userId) {
+  const currentIndex = carouselIndices[userId] || 0;
+  if (currentIndex > 0) {
+    carouselIndices[userId] = currentIndex - 1;
+    const vetrina = allArticoli.filter(a => a.user_id === userId);
+    updateCarousel(userId, vetrina);
+  }
+}
+
+function updateCarousel(userId, articoli) {
+  const currentIndex = carouselIndices[userId];
+  const carousel = document.getElementById(`carousel-${userId}`);
+  const counter = document.getElementById(`carousel-counter-${userId}`);
+  const prevBtn = document.getElementById(`carousel-prev-${userId}`);
+  const nextBtn = document.getElementById(`carousel-next-${userId}`);
+  
+  if (carousel) {
+    carousel.innerHTML = createCarouselProduct(articoli[currentIndex]);
+  }
+  
+  if (counter) {
+    counter.textContent = currentIndex + 1;
+  }
+  
+  if (prevBtn) {
+    prevBtn.disabled = currentIndex === 0;
+  }
+  
+  if (nextBtn) {
+    nextBtn.disabled = currentIndex === articoli.length - 1;
+  }
+}
+
+// SCROLL INDICATOR - SCOMPARE PERMANENTEMENTE
+function setupScrollIndicatorsOptimized() {
+  setTimeout(() => {
+    const scrollContainers = document.querySelectorAll('.vetrina-products-scroll');
+    scrollContainers.forEach((scrollContainer) => {
+      const userId = scrollContainer.getAttribute('data-user-id');
+      const indicator = document.getElementById(`scroll-indicator-${userId}`);
+      
+      if (indicator) {
+        let hasScrolled = false;
+        
+        scrollContainer.addEventListener('scroll', () => {
+          if (!hasScrolled && scrollContainer.scrollLeft > 20) {
+            hasScrolled = true;
+            indicator.classList.add('hidden');
+            
+            // Rimuovi dopo animazione
+            setTimeout(() => {
+              if (indicator && indicator.parentNode) {
+                indicator.remove();
+              }
+            }, 300);
+          }
+        });
+      }
+    });
+  }, 100);
+}
+
+// PRICE RANGE SLIDER
+let priceMin = 0;
+let priceMax = 1000;
+
+function initPriceRangeSlider() {
+  const minInput = document.getElementById('priceRangeMin');
+  const maxInput = document.getElementById('priceRangeMax');
+  const minValue = document.getElementById('priceMinValue');
+  const maxValue = document.getElementById('priceMaxValue');
+  const fill = document.getElementById('priceRangeFill');
+  
+  if (!minInput || !maxInput) return;
+  
+  // Trova max prezzo
+  const maxPrice = Math.max(...allArticoli.map(a => parseFloat(a.prezzo_vendita) || 0));
+  priceMax = Math.ceil(maxPrice / 100) * 100 || 1000;
+  
+  minInput.max = priceMax;
+  maxInput.max = priceMax;
+  maxInput.value = priceMax;
+  
+  function updateSlider() {
+    const min = parseInt(minInput.value);
+    const max = parseInt(maxInput.value);
+    
+    // Evita sovrapposizione
+    if (min >= max - 10) {
+      if (this === minInput) {
+        minInput.value = max - 10;
+      } else {
+        maxInput.value = min + 10;
+      }
+    }
+    
+    priceMin = parseInt(minInput.value);
+    priceMax = parseInt(maxInput.value);
+    
+    minValue.textContent = `${priceMin}€`;
+    maxValue.textContent = `${priceMax}€`;
+    
+    // Aggiorna fill
+    const percentMin = (priceMin / maxInput.max) * 100;
+    const percentMax = (priceMax / maxInput.max) * 100;
+    fill.style.left = `${percentMin}%`;
+    fill.style.right = `${100 - percentMax}%`;
+  }
+  
+  minInput.addEventListener('input', updateSlider);
+  maxInput.addEventListener('input', updateSlider);
+  
+  // Init
+  updateSlider();
+}
+
+// FILTRO MINIMIZZATO/SCROLL LISTENER
+let filterMinimized = false;
+
+window.addEventListener('scroll', () => {
+  const filterElement = document.getElementById('vetrineFilter');
+  if (!filterElement) return;
+  
+  const filterRect = filterElement.getBoundingClientRect();
+  
+  // Minimizza se filtro è fuori schermo verso l'alto
+  if (filterRect.bottom < -50 && !filterMinimized) {
+    filterElement.classList.add('minimized');
+    filterElement.classList.remove('expanded');
+    filterMinimized = true;
+  } else if (filterRect.top > -200 && filterMinimized) {
+    filterElement.classList.remove('minimized');
+    filterMinimized = false;
+  }
+});
+
+// CLICK SU FILTRO MINIMIZZATO
+function handleFilterClick() {
+  const filterElement = document.getElementById('vetrineFilter');
+  if (!filterElement) return;
+  
+  if (filterElement.classList.contains('minimized')) {
+    // Scroll al filtro
+    filterElement.classList.remove('minimized');
+    filterMinimized = false;
+    filterElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+    setTimeout(() => {
+      if (!filterElement.classList.contains('expanded')) {
+        filterElement.classList.add('expanded');
+      }
+    }, 500);
+  } else {
+    // Toggle espansione
+    toggleFilter();
+  }
+}
+
+// AGGIORNA createFilterHtml per includere cerca venditore e price slider
+function createFilterHtmlNew() {
+  const categorie = getCategorie();
+  const sets = getSets();
+  const activeFiltersCount = getActiveFiltersCount();
+  
+  return `
+    <div class="vetrine-filter" id="vetrineFilter">
+      <div class="filter-header" onclick="handleFilterClick()">
+        <div class="filter-title">
+          <i class="fas fa-filter"></i> FILTRI E RICERCA
+          ${activeFiltersCount > 0 ? `<span class="filter-active-badge"><i class="fas fa-check"></i> ${activeFiltersCount}</span>` : ''}
+        </div>
+        <i class="fas fa-chevron-down filter-toggle-icon"></i>
+      </div>
+      <div class="filter-content">
+        <div class="filter-body">
+          <div class="filter-group">
+            <div class="filter-label"><i class="fas fa-search"></i> Cerca Carta/Articolo</div>
+            <input type="text" class="filter-input" id="filterNome" placeholder="es. Charizard, Pikachu, UPC...">
+          </div>
+          
+          <div class="filter-group">
+            <div class="filter-label"><i class="fas fa-user"></i> Cerca Venditore</div>
+            <input type="text" class="filter-input" id="filterVenditore" placeholder="Nome venditore...">
+          </div>
+          
+          <div class="filter-group">
+            <div class="filter-label"><i class="fas fa-layer-group"></i> Set/Espansione</div>
+            <select class="filter-select" id="filterSet">
+              <option value="all">Tutti i set</option>
+              ${sets.map(set => `<option value="${set}">${set}</option>`).join('')}
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <div class="filter-label"><i class="fas fa-tags"></i> Categoria</div>
+            <select class="filter-select" id="filterCategoria">
+              <option value="all">Tutte le categorie</option>
+              ${categorie.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <div class="filter-label"><i class="fas fa-euro-sign"></i> Fascia di Prezzo</div>
+            <div class="price-range-slider">
+              <div class="price-range-values">
+                <div class="price-value" id="priceMinValue">0€</div>
+                <div class="price-value" id="priceMaxValue">1000€</div>
+              </div>
+              <div class="price-range-track">
+                <div class="price-range-fill" id="priceRangeFill"></div>
+              </div>
+              <div class="price-range-inputs">
+                <input type="range" class="price-range-input" id="priceRangeMin" min="0" max="1000" value="0" step="5">
+                <input type="range" class="price-range-input" id="priceRangeMax" min="0" max="1000" value="1000" step="5">
+              </div>
+            </div>
+          </div>
+          
+          <div class="filter-group">
+            <div class="filter-label"><i class="fas fa-star"></i> Valutazione Minima</div>
+            <select class="filter-select" id="filterRating">
+              <option value="0">Tutte</option>
+              <option value="5">5+ ⭐</option>
+              <option value="6">6+ ⭐</option>
+              <option value="7">7+ ⭐</option>
+              <option value="8">8+ ⭐</option>
+              <option value="9">9+ ⭐</option>
+              <option value="10">10 ⭐ (Perfetto)</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <div class="filter-label"><i class="fas fa-box"></i> Disponibilità</div>
+            <div class="filter-checkboxes">
+              <label class="filter-checkbox-item">
+                <input type="checkbox" class="filter-checkbox" id="filterDisponibili">
+                <span class="filter-checkbox-label">Solo disponibili in magazzino</span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="filter-actions">
+            <button class="filter-btn filter-btn-reset" onclick="resetFiltersNew()">
+              <i class="fas fa-redo"></i> Reset
+            </button>
+            <button class="filter-btn filter-btn-apply" onclick="applyFiltersNew()">
+              <i class="fas fa-check"></i> Applica
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="vetrineList"></div>
+  `;
+}
+
+// SOSTITUISCE renderVetrine per usare nuovo design
+const renderVetrineOriginal = renderVetrine;
+renderVetrine = function(articoli) {
+  const container = document.getElementById('vetrineList');
+  
+  if (!articoli || articoli.length === 0) {
+    let messaggioFiltri = '';
+    if (currentFilters.nome !== '') {
+      messaggioFiltri = `Nessuna carta trovata per "${currentFilters.nome}"`;
+    } else if (getActiveFiltersCount() > 0) {
+      messaggioFiltri = 'Nessun articolo corrisponde ai filtri';
+    } else {
+      messaggioFiltri = 'Nessun articolo disponibile';
+    }
+    
+    container.innerHTML = `
+      <div class="wip-container" style="margin-top: 20px;">
+        <div class="wip-icon"><i class="fas fa-search"></i></div>
+        <div class="wip-text">${messaggioFiltri}</div>
+        <div class="wip-subtext">Prova a modificare i filtri o la ricerca</div>
+      </div>
+    `;
+    return;
+  }
+  
+  // Raggruppa articoli per utente
+  const articoliPerUtente = {};
+  articoli.forEach(art => {
+    const userId = art.user_id;
+    if (!articoliPerUtente[userId]) {
+      articoliPerUtente[userId] = {
+        username: art.Utenti?.username || 'Utente',
+        citta: art.Utenti?.citta || 'Italia',
+        email: art.Utenti?.email || '',
+        articoli: []
+      };
+    }
+    articoliPerUtente[userId].articoli.push(art);
+  });
+  
+  // Filtra per venditore se specificato
+  const venditoreFiltro = currentFilters.venditore || '';
+  if (venditoreFiltro) {
+    Object.keys(articoliPerUtente).forEach(userId => {
+      const userData = articoliPerUtente[userId];
+      if (!userData.username.toLowerCase().includes(venditoreFiltro.toLowerCase())) {
+        delete articoliPerUtente[userId];
+      }
+    });
+  }
+  
+  // Crea array di vetrine
+  const vetrine = [];
+  Object.entries(articoliPerUtente).forEach(([userId, userData]) => {
+    const disponibili = userData.articoli.filter(a => a.Presente).length;
+    const articoliConRecensione = userData.articoli.filter(a => a.ValutazioneStato && a.ValutazioneStato > 0);
+    const mediaRecensioni = articoliConRecensione.length > 0
+      ? (articoliConRecensione.reduce((sum, a) => sum + a.ValutazioneStato, 0) / articoliConRecensione.length).toFixed(1)
+      : 0;
+    const percentualeRecensioni = userData.articoli.length > 0 
+      ? Math.round((articoliConRecensione.length / userData.articoli.length) * 100)
+      : 0;
+    const acquisti = 0;
+    
+    vetrine.push({
+      userId,
+      username: userData.username,
+      citta: userData.citta,
+      disponibili,
+      acquisti,
+      mediaRecensioni,
+      percentualeRecensioni,
+      articoli: userData.articoli
+    });
+  });
+  
+  // PAGINAZIONE
+  const totalPages = Math.ceil(vetrine.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const vetrinePaginate = vetrine.slice(startIndex, endIndex);
+  
+  // Crea HTML vetrine
+  let html = '';
+  vetrinePaginate.forEach(v => {
+    html += createVetrinaCardNew(
+      v.userId,
+      v.username,
+      v.citta,
+      v.disponibili,
+      v.acquisti,
+      v.mediaRecensioni,
+      v.percentualeRecensioni,
+      v.articoli
+    );
+  });
+  
+  // Aggiungi paginazione
+  if (totalPages > 1) {
+    html += `
+      <div class="vetrine-pagination">
+        <button class="pagination-btn" onclick="changePage(-1)" ${currentPage === 1 ? 'disabled' : ''}>
+          <i class="fas fa-chevron-left"></i> Indietro
+        </button>
+        <div class="pagination-info">
+          Pagina <span>${currentPage}</span> di <span>${totalPages}</span>
+        </div>
+        <button class="pagination-btn" onclick="changePage(1)" ${currentPage === totalPages ? 'disabled' : ''}>
+          Avanti <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    `;
+  }
+  
+  container.innerHTML = html;
+  
+  // Setup scroll indicators ottimizzati
+  setupScrollIndicatorsOptimized();
+};
+
+// SOSTITUISCE createFilterHtml
+const createFilterHtmlOriginal = createFilterHtml;
+createFilterHtml = createFilterHtmlNew;
+
+// SOSTITUISCE applyFilters per usare price slider e venditore
+const applyFiltersOriginal = applyFilters;
+applyFilters = function(closeFilter = true) {
+  currentFilters.nome = document.getElementById('filterNome').value.toLowerCase().trim();
+  currentFilters.venditore = document.getElementById('filterVenditore')?.value.toLowerCase().trim() || '';
+  currentFilters.set = document.getElementById('filterSet').value;
+  currentFilters.categoria = document.getElementById('filterCategoria').value;
+  currentFilters.prezzoMin = priceMin;
+  currentFilters.prezzoMax = priceMax;
+  currentFilters.disponibili = document.getElementById('filterDisponibili').checked;
+  currentFilters.ratingMin = parseInt(document.getElementById('filterRating').value) || 0;
+  currentPage = 1;
+  
+  let articoliFiltrati = allArticoli.filter(art => {
+    if (currentFilters.nome !== '') {
+      const nomeArticolo = (art.Nome || '').toLowerCase();
+      const descrizione = (art.Descrizione || '').toLowerCase();
+      const set = (art.Set || '').toLowerCase();
+      const espansione = (art.Espansione || '').toLowerCase();
+      
+      if (!nomeArticolo.includes(currentFilters.nome) && 
+          !descrizione.includes(currentFilters.nome) &&
+          !set.includes(currentFilters.nome) &&
+          !espansione.includes(currentFilters.nome)) {
+        return false;
+      }
+    }
+    
+    if (currentFilters.set !== 'all') {
+      if (art.Set !== currentFilters.set && art.Espansione !== currentFilters.set) {
+        return false;
+      }
+    }
+    
+    if (currentFilters.categoria !== 'all' && art.Categoria !== currentFilters.categoria) {
+      return false;
+    }
+    
+    const prezzo = parseFloat(art.prezzo_vendita) || 0;
+    if (prezzo < currentFilters.prezzoMin || prezzo > currentFilters.prezzoMax) {
+      return false;
+    }
+    
+    if (currentFilters.disponibili && !art.Presente) {
+      return false;
+    }
+    
+    if (currentFilters.ratingMin > 0 && (art.ValutazioneStato || 0) < currentFilters.ratingMin) {
+      return false;
+    }
+    
+    return true;
+  });
+  
+  console.log(`🔍 Filtrati: ${articoliFiltrati.length}/${allArticoli.length} articoli`);
+  
+  renderVetrine(articoliFiltrati);
+  
+  if (closeFilter) {
+    const filterElement = document.getElementById('vetrineFilter');
+    if (filterElement && filterElement.classList.contains('expanded')) {
+      filterElement.classList.remove('expanded');
+    }
+  }
+  
+  const filterHeader = document.querySelector('.filter-header');
+  if (filterHeader) {
+    filterHeader.innerHTML = `
+      <div class="filter-title">
+        <i class="fas fa-filter"></i> FILTRI E RICERCA
+        ${getActiveFiltersCount() > 0 ? `<span class="filter-active-badge"><i class="fas fa-check"></i> ${getActiveFiltersCount()}</span>` : ''}
+      </div>
+      <i class="fas fa-chevron-down filter-toggle-icon"></i>
+    `;
+  }
+};
+
+function resetFiltersNew() {
+  currentFilters = {
+    nome: '',
+    venditore: '',
+    set: 'all',
+    categoria: 'all',
+    prezzoMin: 0,
+    prezzoMax: 1000,
+    disponibili: false,
+    ratingMin: 0
+  };
+  currentPage = 1;
+  
+  document.getElementById('filterNome').value = '';
+  if (document.getElementById('filterVenditore')) {
+    document.getElementById('filterVenditore').value = '';
+  }
+  document.getElementById('filterSet').value = 'all';
+  document.getElementById('filterCategoria').value = 'all';
+  document.getElementById('filterDisponibili').checked = false;
+  document.getElementById('filterRating').value = '0';
+  
+  // Reset slider
+  priceMin = 0;
+  priceMax = Math.ceil(Math.max(...allArticoli.map(a => parseFloat(a.prezzo_vendita) || 0)) / 100) * 100 || 1000;
+  if (document.getElementById('priceRangeMin')) {
+    document.getElementById('priceRangeMin').value = 0;
+    document.getElementById('priceRangeMax').value = priceMax;
+    initPriceRangeSlider();
+  }
+  
+  renderVetrine(allArticoli);
+  
+  const filterHeader = document.querySelector('.filter-header');
+  if (filterHeader) {
+    filterHeader.innerHTML = `
+      <div class="filter-title">
+        <i class="fas fa-filter"></i> FILTRI E RICERCA
+      </div>
+      <i class="fas fa-chevron-down filter-toggle-icon"></i>
+    `;
+  }
+}
+
+function applyFiltersNew() {
+  applyFilters(true);
+}
+
+// Init price slider dopo caricamento filtro
+const loadVetrineContentOriginal = loadVetrineContent;
+loadVetrineContent = async function() {
+  await loadVetrineContentOriginal();
+  setTimeout(() => {
+    initPriceRangeSlider();
+  }, 500);
+};
+
+// MODAL DETTAGLIO OTTIMIZZATO
+function openModalDettaglioOptimized(articolo) {
+  currentModalArticolo = articolo;
+  currentGalleryIndex = 0;
+  
+  const immagini = [];
+  if (articolo.Foto1) immagini.push(articolo.Foto1);
+  if (articolo.Foto2) immagini.push(articolo.Foto2);
+  if (articolo.Foto3) immagini.push(articolo.Foto3);
+  if (articolo.Foto4) immagini.push(articolo.Foto4);
+  if (articolo.Foto5) immagini.push(articolo.Foto5);
+  
+  const disponibile = articolo.Presente === true;
+  const badgeClass = disponibile ? 'badge-disponibile' : 'badge-non-disponibile';
+  const badgeText = disponibile ? '<i class="fas fa-check"></i> DISPONIBILE' : '<i class="fas fa-times"></i> NON DISPONIBILE';
+  
+  const modalHtml = `
+    <div class="modal-dettaglio-backdrop" id="modalDettaglio" onclick="closeModalDettaglio(event)">
+      <div class="modal-dettaglio-content" onclick="event.stopPropagation()">
+        <div class="modal-header-sticky">
+          <h3 class="modal-title-big">${articolo.Nome || 'Dettaglio Prodotto'}</h3>
+          <button class="modal-close-btn" onclick="closeModalDettaglio()">✕</button>
+        </div>
+        
+        <div class="modal-body-scroll">
+          <div class="modal-gallery-swipe" id="gallerySwipe">
+            ${immagini.length > 0 ? `
+              <div class="gallery-container" id="galleryContainer">
+                ${immagini.map((img, index) => `
+                  <div class="gallery-slide">
+                    <img src="${img}" alt="Foto ${index + 1}">
+                  </div>
+                `).join('')}
+              </div>
+              
+              ${immagini.length > 1 ? `
+                <button class="gallery-nav-btn gallery-nav-prev" onclick="prevImage()">
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="gallery-nav-btn gallery-nav-next" onclick="nextImage()">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+                
+                <div class="gallery-dots">
+                  ${immagini.map((_, index) => `
+                    <div class="gallery-dot ${index === 0 ? 'active' : ''}" onclick="goToImage(${index})"></div>
+                  `).join('')}
+                </div>
+              ` : ''}
+            ` : `
+              <div class="gallery-placeholder">
+                <i class="fas fa-image"></i>
+                <p>Nessuna immagine</p>
+              </div>
+            `}
+          </div>
+          
+          <div class="modal-badge-container">
+            <div class="product-availability-badge-modal ${badgeClass}">
+              ${badgeText}
+            </div>
+          </div>
+          
+          <div class="modal-price-big">
+            <div class="modal-price-label">
+              <i class="fas fa-tag"></i> PREZZO
+            </div>
+            <div class="modal-price-value">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
+          </div>
+          
+          ${createModalInfo(articolo)}
+          
+          ${articolo.Descrizione ? `
+            <div class="modal-description">
+              <h4><i class="fas fa-align-left"></i> DESCRIZIONE</h4>
+              <p>${articolo.Descrizione}</p>
+            </div>
+          ` : ''}
+          
+          <button class="modal-contact-btn" onclick="contattaVenditore('${articolo.Utenti?.username || 'Venditore'}', '${articolo.Utenti?.email || ''}', '${articolo.Nome || 'Prodotto'}')">
+            <i class="fas fa-envelope"></i> CONTATTA VENDITORE
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+  document.body.style.overflow = 'hidden';
+  
+  if (immagini.length > 1) {
+    setupGallerySwipe();
+  }
+}
+
+function createModalInfo(articolo) {
+  const fields = [];
+  
+  if (articolo.Categoria) fields.push({icon: 'fa-tag', label: 'Categoria', value: articolo.Categoria});
+  if (articolo.Set) fields.push({icon: 'fa-layer-group', label: 'Set', value: articolo.Set});
+  if (articolo.Espansione) fields.push({icon: 'fa-boxes', label: 'Espansione', value: articolo.Espansione});
+  if (articolo.Numero) fields.push({icon: 'fa-hashtag', label: 'Numero', value: articolo.Numero});
+  if (articolo.Rarita) fields.push({icon: 'fa-gem', label: 'Rarità', value: articolo.Rarita});
+  if (articolo.ValutazioneStato) fields.push({icon: 'fa-star', label: 'Valutazione', value: `${articolo.ValutazioneStato}/10`});
+  if (articolo.Lingua) fields.push({icon: 'fa-language', label: 'Lingua', value: articolo.Lingua});
+  
+  if (fields.length === 0) return '';
+  
+  return `
+    <div class="modal-info-section">
+      <div class="modal-info-section-title">
+        <i class="fas fa-info-circle"></i> INFORMAZIONI
+      </div>
+      <div class="modal-info-grid">
+        ${fields.map(f => `
+          <div class="modal-info-item">
+            <div class="modal-info-label"><i class="fas ${f.icon}"></i> ${f.label}</div>
+            <div class="modal-info-value">${f.value}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function goToImage(index) {
+  currentGalleryIndex = index;
+  updateGallery();
 }
