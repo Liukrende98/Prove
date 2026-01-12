@@ -1052,12 +1052,9 @@ window.carouselIndices = {}; // userId -> currentIndex
 
 // MODIFICA createVetrinaCard per aggiungere recensioni e carousel
 function createVetrinaCardNew(userId, username, citta, disponibili, acquisti, mediaRecensioni, percentualeRecensioni, articoli) {
-  // Inizializza indice carousel
-  window.carouselIndices[userId] = 0;
-  
   return `
     <div class="vetrina-card-big" id="vetrina-${userId}">
-      <div class="vetrina-header" onclick="toggleVetrinaNew('${userId}')">
+      <div class="vetrina-header" onclick="toggleVetrinaExpand('${userId}')">
         <div class="vetrina-top">
           <div class="vetrina-avatar">
             <i class="fas fa-store"></i>
@@ -1090,124 +1087,21 @@ function createVetrinaCardNew(userId, username, citta, disponibili, acquisti, me
         </div>
       </div>
       
-      <div class="vetrina-products-scroll" style="position: relative;" data-user-id="${userId}">
+      <div class="vetrina-products-scroll" data-user-id="${userId}">
         <div class="vetrina-products-container">
           ${articoli.map(art => createArticoloCard(art)).join('')}
         </div>
         ${articoli.length > 2 ? '<div class="scroll-indicator" id="scroll-indicator-' + userId + '">SCORRI <i class="fas fa-chevron-right"></i></div>' : ''}
       </div>
-      
-      <div class="vetrina-products-expanded">
-        <div class="vetrina-products-carousel" id="carousel-${userId}">
-          ${createCarouselProduct(articoli[0])}
-        </div>
-        ${articoli.length > 1 ? `
-          <div class="carousel-nav">
-            <button class="carousel-btn" onclick="prevCarouselProduct('${userId}')" id="carousel-prev-${userId}">
-              <i class="fas fa-chevron-left"></i>
-            </button>
-            <div class="carousel-counter">
-              <span id="carousel-counter-${userId}">1</span> / ${articoli.length}
-            </div>
-            <button class="carousel-btn" onclick="nextCarouselProduct('${userId}')" id="carousel-next-${userId}">
-              <i class="fas fa-chevron-right"></i>
-            </button>
-          </div>
-        ` : ''}
-      </div>
     </div>
   `;
 }
 
-// CREA PRODOTTO GRANDE CAROUSEL
-function createCarouselProduct(articolo) {
-  const disponibile = articolo.Presente === true;
-  const badgeClass = disponibile ? 'badge-disponibile' : 'badge-non-disponibile';
-  const badgeText = disponibile ? 'DISPONIBILE' : 'NON DISPONIBILE';
-  const badgeIcon = disponibile ? 'fa-check' : 'fa-times';
-  
-  const immagine = articolo.Foto1 || articolo.Foto2 || articolo.Foto3 || articolo.Foto4 || articolo.Foto5;
-  
-  return `
-    <div class="carousel-product-big" onclick='openModalDettaglioOptimized(${JSON.stringify(articolo).replace(/'/g, "&apos;")})'>
-      <div class="carousel-product-image">
-        ${immagine ? `<img src="${immagine}" alt="${articolo.Nome || 'Prodotto'}">` : 
-        `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;">
-          <i class="fas fa-image" style="font-size:60px;"></i>
-        </div>`}
-        <div class="product-availability-badge ${badgeClass}">
-          <i class="fas ${badgeIcon}"></i> ${badgeText}
-        </div>
-        ${articolo.ValutazioneStato ? `
-          <div class="vetrina-product-rating">
-            <i class="fas fa-star"></i> ${articolo.ValutazioneStato}/10
-          </div>
-        ` : ''}
-      </div>
-      <div class="carousel-product-info">
-        <div class="carousel-product-name">${articolo.Nome || 'Prodotto'}</div>
-        <div class="carousel-product-category">${articolo.Categoria || 'N/D'}</div>
-        <div class="carousel-product-price">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
-      </div>
-    </div>
-  `;
-}
-
-// TOGGLE ESPANSIONE VETRINA
-function toggleVetrinaNew(userId) {
+// TOGGLE ESPANSIONE - INGRANDISCE ARTICOLI NELLA SCROLL
+function toggleVetrinaExpand(userId) {
   const vetrina = document.getElementById(`vetrina-${userId}`);
   if (vetrina) {
     vetrina.classList.toggle('expanded');
-    
-    // Reset indice quando si richiude
-    if (!vetrina.classList.contains('expanded')) {
-      window.carouselIndices[userId] = 0;
-    }
-  }
-}
-
-// CAROUSEL NAVIGATION
-function nextCarouselProduct(userId) {
-  const vetrina = allArticoli.filter(a => a.user_id === userId);
-  if (!vetrina.length) return;
-  
-  const currentIndex = window.carouselIndices[userId] || 0;
-  if (currentIndex < vetrina.length - 1) {
-    window.carouselIndices[userId] = currentIndex + 1;
-    updateCarousel(userId, vetrina);
-  }
-}
-
-function prevCarouselProduct(userId) {
-  const currentIndex = window.carouselIndices[userId] || 0;
-  if (currentIndex > 0) {
-    window.carouselIndices[userId] = currentIndex - 1;
-    const vetrina = allArticoli.filter(a => a.user_id === userId);
-    updateCarousel(userId, vetrina);
-  }
-}
-
-function updateCarousel(userId, articoli) {
-  const currentIndex = window.carouselIndices[userId];
-  const carousel = document.getElementById(`carousel-${userId}`);
-  const counter = document.getElementById(`carousel-counter-${userId}`);
-  const prevBtn = document.getElementById(`carousel-prev-${userId}`);
-  const nextBtn = document.getElementById(`carousel-next-${userId}`);
-  
-  if (carousel) {
-    carousel.innerHTML = createCarouselProduct(articoli[currentIndex]);
-  }
-  
-  if (counter) {
-    counter.textContent = currentIndex + 1;
-  }
-  
-  if (prevBtn) {
-    prevBtn.disabled = currentIndex === 0;
-  }
-  
-  if (nextBtn) {
-    nextBtn.disabled = currentIndex === articoli.length - 1;
   }
 }
 
@@ -1827,15 +1721,3 @@ function goToImage(index) {
 // OVERRIDE FUNZIONI - VERSIONE PULITA
 
 // ============================================
-// DEBUG E VERIFICA FUNZIONI GLOBALI
-// ============================================
-console.log('✅ Vetrine JS caricato');
-console.log('🔍 Funzioni disponibili:', {
-  createVetrinaCardNew: typeof createVetrinaCardNew,
-  createCarouselProduct: typeof createCarouselProduct,
-  toggleVetrinaNew: typeof toggleVetrinaNew,
-  nextCarouselProduct: typeof nextCarouselProduct,
-  prevCarouselProduct: typeof prevCarouselProduct,
-  updateCarousel: typeof updateCarousel,
-  openModalDettaglioOptimized: typeof openModalDettaglioOptimized
-});
