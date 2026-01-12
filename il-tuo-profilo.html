@@ -21,7 +21,14 @@
       padding: 20px;
     }
 
-    /* RIMOSSO IL BOX - CONTENUTO LIBERO */
+    .profile-card {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+      border-radius: 28px;
+      padding: 40px;
+      border: 3px solid #3b82f6;
+      box-shadow: 0 20px 80px rgba(59, 130, 246, 0.4);
+      margin-bottom: 30px;
+    }
 
     .profile-header {
       text-align: center;
@@ -32,27 +39,27 @@
       width: 120px;
       height: 120px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      border: 5px solid #fbbf24;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      border: 5px solid #3b82f6;
       margin: 0 auto 20px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 48px;
-      color: #0a0a0a;
-      box-shadow: 0 0 40px rgba(251, 191, 36, 0.6);
+      color: #fff;
+      box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
       animation: profilePulse 2s ease-in-out infinite;
     }
 
     @keyframes profilePulse {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(251, 191, 36, 0.6); }
-      50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(251, 191, 36, 0.9); }
+      0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(59, 130, 246, 0.6); }
+      50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(59, 130, 246, 0.9); }
     }
 
     .profile-name {
       font-size: 32px;
       font-weight: 900;
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -69,7 +76,7 @@
     .profile-section-title {
       font-size: 20px;
       font-weight: 800;
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -132,15 +139,16 @@
   <!-- CONTENUTO PRINCIPALE -->
   <div class="main-content">
     <div class="profile-container">
-      <div class="profile-header">
-        <div class="profile-avatar-big">
-          <i class="fas fa-user"></i>
+      <div class="profile-card">
+        <div class="profile-header">
+          <div class="profile-avatar-big">
+            <i class="fas fa-user"></i>
+          </div>
+          <h2 class="profile-name" id="displayUsername">Caricamento...</h2>
+          <div class="profile-email" id="displayEmail">caricamento@example.com</div>
         </div>
-        <h2 class="profile-name" id="displayUsername">Caricamento...</h2>
-        <div class="profile-email" id="displayEmail">caricamento...</div>
-      </div>
 
-      <div id="profileMsg" class="msg"></div>
+        <div id="profileMsg" class="msg"></div>
 
         <h3 class="profile-section-title">
           <i class="fas fa-user-edit"></i>
@@ -207,6 +215,7 @@
         <button class="btn-logout" onclick="logout()">
           <i class="fas fa-sign-out-alt"></i> LOGOUT
         </button>
+      </div>
     </div>
   </div>
 
@@ -233,53 +242,24 @@
 
     // Carica dati utente
     window.addEventListener('DOMContentLoaded', async () => {
-      try {
-        const user = getCurrentUser();
-        
-        console.log('User:', user);
-        
-        if (!user || !user.id) {
-          console.error('Nessun utente loggato');
-          document.getElementById('displayUsername').textContent = 'Errore';
-          document.getElementById('displayEmail').textContent = 'Utente non trovato';
-          return;
-        }
-        
-        // Carica dati completi da database
-        const { data, error } = await supabaseClient
-          .from('Utenti')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        
-        console.log('Data:', data);
-        console.log('Error:', error);
-        
-        if (error) {
-          console.error('Errore caricamento dati:', error);
-          document.getElementById('displayUsername').textContent = user.username || 'Errore';
-          document.getElementById('displayEmail').textContent = user.email || 'Errore caricamento';
-          return;
-        }
-        
-        if (data) {
-          document.getElementById('displayUsername').textContent = data.username;
-          document.getElementById('displayEmail').textContent = data.email;
-          document.getElementById('userId').value = data.id;
-          document.getElementById('profileUsername').value = data.username;
-          document.getElementById('profileEmail').value = data.email;
-          document.getElementById('profileNomeCompleto').value = data.nome_completo || '';
-          document.getElementById('profileCitta').value = data.citta || '';
-          document.getElementById('profileBio').value = data.bio || '';
-        } else {
-          console.error('Nessun dato ricevuto');
-          document.getElementById('displayUsername').textContent = 'Nessun dato';
-          document.getElementById('displayEmail').textContent = 'Nessun dato disponibile';
-        }
-      } catch (err) {
-        console.error('Errore generale:', err);
-        document.getElementById('displayUsername').textContent = 'Errore';
-        document.getElementById('displayEmail').textContent = 'Si è verificato un errore';
+      const user = getCurrentUser();
+      
+      // Carica dati completi da database
+      const { data, error } = await supabaseClient
+        .from('Utenti')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (data) {
+        document.getElementById('displayUsername').textContent = data.username;
+        document.getElementById('displayEmail').textContent = data.email;
+        document.getElementById('userId').value = data.id;
+        document.getElementById('profileUsername').value = data.username;
+        document.getElementById('profileEmail').value = data.email;
+        document.getElementById('profileNomeCompleto').value = data.nome_completo || '';
+        document.getElementById('profileCitta').value = data.citta || '';
+        document.getElementById('profileBio').value = data.bio || '';
       }
     });
 
@@ -334,7 +314,7 @@
         document.getElementById('profileNewPassword').value = '';
         document.getElementById('profileNewPasswordConfirm').value = '';
         
-        window.scrollTo({        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         msg.className = 'msg error';
         msg.textContent = '❌ ' + result.message;
