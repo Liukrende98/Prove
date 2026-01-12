@@ -39,16 +39,46 @@ const menuStructure = {
   }
 };
 
+// Crea overlay blur una volta sola
+function createMenuOverlay() {
+  if (document.getElementById('menuOverlay')) return;
+  
+  const overlay = document.createElement('div');
+  overlay.id = 'menuOverlay';
+  overlay.className = 'menu-overlay';
+  overlay.onclick = () => toggleMenu(); // Chiudi menu se clicchi sull'overlay
+  
+  document.body.appendChild(overlay);
+}
+
 function toggleMenu() {
   menuOpen = !menuOpen;
   const menuBtn = document.getElementById('menuBtn');
   const menuItems = document.getElementById('menuItems');
+  const mainContent = document.querySelector('.main-content');
+  const header = document.querySelector('.header');
+  const addBtnContainer = document.querySelector('.add-btn-container');
+  const overlay = document.getElementById('menuOverlay');
   
   menuBtn.classList.toggle('active');
   
   if (menuOpen) {
+    // Apri menu
+    document.body.classList.add('menu-active');
+    if (overlay) overlay.classList.add('active');
+    if (mainContent) mainContent.classList.add('blur-content');
+    if (header) header.classList.add('blur-content');
+    if (addBtnContainer) addBtnContainer.classList.add('blur-content');
+    
     loadMenu();
   } else {
+    // Chiudi menu
+    document.body.classList.remove('menu-active');
+    if (overlay) overlay.classList.remove('active');
+    if (mainContent) mainContent.classList.remove('blur-content');
+    if (header) header.classList.remove('blur-content');
+    if (addBtnContainer) addBtnContainer.classList.remove('blur-content');
+    
     menuItems.innerHTML = '';
   }
 }
@@ -136,3 +166,8 @@ function loadSubmenu(parentKey, submenu) {
   
   menuItems.appendChild(backItem);
 }
+
+// Inizializza overlay al caricamento della pagina
+window.addEventListener('DOMContentLoaded', () => {
+  createMenuOverlay();
+});
