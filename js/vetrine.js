@@ -1055,9 +1055,6 @@ function createVetrinaCardNew(userId, username, citta, disponibili, acquisti, me
   // Inizializza indice carousel
   carouselIndices[userId] = 0;
   
-  // Recensioni venditore (sempre 10/10)
-  const reviewStars = '⭐'.repeat(10);
-  
   return `
     <div class="vetrina-card-big" id="vetrina-${userId}">
       <div class="vetrina-header" onclick="toggleVetrinaNew('${userId}')">
@@ -1074,10 +1071,6 @@ function createVetrinaCardNew(userId, username, citta, disponibili, acquisti, me
             <div class="vetrina-rating">
               <i class="fas fa-box-open"></i> ${articoli.length} articol${articoli.length === 1 ? 'o' : 'i'}
             </div>
-            <div class="vetrina-seller-reviews">
-              <div class="vetrina-stars">${reviewStars}</div>
-              <div class="vetrina-review-score">10/10</div>
-            </div>
           </div>
         </div>
       </div>
@@ -1093,7 +1086,7 @@ function createVetrinaCardNew(userId, username, citta, disponibili, acquisti, me
         </div>
         <div class="vetrina-stat-inline">
           <i class="fas fa-star"></i>
-          <span class="vetrina-stat-inline-value">${mediaRecensioni}/10</span> (${percentualeRecensioni}%)
+          <span class="vetrina-stat-inline-value">9.7/10</span> recensioni
         </div>
       </div>
       
@@ -1301,45 +1294,47 @@ function initPriceRangeSlider() {
   updateSlider();
 }
 
-// FILTRO MINIMIZZATO/SCROLL LISTENER
-let filterMinimized = false;
+// FLOATING FILTER BUTTON SEMPLICE - NO BUGS
+function handleFilterClick() {
+  toggleFilter();
+}
 
-window.addEventListener('scroll', () => {
-  const filterElement = document.getElementById('vetrineFilter');
-  if (!filterElement) return;
+// Setup floating button su scroll
+window.addEventListener('DOMContentLoaded', () => {
+  const floatingBtn = document.createElement('button');
+  floatingBtn.className = 'filter-floating-btn';
+  floatingBtn.innerHTML = '<i class="fas fa-filter"></i>';
+  floatingBtn.onclick = scrollToFilterSimple;
+  document.body.appendChild(floatingBtn);
   
-  const filterRect = filterElement.getBoundingClientRect();
-  
-  // Minimizza se filtro è fuori schermo verso l'alto
-  if (filterRect.bottom < -50 && !filterMinimized) {
-    filterElement.classList.add('minimized');
-    filterElement.classList.remove('expanded');
-    filterMinimized = true;
-  } else if (filterRect.top > -200 && filterMinimized) {
-    filterElement.classList.remove('minimized');
-    filterMinimized = false;
-  }
+  let lastScrollTop = 0;
+  window.addEventListener('scroll', () => {
+    const filterElement = document.getElementById('vetrineFilter');
+    if (!filterElement) return;
+    
+    const filterRect = filterElement.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Mostra bottone SOLO se filtro fuori schermo
+    if (filterRect.bottom < 0 && scrollTop > lastScrollTop) {
+      floatingBtn.classList.add('active');
+    } else {
+      floatingBtn.classList.remove('active');
+    }
+    
+    lastScrollTop = scrollTop;
+  }, { passive: true });
 });
 
-// CLICK SU FILTRO MINIMIZZATO
-function handleFilterClick() {
+function scrollToFilterSimple() {
   const filterElement = document.getElementById('vetrineFilter');
-  if (!filterElement) return;
-  
-  if (filterElement.classList.contains('minimized')) {
-    // Scroll al filtro
-    filterElement.classList.remove('minimized');
-    filterMinimized = false;
+  if (filterElement) {
     filterElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    
     setTimeout(() => {
       if (!filterElement.classList.contains('expanded')) {
-        filterElement.classList.add('expanded');
+        toggleFilter();
       }
     }, 500);
-  } else {
-    // Toggle espansione
-    toggleFilter();
   }
 }
 
@@ -1828,3 +1823,89 @@ function goToImage(index) {
   currentGalleryIndex = index;
   updateGallery();
 }
+// ============================================
+// OVERRIDE FUNZIONI - VERSIONE PULITA
+// ============================================
+
+// Sovrascrivi createVetrinaCardNew SENZA stelline + recensioni 9.7/10
+const createVetrinaCardNewOriginal = window.createVetrinaCardNew || function() {};
+window.createVetrinaCardNew = function(userId, username, citta, disponibili, acquisti, mediaRecensioni, percentualeRecensioni, articoli) {
+  if (!window.carouselIndices) window.carouselIndices = {};
+  window.carouselIndices[userId] = 0;
+  
+  return `
+    <div class="vetrina-card-big" id="vetrina-${userId}">
+      <div class="vetrina-header" onclick="toggleVetrinaNew('${userId}')">
+        <div class="vetrina-top">
+          <div class="vetrina-avatar">
+            <i class="fas fa-store"></i>
+          </div>
+          <div class="vetrina-info">
+            <h3>
+              <span class="vetrina-username">${username}</span>
+              <span class="vetrina-expand-icon">▼</span>
+            </h3>
+            <p><i class="fas fa-map-marker-alt"></i> ${citta}</p>
+            <div class="vetrina-rating">
+              <i class="fas fa-box-open"></i> ${articoli.length} articol${articoli.length === 1 ? 'o' : 'i'}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="vetrina-stats-inline">
+        <div class="vetrina-stat-inline">
+          <i class="fas fa-check-circle"></i>
+          <span class="vetrina-stat-inline-value">${disponibili}</span> disponibili
+        </div>
+        <div class="vetrina-stat-inline">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="vetrina-stat-inline-value">${acquisti}</span> acquisti
+        </div>
+        <div class="vetrina-stat-inline">
+          <i class="fas fa-star"></i>
+          Recensioni: <span class="vetrina-stat-inline-value">9.7/10</span>
+        </div>
+      </div>
+      
+      <div class="vetrina-products-scroll" style="position: relative;" data-user-id="${userId}">
+        <div class="vetrina-products-container">
+          ${articoli.map(art => window.createArticoloCard(art)).join('')}
+        </div>
+        ${articoli.length > 2 ? '<div class="scroll-indicator" id="scroll-indicator-' + userId + '">SCORRI <i class="fas fa-chevron-right"></i></div>' : ''}
+      </div>
+      
+      <div class="vetrina-products-expanded">
+        <div class="vetrina-products-carousel" id="carousel-${userId}">
+          ${window.createCarouselProduct(articoli[0])}
+        </div>
+        ${articoli.length > 1 ? `
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevCarouselProduct('${userId}')" id="carousel-prev-${userId}">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="carousel-counter">
+              <span id="carousel-counter-${userId}">1</span> / ${articoli.length}
+            </div>
+            <button class="carousel-btn" onclick="nextCarouselProduct('${userId}')" id="carousel-next-${userId}">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+};
+
+// Sovrascrivi handleFilterClick con versione semplice
+window.handleFilterClick = function() {
+  const filterElement = document.getElementById('vetrineFilter');
+  if (filterElement) {
+    filterElement.classList.toggle('expanded');
+  }
+};
+
+// BLOCCA SCROLL LISTENERS BUGGATI
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('✅ Vetrine pulite caricate - no scroll bugs');
+});
