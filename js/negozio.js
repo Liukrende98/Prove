@@ -47,34 +47,57 @@ function renderDashboard() {
   const deltaPercent = prezzoPagato > 0 ? ((delta / prezzoPagato) * 100) : 0;
   
   dashboard.innerHTML = `
-    <div class="stat-card yellow" onclick="apriGrafico('totale', 'yellow')">
+    <div class="stat-card" onclick="toggleDashboardCard(this, 'totale')">
       <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
       <div class="stat-label">Totale Articoli</div>
       <div class="stat-value">${totale}</div>
       <div class="stat-subtext">nel negozio</div>
     </div>
     
-    <div class="stat-card green" onclick="apriGrafico('valore', 'green')">
+    <div class="stat-card" onclick="toggleDashboardCard(this, 'valore')">
       <div class="stat-icon"><i class="fas fa-gem"></i></div>
       <div class="stat-label">Valore Totale</div>
       <div class="stat-value">${valoreAttuale.toFixed(2)} €</div>
       <div class="stat-subtext">valore di mercato</div>
     </div>
     
-    <div class="stat-card orange" onclick="apriGrafico('spesa', 'orange')">
+    <div class="stat-card" onclick="toggleDashboardCard(this, 'spesa')">
       <div class="stat-icon"><i class="fas fa-wallet"></i></div>
       <div class="stat-label">Spesa Totale</div>
       <div class="stat-value">${prezzoPagato.toFixed(2)} €</div>
       <div class="stat-subtext">investimento iniziale</div>
     </div>
     
-    <div class="stat-card blue" onclick="apriGrafico('performance', 'blue')">
+    <div class="stat-card" onclick="toggleDashboardCard(this, 'performance')">
       <div class="stat-icon"><i class="fas fa-rocket"></i></div>
       <div class="stat-label">Performance</div>
       <div class="stat-value">${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €</div>
       <div class="stat-subtext">${delta >= 0 ? '+' : ''}${deltaPercent.toFixed(1)}%</div>
     </div>
   `;
+}
+
+function toggleDashboardCard(element, type) {
+  // Rimuovi expanded da tutti gli altri
+  document.querySelectorAll('.stat-card').forEach(card => {
+    if (card !== element) {
+      card.classList.remove('expanded');
+    }
+  });
+  
+  // Toggle su questo
+  element.classList.toggle('expanded');
+  
+  // Se expanded, apri grafico
+  if (element.classList.contains('expanded')) {
+    const colorMap = {
+      'totale': 'yellow',
+      'valore': 'yellow',
+      'spesa': 'yellow',
+      'performance': 'yellow'
+    };
+    apriGrafico(type, colorMap[type]);
+  }
 }
 
 function renderArticles() {
@@ -101,72 +124,128 @@ function renderArticles() {
 
 function createArticleCard(article) {
   const delta = (Number(article.ValoreAttuale) || 0) - (Number(article.PrezzoPagato) || 0);
-  const statoStelle = article.ValutazioneStato ? '⭐'.repeat(Math.min(article.ValutazioneStato, 10)) : '—';
-  const presenteBadge = article.Presente 
-    ? '<span class="badge presente"><i class="fas fa-check"></i> PRESENTE</span>' 
-    : '<span class="badge assente"><i class="fas fa-times"></i> ASSENTE</span>';
+  const deltaClass = delta >= 0 ? 'profit' : 'loss';
+  const rating = article.ValutazioneStato || 0;
+  const ratingPercent = (rating / 10) * 100;
   
   const foto = article.foto_principale || article.image_url || '';
-  const imagePlaceholder = foto 
-    ? `<img src="${foto}" alt="${article.Nome}">` 
-    : 'NESSUNA IMMAGINE';
+  const foto2 = article.foto_2 || '';
+  const foto3 = article.foto_3 || '';
+  const foto4 = article.foto_4 || '';
   
-  const vetrinaBadge = article.in_vetrina 
-    ? '<span class="badge presente" style="margin-top:8px;"><i class="fas fa-store"></i> IN VETRINA</span>' 
-    : '';
+  const hasGallery = foto2 || foto3 || foto4;
   
   return `
     <div class="article-card" id="card-${article.id}">
-      <div class="article-header" onclick="toggleArticleCard(${article.id})">
-        <div class="article-image-placeholder">
-          ${imagePlaceholder}
-        </div>
-        <div class="article-header-info">
-          <div class="article-title">
-            <span class="article-title-text">${article.Nome || 'Senza nome'}</span>
-            <span class="expand-icon">▼</span>
+      <!-- IMMAGINE CHE SI INGRANDISCE -->
+      <div class="article-image-wrapper" onclick="toggleArticleCard(${article.id})">
+        <img src="${foto || 'https://via.placeholder.com/400'}" alt="${article.Nome}" class="article-main-image">
+        
+        <!-- Badge -->
+        ${article.Presente 
+          ? '<div class="article-badge badge-presente"><i class="fas fa-check"></i> PRESENTE NEL MAGAZZINO</div>' 
+          : '<div class="article-badge badge-assente"><i class="fas fa-times"></i> ASSENTE</div>'}
+        
+        ${article.in_vetrina 
+          ? '<div class="article-badge badge-vetrina" style="top: 45px;"><i class="fas fa-store"></i> IN VETRINA</div>' 
+          : ''}
+      </div>
+      
+      <!-- INFO COMPATTA -->
+      <div class="article-compact-info">
+        <div class="article-name" onclick="toggleArticleCard(${article.id})">${article.Nome || 'Senza nome'}</div>
+        <div class="article-category"><i class="fas fa-layer-group"></i> ${article.Categoria || 'Nessuna categoria'}</div>
+        
+        <!-- Valutazione Moderna -->
+        <div class="article-rating-modern">
+          <div class="rating-number-display">
+            <span class="rating-num">${rating}</span>
+            <span class="rating-sep">/</span>
+            <span class="rating-max">10</span>
           </div>
-          <div class="article-subtitle">
-            <i class="fas fa-layer-group"></i> ${article.Categoria || 'Nessuna categoria'}
+          <div class="rating-bar-wrap">
+            <div class="rating-bar-fill" style="width: ${ratingPercent}%;"></div>
+          </div>
+        </div>
+        
+        <!-- Valori Finanziari -->
+        <div class="article-values-grid">
+          <div class="value-box">
+            <div class="value-box-label">VALORE</div>
+            <div class="value-box-amount">${Number(article.ValoreAttuale || 0).toFixed(2)} €</div>
+          </div>
+          <div class="value-box">
+            <div class="value-box-label">DELTA</div>
+            <div class="value-box-amount ${deltaClass}">${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €</div>
           </div>
         </div>
       </div>
-      <div class="article-body">
-        <div class="article-body-content">
-          <div class="article-row">
-            <span class="article-label"><i class="fas fa-gem"></i> VALORE</span>
-            <span class="article-value" style="color: #10b981; font-weight: 700;">${Number(article.ValoreAttuale || 0).toFixed(2)} €</span>
+      
+      <!-- DETTAGLI ESPANSI -->
+      <div class="article-expanded-section">
+        <!-- Sezione Statistiche -->
+        <div class="expanded-box">
+          <div class="expanded-box-title">
+            <i class="fas fa-chart-bar"></i> STATISTICHE
           </div>
-          <div class="article-row">
-            <span class="article-label"><i class="fas fa-receipt"></i> PREZZO PAGATO</span>
-            <span class="article-value">${Number(article.PrezzoPagato || 0).toFixed(2)} €</span>
+          <div class="expanded-box-content">
+            <div class="stat-row">
+              <span class="stat-row-label"><i class="fas fa-gem"></i> Valore Attuale</span>
+              <span class="stat-row-value">${Number(article.ValoreAttuale || 0).toFixed(2)} €</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-row-label"><i class="fas fa-receipt"></i> Prezzo Pagato</span>
+              <span class="stat-row-value">${Number(article.PrezzoPagato || 0).toFixed(2)} €</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-row-label"><i class="fas fa-chart-line"></i> Guadagno/Perdita</span>
+              <span class="stat-row-value ${deltaClass}">${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €</span>
+            </div>
+            ${article.in_vetrina ? `
+            <div class="stat-row">
+              <span class="stat-row-label"><i class="fas fa-tag"></i> Prezzo Vendita</span>
+              <span class="stat-row-value" style="color: #10b981;">${Number(article.prezzo_vendita || 0).toFixed(2)} €</span>
+            </div>
+            ` : ''}
           </div>
-          <div class="article-row">
-            <span class="article-label"><i class="fas fa-chart-line"></i> GUADAGNO/PERDITA</span>
-            <span class="article-value" style="color: ${delta >= 0 ? '#10b981' : '#ef4444'}; font-weight: 800;">
-              ${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €
-            </span>
+        </div>
+        
+        <!-- Sezione Descrizione -->
+        ${article.Descrizione ? `
+        <div class="expanded-box">
+          <div class="expanded-box-title">
+            <i class="fas fa-info-circle"></i> DESCRIZIONE
           </div>
-          <div class="article-row">
-            <span class="article-label"><i class="fas fa-star"></i> VALUTAZIONE</span>
-            <span class="article-value">${statoStelle}</span>
+          <div class="expanded-box-content">
+            <p class="article-description">${article.Descrizione}</p>
           </div>
-          <div class="article-row">
-            <span class="article-label"><i class="fas fa-warehouse"></i> STATO</span>
-            <span class="article-value">${presenteBadge}</span>
+        </div>
+        ` : ''}
+        
+        <!-- Galleria Foto -->
+        ${hasGallery ? `
+        <div class="expanded-box">
+          <div class="expanded-box-title">
+            <i class="fas fa-images"></i> GALLERIA
           </div>
-          ${article.in_vetrina ? `
-          <div class="article-row">
-            <span class="article-label"><i class="fas fa-tag"></i> PREZZO VENDITA</span>
-            <span class="article-value" style="color: #10b981; font-weight: 800;">${Number(article.prezzo_vendita || 0).toFixed(2)} €</span>
+          <div class="expanded-box-content">
+            <div class="article-gallery">
+              ${foto2 ? `<div class="gallery-item"><img src="${foto2}" alt="Foto 2"></div>` : ''}
+              ${foto3 ? `<div class="gallery-item"><img src="${foto3}" alt="Foto 3"></div>` : ''}
+              ${foto4 ? `<div class="gallery-item"><img src="${foto4}" alt="Foto 4"></div>` : ''}
+            </div>
           </div>
-          ` : ''}
-          ${vetrinaBadge}
-          <div class="article-actions">
-            <button class="btn-edit" onclick="apriModifica(${article.id})">
-              <i class="fas fa-edit"></i> MODIFICA
-            </button>
-          </div>
+        </div>
+        ` : ''}
+        
+        <!-- Azioni -->
+        <div class="article-actions-expanded">
+          <button class="action-btn action-btn-primary" onclick="apriModifica(${article.id})">
+            <i class="fas fa-edit"></i> MODIFICA
+          </button>
+          <button class="action-btn action-btn-secondary" onclick="alert('Condividi - da implementare')">
+            <i class="fas fa-share-alt"></i> CONDIVIDI
+          </button>
         </div>
       </div>
     </div>
@@ -176,6 +255,14 @@ function createArticleCard(article) {
 function toggleArticleCard(id) {
   const card = document.getElementById(`card-${id}`);
   if (card) {
+    // Chiudi tutti gli altri
+    document.querySelectorAll('.article-card').forEach(c => {
+      if (c !== card) {
+        c.classList.remove('expanded');
+      }
+    });
+    
+    // Toggle questo
     card.classList.toggle('expanded');
   }
 }
