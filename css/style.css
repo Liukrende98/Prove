@@ -13,6 +13,7 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
   background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
   min-height: 100vh;
+  padding-top: 110px;
   padding-bottom: 120px;
   color: #e5e7eb;
   overflow-x: hidden;
@@ -58,8 +59,11 @@ body {
   backdrop-filter: blur(20px);
   padding: 20px;
   box-shadow: 0 8px 40px rgba(251, 191, 36, 0.3);
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
   z-index: 1000;
   border-bottom: 3px solid #fbbf24;
   animation: headerGlow 3s ease-in-out infinite;
