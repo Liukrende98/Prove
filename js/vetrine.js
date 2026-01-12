@@ -480,7 +480,7 @@ function setupScrollIndicators() {
 function createVetrinaCard(userId, username, citta, disponibili, acquisti, mediaRecensioni, percentualeRecensioni, articoli) {
   return `
     <div class="vetrina-card-big" id="vetrina-${userId}">
-      <div class="vetrina-header">
+      <div class="vetrina-header" onclick="toggleVetrina('${userId}')">
         <div class="vetrina-top">
           <div class="vetrina-avatar">
             <i class="fas fa-store"></i>
@@ -488,6 +488,7 @@ function createVetrinaCard(userId, username, citta, disponibili, acquisti, media
           <div class="vetrina-info">
             <h3>
               <span class="vetrina-username">${username}</span>
+              <span class="vetrina-expand-icon">▼</span>
             </h3>
             <p><i class="fas fa-map-marker-alt"></i> ${citta}</p>
             <div class="vetrina-rating">
@@ -517,6 +518,12 @@ function createVetrinaCard(userId, username, citta, disponibili, acquisti, media
           ${articoli.map(art => createArticoloCard(art)).join('')}
         </div>
         ${articoli.length > 2 ? '<div class="scroll-indicator">SCORRI <i class="fas fa-chevron-right"></i></div>' : ''}
+      </div>
+      
+      <div class="vetrina-products-expanded">
+        <div class="vetrina-products-grid-expanded">
+          ${articoli.map(art => createArticoloExpanded(art)).join('')}
+        </div>
       </div>
     </div>
   `;
@@ -756,5 +763,281 @@ function scrollToFilter() {
         toggleFilter();
       }
     }, 500);
+  }
+}
+
+// TOGGLE ESPANSIONE VETRINA
+function toggleVetrina(userId) {
+  const vetrina = document.getElementById(`vetrina-${userId}`);
+  if (vetrina) {
+    vetrina.classList.toggle('expanded');
+  }
+}
+
+// CREA ARTICOLO ESPANSO (GRANDE)
+function createArticoloExpanded(articolo) {
+  const disponibile = articolo.Presente === true;
+  const badgeClass = disponibile ? 'badge-disponibile' : 'badge-non-disponibile';
+  const badgeText = disponibile ? 'DISPONIBILE' : 'NON DISPONIBILE';
+  const badgeIcon = disponibile ? 'fa-check' : 'fa-times';
+  
+  const immagine = articolo.Foto1 || articolo.Foto2 || articolo.Foto3 || articolo.Foto4 || articolo.Foto5;
+  
+  return `
+    <div class="vetrina-product-expanded" onclick='openModalDettaglio(${JSON.stringify(articolo).replace(/'/g, "&apos;")})'>
+      <div class="vetrina-product-expanded-image">
+        ${immagine ? `<img src="${immagine}" alt="${articolo.Nome || 'Prodotto'}">` : 
+        `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;">
+          <i class="fas fa-image" style="font-size:40px;"></i>
+        </div>`}
+        <div class="product-availability-badge ${badgeClass}">
+          <i class="fas ${badgeIcon}"></i> ${badgeText}
+        </div>
+        ${articolo.ValutazioneStato ? `
+          <div class="vetrina-product-rating">
+            <i class="fas fa-star"></i> ${articolo.ValutazioneStato}/10
+          </div>
+        ` : ''}
+      </div>
+      <div class="vetrina-product-expanded-info">
+        <div class="vetrina-product-expanded-name">${articolo.Nome || 'Prodotto'}</div>
+        <div class="vetrina-product-expanded-category">${articolo.Categoria || 'N/D'}</div>
+        <div class="vetrina-product-expanded-price">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
+      </div>
+    </div>
+  `;
+}
+
+// MODAL DETTAGLIO SUPER FIGO
+let currentGalleryIndex = 0;
+let currentModalArticolo = null;
+
+function openModalDettaglio(articolo) {
+  currentModalArticolo = articolo;
+  currentGalleryIndex = 0;
+  
+  // Raccogli tutte le immagini disponibili
+  const immagini = [];
+  if (articolo.Foto1) immagini.push(articolo.Foto1);
+  if (articolo.Foto2) immagini.push(articolo.Foto2);
+  if (articolo.Foto3) immagini.push(articolo.Foto3);
+  if (articolo.Foto4) immagini.push(articolo.Foto4);
+  if (articolo.Foto5) immagini.push(articolo.Foto5);
+  
+  const disponibile = articolo.Presente === true;
+  const badgeClass = disponibile ? 'badge-disponibile' : 'badge-non-disponibile';
+  const badgeText = disponibile ? '<i class="fas fa-check"></i> DISPONIBILE' : '<i class="fas fa-times"></i> NON DISPONIBILE';
+  
+  const modalHtml = `
+    <div class="modal-dettaglio-backdrop" id="modalDettaglio" onclick="closeModalDettaglio(event)">
+      <div class="modal-dettaglio-content" onclick="event.stopPropagation()">
+        <div class="modal-header-sticky">
+          <h3 class="modal-title-big">${articolo.Nome || 'Dettaglio Prodotto'}</h3>
+          <button class="modal-close-btn" onclick="closeModalDettaglio()">✕</button>
+        </div>
+        
+        <div class="modal-body-scroll">
+          <!-- GALLERIA SWIPE -->
+          <div class="modal-gallery-swipe" id="gallerySwipe">
+            ${immagini.length > 0 ? `
+              <div class="gallery-container" id="galleryContainer" style="transform: translateX(0%)">
+                ${immagini.map((img, index) => `
+                  <div class="gallery-slide">
+                    <img src="${img}" alt="Foto ${index + 1}">
+                  </div>
+                `).join('')}
+              </div>
+              
+              ${immagini.length > 1 ? `
+                <button class="gallery-nav-btn gallery-nav-prev" onclick="prevImage()">
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="gallery-nav-btn gallery-nav-next" onclick="nextImage()">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+                
+                <div class="gallery-dots">
+                  ${immagini.map((_, index) => `
+                    <div class="gallery-dot ${index === 0 ? 'active' : ''}" data-index="${index}"></div>
+                  `).join('')}
+                </div>
+              ` : ''}
+            ` : `
+              <div class="gallery-placeholder">
+                <i class="fas fa-image"></i>
+                <p>Nessuna immagine disponibile</p>
+              </div>
+            `}
+          </div>
+          
+          <!-- BADGE DISPONIBILITÀ -->
+          <div class="product-availability-badge ${badgeClass}" style="position:relative;width:fit-content;margin-bottom:16px;">
+            ${badgeText}
+          </div>
+          
+          <!-- PREZZO GRANDE -->
+          <div class="modal-price-big">
+            <div class="modal-price-label">
+              <i class="fas fa-tag"></i> PREZZO
+            </div>
+            <div class="modal-price-value">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
+          </div>
+          
+          <!-- INFO PRODOTTO -->
+          <div class="modal-info-section">
+            <div class="modal-info-section-title">
+              <i class="fas fa-info-circle"></i> Informazioni
+            </div>
+            <div class="modal-info-grid">
+              ${articolo.Categoria ? `
+                <div class="modal-info-item">
+                  <div class="modal-info-label"><i class="fas fa-tag"></i> Categoria</div>
+                  <div class="modal-info-value">${articolo.Categoria}</div>
+                </div>
+              ` : ''}
+              ${articolo.Set ? `
+                <div class="modal-info-item">
+                  <div class="modal-info-label"><i class="fas fa-layer-group"></i> Set</div>
+                  <div class="modal-info-value">${articolo.Set}</div>
+                </div>
+              ` : ''}
+              ${articolo.Espansione ? `
+                <div class="modal-info-item">
+                  <div class="modal-info-label"><i class="fas fa-boxes"></i> Espansione</div>
+                  <div class="modal-info-value">${articolo.Espansione}</div>
+                </div>
+              ` : ''}
+              ${articolo.Numero ? `
+                <div class="modal-info-item">
+                  <div class="modal-info-label"><i class="fas fa-hashtag"></i> Numero</div>
+                  <div class="modal-info-value">${articolo.Numero}</div>
+                </div>
+              ` : ''}
+              ${articolo.Rarita ? `
+                <div class="modal-info-item">
+                  <div class="modal-info-label"><i class="fas fa-gem"></i> Rarità</div>
+                  <div class="modal-info-value">${articolo.Rarita}</div>
+                </div>
+              ` : ''}
+              ${articolo.ValutazioneStato ? `
+                <div class="modal-info-item">
+                  <div class="modal-info-label"><i class="fas fa-star"></i> Valutazione</div>
+                  <div class="modal-info-value">${articolo.ValutazioneStato}/10</div>
+                </div>
+              ` : ''}
+              ${articolo.Lingua ? `
+                <div class="modal-info-item">
+                  <div class="modal-info-label"><i class="fas fa-language"></i> Lingua</div>
+                  <div class="modal-info-value">${articolo.Lingua}</div>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+          
+          <!-- DESCRIZIONE -->
+          ${articolo.Descrizione ? `
+            <div class="modal-description">
+              <h4><i class="fas fa-align-left"></i> Descrizione</h4>
+              <p>${articolo.Descrizione}</p>
+            </div>
+          ` : ''}
+          
+          <!-- BOTTONE CONTATTA -->
+          <button class="modal-contact-btn" onclick="contattaVenditore('${articolo.Utenti?.username || 'Venditore'}', '${articolo.Utenti?.email || ''}', '${articolo.Nome || 'Prodotto'}')">
+            <i class="fas fa-envelope"></i> CONTATTA VENDITORE
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+  document.body.style.overflow = 'hidden';
+  
+  // Setup touch gestures per swipe
+  if (immagini.length > 1) {
+    setupGallerySwipe();
+  }
+}
+
+function closeModalDettaglio(event) {
+  if (event && event.target.id !== 'modalDettaglio') return;
+  
+  const modal = document.getElementById('modalDettaglio');
+  if (modal) {
+    modal.remove();
+    document.body.style.overflow = '';
+  }
+}
+
+// GALLERIA SWIPE
+function nextImage() {
+  const immagini = [];
+  if (currentModalArticolo.Foto1) immagini.push(currentModalArticolo.Foto1);
+  if (currentModalArticolo.Foto2) immagini.push(currentModalArticolo.Foto2);
+  if (currentModalArticolo.Foto3) immagini.push(currentModalArticolo.Foto3);
+  if (currentModalArticolo.Foto4) immagini.push(currentModalArticolo.Foto4);
+  if (currentModalArticolo.Foto5) immagini.push(currentModalArticolo.Foto5);
+  
+  if (currentGalleryIndex < immagini.length - 1) {
+    currentGalleryIndex++;
+    updateGallery();
+  }
+}
+
+function prevImage() {
+  if (currentGalleryIndex > 0) {
+    currentGalleryIndex--;
+    updateGallery();
+  }
+}
+
+function updateGallery() {
+  const container = document.getElementById('galleryContainer');
+  const dots = document.querySelectorAll('.gallery-dot');
+  
+  if (container) {
+    const translateX = -currentGalleryIndex * 100;
+    container.style.transform = `translateX(${translateX}%)`;
+  }
+  
+  dots.forEach((dot, index) => {
+    if (index === currentGalleryIndex) {
+      dot.classList.add('active');
+    } else {
+      dot.classList.remove('active');
+    }
+  });
+}
+
+// TOUCH SWIPE GESTURES
+function setupGallerySwipe() {
+  const gallery = document.getElementById('gallerySwipe');
+  if (!gallery) return;
+  
+  let touchStartX = 0;
+  let touchEndX = 0;
+  
+  gallery.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  });
+  
+  gallery.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  });
+  
+  function handleSwipe() {
+    const swipeThreshold = 50;
+    
+    if (touchEndX < touchStartX - swipeThreshold) {
+      // Swipe left = next
+      nextImage();
+    }
+    
+    if (touchEndX > touchStartX + swipeThreshold) {
+      // Swipe right = prev
+      prevImage();
+    }
   }
 }
