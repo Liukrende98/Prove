@@ -513,10 +513,11 @@
 .modal-gallery-swipe {
   position: relative;
   width: 100%;
-  height: 400px;
+  height: 320px;
   margin: 0;
   overflow: hidden;
   background: #0a0a0a;
+  border-bottom: 3px solid rgba(251, 191, 36, 0.3);
 }
 
 .gallery-container {
@@ -540,7 +541,7 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 20px;
+  padding: 15px;
 }
 
 .gallery-placeholder {
@@ -831,7 +832,7 @@
   }
   
   .modal-gallery-swipe {
-    height: 500px;
+    height: 450px;
   }
   
   .modal-price-value {
@@ -839,10 +840,21 @@
   }
 }
 
+/* iPhone normale */
+@media (max-width: 430px) {
+  .modal-gallery-swipe {
+    height: 320px;
+  }
+  
+  .modal-dettaglio-content {
+    height: 92vh;
+  }
+}
+
 /* iPhone SE */
 @media (max-width: 375px) {
   .modal-gallery-swipe {
-    height: 350px;
+    height: 300px;
   }
   
   .modal-price-value {
@@ -854,7 +866,11 @@
   }
   
   .gallery-slide img {
-    padding: 15px;
+    padding: 12px;
+  }
+  
+  .modal-content-section {
+    padding: 20px 20px 28px 20px;
   }
 }
 /* FILTRO NORMALE - NO ANIMAZIONE MINIMIZZATA */
