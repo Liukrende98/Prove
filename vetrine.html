@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Vetrine - NODO</title>
   
   <!-- Font Awesome -->
@@ -20,7 +20,7 @@
 
     .vetrina-card-big {
       background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-      border-radius: 24px;
+      border-radius: 20px;
       overflow: hidden;
       border: 2px solid #2a2a2a;
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
@@ -33,7 +33,7 @@
     }
 
     .vetrina-header {
-      padding: 20px;
+      padding: 16px;
       background: linear-gradient(135deg, #1f1f1f 0%, #1a1a1a 100%);
       border-bottom: 3px solid #10b981;
       cursor: pointer;
@@ -41,18 +41,18 @@
 
     .vetrina-top {
       display: flex;
-      gap: 16px;
+      gap: 12px;
       align-items: center;
     }
 
     .vetrina-avatar {
-      width: 70px;
-      height: 70px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      border: 3px solid #10b981;
+      border: 2px solid #10b981;
       flex-shrink: 0;
-      box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
     }
 
     .vetrina-info {
@@ -61,17 +61,24 @@
     }
 
     .vetrina-info h3 {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 800;
       color: #10b981;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
+    }
+
+    .vetrina-username {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .vetrina-expand-icon {
-      font-size: 16px;
+      font-size: 14px;
       transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       flex-shrink: 0;
     }
@@ -82,15 +89,18 @@
 
     .vetrina-info p {
       color: #9ca3af;
-      font-size: 14px;
-      margin-bottom: 10px;
+      font-size: 12px;
+      margin-bottom: 6px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .vetrina-rating {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 700;
       color: #fbbf24;
     }
@@ -98,31 +108,31 @@
     .vetrina-stats {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      padding: 20px;
-      gap: 16px;
+      padding: 12px;
+      gap: 8px;
       background: #0f0f0f;
     }
 
     .vetrina-stat {
       text-align: center;
-      padding: 16px;
+      padding: 12px 8px;
       background: #1a1a1a;
-      border-radius: 16px;
+      border-radius: 12px;
       border: 2px solid #2a2a2a;
     }
 
     .vetrina-stat-value {
-      font-size: 24px;
+      font-size: 20px;
       font-weight: 900;
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .vetrina-stat-label {
-      font-size: 12px;
+      font-size: 10px;
       color: #9ca3af;
       font-weight: 700;
       text-transform: uppercase;
@@ -131,29 +141,65 @@
 
     .vetrina-items-preview {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      padding: 20px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      padding: 12px;
       background: #0a0a0a;
     }
 
     .vetrina-item {
       background: #1a1a1a;
-      padding: 16px;
+      padding: 10px;
       border-radius: 12px;
       border: 2px solid #2a2a2a;
       text-align: center;
       color: #e5e7eb;
       font-weight: 600;
-      font-size: 13px;
+      font-size: 12px;
       transition: all 0.3s ease;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .vetrina-item:hover {
+    .vetrina-item:active {
+      transform: scale(0.95);
       border-color: #10b981;
       background: #1f1f1f;
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .vetrina-item img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .vetrina-item-placeholder {
+      width: 100%;
+      height: 100px;
+      background: #2a2a2a;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+    }
+
+    .vetrina-item-name {
+      font-weight: 700;
+      margin-bottom: 4px;
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .vetrina-item-price {
+      color: #10b981;
+      font-weight: 800;
+      font-size: 16px;
     }
 
     .vetrina-details {
@@ -164,33 +210,338 @@
     }
 
     .vetrina-card-big.expanded .vetrina-details {
-      max-height: 2000px;
+      max-height: 3000px;
     }
 
     .vetrina-full-catalog {
-      padding: 20px;
+      padding: 12px;
     }
 
     .vetrina-full-catalog h4 {
       color: #10b981;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 800;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .vetrina-catalog-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .vetrina-catalog-item {
+      background: #1a1a1a;
+      padding: 10px;
+      border-radius: 12px;
+      border: 2px solid #2a2a2a;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .vetrina-catalog-item:active {
+      transform: scale(0.95);
+      border-color: #10b981;
+    }
+
+    .vetrina-catalog-item img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .vetrina-catalog-item-name {
+      font-weight: 700;
+      font-size: 13px;
+      color: #e5e7eb;
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .vetrina-catalog-item-categoria {
+      color: #9ca3af;
+      font-size: 11px;
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .vetrina-catalog-item-rating {
+      color: #fbbf24;
+      font-size: 12px;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .vetrina-catalog-item-price {
+      color: #10b981;
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    /* MODAL DETTAGLIO - OTTIMIZZATO MOBILE */
+    .modal-dettaglio-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 9999;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .modal-dettaglio-content {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+      border-radius: 20px 20px 0 0;
+      padding: 20px;
+      width: 100%;
+      max-width: 100%;
+      border: 3px solid #10b981;
+      box-shadow: 0 -10px 50px rgba(16, 185, 129, 0.5);
+      margin-top: 40px;
+      min-height: calc(100vh - 40px);
+    }
+
+    .modal-dettaglio-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
       gap: 12px;
     }
 
+    .modal-dettaglio-title {
+      font-size: 22px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0;
+      flex: 1;
+      line-height: 1.3;
+      word-break: break-word;
+    }
+
+    .modal-dettaglio-close {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      border-radius: 50%;
+      border: none;
+      background: #2a2a2a;
+      cursor: pointer;
+      font-size: 20px;
+      color: #e5e7eb;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .modal-dettaglio-close:active {
+      background: #ef4444;
+      transform: scale(0.9);
+    }
+
+    .modal-dettaglio-gallery {
+      margin-bottom: 20px;
+    }
+
+    .modal-dettaglio-gallery h3 {
+      color: #10b981;
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .modal-gallery-img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 2px solid #10b981;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .modal-gallery-img:active {
+      transform: scale(0.95);
+    }
+
+    .modal-gallery-placeholder {
+      width: 100%;
+      height: 180px;
+      background: #2a2a2a;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+    }
+
+    .modal-dettaglio-info {
+      background: #0a0a0a;
+      padding: 16px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+    }
+
+    .modal-info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #2a2a2a;
+      gap: 12px;
+    }
+
+    .modal-info-row:last-child {
+      border-bottom: none;
+    }
+
+    .modal-info-label {
+      color: #9ca3af;
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .modal-info-value {
+      color: #e5e7eb;
+      font-weight: 600;
+      font-size: 14px;
+      text-align: right;
+    }
+
+    .modal-info-price {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+    }
+
+    .modal-info-price-label {
+      color: #9ca3af;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .modal-info-price-value {
+      color: #10b981;
+      font-weight: 900;
+      font-size: 28px;
+    }
+
+    .modal-dettaglio-desc {
+      background: #0a0a0a;
+      padding: 16px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+    }
+
+    .modal-dettaglio-desc h3 {
+      color: #10b981;
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-dettaglio-desc p {
+      color: #e5e7eb;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      font-size: 14px;
+    }
+
+    .modal-dettaglio-contact {
+      width: 100%;
+      padding: 18px;
+      border-radius: 16px;
+      border: none;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+      text-transform: uppercase;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .modal-dettaglio-contact:active {
+      transform: scale(0.95);
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.6);
+    }
+
     @media (max-width: 768px) {
-      .vetrina-items-preview,
+      .vetrina-stats {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .vetrina-items-preview {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
       .vetrina-catalog-grid {
         grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 769px) {
+      .vetrina-items-preview {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .vetrina-catalog-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .modal-dettaglio-content {
+        max-width: 900px;
+        border-radius: 28px;
+        margin-top: 60px;
+        min-height: auto;
+      }
+
+      .modal-gallery-grid {
+        grid-template-columns: repeat(3, 1fr);
       }
     }
   </style>
@@ -235,15 +586,15 @@
   </div>
 
   <!-- SCRIPTS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> <!-- AGGIUNGI QUESTA RIGA -->
-  <script src="js/config.js"></script> <!-- AGGIUNGI QUESTA RIGA -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
   <script src="js/common.js"></script>
   <script src="js/menu.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/vetrine.js"></script>
 
   <script>
-    requireAuth(); // AGGIUNGI
+    requireAuth();
     window.addEventListener('DOMContentLoaded', () => {
       loadVetrineContent();
     });
