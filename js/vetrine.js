@@ -13,6 +13,9 @@ let currentFilters = {
   disponibili: false,
   ratingMin: 0
 };
+let currentPage = 1;
+const itemsPerPage = 10;
+let scrollIndicatorTimers = new Map();
 
 async function loadVetrineContent() {
   const container = document.getElementById('vetrineContainer');
@@ -190,7 +193,7 @@ function toggleFilter() {
   }
 }
 
-function applyFilters() {
+function applyFilters(closeFilter = true) {
   // Leggi valori filtri
   currentFilters.nome = document.getElementById('filterNome').value.toLowerCase().trim();
   currentFilters.set = document.getElementById('filterSet').value;
@@ -199,6 +202,9 @@ function applyFilters() {
   currentFilters.prezzoMax = document.getElementById('filterPrezzoMax').value;
   currentFilters.disponibili = document.getElementById('filterDisponibili').checked;
   currentFilters.ratingMin = parseInt(document.getElementById('filterRating').value) || 0;
+  
+  // Reset pagina quando si applicano filtri
+  currentPage = 1;
   
   // Filtra articoli
   let articoliFiltrati = allArticoli.filter(art => {
@@ -257,8 +263,10 @@ function applyFilters() {
   // Renderizza vetrine filtrate
   renderVetrine(articoliFiltrati);
   
-  // Chiudi filtro
-  toggleFilter();
+  // Chiudi filtro solo se richiesto
+  if (closeFilter) {
+    toggleFilter();
+  }
   
   // Aggiorna badge
   const filterHeader = document.querySelector('.filter-header');
@@ -284,6 +292,9 @@ function resetFilters() {
     disponibili: false,
     ratingMin: 0
   };
+  
+  // Reset pagina
+  currentPage = 1;
   
   // Reset inputs
   document.getElementById('filterNome').value = '';
@@ -347,10 +358,10 @@ function renderVetrine(articoli) {
     articoliPerUtente[userId].articoli.push(art);
   });
   
-  // Crea vetrine
-  let html = '';
+  // Crea array di vetrine
+  const vetrine = [];
   Object.entries(articoliPerUtente).forEach(([userId, userData]) => {
-    const vendite = userData.articoli.length;
+    const disponibili = userData.articoli.filter(a => a.Presente).length;
     
     // Calcola media recensioni
     const articoliConRecensione = userData.articoli.filter(a => a.ValutazioneStato && a.ValutazioneStato > 0);
@@ -359,37 +370,104 @@ function renderVetrine(articoli) {
       : 0;
     
     // Calcola percentuale recensioni
-    const percentualeRecensioni = vendite > 0 
-      ? Math.round((articoliConRecensione.length / vendite) * 100)
+    const percentualeRecensioni = userData.articoli.length > 0 
+      ? Math.round((articoliConRecensione.length / userData.articoli.length) * 100)
       : 0;
     
-    // Acquisti - per ora usiamo valore fittizio (in futuro andrà preso dal database Utenti)
+    // Acquisti - per ora usiamo valore fittizio
     const acquisti = 0;
     
-    html += createVetrinaCard(
+    vetrine.push({
       userId,
-      userData.username,
-      userData.citta,
-      vendite,
+      username: userData.username,
+      citta: userData.citta,
+      disponibili,
       acquisti,
       mediaRecensioni,
       percentualeRecensioni,
-      userData.articoli
+      articoli: userData.articoli
+    });
+  });
+  
+  // PAGINAZIONE
+  const totalPages = Math.ceil(vetrine.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const vetrinePaginate = vetrine.slice(startIndex, endIndex);
+  
+  // Crea HTML vetrine
+  let html = '';
+  vetrinePaginate.forEach(v => {
+    html += createVetrinaCard(
+      v.userId,
+      v.username,
+      v.citta,
+      v.disponibili,
+      v.acquisti,
+      v.mediaRecensioni,
+      v.percentualeRecensioni,
+      v.articoli
     );
   });
   
+  // Aggiungi paginazione
+  if (totalPages > 1) {
+    html += `
+      <div class="vetrine-pagination">
+        <button class="pagination-btn" id="btnPrev" onclick="changePage(-1)" ${currentPage === 1 ? 'disabled' : ''}>
+          <i class="fas fa-chevron-left"></i> Indietro
+        </button>
+        <div class="pagination-info">
+          Pagina <span>${currentPage}</span> di <span>${totalPages}</span>
+        </div>
+        <button class="pagination-btn" id="btnNext" onclick="changePage(1)" ${currentPage === totalPages ? 'disabled' : ''}>
+          Avanti <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    `;
+  }
+  
   container.innerHTML = html;
   
-  // Aggiungi listener per nascondere freccia scroll quando si scrolla
+  // Setup scroll indicator con timer
+  setupScrollIndicators();
+}
+
+function changePage(direction) {
+  currentPage += direction;
+  
+  // Re-applica filtri con nuova pagina
+  applyFilters(false); // false = non chiudere filtro
+  
+  // Scroll smooth in alto
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function setupScrollIndicators() {
   setTimeout(() => {
     const scrollContainers = document.querySelectorAll('.vetrina-products-scroll');
-    scrollContainers.forEach(scrollContainer => {
+    scrollContainers.forEach((scrollContainer, index) => {
       const indicator = scrollContainer.querySelector('.scroll-indicator');
       if (indicator) {
+        let hideTimer = null;
+        
         scrollContainer.addEventListener('scroll', () => {
+          // Nascondi quando scrolla
           if (scrollContainer.scrollLeft > 10) {
             indicator.style.opacity = '0';
             indicator.style.pointerEvents = 'none';
+            
+            // Clear timer esistente
+            if (hideTimer) clearTimeout(hideTimer);
+            
+            // Riapparirà dopo 3 secondi di inattività
+            hideTimer = setTimeout(() => {
+              if (scrollContainer.scrollLeft > 10) {
+                indicator.style.opacity = '0';
+              } else {
+                indicator.style.opacity = '1';
+              }
+            }, 3000);
           } else {
             indicator.style.opacity = '1';
           }
@@ -399,7 +477,7 @@ function renderVetrine(articoli) {
   }, 100);
 }
 
-function createVetrinaCard(userId, username, citta, vendite, acquisti, mediaRecensioni, percentualeRecensioni, articoli) {
+function createVetrinaCard(userId, username, citta, disponibili, acquisti, mediaRecensioni, percentualeRecensioni, articoli) {
   return `
     <div class="vetrina-card-big" id="vetrina-${userId}">
       <div class="vetrina-header">
@@ -413,7 +491,7 @@ function createVetrinaCard(userId, username, citta, vendite, acquisti, mediaRece
             </h3>
             <p><i class="fas fa-map-marker-alt"></i> ${citta}</p>
             <div class="vetrina-rating">
-              <i class="fas fa-store"></i> ${vendite} in vendita
+              <i class="fas fa-box-open"></i> ${articoli.length} articol${articoli.length === 1 ? 'o' : 'i'}
             </div>
           </div>
         </div>
@@ -421,11 +499,11 @@ function createVetrinaCard(userId, username, citta, vendite, acquisti, mediaRece
       
       <div class="vetrina-stats-inline">
         <div class="vetrina-stat-inline">
-          <i class="fas fa-shopping-cart"></i>
-          <span class="vetrina-stat-inline-value">${vendite}</span> vendite
+          <i class="fas fa-check-circle"></i>
+          <span class="vetrina-stat-inline-value">${disponibili}</span> disponibili
         </div>
         <div class="vetrina-stat-inline">
-          <i class="fas fa-box"></i>
+          <i class="fas fa-shopping-bag"></i>
           <span class="vetrina-stat-inline-value">${acquisti}</span> acquisti
         </div>
         <div class="vetrina-stat-inline">
@@ -636,4 +714,47 @@ function contattaVenditore(username, email, nomeArticolo) {
   setTimeout(() => {
     alert(`📧 Contatta ${username} via email:\n${email}\n\nOppure chiama/scrivi su WhatsApp se disponibile.`);
   }, 500);
+}
+
+// FLOATING FILTER BUTTON
+window.addEventListener('DOMContentLoaded', () => {
+  // Crea bottone floating
+  const floatingBtn = document.createElement('button');
+  floatingBtn.className = 'filter-floating-btn';
+  floatingBtn.innerHTML = '<i class="fas fa-filter"></i>';
+  floatingBtn.onclick = scrollToFilter;
+  document.body.appendChild(floatingBtn);
+  
+  // Scroll listener per mostrare/nascondere bottone
+  let lastScrollTop = 0;
+  window.addEventListener('scroll', () => {
+    const filterElement = document.getElementById('vetrineFilter');
+    if (!filterElement) return;
+    
+    const filterRect = filterElement.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Mostra bottone se il filtro è fuori schermo verso l'alto
+    if (filterRect.bottom < 0 && scrollTop > lastScrollTop) {
+      floatingBtn.classList.add('active');
+    } else {
+      floatingBtn.classList.remove('active');
+    }
+    
+    lastScrollTop = scrollTop;
+  });
+});
+
+function scrollToFilter() {
+  const filterElement = document.getElementById('vetrineFilter');
+  if (filterElement) {
+    filterElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+    // Apri il filtro se è chiuso
+    setTimeout(() => {
+      if (!filterElement.classList.contains('expanded')) {
+        toggleFilter();
+      }
+    }, 500);
+  }
 }
