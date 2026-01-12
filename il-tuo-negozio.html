@@ -2,21 +2,21 @@
 <html lang="it">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Il Tuo Negozio - NODO</title>
-
+  
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <!-- Tesseract.js -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
-
+  
+  <!-- Tesseract.js (OCR) -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  
   <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
   <!-- CSS -->
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -44,7 +44,7 @@
   </div>
 
   <!-- BUTTON AGGIUNGI -->
-  <div class="add-btn-container visible" id="addBtnContainer">
+  <div class="add-btn-container visible">
     <button class="btn-add-main" onclick="openAddModal()">
       <i class="fas fa-plus"></i>
     </button>
@@ -52,34 +52,35 @@
 
   <!-- CONTENUTO PRINCIPALE -->
   <div class="main-content">
+    <!-- DASHBOARD -->
     <div class="dashboard" id="dashboard"></div>
 
+    <!-- FILTRI -->
     <div class="filter-box">
-      <div class="filter-header" id="filterHeader" onclick="toggleFilters()">
+      <div class="filter-header" onclick="toggleFilters()">
         <div class="filter-title">
-          <i class="fas fa-sliders-h"></i>
+          <i class="fas fa-filter"></i>
           FILTRI
         </div>
         <button class="filter-toggle" id="filterToggle">
           <i class="fas fa-chevron-down"></i>
         </button>
       </div>
-
       <div class="filter-content" id="filterContent">
         <div class="filter-grid">
           <div class="filter-group">
-            <label><i class="fas fa-search"></i> Cerca Nome</label>
-            <input type="text" id="fNome" placeholder="Es. Charizard, Pikachu...">
+            <label><i class="fas fa-search"></i> NOME</label>
+            <input type="text" id="fNome" placeholder="Cerca per nome...">
           </div>
 
           <div class="filter-group">
-            <label><i class="fas fa-tag"></i> Categoria</label>
+            <label><i class="fas fa-layer-group"></i> CATEGORIA</label>
             <select id="fCategoria">
               <option value="">Tutte le categorie</option>
-              <option value="Carta Singola">Carta Singola</option>
-              <option value="ETB">ETB</option>
-              <option value="Booster">Booster Pack</option>
-              <option value="Collection Box">Collection Box</option>
+              <option value="Carte Pokémon">Carte Pokémon</option>
+              <option value="Action Figures">Action Figures</option>
+              <option value="Videogiochi">Videogiochi</option>
+              <option value="Fumetti">Fumetti</option>
               <option value="Altro">Altro</option>
             </select>
           </div>
@@ -87,92 +88,81 @@
 
         <div class="range-group">
           <div class="range-header">
-            <div class="range-label">
-              <i class="fas fa-euro-sign"></i>
-              Valore Attuale
-            </div>
-            <div class="range-value" id="rangeValoreDisplay">0€ - 1000€</div>
+            <label class="range-label">
+              <i class="fas fa-gem"></i> VALORE ATTUALE
+            </label>
+            <span class="range-value" id="rangeValoreDisplay">0€ - 1000€</span>
           </div>
           <div class="range-slider-container">
-            <div class="range-track">
-              <div class="range-progress" id="rangeProgress"></div>
-            </div>
+            <div class="range-track"></div>
+            <div class="range-progress" id="rangeProgress"></div>
             <input type="range" class="range-input" id="fValoreMin" min="0" max="1000" value="0" oninput="updateRangeSlider()">
             <input type="range" class="range-input" id="fValoreMax" min="0" max="1000" value="1000" oninput="updateRangeSlider()">
           </div>
         </div>
 
-        <div class="range-group">
-          <div class="range-header">
-            <div class="range-label">
-              <i class="fas fa-star"></i>
-              Valutazione Minima
-            </div>
-            <div class="range-value" id="rangeStatoDisplay">Tutte</div>
-          </div>
-          <div class="filter-group">
-            <select id="fStato" onchange="updateStatoDisplay()">
-              <option value="">Tutte le valutazioni</option>
-              <option value="10">10⭐ (Mint)</option>
-              <option value="9">9⭐+ (Near Mint+)</option>
-              <option value="8">8⭐+ (Near Mint)</option>
-              <option value="7">7⭐+ (Eccellente)</option>
-              <option value="6">6⭐+ (Buona)</option>
-              <option value="5">5⭐+ (Cattiva)</option>
-            </select>
-          </div>
+        <div class="filter-group">
+          <label><i class="fas fa-star"></i> VALUTAZIONE STATO (minimo)</label>
+          <select id="fStato" onchange="updateStatoDisplay()">
+            <option value="">Tutte</option>
+            <option value="1">1⭐+</option>
+            <option value="2">2⭐+</option>
+            <option value="3">3⭐+</option>
+            <option value="4">4⭐+</option>
+            <option value="5">5⭐+</option>
+            <option value="6">6⭐+</option>
+            <option value="7">7⭐+</option>
+            <option value="8">8⭐+</option>
+            <option value="9">9⭐+</option>
+            <option value="10">10⭐</option>
+          </select>
         </div>
 
         <div class="toggle-group">
           <div class="toggle-option">
             <input type="checkbox" id="fPresenti" checked>
             <label for="fPresenti" class="toggle-label">
-              <i class="fas fa-check-circle"></i>
-              PRESENTI
+              <i class="fas fa-check"></i> PRESENTI
             </label>
           </div>
-
           <div class="toggle-option">
             <input type="checkbox" id="fAssenti" checked>
             <label for="fAssenti" class="toggle-label">
-              <i class="fas fa-times-circle"></i>
-              ASSENTI
+              <i class="fas fa-times"></i> ASSENTI
             </label>
           </div>
+        </div>
 
+        <div class="toggle-group">
           <div class="toggle-option">
             <input type="checkbox" id="fProfit" checked>
             <label for="fProfit" class="toggle-label">
-              <i class="fas fa-arrow-up"></i>
-              PROFITTO
+              <i class="fas fa-arrow-up"></i> GUADAGNO
             </label>
           </div>
-
           <div class="toggle-option">
             <input type="checkbox" id="fLoss" checked>
             <label for="fLoss" class="toggle-label">
-              <i class="fas fa-arrow-down"></i>
-              PERDITA
+              <i class="fas fa-arrow-down"></i> PERDITA
             </label>
           </div>
         </div>
 
         <div class="filter-actions">
           <button class="btn-filter btn-apply" onclick="applicaFiltri()">
-            <i class="fas fa-filter"></i>
-            APPLICA
+            <i class="fas fa-check"></i> APPLICA
           </button>
           <button class="btn-filter btn-reset" onclick="resetFiltri()">
-            <i class="fas fa-redo"></i>
-            RESET
+            <i class="fas fa-redo"></i> RESET
           </button>
         </div>
       </div>
     </div>
 
+    <!-- PAGINAZIONE -->
     <div class="pagination-container">
       <div class="pagination-info">
-        Articolo <span id="pageStart">1</span>-<span id="pageEnd">10</span> di <span id="totalItems">0</span>
+        <span id="pageStart">1</span>-<span id="pageEnd">10</span> di <span id="totalItems">0</span>
       </div>
       <div class="pagination-controls">
         <button class="pagination-btn" id="prevBtn" onclick="previousPage()">
@@ -184,6 +174,7 @@
       </div>
     </div>
 
+    <!-- GRIGLIA ARTICOLI -->
     <div class="articles-grid" id="articlesGrid"></div>
   </div>
 
@@ -198,81 +189,124 @@
     </div>
   </div>
 
-  <!-- MODAL AGGIUNGI -->
+  <!-- ========== MODAL AGGIUNGI ========== -->
   <div class="modal-add" id="modalAdd">
     <div class="modal-add-content">
       <div class="modal-header">
-        <h2 class="modal-title"><i class="fas fa-plus-circle"></i> Aggiungi Articolo</h2>
+        <h2 class="modal-title"><i class="fas fa-plus-circle"></i> AGGIUNGI ARTICOLO</h2>
         <button class="modal-close" onclick="closeAddModal()">✕</button>
       </div>
 
       <div id="addMsg" class="msg"></div>
 
-      <button type="button" class="btn-scan" onclick="alert('Scansione OCR - In sviluppo')">
-        <i class="fas fa-camera-retro"></i> ⚡ SCANSIONA CARTA ⚡
+      <button class="btn-scan" onclick="alert('🚧 Funzione OCR in sviluppo')">
+        <i class="fas fa-camera"></i> SCANSIONA CARTA
       </button>
 
       <div id="cameraContainer">
-        <video id="cameraView" autoplay playsinline></video>
+        <video id="cameraView" autoplay></video>
       </div>
-      
       <canvas id="capturedCanvas"></canvas>
-      
-      <div id="scanMsg" class="msg"></div>
-
-      <div class="info-box">
-        <i class="fas fa-lightbulb"></i>
-        Il campo <strong>Guadagno/Perdita</strong> viene calcolato automaticamente
-      </div>
 
       <form id="formAdd" onsubmit="aggiungiArticolo(event)">
         <div class="form-grid">
           <div class="form-group">
-            <label><i class="fas fa-image"></i> Immagine Carta</label>
+            <label><i class="fas fa-tag"></i> NOME *</label>
+            <input type="text" name="Nome" required placeholder="es. Charizard GX">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-layer-group"></i> CATEGORIA</label>
+            <select name="Categoria">
+              <option value="">Seleziona...</option>
+              <option value="Carte Pokémon">Carte Pokémon</option>
+              <option value="Action Figures">Action Figures</option>
+              <option value="Videogiochi">Videogiochi</option>
+              <option value="Fumetti">Fumetti</option>
+              <option value="Altro">Altro</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-align-left"></i> DESCRIZIONE</label>
+            <textarea name="Descrizione" placeholder="Aggiungi una descrizione..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-gem"></i> VALORE ATTUALE (€) *</label>
+            <input type="number" id="valoreAttualeAdd" name="ValoreAttuale" step="0.01" required placeholder="es. 150.00" oninput="calcolaDeltaAdd()">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-receipt"></i> PREZZO PAGATO (€) *</label>
+            <input type="number" id="prezzoPagatoAdd" name="PrezzoPagato" step="0.01" required placeholder="es. 100.00" oninput="calcolaDeltaAdd()">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-chart-line"></i> DELTA (€)</label>
+            <input type="text" id="deltaAdd" readonly placeholder="Calcolato automaticamente" style="background:#2a2a2a; cursor:not-allowed;">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-star"></i> VALUTAZIONE STATO (1-10)</label>
+            <input type="number" name="ValutazioneStato" min="1" max="10" placeholder="es. 8">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-images"></i> FOTO PRINCIPALE</label>
             <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd')">
             <img id="imagePreviewAdd" class="image-preview" style="display:none;">
           </div>
-        
+
           <div class="form-group">
-            <label><i class="fas fa-bolt"></i> Nome Carta *</label>
-            <input type="text" name="Nome" id="nomeInput" required placeholder="Es. Charizard ex">
+            <label><i class="fas fa-images"></i> FOTO 2 (opzionale)</label>
+            <input type="file" id="imageInput2" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd2')">
+            <img id="imagePreviewAdd2" class="image-preview" style="display:none;">
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-layer-group"></i> Categoria</label>
-            <input type="text" name="Categoria" id="categoriaInput" placeholder="Es. Carta Singola">
-          </div>
-
-         <div class="form-group">
-            <label><i class="fas fa-scroll"></i> Descrizione / Espansione</label>
-            <textarea name="Descrizione" id="descrizioneInput" placeholder="Es. SVI - Scarlatto e Violetto Base"></textarea>
+            <label><i class="fas fa-images"></i> FOTO 3 (opzionale)</label>
+            <input type="file" id="imageInput3" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd3')">
+            <img id="imagePreviewAdd3" class="image-preview" style="display:none;">
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-gem"></i> Valore Attuale (€) *</label>
-            <input type="number" name="ValoreAttuale" id="valoreAttualeAdd" step="0.01" required oninput="calcolaDeltaAdd()" placeholder="Es. 50.00">
+            <label><i class="fas fa-images"></i> FOTO 4 (opzionale)</label>
+            <input type="file" id="imageInput4" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd4')">
+            <img id="imagePreviewAdd4" class="image-preview" style="display:none;">
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-receipt"></i> Prezzo Pagato (€) *</label>
-            <input type="number" name="PrezzoPagato" id="prezzoPagatoAdd" step="0.01" required oninput="calcolaDeltaAdd()" placeholder="Es. 30.00">
+            <label><i class="fas fa-images"></i> FOTO 5 (opzionale)</label>
+            <input type="file" id="imageInput5" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd5')">
+            <img id="imagePreviewAdd5" class="image-preview" style="display:none;">
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-chart-line"></i> Guadagno/Perdita (€)</label>
-            <input type="text" id="deltaAdd" readonly placeholder="Calcolato automaticamente" style="background: #1a1a1a; cursor: not-allowed; color: #10b981; font-weight: 700;">
+            <label><i class="fas fa-images"></i> FOTO 6 (opzionale)</label>
+            <input type="file" id="imageInput6" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd6')">
+            <img id="imagePreviewAdd6" class="image-preview" style="display:none;">
           </div>
 
-          <div class="form-group">
-            <label><i class="fas fa-star"></i> Valutazione Stato (1-10)</label>
-            <input type="number" name="ValutazioneStato" min="1" max="10" placeholder="Da 1 (Cattive) a 10 (Mint)">
+          <div class="form-group" style="border-top: 2px solid #2a2a2a; padding-top: 20px; margin-top: 20px;">
+            <label style="font-size: 16px; color: #fbbf24;">
+              <i class="fas fa-store"></i> VETRINA
+            </label>
           </div>
 
-          <div class="form-group">
-            <div class="checkbox-wrapper">
-              <input type="checkbox" name="Presente" id="presenteAdd" checked>
-              <span><i class="fas fa-warehouse"></i> Articolo Presente</span>
-            </div>
+          <div class="checkbox-wrapper">
+            <input type="checkbox" id="inVetrinaAdd" name="InVetrina">
+            <span><i class="fas fa-store-alt"></i> Metti in vetrina (visibile a tutti)</span>
+          </div>
+
+          <div class="form-group" id="prezzoVenditaGroupAdd" style="display:none;">
+            <label><i class="fas fa-tag"></i> PREZZO DI VENDITA (€) *</label>
+            <input type="number" id="prezzoVenditaAdd" name="PrezzoVendita" step="0.01" min="0" placeholder="es. 50.00">
+          </div>
+
+          <div class="checkbox-wrapper">
+            <input type="checkbox" name="Presente" checked>
+            <span><i class="fas fa-box"></i> Articolo presente fisicamente</span>
           </div>
         </div>
 
@@ -283,11 +317,11 @@
     </div>
   </div>
 
-  <!-- MODAL MODIFICA -->
+  <!-- ========== MODAL MODIFICA ========== -->
   <div class="modal-edit" id="modalEdit">
     <div class="modal-edit-content">
       <div class="modal-header">
-        <h2 class="modal-title"><i class="fas fa-edit"></i> Modifica Articolo</h2>
+        <h2 class="modal-title"><i class="fas fa-edit"></i> MODIFICA ARTICOLO</h2>
         <button class="modal-close" onclick="closeEditModal()">✕</button>
       </div>
 
@@ -295,55 +329,111 @@
 
       <form id="formEdit" onsubmit="salvaModifica(event)">
         <input type="hidden" id="editId">
-        <input type="hidden" id="editCurrentImageUrl">
 
         <div class="form-grid">
           <div class="form-group">
-            <label><i class="fas fa-image"></i> Immagine Carta</label>
+            <label><i class="fas fa-tag"></i> NOME</label>
+            <input type="text" id="editNome" name="Nome" required>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-layer-group"></i> CATEGORIA</label>
+            <select id="editCategoria" name="Categoria">
+              <option value="">Seleziona...</option>
+              <option value="Carte Pokémon">Carte Pokémon</option>
+              <option value="Action Figures">Action Figures</option>
+              <option value="Videogiochi">Videogiochi</option>
+              <option value="Fumetti">Fumetti</option>
+              <option value="Altro">Altro</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-align-left"></i> DESCRIZIONE</label>
+            <textarea id="editDescrizione" name="Descrizione"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-gem"></i> VALORE ATTUALE (€)</label>
+            <input type="number" id="editValoreAttuale" name="ValoreAttuale" step="0.01" required oninput="calcolaDeltaEdit()">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-receipt"></i> PREZZO PAGATO (€)</label>
+            <input type="number" id="editPrezzoPagato" name="PrezzoPagato" step="0.01" required oninput="calcolaDeltaEdit()">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-chart-line"></i> DELTA (€)</label>
+            <input type="text" id="editDelta" readonly style="background:#2a2a2a; cursor:not-allowed;">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-star"></i> VALUTAZIONE STATO (1-10)</label>
+            <input type="number" id="editStato" name="ValutazioneStato" min="1" max="10">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-images"></i> FOTO PRINCIPALE</label>
             <input type="file" id="editImageInput" accept="image/*" onchange="previewImage(this, 'imagePreviewEdit')">
             <img id="imagePreviewEdit" class="image-preview" style="display:none;">
+            <input type="hidden" id="editCurrentImageUrl">
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-bolt"></i> Nome Carta *</label>
-            <input type="text" name="Nome" id="editNome" required>
+            <label><i class="fas fa-images"></i> FOTO 2</label>
+            <input type="file" id="editImageInput2" accept="image/*" onchange="previewImage(this, 'imagePreviewEdit2')">
+            <img id="imagePreviewEdit2" class="image-preview" style="display:none;">
+            <input type="hidden" id="editCurrentImageUrl2">
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-layer-group"></i> Categoria</label>
-            <input type="text" name="Categoria" id="editCategoria">
+            <label><i class="fas fa-images"></i> FOTO 3</label>
+            <input type="file" id="editImageInput3" accept="image/*" onchange="previewImage(this, 'imagePreviewEdit3')">
+            <img id="imagePreviewEdit3" class="image-preview" style="display:none;">
+            <input type="hidden" id="editCurrentImageUrl3">
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-scroll"></i> Descrizione / Espansione</label>
-            <textarea name="Descrizione" id="editDescrizione"></textarea>
+            <label><i class="fas fa-images"></i> FOTO 4</label>
+            <input type="file" id="editImageInput4" accept="image/*" onchange="previewImage(this, 'imagePreviewEdit4')">
+            <img id="imagePreviewEdit4" class="image-preview" style="display:none;">
+            <input type="hidden" id="editCurrentImageUrl4">
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-gem"></i> Valore Attuale (€) *</label>
-            <input type="number" name="ValoreAttuale" id="editValoreAttuale" step="0.01" required oninput="calcolaDeltaEdit()">
+            <label><i class="fas fa-images"></i> FOTO 5</label>
+            <input type="file" id="editImageInput5" accept="image/*" onchange="previewImage(this, 'imagePreviewEdit5')">
+            <img id="imagePreviewEdit5" class="image-preview" style="display:none;">
+            <input type="hidden" id="editCurrentImageUrl5">
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-receipt"></i> Prezzo Pagato (€) *</label>
-            <input type="number" name="PrezzoPagato" id="editPrezzoPagato" step="0.01" required oninput="calcolaDeltaEdit()">
+            <label><i class="fas fa-images"></i> FOTO 6</label>
+            <input type="file" id="editImageInput6" accept="image/*" onchange="previewImage(this, 'imagePreviewEdit6')">
+            <img id="imagePreviewEdit6" class="image-preview" style="display:none;">
+            <input type="hidden" id="editCurrentImageUrl6">
           </div>
 
-          <div class="form-group">
-            <label><i class="fas fa-chart-line"></i> Guadagno/Perdita (€)</label>
-            <input type="text" id="editDelta" readonly style="background: #1a1a1a; cursor: not-allowed; color: #10b981; font-weight: 700;">
+          <div class="form-group" style="border-top: 2px solid #2a2a2a; padding-top: 20px; margin-top: 20px;">
+            <label style="font-size: 16px; color: #fbbf24;">
+              <i class="fas fa-store"></i> VETRINA
+            </label>
           </div>
 
-          <div class="form-group">
-            <label><i class="fas fa-star"></i> Valutazione Stato (1-10)</label>
-            <input type="number" name="ValutazioneStato" id="editStato" min="1" max="10">
+          <div class="checkbox-wrapper">
+            <input type="checkbox" id="editInVetrina" name="InVetrina">
+            <span><i class="fas fa-store-alt"></i> Metti in vetrina (visibile a tutti)</span>
           </div>
 
-          <div class="form-group">
-            <div class="checkbox-wrapper">
-              <input type="checkbox" name="Presente" id="editPresente">
-              <span><i class="fas fa-warehouse"></i> Articolo Presente</span>
-            </div>
+          <div class="form-group" id="prezzoVenditaGroupEdit" style="display:none;">
+            <label><i class="fas fa-tag"></i> PREZZO DI VENDITA (€)</label>
+            <input type="number" id="editPrezzoVendita" name="PrezzoVendita" step="0.01" min="0">
+          </div>
+
+          <div class="checkbox-wrapper">
+            <input type="checkbox" id="editPresente" name="Presente">
+            <span><i class="fas fa-box"></i> Articolo presente fisicamente</span>
           </div>
         </div>
 
@@ -358,7 +448,7 @@
     </div>
   </div>
 
-  <!-- MODAL GRAFICO -->
+  <!-- ========== MODAL GRAFICO ========== -->
   <div class="modal-graph" id="modalGraph">
     <div class="modal-graph-content">
       <div class="modal-header">
@@ -371,19 +461,45 @@
     </div>
   </div>
 
- <!-- SCRIPTS -->
+  <!-- SCRIPTS -->
   <script src="js/config.js"></script>
   <script src="js/common.js"></script>
   <script src="js/menu.js"></script>
-  <script src="js/auth.js"></script> <!-- AGGIUNGI QUESTA RIGA -->
+  <script src="js/auth.js"></script>
   <script src="js/negozio.js"></script>
 
   <script>
-    requireAuth(); // AGGIUNGI QUESTA RIGA
+    requireAuth();
     
     window.addEventListener('DOMContentLoaded', () => {
       updateRangeSlider();
       caricaArticoli();
+      
+      // Mostra/nascondi campo prezzo vendita in base a checkbox vetrina
+      document.getElementById('inVetrinaAdd').addEventListener('change', function() {
+        const prezzoGroup = document.getElementById('prezzoVenditaGroupAdd');
+        const prezzoInput = document.getElementById('prezzoVenditaAdd');
+        
+        if (this.checked) {
+          prezzoGroup.style.display = 'block';
+          prezzoInput.required = true;
+        } else {
+          prezzoGroup.style.display = 'none';
+          prezzoInput.required = false;
+          prezzoInput.value = '';
+        }
+      });
+      
+      document.getElementById('editInVetrina').addEventListener('change', function() {
+        const prezzoGroup = document.getElementById('prezzoVenditaGroupEdit');
+        
+        if (this.checked) {
+          prezzoGroup.style.display = 'block';
+        } else {
+          prezzoGroup.style.display = 'none';
+          document.getElementById('editPrezzoVendita').value = '';
+        }
+      });
     });
   </script>
 </body>
