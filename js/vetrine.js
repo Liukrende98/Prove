@@ -1048,12 +1048,12 @@ function setupGallerySwipe() {
 // ============================================
 
 // Variabili globali per carousel
-let carouselIndices = {}; // userId -> currentIndex
+window.carouselIndices = {}; // userId -> currentIndex
 
 // MODIFICA createVetrinaCard per aggiungere recensioni e carousel
 function createVetrinaCardNew(userId, username, citta, disponibili, acquisti, mediaRecensioni, percentualeRecensioni, articoli) {
   // Inizializza indice carousel
-  carouselIndices[userId] = 0;
+  window.carouselIndices[userId] = 0;
   
   return `
     <div class="vetrina-card-big" id="vetrina-${userId}">
@@ -1161,7 +1161,7 @@ function toggleVetrinaNew(userId) {
     
     // Reset indice quando si richiude
     if (!vetrina.classList.contains('expanded')) {
-      carouselIndices[userId] = 0;
+      window.carouselIndices[userId] = 0;
     }
   }
 }
@@ -1171,24 +1171,24 @@ function nextCarouselProduct(userId) {
   const vetrina = allArticoli.filter(a => a.user_id === userId);
   if (!vetrina.length) return;
   
-  const currentIndex = carouselIndices[userId] || 0;
+  const currentIndex = window.carouselIndices[userId] || 0;
   if (currentIndex < vetrina.length - 1) {
-    carouselIndices[userId] = currentIndex + 1;
+    window.carouselIndices[userId] = currentIndex + 1;
     updateCarousel(userId, vetrina);
   }
 }
 
 function prevCarouselProduct(userId) {
-  const currentIndex = carouselIndices[userId] || 0;
+  const currentIndex = window.carouselIndices[userId] || 0;
   if (currentIndex > 0) {
-    carouselIndices[userId] = currentIndex - 1;
+    window.carouselIndices[userId] = currentIndex - 1;
     const vetrina = allArticoli.filter(a => a.user_id === userId);
     updateCarousel(userId, vetrina);
   }
 }
 
 function updateCarousel(userId, articoli) {
-  const currentIndex = carouselIndices[userId];
+  const currentIndex = window.carouselIndices[userId];
   const carousel = document.getElementById(`carousel-${userId}`);
   const counter = document.getElementById(`carousel-counter-${userId}`);
   const prevBtn = document.getElementById(`carousel-prev-${userId}`);
@@ -1825,87 +1825,17 @@ function goToImage(index) {
 }
 // ============================================
 // OVERRIDE FUNZIONI - VERSIONE PULITA
+
 // ============================================
-
-// Sovrascrivi createVetrinaCardNew SENZA stelline + recensioni 9.7/10
-const createVetrinaCardNewOriginal = window.createVetrinaCardNew || function() {};
-window.createVetrinaCardNew = function(userId, username, citta, disponibili, acquisti, mediaRecensioni, percentualeRecensioni, articoli) {
-  if (!window.carouselIndices) window.carouselIndices = {};
-  window.carouselIndices[userId] = 0;
-  
-  return `
-    <div class="vetrina-card-big" id="vetrina-${userId}">
-      <div class="vetrina-header" onclick="toggleVetrinaNew('${userId}')">
-        <div class="vetrina-top">
-          <div class="vetrina-avatar">
-            <i class="fas fa-store"></i>
-          </div>
-          <div class="vetrina-info">
-            <h3>
-              <span class="vetrina-username">${username}</span>
-              <span class="vetrina-expand-icon">▼</span>
-            </h3>
-            <p><i class="fas fa-map-marker-alt"></i> ${citta}</p>
-            <div class="vetrina-rating">
-              <i class="fas fa-box-open"></i> ${articoli.length} articol${articoli.length === 1 ? 'o' : 'i'}
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="vetrina-stats-inline">
-        <div class="vetrina-stat-inline">
-          <i class="fas fa-check-circle"></i>
-          <span class="vetrina-stat-inline-value">${disponibili}</span> disponibili
-        </div>
-        <div class="vetrina-stat-inline">
-          <i class="fas fa-shopping-bag"></i>
-          <span class="vetrina-stat-inline-value">${acquisti}</span> acquisti
-        </div>
-        <div class="vetrina-stat-inline">
-          <i class="fas fa-star"></i>
-          Recensioni: <span class="vetrina-stat-inline-value">9.7/10</span>
-        </div>
-      </div>
-      
-      <div class="vetrina-products-scroll" style="position: relative;" data-user-id="${userId}">
-        <div class="vetrina-products-container">
-          ${articoli.map(art => window.createArticoloCard(art)).join('')}
-        </div>
-        ${articoli.length > 2 ? '<div class="scroll-indicator" id="scroll-indicator-' + userId + '">SCORRI <i class="fas fa-chevron-right"></i></div>' : ''}
-      </div>
-      
-      <div class="vetrina-products-expanded">
-        <div class="vetrina-products-carousel" id="carousel-${userId}">
-          ${window.createCarouselProduct(articoli[0])}
-        </div>
-        ${articoli.length > 1 ? `
-          <div class="carousel-nav">
-            <button class="carousel-btn" onclick="prevCarouselProduct('${userId}')" id="carousel-prev-${userId}">
-              <i class="fas fa-chevron-left"></i>
-            </button>
-            <div class="carousel-counter">
-              <span id="carousel-counter-${userId}">1</span> / ${articoli.length}
-            </div>
-            <button class="carousel-btn" onclick="nextCarouselProduct('${userId}')" id="carousel-next-${userId}">
-              <i class="fas fa-chevron-right"></i>
-            </button>
-          </div>
-        ` : ''}
-      </div>
-    </div>
-  `;
-};
-
-// Sovrascrivi handleFilterClick con versione semplice
-window.handleFilterClick = function() {
-  const filterElement = document.getElementById('vetrineFilter');
-  if (filterElement) {
-    filterElement.classList.toggle('expanded');
-  }
-};
-
-// BLOCCA SCROLL LISTENERS BUGGATI
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('✅ Vetrine pulite caricate - no scroll bugs');
+// DEBUG E VERIFICA FUNZIONI GLOBALI
+// ============================================
+console.log('✅ Vetrine JS caricato');
+console.log('🔍 Funzioni disponibili:', {
+  createVetrinaCardNew: typeof createVetrinaCardNew,
+  createCarouselProduct: typeof createCarouselProduct,
+  toggleVetrinaNew: typeof toggleVetrinaNew,
+  nextCarouselProduct: typeof nextCarouselProduct,
+  prevCarouselProduct: typeof prevCarouselProduct,
+  updateCarousel: typeof updateCarousel,
+  openModalDettaglioOptimized: typeof openModalDettaglioOptimized
 });
