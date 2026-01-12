@@ -2,7 +2,9 @@
 <html lang="it">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Il Tuo Negozio - NODO</title>
   
   <!-- Supabase -->
@@ -17,8 +19,1385 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
-  <!-- CSS -->
-  <link rel="stylesheet" href="css/style.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding-bottom: 120px;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Particles Background */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.3;
+    }
+
+    .particle {
+      position: absolute;
+      background: radial-gradient(circle, rgba(251, 191, 36, 0.8) 0%, rgba(251, 191, 36, 0) 70%);
+      border-radius: 50%;
+      animation: float 20s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -30px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
+    }
+
+    /* Header */
+    .header {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 30px 20px 20px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+    }
+
+    .header h1 {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+
+    .header-logo {
+      position: relative;
+      width: 40px;
+      height: 40px;
+    }
+
+    .header-logo-ring {
+      position: absolute;
+      border: 3px solid;
+      border-radius: 50%;
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    .header-logo-ring-1 {
+      width: 40px;
+      height: 40px;
+      border-color: #fbbf24;
+      animation-delay: 0s;
+    }
+
+    .header-logo-ring-2 {
+      width: 30px;
+      height: 30px;
+      top: 5px;
+      left: 5px;
+      border-color: #f59e0b;
+      animation-delay: 0.5s;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.7; }
+    }
+
+    .title-gradient {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #fbbf24 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s ease-in-out infinite;
+      background-size: 200% 100%;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    /* Main Content */
+    .main-content {
+      position: relative;
+      z-index: 5;
+      padding: 0 15px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Dashboard - TUTTI NERI */
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 25px;
+      padding: 0 5px;
+    }
+
+    .dashboard-card {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+      border: 2px solid rgba(251, 191, 36, 0.2);
+      border-radius: 20px;
+      padding: 18px 15px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .dashboard-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .dashboard-card:active {
+      transform: scale(0.95);
+    }
+
+    .dashboard-card:hover::before {
+      opacity: 1;
+    }
+
+    /* QUANDO APERTI: TUTTI GIALLI */
+    .dashboard-card.expanded {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      border-color: #fbbf24;
+      box-shadow: 0 8px 30px rgba(251, 191, 36, 0.5);
+      transform: translateY(-5px);
+    }
+
+    .dashboard-card.expanded .dashboard-icon {
+      color: #0a0a0a;
+    }
+
+    .dashboard-card.expanded .dashboard-label,
+    .dashboard-card.expanded .dashboard-value {
+      color: #0a0a0a;
+    }
+
+    .dashboard-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+      color: #fbbf24;
+      transition: color 0.3s ease;
+    }
+
+    .dashboard-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #888;
+      margin-bottom: 6px;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    .dashboard-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fbbf24;
+      transition: color 0.3s ease;
+    }
+
+    /* Filter Box */
+    .filter-box {
+      background: rgba(26, 26, 26, 0.95);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(251, 191, 36, 0.2);
+      border-radius: 20px;
+      margin-bottom: 25px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .filter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 20px;
+      cursor: pointer;
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, transparent 100%);
+    }
+
+    .filter-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fbbf24;
+      letter-spacing: 1.5px;
+    }
+
+    .filter-toggle {
+      background: none;
+      border: none;
+      color: #fbbf24;
+      font-size: 18px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      padding: 5px;
+    }
+
+    .filter-toggle.open {
+      transform: rotate(180deg);
+    }
+
+    .filter-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .filter-content.open {
+      max-height: 2000px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      padding: 20px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fbbf24;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .filter-group input[type="text"],
+    .filter-group select {
+      width: 100%;
+      padding: 12px 15px;
+      background: #0a0a0a;
+      border: 2px solid rgba(251, 191, 36, 0.3);
+      border-radius: 12px;
+      color: #e0e0e0;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .filter-group select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23fbbf24' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      padding-right: 40px;
+    }
+
+    .filter-group input:focus,
+    .filter-group select:focus {
+      outline: none;
+      border-color: #fbbf24;
+      box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+    }
+
+    .range-group {
+      padding: 20px;
+      background: rgba(10, 10, 10, 0.5);
+      border-radius: 15px;
+    }
+
+    .range-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .range-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fbbf24;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .range-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fbbf24;
+    }
+
+    .range-slider-container {
+      position: relative;
+      height: 40px;
+      padding: 15px 0;
+    }
+
+    .range-track {
+      position: absolute;
+      width: 100%;
+      height: 4px;
+      background: rgba(251, 191, 36, 0.2);
+      border-radius: 2px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .range-progress {
+      position: absolute;
+      height: 4px;
+      background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+      border-radius: 2px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .range-input {
+      position: absolute;
+      width: 100%;
+      height: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      pointer-events: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .range-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #fbbf24;
+      border: 3px solid #0a0a0a;
+      border-radius: 50%;
+      cursor: pointer;
+      pointer-events: all;
+      box-shadow: 0 2px 10px rgba(251, 191, 36, 0.5);
+    }
+
+    .range-input::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: #fbbf24;
+      border: 3px solid #0a0a0a;
+      border-radius: 50%;
+      cursor: pointer;
+      pointer-events: all;
+      box-shadow: 0 2px 10px rgba(251, 191, 36, 0.5);
+    }
+
+    .toggle-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 20px;
+    }
+
+    .toggle-option {
+      position: relative;
+    }
+
+    .toggle-option input[type="checkbox"] {
+      display: none;
+    }
+
+    .toggle-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 15px;
+      background: #0a0a0a;
+      border: 2px solid rgba(251, 191, 36, 0.3);
+      border-radius: 12px;
+      color: #888;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+
+    .toggle-option input[type="checkbox"]:checked + .toggle-label {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      border-color: #fbbf24;
+      color: #0a0a0a;
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+    }
+
+    .filter-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 20px;
+    }
+
+    .btn-filter {
+      padding: 14px 20px;
+      border: none;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-apply {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #0a0a0a;
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+    }
+
+    .btn-apply:active {
+      transform: scale(0.95);
+    }
+
+    .btn-reset {
+      background: #1a1a1a;
+      color: #fbbf24;
+      border: 2px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .btn-reset:active {
+      transform: scale(0.95);
+    }
+
+    /* Pagination */
+    .pagination-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background: rgba(26, 26, 26, 0.95);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(251, 191, 36, 0.2);
+      border-radius: 15px;
+      margin-bottom: 20px;
+    }
+
+    .pagination-info {
+      font-size: 13px;
+      color: #888;
+      font-weight: 600;
+    }
+
+    .pagination-info span {
+      color: #fbbf24;
+      font-weight: 700;
+    }
+
+    .pagination-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .pagination-btn {
+      width: 40px;
+      height: 40px;
+      background: #0a0a0a;
+      border: 2px solid rgba(251, 191, 36, 0.3);
+      border-radius: 10px;
+      color: #fbbf24;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pagination-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .pagination-btn:active:not(:disabled) {
+      transform: scale(0.9);
+      background: #fbbf24;
+      color: #0a0a0a;
+    }
+
+    /* Articles Grid */
+    .articles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    /* Article Card */
+    .article-card {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+      border: 2px solid rgba(251, 191, 36, 0.2);
+      border-radius: 20px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .article-card:active {
+      transform: scale(0.98);
+    }
+
+    .article-card.expanded {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+      border-color: #fbbf24;
+      box-shadow: 0 8px 30px rgba(251, 191, 36, 0.3);
+    }
+
+    /* ANIMAZIONE IMMAGINE CHE SI INGRANDISCE */
+    .article-image-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: #0a0a0a;
+    }
+
+    .article-card:not(.expanded) .article-image-container {
+      transition: transform 0.3s ease;
+    }
+
+    .article-card.expanded .article-image-container {
+      aspect-ratio: 16/9;
+      animation: imageZoom 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes imageZoom {
+      0% {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .article-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .article-card:not(.expanded):hover .article-image {
+      transform: scale(1.05);
+    }
+
+    .article-status-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .status-presente {
+      background: rgba(34, 197, 94, 0.9);
+      color: white;
+    }
+
+    .status-assente {
+      background: rgba(239, 68, 68, 0.9);
+      color: white;
+    }
+
+    .status-vetrina {
+      background: rgba(251, 191, 36, 0.9);
+      color: #0a0a0a;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .article-info {
+      padding: 15px;
+    }
+
+    .article-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fbbf24;
+      margin-bottom: 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .article-card.expanded .article-name {
+      font-size: 20px;
+      white-space: normal;
+      margin-bottom: 15px;
+    }
+
+    .article-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .article-category {
+      font-size: 10px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .article-card.expanded .article-category {
+      font-size: 12px;
+      padding: 6px 12px;
+      background: rgba(251, 191, 36, 0.1);
+      border-radius: 8px;
+      color: #fbbf24;
+    }
+
+    /* VALUTAZIONE MODERNA - NO STELLE DA CONTARE */
+    .article-rating {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .rating-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fbbf24;
+    }
+
+    .rating-max {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .rating-bar {
+      flex: 1;
+      height: 6px;
+      background: rgba(251, 191, 36, 0.2);
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .rating-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ef4444 0%, #fbbf24 50%, #22c55e 100%);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    .article-card.expanded .article-rating {
+      padding: 15px;
+      background: rgba(10, 10, 10, 0.5);
+      border-radius: 12px;
+      margin: 15px 0;
+    }
+
+    .article-card.expanded .rating-value {
+      font-size: 32px;
+    }
+
+    .article-card.expanded .rating-max {
+      font-size: 18px;
+    }
+
+    .article-card.expanded .rating-bar {
+      height: 12px;
+    }
+
+    /* VALORI FINANZIARI - DARK CON COLORI SMART */
+    .article-values {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .value-item {
+      background: rgba(10, 10, 10, 0.8);
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(251, 191, 36, 0.2);
+    }
+
+    .value-label {
+      font-size: 9px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .value-amount {
+      font-size: 15px;
+      font-weight: 700;
+      color: #888; /* Default dark su nero */
+    }
+
+    /* DELTA: VERDE SE GUADAGNO, ROSSO SE PERDITA */
+    .value-delta {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .value-delta.positive {
+      color: #22c55e;
+    }
+
+    .value-delta.negative {
+      color: #ef4444;
+    }
+
+    .article-card.expanded .article-values {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 15px 0;
+    }
+
+    .article-card.expanded .value-item {
+      padding: 15px;
+    }
+
+    .article-card.expanded .value-label {
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+
+    .article-card.expanded .value-amount {
+      font-size: 20px;
+    }
+
+    .article-card.expanded .value-delta {
+      font-size: 24px;
+    }
+
+    /* MENU ESPANSO - SUPER BELLO */
+    .article-expanded-menu {
+      display: none;
+      padding: 20px 15px;
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, transparent 100%);
+      border-top: 2px solid rgba(251, 191, 36, 0.2);
+      gap: 15px;
+    }
+
+    .article-card.expanded .article-expanded-menu {
+      display: flex;
+      flex-direction: column;
+      animation: slideDown 0.4s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .expanded-menu-section {
+      background: rgba(10, 10, 10, 0.8);
+      border: 2px solid rgba(251, 191, 36, 0.2);
+      border-radius: 15px;
+      padding: 15px;
+    }
+
+    .expanded-menu-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fbbf24;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .expanded-menu-content {
+      color: #e0e0e0;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .expanded-menu-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .expanded-action-btn {
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #0a0a0a;
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+    }
+
+    .expanded-action-btn:active {
+      transform: scale(0.95);
+    }
+
+    .expanded-action-btn.secondary {
+      background: #1a1a1a;
+      color: #fbbf24;
+      border: 2px solid rgba(251, 191, 36, 0.3);
+      box-shadow: none;
+    }
+
+    .expanded-gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .gallery-thumbnail {
+      aspect-ratio: 1;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid rgba(251, 191, 36, 0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .gallery-thumbnail:active {
+      transform: scale(0.95);
+      border-color: #fbbf24;
+    }
+
+    .gallery-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 10, 10, 0.98);
+      backdrop-filter: blur(20px);
+      border-top: 2px solid rgba(251, 191, 36, 0.3);
+      padding: 12px 15px 25px;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .menu-main-btn {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      border: none;
+      border-radius: 15px;
+      color: #0a0a0a;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(251, 191, 36, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .menu-main-btn:active {
+      transform: scale(0.9);
+    }
+
+    .menu-items {
+      display: flex;
+      gap: 8px;
+      flex: 1;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .menu-item {
+      padding: 10px 16px;
+      background: rgba(26, 26, 26, 0.9);
+      border: 2px solid rgba(251, 191, 36, 0.3);
+      border-radius: 12px;
+      color: #fbbf24;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .menu-item:active {
+      transform: scale(0.95);
+      background: #fbbf24;
+      color: #0a0a0a;
+    }
+
+    /* Add Button */
+    .add-btn-container {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      z-index: 999;
+      opacity: 0;
+      transform: scale(0);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .add-btn-container.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .btn-add-main {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      border: none;
+      border-radius: 50%;
+      color: #0a0a0a;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(251, 191, 36, 0.5);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-add-main:active {
+      transform: scale(0.9);
+    }
+
+    /* Modals */
+    .modal-add,
+    .modal-edit,
+    .modal-graph {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 2000;
+      overflow-y: auto;
+      padding: 20px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-add.open,
+    .modal-edit.open,
+    .modal-graph.open {
+      display: block;
+    }
+
+    .modal-add-content,
+    .modal-edit-content,
+    .modal-graph-content {
+      max-width: 600px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+      border: 2px solid rgba(251, 191, 36, 0.3);
+      border-radius: 25px;
+      padding: 25px;
+      box-shadow: 0 10px 50px rgba(0, 0, 0, 0.8);
+      animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid rgba(251, 191, 36, 0.2);
+    }
+
+    .modal-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fbbf24;
+      letter-spacing: 1px;
+    }
+
+    .modal-close {
+      width: 40px;
+      height: 40px;
+      background: rgba(239, 68, 68, 0.2);
+      border: 2px solid rgba(239, 68, 68, 0.3);
+      border-radius: 10px;
+      color: #ef4444;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close:active {
+      transform: scale(0.9);
+      background: #ef4444;
+      color: white;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fbbf24;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 15px;
+      background: #0a0a0a;
+      border: 2px solid rgba(251, 191, 36, 0.3);
+      border-radius: 12px;
+      color: #e0e0e0;
+      font-size: 15px;
+      font-family: inherit;
+      transition: all 0.3s ease;
+    }
+
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #fbbf24;
+      box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+    }
+
+    .form-group select {
+      -webkit-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23fbbf24' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      padding-right: 40px;
+    }
+
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 15px;
+      background: rgba(10, 10, 10, 0.5);
+      border: 2px solid rgba(251, 191, 36, 0.2);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .checkbox-wrapper:has(input:checked) {
+      background: rgba(251, 191, 36, 0.1);
+      border-color: #fbbf24;
+    }
+
+    .checkbox-wrapper input[type="checkbox"] {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      accent-color: #fbbf24;
+    }
+
+    .checkbox-wrapper span {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e0e0e0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-submit,
+    .btn-delete,
+    .btn-scan {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 15px;
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn-submit {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #0a0a0a;
+      box-shadow: 0 6px 25px rgba(251, 191, 36, 0.4);
+    }
+
+    .btn-submit:active {
+      transform: scale(0.98);
+    }
+
+    .btn-delete {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      box-shadow: 0 6px 25px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-delete:active {
+      transform: scale(0.98);
+    }
+
+    .btn-scan {
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      color: white;
+      box-shadow: 0 6px 25px rgba(139, 92, 246, 0.4);
+      margin-bottom: 20px;
+    }
+
+    .btn-scan:active {
+      transform: scale(0.98);
+    }
+
+    .image-preview {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-top: 10px;
+      border: 2px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .msg {
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      display: none;
+    }
+
+    .msg.success {
+      display: block;
+      background: rgba(34, 197, 94, 0.2);
+      border: 2px solid rgba(34, 197, 94, 0.5);
+      color: #22c55e;
+    }
+
+    .msg.error {
+      display: block;
+      background: rgba(239, 68, 68, 0.2);
+      border: 2px solid rgba(239, 68, 68, 0.5);
+      color: #ef4444;
+    }
+
+    /* Chart */
+    .chart-container {
+      background: rgba(10, 10, 10, 0.5);
+      padding: 20px;
+      border-radius: 15px;
+      margin-top: 20px;
+    }
+
+    /* Footer */
+    .page-footer {
+      text-align: center;
+      padding: 40px 20px;
+      background: rgba(10, 10, 10, 0.8);
+      border-top: 2px solid rgba(251, 191, 36, 0.2);
+      margin-top: 50px;
+    }
+
+    .footer-logo {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+
+    .footer-text {
+      color: #888;
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    .footer-social {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .footer-social-link {
+      width: 40px;
+      height: 40px;
+      background: rgba(251, 191, 36, 0.1);
+      border: 2px solid rgba(251, 191, 36, 0.3);
+      border-radius: 10px;
+      color: #fbbf24;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .footer-social-link:active {
+      transform: scale(0.9);
+      background: #fbbf24;
+      color: #0a0a0a;
+    }
+
+    /* Camera Container */
+    #cameraContainer {
+      display: none;
+      margin-bottom: 20px;
+    }
+
+    #cameraView {
+      width: 100%;
+      border-radius: 15px;
+      border: 2px solid rgba(251, 191, 36, 0.3);
+    }
+
+    /* Responsive */
+    @media (min-width: 768px) {
+      .dashboard {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+      }
+
+      .articles-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+      }
+
+      .filter-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -77,10 +1456,12 @@
             <label><i class="fas fa-layer-group"></i> CATEGORIA</label>
             <select id="fCategoria">
               <option value="">Tutte le categorie</option>
-              <option value="Carte Pokémon">Carte Pokémon</option>
-              <option value="Action Figures">Action Figures</option>
-              <option value="Videogiochi">Videogiochi</option>
-              <option value="Fumetti">Fumetti</option>
+              <option value="ETB">ETB</option>
+              <option value="Carte Singole">Carte Singole</option>
+              <option value="Booster Box">Booster Box</option>
+              <option value="Collection Box">Collection Box</option>
+              <option value="Bustine">Bustine</option>
+              <option value="Accessori">Accessori</option>
               <option value="Altro">Altro</option>
             </select>
           </div>
@@ -102,19 +1483,19 @@
         </div>
 
         <div class="filter-group">
-          <label><i class="fas fa-star"></i> VALUTAZIONE STATO (minimo)</label>
-          <select id="fStato" onchange="updateStatoDisplay()">
+          <label><i class="fas fa-star"></i> VALUTAZIONE MINIMA</label>
+          <select id="fStato">
             <option value="">Tutte</option>
-            <option value="1">1⭐+</option>
-            <option value="2">2⭐+</option>
-            <option value="3">3⭐+</option>
-            <option value="4">4⭐+</option>
-            <option value="5">5⭐+</option>
-            <option value="6">6⭐+</option>
-            <option value="7">7⭐+</option>
-            <option value="8">8⭐+</option>
-            <option value="9">9⭐+</option>
-            <option value="10">10⭐</option>
+            <option value="1">1+</option>
+            <option value="2">2+</option>
+            <option value="3">3+</option>
+            <option value="4">4+</option>
+            <option value="5">5+</option>
+            <option value="6">6+</option>
+            <option value="7">7+</option>
+            <option value="8">8+</option>
+            <option value="9">9+</option>
+            <option value="10">10</option>
           </select>
         </div>
 
@@ -206,30 +1587,31 @@
       <div id="cameraContainer">
         <video id="cameraView" autoplay></video>
       </div>
-      <canvas id="capturedCanvas"></canvas>
 
       <form id="formAdd" onsubmit="aggiungiArticolo(event)">
         <div class="form-grid">
           <div class="form-group">
             <label><i class="fas fa-tag"></i> NOME *</label>
-            <input type="text" name="Nome" required placeholder="es. Charizard GX">
+            <input type="text" name="Nome" required placeholder="es. Charizard VMAX">
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-layer-group"></i> CATEGORIA</label>
-            <select name="Categoria">
+            <label><i class="fas fa-layer-group"></i> CATEGORIA *</label>
+            <select name="Categoria" required>
               <option value="">Seleziona...</option>
-              <option value="Carte Pokémon">Carte Pokémon</option>
-              <option value="Action Figures">Action Figures</option>
-              <option value="Videogiochi">Videogiochi</option>
-              <option value="Fumetti">Fumetti</option>
+              <option value="ETB">ETB</option>
+              <option value="Carte Singole">Carte Singole</option>
+              <option value="Booster Box">Booster Box</option>
+              <option value="Collection Box">Collection Box</option>
+              <option value="Bustine">Bustine</option>
+              <option value="Accessori">Accessori</option>
               <option value="Altro">Altro</option>
             </select>
           </div>
 
           <div class="form-group">
             <label><i class="fas fa-align-left"></i> DESCRIZIONE</label>
-            <textarea name="Descrizione" placeholder="Aggiungi una descrizione..."></textarea>
+            <textarea name="Descrizione" placeholder="Aggiungi dettagli..."></textarea>
           </div>
 
           <div class="form-group">
@@ -244,51 +1626,51 @@
 
           <div class="form-group">
             <label><i class="fas fa-chart-line"></i> DELTA (€)</label>
-            <input type="text" id="deltaAdd" readonly placeholder="Calcolato automaticamente" style="background:#2a2a2a; cursor:not-allowed;">
+            <input type="text" id="deltaAdd" readonly style="background:#0a0a0a; cursor:not-allowed; color:#888;">
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-star"></i> VALUTAZIONE STATO (1-10)</label>
-            <input type="number" name="ValutazioneStato" min="1" max="10" placeholder="es. 8">
+            <label><i class="fas fa-star"></i> VALUTAZIONE STATO (1-10) *</label>
+            <input type="number" name="ValutazioneStato" min="1" max="10" required placeholder="Da 1 a 10">
           </div>
 
           <div class="form-group">
             <label><i class="fas fa-images"></i> FOTO PRINCIPALE</label>
-            <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd')">
+            <input type="file" id="addImageInput" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd')">
             <img id="imagePreviewAdd" class="image-preview" style="display:none;">
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-images"></i> FOTO 2 (opzionale)</label>
-            <input type="file" id="imageInput2" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd2')">
+            <label><i class="fas fa-images"></i> FOTO 2</label>
+            <input type="file" id="addImageInput2" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd2')">
             <img id="imagePreviewAdd2" class="image-preview" style="display:none;">
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-images"></i> FOTO 3 (opzionale)</label>
-            <input type="file" id="imageInput3" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd3')">
+            <label><i class="fas fa-images"></i> FOTO 3</label>
+            <input type="file" id="addImageInput3" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd3')">
             <img id="imagePreviewAdd3" class="image-preview" style="display:none;">
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-images"></i> FOTO 4 (opzionale)</label>
-            <input type="file" id="imageInput4" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd4')">
+            <label><i class="fas fa-images"></i> FOTO 4</label>
+            <input type="file" id="addImageInput4" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd4')">
             <img id="imagePreviewAdd4" class="image-preview" style="display:none;">
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-images"></i> FOTO 5 (opzionale)</label>
-            <input type="file" id="imageInput5" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd5')">
+            <label><i class="fas fa-images"></i> FOTO 5</label>
+            <input type="file" id="addImageInput5" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd5')">
             <img id="imagePreviewAdd5" class="image-preview" style="display:none;">
           </div>
 
           <div class="form-group">
-            <label><i class="fas fa-images"></i> FOTO 6 (opzionale)</label>
-            <input type="file" id="imageInput6" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd6')">
+            <label><i class="fas fa-images"></i> FOTO 6</label>
+            <input type="file" id="addImageInput6" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd6')">
             <img id="imagePreviewAdd6" class="image-preview" style="display:none;">
           </div>
 
-          <div class="form-group" style="border-top: 2px solid #2a2a2a; padding-top: 20px; margin-top: 20px;">
+          <div class="form-group" style="border-top: 2px solid rgba(251, 191, 36, 0.2); padding-top: 20px; margin-top: 20px;">
             <label style="font-size: 16px; color: #fbbf24;">
               <i class="fas fa-store"></i> VETRINA
             </label>
@@ -340,10 +1722,12 @@
             <label><i class="fas fa-layer-group"></i> CATEGORIA</label>
             <select id="editCategoria" name="Categoria">
               <option value="">Seleziona...</option>
-              <option value="Carte Pokémon">Carte Pokémon</option>
-              <option value="Action Figures">Action Figures</option>
-              <option value="Videogiochi">Videogiochi</option>
-              <option value="Fumetti">Fumetti</option>
+              <option value="ETB">ETB</option>
+              <option value="Carte Singole">Carte Singole</option>
+              <option value="Booster Box">Booster Box</option>
+              <option value="Collection Box">Collection Box</option>
+              <option value="Bustine">Bustine</option>
+              <option value="Accessori">Accessori</option>
               <option value="Altro">Altro</option>
             </select>
           </div>
@@ -365,7 +1749,7 @@
 
           <div class="form-group">
             <label><i class="fas fa-chart-line"></i> DELTA (€)</label>
-            <input type="text" id="editDelta" readonly style="background:#2a2a2a; cursor:not-allowed;">
+            <input type="text" id="editDelta" readonly style="background:#0a0a0a; cursor:not-allowed; color:#888;">
           </div>
 
           <div class="form-group">
@@ -415,7 +1799,7 @@
             <input type="hidden" id="editCurrentImageUrl6">
           </div>
 
-          <div class="form-group" style="border-top: 2px solid #2a2a2a; padding-top: 20px; margin-top: 20px;">
+          <div class="form-group" style="border-top: 2px solid rgba(251, 191, 36, 0.2); padding-top: 20px; margin-top: 20px;">
             <label style="font-size: 16px; color: #fbbf24;">
               <i class="fas fa-store"></i> VETRINA
             </label>
@@ -461,21 +1845,297 @@
     </div>
   </div>
 
-  <!-- SCRIPTS -->
-  <script src="js/config.js"></script>
-  <script src="js/common.js"></script>
-  <script src="js/menu.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/negozio.js"></script>
-
   <script>
-    requireAuth();
-    
-    window.addEventListener('DOMContentLoaded', () => {
-      updateRangeSlider();
-      caricaArticoli();
+    // NOTA: Questo è un template - I file JS esterni (config.js, common.js, menu.js, auth.js, negozio.js) 
+    // devono essere inclusi per il funzionamento completo.
+    // Includo placeholder per le funzioni principali
+
+    // Particles Animation
+    function createParticles() {
+      const container = document.getElementById('particles');
+      for (let i = 0; i < 15; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.width = Math.random() * 4 + 2 + 'px';
+        particle.style.height = particle.style.width;
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 20 + 's';
+        particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
+        container.appendChild(particle);
+      }
+    }
+
+    // Toggle Filters
+    function toggleFilters() {
+      const content = document.getElementById('filterContent');
+      const toggle = document.getElementById('filterToggle');
+      content.classList.toggle('open');
+      toggle.classList.toggle('open');
+    }
+
+    // Update Range Slider
+    function updateRangeSlider() {
+      const min = parseInt(document.getElementById('fValoreMin').value);
+      const max = parseInt(document.getElementById('fValoreMax').value);
+      const display = document.getElementById('rangeValoreDisplay');
+      const progress = document.getElementById('rangeProgress');
       
-      // Mostra/nascondi campo prezzo vendita in base a checkbox vetrina
+      const minPercent = (min / 1000) * 100;
+      const maxPercent = (max / 1000) * 100;
+      
+      progress.style.left = minPercent + '%';
+      progress.style.width = (maxPercent - minPercent) + '%';
+      display.textContent = min + '€ - ' + max + '€';
+    }
+
+    // Preview Image
+    function previewImage(input, previewId) {
+      const preview = document.getElementById(previewId);
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    // Calcola Delta Add
+    function calcolaDeltaAdd() {
+      const valoreAttuale = parseFloat(document.getElementById('valoreAttualeAdd').value) || 0;
+      const prezzoPagato = parseFloat(document.getElementById('prezzoPagatoAdd').value) || 0;
+      const delta = valoreAttuale - prezzoPagato;
+      const deltaField = document.getElementById('deltaAdd');
+      deltaField.value = delta.toFixed(2) + '€';
+      deltaField.style.color = delta >= 0 ? '#22c55e' : '#ef4444';
+    }
+
+    // Calcola Delta Edit
+    function calcolaDeltaEdit() {
+      const valoreAttuale = parseFloat(document.getElementById('editValoreAttuale').value) || 0;
+      const prezzoPagato = parseFloat(document.getElementById('editPrezzoPagato').value) || 0;
+      const delta = valoreAttuale - prezzoPagato;
+      const deltaField = document.getElementById('editDelta');
+      deltaField.value = delta.toFixed(2) + '€';
+      deltaField.style.color = delta >= 0 ? '#22c55e' : '#ef4444';
+    }
+
+    // Toggle Article Expand
+    function toggleArticleExpand(articleId) {
+      const card = document.querySelector(`[data-article-id="${articleId}"]`);
+      if (card) {
+        card.classList.toggle('expanded');
+      }
+    }
+
+    // Modals
+    function openAddModal() {
+      document.getElementById('modalAdd').classList.add('open');
+    }
+
+    function closeAddModal() {
+      document.getElementById('modalAdd').classList.remove('open');
+      document.getElementById('formAdd').reset();
+    }
+
+    function closeEditModal() {
+      document.getElementById('modalEdit').classList.remove('open');
+    }
+
+    function closeGraphModal() {
+      document.getElementById('modalGraph').classList.remove('open');
+    }
+
+    // Toggle Menu
+    function toggleMenu() {
+      alert('Menu function - implementare con menu.js');
+    }
+
+    // Pagination
+    function previousPage() {
+      alert('Previous page - implementare con negozio.js');
+    }
+
+    function nextPage() {
+      alert('Next page - implementare con negozio.js');
+    }
+
+    // Filters
+    function applicaFiltri() {
+      alert('Apply filters - implementare con negozio.js');
+    }
+
+    function resetFiltri() {
+      document.getElementById('fNome').value = '';
+      document.getElementById('fCategoria').value = '';
+      document.getElementById('fValoreMin').value = '0';
+      document.getElementById('fValoreMax').value = '1000';
+      document.getElementById('fStato').value = '';
+      document.getElementById('fPresenti').checked = true;
+      document.getElementById('fAssenti').checked = true;
+      document.getElementById('fProfit').checked = true;
+      document.getElementById('fLoss').checked = true;
+      updateRangeSlider();
+    }
+
+    // CRUD Operations
+    function aggiungiArticolo(event) {
+      event.preventDefault();
+      alert('Aggiungi articolo - implementare con negozio.js e config.js per Supabase');
+    }
+
+    function salvaModifica(event) {
+      event.preventDefault();
+      alert('Salva modifica - implementare con negozio.js e config.js per Supabase');
+    }
+
+    function eliminaArticolo() {
+      if (confirm('Sei sicuro di voler eliminare questo articolo?')) {
+        alert('Elimina articolo - implementare con negozio.js e config.js per Supabase');
+      }
+    }
+
+    function caricaArticoli() {
+      // Implementare caricamento da Supabase
+      // Esempio di struttura articolo:
+      const articoloEsempio = {
+        id: 1,
+        Nome: 'Charizard VMAX',
+        Categoria: 'Carte Singole',
+        Descrizione: 'Carta rara',
+        ValoreAttuale: 150,
+        PrezzoPagato: 100,
+        ValutazioneStato: 9,
+        ImageUrl: '',
+        Presente: true,
+        InVetrina: false
+      };
+      
+      renderArticoli([articoloEsempio]);
+    }
+
+    function renderArticoli(articoli) {
+      const grid = document.getElementById('articlesGrid');
+      grid.innerHTML = '';
+      
+      articoli.forEach(art => {
+        const delta = art.ValoreAttuale - art.PrezzoPagato;
+        const deltaClass = delta >= 0 ? 'positive' : 'negative';
+        const ratingPercent = (art.ValutazioneStato / 10) * 100;
+        
+        const card = document.createElement('div');
+        card.className = 'article-card';
+        card.setAttribute('data-article-id', art.id);
+        card.onclick = () => toggleArticleExpand(art.id);
+        
+        card.innerHTML = `
+          <div class="article-image-container">
+            <img src="${art.ImageUrl || 'https://via.placeholder.com/300'}" alt="${art.Nome}" class="article-image">
+            ${art.Presente ? '<div class="article-status-badge status-presente">PRESENTE NEL MAGAZZINO</div>' : '<div class="article-status-badge status-assente">ASSENTE</div>'}
+            ${art.InVetrina ? '<div class="article-status-badge status-vetrina" style="top: 40px;"><i class="fas fa-store"></i> IN VETRINA</div>' : ''}
+          </div>
+          
+          <div class="article-info">
+            <div class="article-name">${art.Nome}</div>
+            
+            <div class="article-meta">
+              <div class="article-category">${art.Categoria}</div>
+              <div class="article-rating">
+                <span class="rating-value">${art.ValutazioneStato}</span>
+                <span class="rating-max">/10</span>
+              </div>
+            </div>
+            
+            <div class="rating-bar">
+              <div class="rating-fill" style="width: ${ratingPercent}%"></div>
+            </div>
+            
+            <div class="article-values">
+              <div class="value-item">
+                <div class="value-label">VALORE</div>
+                <div class="value-amount">${art.ValoreAttuale}€</div>
+              </div>
+              <div class="value-item">
+                <div class="value-label">DELTA</div>
+                <div class="value-delta ${deltaClass}">${delta >= 0 ? '+' : ''}${delta}€</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="article-expanded-menu">
+            <div class="expanded-menu-section">
+              <div class="expanded-menu-title">
+                <i class="fas fa-info-circle"></i>
+                DETTAGLI
+              </div>
+              <div class="expanded-menu-content">
+                ${art.Descrizione || 'Nessuna descrizione disponibile'}
+              </div>
+            </div>
+            
+            <div class="expanded-menu-section">
+              <div class="expanded-menu-title">
+                <i class="fas fa-chart-bar"></i>
+                STATISTICHE
+              </div>
+              <div class="article-values" style="margin-top: 12px;">
+                <div class="value-item">
+                  <div class="value-label">VALORE ATTUALE</div>
+                  <div class="value-amount">${art.ValoreAttuale}€</div>
+                </div>
+                <div class="value-item">
+                  <div class="value-label">PREZZO PAGATO</div>
+                  <div class="value-amount">${art.PrezzoPagato}€</div>
+                </div>
+                <div class="value-item">
+                  <div class="value-label">DELTA</div>
+                  <div class="value-delta ${deltaClass}">${delta >= 0 ? '+' : ''}${delta}€</div>
+                </div>
+              </div>
+            </div>
+            
+            ${art.ImageUrl2 || art.ImageUrl3 || art.ImageUrl4 ? `
+            <div class="expanded-menu-section">
+              <div class="expanded-menu-title">
+                <i class="fas fa-images"></i>
+                GALLERIA
+              </div>
+              <div class="expanded-gallery">
+                ${art.ImageUrl2 ? `<div class="gallery-thumbnail"><img src="${art.ImageUrl2}" alt="Foto 2"></div>` : ''}
+                ${art.ImageUrl3 ? `<div class="gallery-thumbnail"><img src="${art.ImageUrl3}" alt="Foto 3"></div>` : ''}
+                ${art.ImageUrl4 ? `<div class="gallery-thumbnail"><img src="${art.ImageUrl4}" alt="Foto 4"></div>` : ''}
+              </div>
+            </div>
+            ` : ''}
+            
+            <div class="expanded-menu-actions">
+              <button class="expanded-action-btn" onclick="event.stopPropagation(); openEditModal(${art.id})">
+                <i class="fas fa-edit"></i> MODIFICA
+              </button>
+              <button class="expanded-action-btn secondary" onclick="event.stopPropagation(); alert('Condividi - da implementare')">
+                <i class="fas fa-share-alt"></i> CONDIVIDI
+              </button>
+            </div>
+          </div>
+        `;
+        
+        grid.appendChild(card);
+      });
+    }
+
+    function openEditModal(articleId) {
+      alert('Apri modal modifica per articolo ' + articleId);
+      // Implementare caricamento dati e apertura modal
+    }
+
+    // Init
+    window.addEventListener('DOMContentLoaded', () => {
+      createParticles();
+      updateRangeSlider();
+      
+      // Gestione checkbox vetrina
       document.getElementById('inVetrinaAdd').addEventListener('change', function() {
         const prezzoGroup = document.getElementById('prezzoVenditaGroupAdd');
         const prezzoInput = document.getElementById('prezzoVenditaAdd');
@@ -500,6 +2160,9 @@
           document.getElementById('editPrezzoVendita').value = '';
         }
       });
+      
+      // Carica articoli (placeholder - implementare con Supabase)
+      // caricaArticoli();
     });
   </script>
 </body>
