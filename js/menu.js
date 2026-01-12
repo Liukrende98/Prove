@@ -29,6 +29,11 @@ const menuStructure = {
         icon: 'fas fa-store',
         label: 'Il Tuo Negozio',
         url: 'il-tuo-negozio.html'
+      },
+      'il-tuo-profilo': {
+        icon: 'fas fa-user-circle',
+        label: 'Il Tuo Profilo',
+        url: 'il-tuo-profilo.html'
       }
     }
   }
