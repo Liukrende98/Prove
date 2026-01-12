@@ -347,13 +347,14 @@
     </div>
   </div>
 
-  <!-- SCRIPTS -->
- <script src="js/common.js"></script>
+<!-- SCRIPTS -->
+  <script src="js/common.js"></script>
   <script src="js/menu.js"></script>
   <script src="js/auth.js"></script> <!-- AGGIUNGI -->
   <script src="js/community.js"></script>
 
   <script>
+    requireAuth(); // AGGIUNGI
     window.addEventListener('DOMContentLoaded', () => {
       loadCommunityContent();
     });
