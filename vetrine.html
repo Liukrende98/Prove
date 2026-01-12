@@ -404,6 +404,149 @@
     height: 320px;
   }
 }
+
+/* NAVIGAZIONE FOTO ARTICOLO */
+.article-photo-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(251, 191, 36, 0.95);
+  color: #000;
+  border: none;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  z-index: 12;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.6);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.vetrina-product-card:hover .article-photo-nav,
+.vetrina-product-image:active .article-photo-nav {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.article-photo-nav:active {
+  transform: translateY(-50%) scale(0.9);
+  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.8);
+}
+
+.article-photo-prev {
+  left: 6px;
+}
+
+.article-photo-next {
+  right: 6px;
+}
+
+/* BOTTONE FULLSCREEN */
+.article-fullscreen-btn {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  color: #fbbf24;
+  border: 2px solid rgba(251, 191, 36, 0.5);
+  font-size: 14px;
+  cursor: pointer;
+  z-index: 12;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.article-fullscreen-btn:active {
+  transform: scale(0.9);
+  background: #fbbf24;
+  color: #000;
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.6);
+}
+
+/* QUANDO ESPANSA - BOTTONI PIÙ GRANDI */
+.vetrina-card-big.expanded .article-photo-nav {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.vetrina-card-big.expanded .article-photo-prev {
+  left: 10px;
+}
+
+.vetrina-card-big.expanded .article-photo-next {
+  right: 10px;
+}
+
+.vetrina-card-big.expanded .article-fullscreen-btn {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+  bottom: 10px;
+  left: 10px;
+}
+
+/* DOTS INDICATOR PER FOTO ARTICOLO */
+.article-photo-dots {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  padding: 6px 10px;
+  border-radius: 15px;
+  z-index: 11;
+}
+
+.article-photo-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+}
+
+.article-photo-dot.active {
+  background: #fbbf24;
+  width: 18px;
+  border-radius: 3px;
+}
+
+/* QUANDO ESPANSA - DOTS PIÙ GRANDI */
+.vetrina-card-big.expanded .article-photo-dots {
+  bottom: 50px;
+  padding: 8px 12px;
+  gap: 8px;
+}
+
+.vetrina-card-big.expanded .article-photo-dot {
+  width: 8px;
+  height: 8px;
+}
+
+.vetrina-card-big.expanded .article-photo-dot.active {
+  width: 22px;
+  border-radius: 4px;
+}
 /* ============================================
    MODAL DETTAGLIO SUPER FIGO - IPHONE + PC
    ============================================ */
