@@ -320,14 +320,14 @@ h1 {
 }
 
 .stat-card.expanded .stat-icon {
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  border-color: #0a0a0a;
-  color: #fbbf24 !important;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  box-shadow: 0 10px 40px rgba(251, 191, 36, 0.6);
+  border-color: #fbbf24;
+  color: #0a0a0a !important;
 }
 
 .stat-card.expanded .stat-icon i {
-  color: #fbbf24 !important;
+  color: #0a0a0a !important;
 }
 
 .stat-card.expanded .stat-label,
@@ -1935,34 +1935,241 @@ h1 {
 }
 
 /* OTTIMIZZAZIONI IPHONE */
+/* OTTIMIZZAZIONE IPHONE - MOBILE FIRST */
 @media (max-width: 768px) {
+  /* Dashboard Cruscotti */
   .dashboard {
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px;
-    margin: 15px;
+    gap: 10px;
+    margin: 12px;
   }
   
   .stat-card {
-    padding: 20px;
+    padding: 16px 12px;
+    border-radius: 18px;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  .stat-label {
+    font-size: 10px !important;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
   }
   
   .stat-value {
-    font-size: 24px !important;
+    font-size: 22px !important;
+    margin-bottom: 4px;
+    line-height: 1.1;
   }
   
+  .stat-subtext {
+    font-size: 10px !important;
+    line-height: 1.2;
+  }
+  
+  /* Cruscotti Espansi */
+  .stat-card.expanded {
+    transform: translateY(-4px) scale(1.02);
+  }
+  
+  .stat-card.expanded .stat-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+  }
+  
+  .stat-card.expanded .stat-label {
+    font-size: 11px !important;
+  }
+  
+  .stat-card.expanded .stat-value {
+    font-size: 26px !important;
+  }
+  
+  .stat-card.expanded .stat-subtext {
+    font-size: 11px !important;
+  }
+  
+  /* Articoli */
   .article-card:not(.expanded) .article-image-wrapper {
-    height: 180px;
+    height: 200px;
   }
   
   .article-card.expanded .article-image-wrapper {
-    height: 300px;
+    height: 320px;
   }
   
+  .article-compact-info {
+    padding: 16px;
+  }
+  
+  .article-name {
+    font-size: 17px;
+    line-height: 1.3;
+  }
+  
+  .article-category {
+    font-size: 11px;
+    margin-bottom: 12px;
+  }
+  
+  /* Valutazione */
+  .article-rating-modern {
+    padding: 10px;
+  }
+  
+  .rating-num {
+    font-size: 22px;
+  }
+  
+  .rating-sep,
+  .rating-max {
+    font-size: 15px;
+  }
+  
+  .rating-bar-wrap {
+    height: 7px;
+  }
+  
+  /* Valori */
+  .value-box {
+    padding: 10px;
+  }
+  
+  .value-box-label {
+    font-size: 9px;
+    margin-bottom: 5px;
+  }
+  
+  .value-box-amount {
+    font-size: 16px;
+  }
+  
+  /* Sezione Espansa */
+  .expanded-box {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .expanded-box-title {
+    font-size: 11px;
+    margin-bottom: 10px;
+  }
+  
+  .stat-row {
+    padding: 8px 0;
+  }
+  
+  .stat-row-label {
+    font-size: 12px;
+  }
+  
+  .stat-row-value {
+    font-size: 14px;
+  }
+  
+  /* Gallery */
+  .article-gallery {
+    gap: 8px;
+  }
+  
+  /* Azioni */
   .article-actions-expanded {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
   
+  .action-btn {
+    padding: 16px;
+    font-size: 14px;
+  }
+  
+  /* Form Elements */
   input, select, textarea {
     font-size: 16px !important; /* Previene zoom automatico */
+  }
+  
+  /* Header */
+  h1 {
+    font-size: 32px;
+  }
+  
+  .header-logo {
+    width: 40px;
+    height: 40px;
+  }
+  
+  /* Filtri */
+  .filter-box {
+    margin: 12px;
+  }
+  
+  /* Paginazione */
+  .pagination-container {
+    margin: 12px;
+    padding: 12px 16px;
+  }
+  
+  .pagination-info {
+    font-size: 12px;
+  }
+  
+  .pagination-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 13px;
+  }
+}
+
+/* iPhone SE e schermi molto piccoli */
+@media (max-width: 375px) {
+  .dashboard {
+    gap: 8px;
+    margin: 10px;
+  }
+  
+  .stat-card {
+    padding: 14px 10px;
+    min-height: 130px;
+  }
+  
+  .stat-icon {
+    width: 45px;
+    height: 45px;
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+  
+  .stat-label {
+    font-size: 9px !important;
+    margin-bottom: 6px;
+  }
+  
+  .stat-value {
+    font-size: 20px !important;
+  }
+  
+  .stat-subtext {
+    font-size: 9px !important;
+  }
+  
+  .article-name {
+    font-size: 16px;
+  }
+  
+  .value-box-amount {
+    font-size: 15px;
   }
 }
