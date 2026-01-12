@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vetrine - NODO</title>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    .vetrine-grid {
+      display: grid;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .vetrina-card-big {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+      border-radius: 24px;
+      overflow: hidden;
+      border: 2px solid #2a2a2a;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    .vetrina-card-big:hover {
+      border-color: #10b981;
+      box-shadow: 0 12px 50px rgba(16, 185, 129, 0.4);
+    }
+
+    .vetrina-header {
+      padding: 20px;
+      background: linear-gradient(135deg, #1f1f1f 0%, #1a1a1a 100%);
+      border-bottom: 3px solid #10b981;
+      cursor: pointer;
+    }
+
+    .vetrina-top {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .vetrina-avatar {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border: 3px solid #10b981;
+      flex-shrink: 0;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+    }
+
+    .vetrina-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .vetrina-info h3 {
+      font-size: 20px;
+      font-weight: 800;
+      color: #10b981;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .vetrina-expand-icon {
+      font-size: 16px;
+      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      flex-shrink: 0;
+    }
+
+    .vetrina-card-big.expanded .vetrina-expand-icon {
+      transform: rotate(180deg);
+    }
+
+    .vetrina-info p {
+      color: #9ca3af;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .vetrina-rating {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fbbf24;
+    }
+
+    .vetrina-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding: 20px;
+      gap: 16px;
+      background: #0f0f0f;
+    }
+
+    .vetrina-stat {
+      text-align: center;
+      padding: 16px;
+      background: #1a1a1a;
+      border-radius: 16px;
+      border: 2px solid #2a2a2a;
+    }
+
+    .vetrina-stat-value {
+      font-size: 24px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+
+    .vetrina-stat-label {
+      font-size: 12px;
+      color: #9ca3af;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .vetrina-items-preview {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      padding: 20px;
+      background: #0a0a0a;
+    }
+
+    .vetrina-item {
+      background: #1a1a1a;
+      padding: 16px;
+      border-radius: 12px;
+      border: 2px solid #2a2a2a;
+      text-align: center;
+      color: #e5e7eb;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.3s ease;
+    }
+
+    .vetrina-item:hover {
+      border-color: #10b981;
+      background: #1f1f1f;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .vetrina-details {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      background: #0a0a0a;
+    }
+
+    .vetrina-card-big.expanded .vetrina-details {
+      max-height: 2000px;
+    }
+
+    .vetrina-full-catalog {
+      padding: 20px;
+    }
+
+    .vetrina-full-catalog h4 {
+      color: #10b981;
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .vetrina-catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .vetrina-items-preview,
+      .vetrina-catalog-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="particles" id="particles"></div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>
+      <div class="header-logo">
+        <div class="header-logo-ring header-logo-ring-1"></div>
+        <div class="header-logo-ring header-logo-ring-2"></div>
+      </div>
+      <span class="title-gradient">VETRINE</span>
+    </h1>
+  </div>
+
+  <!-- MENU NAVIGAZIONE -->
+  <div class="bottom-nav">
+    <button class="menu-main-btn" id="menuBtn" onclick="toggleMenu()">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="menu-items" id="menuItems"></div>
+  </div>
+
+  <!-- CONTENUTO PRINCIPALE -->
+  <div class="main-content">
+    <div class="vetrine-grid" id="vetrineContainer"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <div class="footer-logo">NODO</div>
+    <div class="footer-text">La tua collezione Pokémon sempre con te</div>
+    <div class="footer-social">
+      <a href="#" class="footer-social-link"><i class="fab fa-instagram"></i></a>
+      <a href="#" class="footer-social-link"><i class="fab fa-twitter"></i></a>
+      <a href="#" class="footer-social-link"><i class="fab fa-discord"></i></a>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="js/common.js"></script>
+  <script src="js/menu.js"></script>
+  <script src="js/vetrine.js"></script>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      loadVetrineContent();
+    });
+  </script>
+</body>
+</html>
