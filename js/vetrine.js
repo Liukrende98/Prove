@@ -532,9 +532,19 @@ function createVetrinaCard(userId, username, citta, disponibili, acquisti, media
 }
 
 function createArticoloCard(articolo) {
-  const foto = articolo.foto_principale || articolo.image_url || '';
-  const imageHtml = foto 
-    ? `<img src="${foto}" alt="${articolo.Nome}">` 
+  // Raccogli tutte le foto disponibili
+  const allPhotos = [];
+  if (articolo.Foto1) allPhotos.push(articolo.Foto1);
+  if (articolo.Foto2) allPhotos.push(articolo.Foto2);
+  if (articolo.Foto3) allPhotos.push(articolo.Foto3);
+  if (articolo.Foto4) allPhotos.push(articolo.Foto4);
+  if (articolo.Foto5) allPhotos.push(articolo.Foto5);
+  
+  const hasMultiplePhotos = allPhotos.length > 1;
+  const mainPhoto = allPhotos[0] || articolo.foto_principale || articolo.image_url || '';
+  
+  const imageHtml = mainPhoto 
+    ? `<img src="${mainPhoto}" alt="${articolo.Nome}" id="article-img-${articolo.id}">` 
     : '<div class="vetrina-product-placeholder"><i class="fas fa-image"></i></div>';
   
   // Badge disponibilità
@@ -551,10 +561,32 @@ function createArticoloCard(articolo) {
     </div>
   ` : '';
   
+  // Navigation buttons (solo se più foto)
+  const navHtml = hasMultiplePhotos ? `
+    <button class="article-photo-nav article-photo-prev" onclick="event.stopPropagation(); changeArticlePhoto('${articolo.id}', -1)">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="article-photo-nav article-photo-next" onclick="event.stopPropagation(); changeArticlePhoto('${articolo.id}', 1)">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+    <div class="article-photo-dots" id="dots-${articolo.id}">
+      ${allPhotos.map((_, idx) => `<div class="article-photo-dot ${idx === 0 ? 'active' : ''}"></div>`).join('')}
+    </div>
+  ` : '';
+  
+  // Fullscreen button
+  const fullscreenHtml = mainPhoto ? `
+    <button class="article-fullscreen-btn" onclick="event.stopPropagation(); openFullscreen('${mainPhoto.replace(/'/g, "\\'")}')">
+      <i class="fas fa-expand"></i>
+    </button>
+  ` : '';
+  
   return `
-    <div class="vetrina-product-card" onclick="mostraDettaglioArticolo('${articolo.id}')">
+    <div class="vetrina-product-card" onclick="mostraDettaglioArticolo('${articolo.id}')" data-article-id="${articolo.id}" data-current-photo="0" data-photos='${JSON.stringify(allPhotos)}'>
       <div class="vetrina-product-image">
         ${imageHtml}
+        ${navHtml}
+        ${fullscreenHtml}
         ${badgeHtml}
         ${ratingHtml}
       </div>
@@ -1721,3 +1753,116 @@ function goToImage(index) {
 // OVERRIDE FUNZIONI - VERSIONE PULITA
 
 // ============================================
+
+// ============================================
+// NAVIGAZIONE FOTO ARTICOLI
+// ============================================
+
+function changeArticlePhoto(articleId, direction) {
+  const card = document.querySelector(`[data-article-id="${articleId}"]`);
+  if (!card) return;
+  
+  const photos = JSON.parse(card.getAttribute('data-photos') || '[]');
+  if (photos.length === 0) return;
+  
+  let currentIndex = parseInt(card.getAttribute('data-current-photo') || '0');
+  currentIndex += direction;
+  
+  // Loop circolare
+  if (currentIndex < 0) currentIndex = photos.length - 1;
+  if (currentIndex >= photos.length) currentIndex = 0;
+  
+  // Aggiorna immagine
+  const img = card.querySelector(`#article-img-${articleId}`);
+  if (img) {
+    img.src = photos[currentIndex];
+    
+    // Aggiorna anche bottone fullscreen
+    const fullscreenBtn = card.querySelector('.article-fullscreen-btn');
+    if (fullscreenBtn) {
+      fullscreenBtn.setAttribute('onclick', `event.stopPropagation(); openFullscreen('${photos[currentIndex].replace(/'/g, "\\'")}')` );
+    }
+  }
+  
+  // Aggiorna dots
+  const dotsContainer = card.querySelector(`#dots-${articleId}`);
+  if (dotsContainer) {
+    const dots = dotsContainer.querySelectorAll('.article-photo-dot');
+    dots.forEach((dot, idx) => {
+      if (idx === currentIndex) {
+        dot.classList.add('active');
+      } else {
+        dot.classList.remove('active');
+      }
+    });
+  }
+  
+  // Salva nuovo indice
+  card.setAttribute('data-current-photo', currentIndex);
+}
+
+function openFullscreen(imageUrl) {
+  // Apri immagine in nuova tab/finestra
+  const fullscreenWindow = window.open('', '_blank');
+  
+  if (fullscreenWindow) {
+    fullscreenWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Immagine Full Screen</title>
+        <style>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          body {
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+          }
+          img {
+            max-width: 100%;
+            max-height: 100vh;
+            object-fit: contain;
+          }
+          .close-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(251, 191, 36, 0.95);
+            color: #000;
+            border: none;
+            font-size: 24px;
+            font-weight: 900;
+            cursor: pointer;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(251, 191, 36, 0.6);
+            transition: all 0.2s;
+          }
+          .close-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(251, 191, 36, 0.8);
+          }
+        </style>
+      </head>
+      <body>
+        <button class="close-btn" onclick="window.close()">✕</button>
+        <img src="${imageUrl}" alt="Full Screen">
+      </body>
+      </html>
+    `);
+    fullscreenWindow.document.close();
+  }
+}
