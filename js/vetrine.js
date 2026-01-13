@@ -1694,13 +1694,10 @@ function openFullscreen(imageUrl) {
 }
 
 // ============================================
-// PROFILO VENDITORE (DA SVILUPPARE)
+// PROFILO VENDITORE
 // ============================================
 
 function openVendorProfile(userId, username) {
-  // TODO: Implementare pagina profilo venditore
-  alert(`Apertura profilo venditore: ${username}\n\nFunzionalità in sviluppo!`);
-  
-  // Quando sarà pronto:
-  // window.location.href = `profilo-venditore.html?id=${userId}`;
+  // Reindirizza alla pagina profilo venditore
+  window.location.href = `vetrina-venditore.html?vendor=${username}`;
 }
