@@ -1,8 +1,9 @@
 // ========================================
-// VETRINA VENDITORE - VERSIONE CORRETTA
+// VETRINA VENDITORE - VERSIONE DEFINITIVA
 // ========================================
 
 let currentVendorId = null;
+let currentVendorUsername = null;
 let currentUserId = null;
 let currentProducts = [];
 let currentPosts = [];
@@ -21,6 +22,8 @@ async function initVendorPage() {
     return;
   }
 
+  currentVendorUsername = vendorUsername;
+
   const { data: { user } } = await supabaseClient.auth.getUser();
   if (user) {
     currentUserId = user.id;
@@ -33,6 +36,8 @@ async function initVendorPage() {
 // CARICAMENTO PROFILO VENDITORE
 // ========================================
 async function loadVendorProfile(username) {
+  console.log('🔍 Caricamento profilo:', username);
+  
   // 1. Carica utente
   const { data: utente, error: utenteError } = await supabaseClient
     .from('Utenti')
@@ -41,36 +46,44 @@ async function loadVendorProfile(username) {
     .single();
 
   if (utenteError || !utente) {
-    console.error('Errore:', utenteError);
+    console.error('❌ Errore:', utenteError);
     alert('Venditore non trovato!');
     window.location.href = 'vetrine.html';
     return;
   }
 
+  console.log('✅ Utente trovato:', utente);
   currentVendorId = utente.id;
 
-  // 2. Carica articoli dell'utente (usa lo stesso metodo di vetrine.js)
-  const { data: articoli, error: articoliError } = await supabaseClient
+  // 2. Carica TUTTI gli articoli con JOIN, poi filtro quelli del venditore
+  const { data: tuttiArticoli, error: articoliError } = await supabaseClient
     .from('Articoli')
     .select(`
       *,
       Utenti (
         id,
-        username,
-        citta,
-        email
+        username
       )
     `)
-    .eq('Utenti.id', utente.id)
     .eq('in_vetrina', true);
 
-  const totaleArticoli = articoli ? articoli.length : 0;
+  console.log('📦 Tutti articoli caricati:', tuttiArticoli?.length);
+
+  // FILTRA SOLO GLI ARTICOLI DI QUESTO VENDITORE
+  const articoliVenditore = tuttiArticoli?.filter(art => 
+    art.Utenti?.id === utente.id
+  ) || [];
+
+  console.log('✅ Articoli del venditore:', articoliVenditore.length);
+  const totaleArticoli = articoliVenditore.length;
 
   // 3. Conta followers
   const { count: followersCount } = await supabaseClient
     .from('Followers')
     .select('*', { count: 'exact', head: true })
     .eq('utente_seguito_id', utente.id);
+
+  console.log('👥 Followers:', followersCount);
 
   // 4. Verifica se l'utente corrente segue questo venditore
   let isFollowing = false;
@@ -99,8 +112,11 @@ async function loadVendorProfile(username) {
     isFollowing: isFollowing
   });
 
-  // 6. Carica prodotti e post
-  await loadVendorProducts(utente.id);
+  // 6. Salva articoli e caricali
+  currentProducts = articoliVenditore;
+  renderProducts(currentProducts);
+
+  // 7. Carica post
   await loadVendorPosts(utente.id);
 }
 
@@ -167,38 +183,13 @@ function renderVendorProfile(vendor) {
 }
 
 // ========================================
-// CARICAMENTO PRODOTTI
-// ========================================
-async function loadVendorProducts(utenteId) {
-  const { data: articoli, error } = await supabaseClient
-    .from('Articoli')
-    .select(`
-      *,
-      Utenti (
-        id,
-        username
-      )
-    `)
-    .eq('Utenti.id', utenteId)
-    .eq('in_vetrina', true)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Errore:', error);
-    currentProducts = [];
-  } else {
-    currentProducts = articoli || [];
-  }
-
-  renderProducts(currentProducts);
-}
-
-// ========================================
 // RENDER PRODOTTI
 // ========================================
 function renderProducts(products) {
   const container = document.getElementById('productsGrid');
   if (!container) return;
+
+  console.log('🎨 Rendering', products.length, 'prodotti');
 
   if (products.length === 0) {
     container.innerHTML = `
@@ -211,24 +202,42 @@ function renderProducts(products) {
     return;
   }
 
-  container.innerHTML = products.map(product => `
-    <div class="vendor-product-card" onclick="openProduct('${product.id}')">
-      <div class="vendor-product-image">
-        <img src="${product.immagine_url || 'https://via.placeholder.com/300x420/1a1a1a/fbbf24?text=No+Image'}" alt="${product.Nome}" onerror="this.src='https://via.placeholder.com/300x420/1a1a1a/fbbf24?text=No+Image'">
-        <div class="product-price-badge">€${parseFloat(product.prezzo_vendita || 0).toFixed(2)}</div>
+  container.innerHTML = products.map(product => {
+    // Usa i campi GIUSTI come nel file originale
+    const mainPhoto = product.Foto1 || product.foto_principale || 'https://via.placeholder.com/300x420/1a1a1a/fbbf24?text=No+Image';
+    const disponibile = product.Presente === true;
+    const rating = product.ValutazioneStato || 0;
+
+    return `
+      <div class="vendor-product-card" onclick="openProduct('${product.id}')">
+        <div class="vendor-product-image">
+          <img src="${mainPhoto}" alt="${product.Nome}" onerror="this.src='https://via.placeholder.com/300x420/1a1a1a/fbbf24?text=No+Image'">
+          ${disponibile 
+            ? '<div class="product-availability-badge badge-disponibile"><i class="fas fa-check"></i> DISPONIBILE</div>'
+            : '<div class="product-availability-badge badge-non-disponibile"><i class="fas fa-times"></i> NON DISPONIBILE</div>'
+          }
+          ${rating > 0 ? `
+            <div class="vetrina-product-rating">
+              <i class="fas fa-star"></i> ${rating}/10
+            </div>
+          ` : ''}
+          <div class="product-price-badge">€${parseFloat(product.prezzo_vendita || 0).toFixed(2)}</div>
+        </div>
+        <div class="vendor-product-info">
+          <div class="vendor-product-name">${product.Nome || 'Prodotto'}</div>
+          <div class="vendor-product-category">${product.Categoria || 'Carte'}</div>
+        </div>
       </div>
-      <div class="vendor-product-info">
-        <div class="vendor-product-name">${product.Nome || 'Prodotto'}</div>
-        <div class="vendor-product-category">${product.Categoria || 'Carte'}</div>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 // ========================================
 // CARICAMENTO POST
 // ========================================
 async function loadVendorPosts(utenteId) {
+  console.log('📰 Caricamento post per utente:', utenteId);
+
   const { data, error } = await supabaseClient
     .from('PostSocial')
     .select(`
@@ -239,9 +248,11 @@ async function loadVendorPosts(utenteId) {
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Errore:', error);
+    console.error('❌ Errore caricamento post:', error);
     currentPosts = [];
   } else {
+    console.log('✅ Post caricati:', data?.length);
+    
     let likedPosts = [];
     if (currentUserId) {
       const { data: likes } = await supabaseClient
