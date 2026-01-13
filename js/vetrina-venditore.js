@@ -312,7 +312,7 @@ function resetFilters() {
 }
 
 // ========================================
-// RENDER PRODOTTI - IMMAGINI SVG + RATING SOPRA PREZZO
+// RENDER PRODOTTI - IMMAGINI SVG + RATING SOPRA PREZZO + DEBUG
 // ========================================
 function renderProducts(products) {
   const container = document.getElementById('productsGrid');
@@ -328,9 +328,19 @@ function renderProducts(products) {
     return;
   }
 
+  console.log('🎨 DEBUG - Primo prodotto:', products[0]);
+  console.log('🖼️ DEBUG - Foto1:', products[0].Foto1);
+  console.log('🖼️ DEBUG - foto_principale:', products[0].foto_principale);
+  console.log('🖼️ DEBUG - image_url:', products[0].image_url);
+
   container.innerHTML = products.map(p => {
-    // ✅ FIX IMMAGINI - Usa Foto1 o placeholder SVG
-    const mainPhoto = p.Foto1 || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="420"%3E%3Crect fill="%231a1a1a" width="300" height="420"/%3E%3Ctext fill="%23fbbf24" font-family="Arial" font-size="24" font-weight="bold" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
+    // ✅ PROVA TUTTI I CAMPI POSSIBILI
+    const mainPhoto = p.Foto1 || p.foto_principale || p.image_url || p.Foto2 || p.Foto3 || '';
+    
+    console.log(`📦 Prodotto ${p.id} - Nome: ${p.Nome}, Foto1: ${p.Foto1}, mainPhoto: ${mainPhoto}`);
+    
+    // Se NON c'è foto, usa placeholder SVG
+    const photoUrl = mainPhoto || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="420"%3E%3Crect fill="%231a1a1a" width="300" height="420"/%3E%3Ctext fill="%23fbbf24" font-family="Arial" font-size="24" font-weight="bold" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
     
     const disponibile = p.Presente === true;
     const rating = p.ValutazioneStato || 0;
@@ -338,7 +348,7 @@ function renderProducts(products) {
     return `
       <div class="vendor-product-card" onclick="openProduct('${p.id}')">
         <div class="vendor-product-image">
-          <img src="${mainPhoto}" alt="${p.Nome}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'300\\' height=\\'420\\'%3E%3Crect fill=\\'%231a1a1a\\' width=\\'300\\' height=\\'420\\'/%3E%3Ctext fill=\\'%23fbbf24\\' font-family=\\'Arial\\' font-size=\\'24\\' font-weight=\\'bold\\' x=\\'50%25\\' y=\\'50%25\\' text-anchor=\\'middle\\' dy=\\'.3em\\'%3ENo Image%3C/text%3E%3C/svg%3E'">
+          <img src="${photoUrl}" alt="${p.Nome}" onerror="console.error('❌ Errore caricamento immagine:', '${photoUrl}'); this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'300\\' height=\\'420\\'%3E%3Crect fill=\\'%231a1a1a\\' width=\\'300\\' height=\\'420\\'/%3E%3Ctext fill=\\'%23fbbf24\\' font-family=\\'Arial\\' font-size=\\'24\\' font-weight=\\'bold\\' x=\\'50%25\\' y=\\'50%25\\' text-anchor=\\'middle\\' dy=\\'.3em\\'%3ENo Image%3C/text%3E%3C/svg%3E'">
           ${disponibile 
             ? '<div class="product-availability-badge badge-disponibile"><i class="fas fa-check"></i> DISPONIBILE</div>'
             : '<div class="product-availability-badge badge-non-disponibile"><i class="fas fa-times"></i> ESAURITO</div>'
