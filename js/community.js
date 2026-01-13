@@ -1,367 +1,311 @@
-// ========================================
-// COMMUNITY.JS - COMPATIBILE CON AUTH PERSONALIZZATO
-// ========================================
-
-let allPosts = [];
-let filteredPosts = [];
-
-// ========================================
-// GET CURRENT USER - USA IL TUO SISTEMA AUTH
-// ========================================
-function getCurrentUserId() {
-  // USA IL TUO SISTEMA DI AUTH!
-  const userId = localStorage.getItem('nodo_user_id');
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   
-  if (userId) {
-    console.log('✅ Utente loggato:', userId);
-    return userId;
-  }
+  <!-- META iOS DARK MODE -->
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
-  console.error('❌ Utente NON loggato!');
-  return null;
-}
+  <title>Community - NODO</title>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css">
 
-// ========================================
-// INIZIALIZZAZIONE
-// ========================================
-async function initCommunityPage() {
-  console.log('🚀 INIT Community Page');
-  
-  // requireAuth() è già chiamato nell'HTML, quindi se arrivi qui sei loggato
-  const userId = getCurrentUserId();
-  if (!userId) {
-    console.error('❌ Errore: userId null ma requireAuth non ha reindirizzato!');
-    return;
-  }
-  
-  console.log('✅ Utente verificato:', userId);
-  
-  await loadCommunityContentFromDB();
-}
+  <style>
+    /* OTTIMIZZAZIONE iPHONE */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
 
-// ========================================
-// CARICAMENTO POST
-// ========================================
-async function loadCommunityContentFromDB() {
-  console.log('📰 Caricamento post...');
-  const container = document.getElementById('communityContainer');
-  if (!container) {
-    console.error('❌ Container non trovato!');
-    return;
-  }
+    /* HEADER */
+    .page-header {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+      padding: 20px;
+      border-bottom: 2px solid #fbbf24;
+      box-shadow: 0 4px 20px rgba(251, 191, 36, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
 
-  container.innerHTML = `
-    <div class="empty-state">
-      <i class="fas fa-spinner fa-spin"></i>
-      <h3>Caricamento...</h3>
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header-logo {
+      font-size: 28px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .main-content {
+      padding-bottom: 100px;
+      padding-top: 10px;
+    }
+
+    /* COMMUNITY FEED */
+    .community-feed {
+      display: grid;
+      gap: 16px;
+      padding: 0 12px;
+    }
+
+    /* POST CARD - OTTIMIZZATO iPHONE */
+    .post-card {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+      border-radius: 24px;
+      padding: 18px;
+      border: 2px solid #2a2a2a;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+      transition: all 0.2s ease;
+    }
+
+    .post-card:active {
+      transform: scale(0.98);
+      border-color: #3b82f6;
+    }
+
+    /* POST HEADER */
+    .post-header {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 14px;
+      align-items: center;
+    }
+
+    .post-avatar {
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #fff;
+      font-weight: 900;
+      border: 2px solid #3b82f6;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5);
+    }
+
+    .post-user {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .post-user h4 {
+      font-size: 16px;
+      font-weight: 900;
+      color: #fbbf24;
+      margin: 0 0 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .post-user span {
+      font-size: 13px;
+      color: #6b7280;
+      font-weight: 700;
+    }
+
+    .badge-owner {
+      background: #fbbf24;
+      color: #000;
+      padding: 2px 8px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    /* POST CONTENT */
+    .post-content {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #e5e7eb;
+      font-weight: 600;
+      margin-bottom: 14px;
+      word-wrap: break-word;
+    }
+
+    /* POST IMAGE */
+    .post-image {
+      width: 100%;
+      height: 220px;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 14px;
+      background: #0a0a0a;
+    }
+
+    .post-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* POST ACTIONS - iPHONE FRIENDLY */
+    .post-actions {
+      display: flex;
+      gap: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #2a2a2a;
+    }
+
+    .post-action-btn {
+      flex: 1;
+      background: #1a1a1a;
+      border: 2px solid #3b82f6;
+      border-radius: 14px;
+      padding: 12px;
+      color: #3b82f6;
+      font-size: 15px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-height: 48px; /* iPHONE touch target */
+    }
+
+    .post-action-btn:active {
+      transform: scale(0.95);
+      background: #3b82f6;
+      color: #fff;
+    }
+
+    .post-action-btn.liked {
+      background: #ef4444;
+      border-color: #ef4444;
+      color: #fff;
+    }
+
+    .post-action-btn.liked:active {
+      background: #dc2626;
+      border-color: #dc2626;
+    }
+
+    .post-action-btn.disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .post-action-btn i {
+      font-size: 18px;
+    }
+
+    .post-action-btn span {
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6b7280;
+    }
+
+    .empty-state i {
+      font-size: 64px;
+      color: #374151;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      font-size: 20px;
+      font-weight: 800;
+      color: #9ca3af;
+      margin-bottom: 10px;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="particles" id="particles"></div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>
+      <div class="header-logo">
+        <div class="header-logo-ring header-logo-ring-1"></div>
+        <div class="header-logo-ring header-logo-ring-2"></div>
+      </div>
+      <span class="title-gradient">NODO</span>
+    </h1>
+  </div>
+
+  <!-- MENU NAVIGAZIONE -->
+  <div class="bottom-nav">
+    <button class="menu-main-btn" id="menuBtn" onclick="toggleMenu()">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="menu-items" id="menuItems"></div>
+  </div>
+
+  <!-- CONTENUTO PRINCIPALE -->
+  <div class="main-content">
+    <!-- FEED COMMUNITY -->
+    <div class="community-feed" id="communityContainer"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <div class="footer-logo">NODO</div>
+    <div class="footer-text">La tua collezione Pokémon sempre con te</div>
+    <div class="footer-social">
+      <a href="#" class="footer-social-link"><i class="fab fa-instagram"></i></a>
+      <a href="#" class="footer-social-link"><i class="fab fa-twitter"></i></a>
+      <a href="#" class="footer-social-link"><i class="fab fa-discord"></i></a>
     </div>
-  `;
+  </div>
 
-  try {
-    const { data: posts, error } = await supabaseClient
-      .from('PostSocial')
-      .select(`
-        *,
-        utente:Utenti!PostSocial_utente_id_fkey (
-          id,
-          username,
-          nome_completo
-        )
-      `)
-      .order('created_at', { ascending: false })
-      .limit(100);
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/menu.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/community.js"></script>
 
-    console.log('📦 Query result:', { postsCount: posts?.length, error });
-
-    if (error) {
-      console.error('❌ Errore query:', error);
-      container.innerHTML = `
-        <div class="empty-state">
-          <i class="fas fa-exclamation-triangle"></i>
-          <h3>Errore caricamento</h3>
-          <p>${error.message}</p>
-        </div>
-      `;
-      return;
-    }
-
-    if (!posts || posts.length === 0) {
-      console.warn('⚠️ Nessun post trovato');
-      container.innerHTML = `
-        <div class="empty-state">
-          <i class="fas fa-users"></i>
-          <h3>Nessun post</h3>
-          <p>Sii il primo a pubblicare!</p>
-        </div>
-      `;
-      return;
-    }
-
-    console.log('✅ Post caricati:', posts.length);
-
-    const currentUserId = getCurrentUserId();
-    
-    let likedPosts = [];
-    if (currentUserId) {
-      const { data: likes } = await supabaseClient
-        .from('PostLikes')
-        .select('post_id')
-        .eq('utente_id', currentUserId);
-      likedPosts = likes ? likes.map(l => l.post_id) : [];
-      console.log('💖 Post liked:', likedPosts.length);
-    }
-
-    allPosts = posts.map(post => ({
-      id: post.id,
-      utente_id: post.utente_id,
-      username: post.utente?.username || 'Utente',
-      avatar: post.utente?.username?.substring(0, 2).toUpperCase() || 'U',
-      contenuto: post.contenuto,
-      immagine_url: post.immagine_url,
-      likes: post.likes_count || 0,
-      comments: post.comments_count || 0,
-      time: formatDate(new Date(post.created_at)),
-      liked: likedPosts.includes(post.id)
-    }));
-
-    filteredPosts = [...allPosts];
-    console.log('🎨 Rendering', filteredPosts.length, 'post');
-    renderCommunityFeed();
-
-  } catch (error) {
-    console.error('❌ Errore catturato:', error);
-    container.innerHTML = `
-      <div class="empty-state">
-        <i class="fas fa-exclamation-triangle"></i>
-        <h3>Errore imprevisto</h3>
-        <p>${error.message}</p>
-      </div>
-    `;
-  }
-}
-
-// ========================================
-// RENDER FEED
-// ========================================
-function renderCommunityFeed() {
-  const container = document.getElementById('communityContainer');
-  if (!container) return;
-
-  if (filteredPosts.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <i class="fas fa-search"></i>
-        <h3>Nessun risultato</h3>
-        <p>Prova con un'altra ricerca</p>
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = filteredPosts.map(post => createPostCard(post)).join('');
-  console.log('✅ Render completato:', filteredPosts.length);
-}
-
-// ========================================
-// CREA CARD POST
-// ========================================
-function createPostCard(post) {
-  return `
-    <div class="post-card" id="post-${post.id}">
-      <div class="post-header">
-        <div class="post-avatar">${post.avatar}</div>
-        <div class="post-user">
-          <h4>${post.username}</h4>
-          <span>${post.time}</span>
-        </div>
-      </div>
-      <div class="post-content">${post.contenuto}</div>
-      ${post.immagine_url ? `
-        <div class="post-image">
-          <img src="${post.immagine_url}" alt="Post" onerror="this.parentElement.style.display='none'">
-        </div>
-      ` : ''}
-      <div class="post-actions">
-        <button class="post-action-btn ${post.liked ? 'liked' : ''}" 
-                onclick="togglePostLike('${post.id}', '${post.utente_id}')">
-          <i class="fas fa-heart"></i>
-          <span id="likes-${post.id}">${post.likes}</span>
-        </button>
-        <button class="post-action-btn" onclick="viewPostComments('${post.id}')">
-          <i class="fas fa-comment"></i>
-          <span id="comments-${post.id}">${post.comments}</span>
-        </button>
-      </div>
-    </div>
-  `;
-}
-
-// ========================================
-// FILTRO
-// ========================================
-function filterPosts() {
-  const search = document.getElementById('filterSearch')?.value.toLowerCase() || '';
-  console.log('🔍 Filtrando:', search);
-
-  if (search === '') {
-    filteredPosts = [...allPosts];
-  } else {
-    filteredPosts = allPosts.filter(post =>
-      post.contenuto.toLowerCase().includes(search) ||
-      post.username.toLowerCase().includes(search)
-    );
-  }
-
-  console.log('✅ Filtrati:', filteredPosts.length);
-  renderCommunityFeed();
-}
-
-// ========================================
-// TOGGLE LIKE
-// ========================================
-async function togglePostLike(postId, postOwnerId) {
-  console.log('💖 Toggle like post:', postId);
-  
-  const currentUserId = getCurrentUserId();
-  if (!currentUserId) {
-    alert('❌ Errore: Non sei loggato!\n\nFai logout e login di nuovo.');
-    return;
-  }
-  
-  console.log('✅ User ID:', currentUserId);
-  console.log('📝 Post owner:', postOwnerId);
-
-  if (postOwnerId === currentUserId) {
-    alert('❌ Non puoi mettere like ai tuoi post!');
-    return;
-  }
-
-  const post = allPosts.find(p => p.id === postId);
-  if (!post) {
-    console.error('❌ Post non trovato');
-    return;
-  }
-
-  console.log('🔄 Toggle:', post.liked ? 'UNLIKE' : 'LIKE');
-
-  try {
-    if (post.liked) {
-      console.log('🔴 Rimuovendo like...');
-      const { error } = await supabaseClient
-        .from('PostLikes')
-        .delete()
-        .eq('post_id', postId)
-        .eq('utente_id', currentUserId);
-      
-      if (error) {
-        console.error('❌ Errore unlike:', error);
-        alert('❌ Errore rimozione like: ' + error.message);
-        return;
-      }
-      
-      post.liked = false;
-      post.likes--;
-      console.log('✅ Unlike effettuato');
-    } else {
-      console.log('💚 Aggiungendo like...');
-      const { error } = await supabaseClient
-        .from('PostLikes')
-        .insert([{ post_id: postId, utente_id: currentUserId }]);
-      
-      if (error) {
-        console.error('❌ Errore like:', error);
-        alert('❌ Errore aggiunta like: ' + error.message);
-        return;
-      }
-      
-      post.liked = true;
-      post.likes++;
-      console.log('✅ Like effettuato');
-    }
-
-    // Aggiorna UI con animazione
-    const likesSpan = document.getElementById(`likes-${postId}`);
-    if (likesSpan) {
-      // Animazione
-      likesSpan.style.transform = 'scale(1.3)';
-      likesSpan.style.color = '#fbbf24';
-      setTimeout(() => {
-        likesSpan.textContent = post.likes;
-        setTimeout(() => {
-          likesSpan.style.transform = 'scale(1)';
-          likesSpan.style.color = '';
-        }, 150);
-      }, 100);
-    }
-
-    const btn = event.currentTarget;
-    if (post.liked) {
-      btn.classList.add('liked');
-    } else {
-      btn.classList.remove('liked');
-    }
-
-    const filteredPost = filteredPosts.find(p => p.id === postId);
-    if (filteredPost) {
-      filteredPost.liked = post.liked;
-      filteredPost.likes = post.likes;
-    }
-
-  } catch (error) {
-    console.error('❌ Errore catturato:', error);
-    alert('❌ Errore imprevisto: ' + error.message);
-  }
-}
-
-// ========================================
-// COMMENTI
-// ========================================
-async function viewPostComments(postId) {
-  console.log('💬 Commenti:', postId);
-  
-  const { data: comments, error } = await supabaseClient
-    .from('PostCommenti')
-    .select(`
-      *,
-      utente:Utenti!PostCommenti_utente_id_fkey (username)
-    `)
-    .eq('post_id', postId)
-    .order('created_at', { ascending: true });
-
-  if (error) {
-    console.error('❌ Errore:', error);
-    alert('Errore caricamento commenti');
-    return;
-  }
-
-  if (comments.length === 0) {
-    alert('💬 Nessun commento.\n\nSii il primo!');
-  } else {
-    const text = comments.map(c => `👤 ${c.utente.username}: ${c.contenuto}`).join('\n\n');
-    alert(`💬 Commenti (${comments.length}):\n\n${text}`);
-  }
-}
-
-// ========================================
-// UTILITY
-// ========================================
-function formatDate(date) {
-  const now = new Date();
-  const diff = now - date;
-  const minutes = Math.floor(diff / (1000 * 60));
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-  if (minutes < 1) return 'Pochi secondi fa';
-  if (minutes < 60) return `${minutes} min fa`;
-  if (hours < 24) return `${hours} ore fa`;
-  if (days === 1) return '1 giorno fa';
-  if (days < 7) return `${days} giorni fa`;
-  return date.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
-}
-
-window.initCommunityPage = initCommunityPage;
-window.togglePostLike = togglePostLike;
-window.viewPostComments = viewPostComments;
-window.filterPosts = filterPosts;
-window.getCurrentUserId = getCurrentUserId;
+  <script>
+    requireAuth();
+    window.addEventListener('DOMContentLoaded', () => {
+      initCommunityPage();
+    });
+  </script>
+</body>
+</html>
