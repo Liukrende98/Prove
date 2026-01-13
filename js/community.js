@@ -255,7 +255,7 @@ async function togglePostLike(postId, postOwnerId) {
       
       if (error) {
         console.error('❌ Errore unlike:', error);
-        alert('Errore. Riprova!');
+        alert('❌ Errore rimozione like: ' + error.message);
         return;
       }
       
@@ -270,7 +270,7 @@ async function togglePostLike(postId, postOwnerId) {
       
       if (error) {
         console.error('❌ Errore like:', error);
-        alert('Errore. Riprova!');
+        alert('❌ Errore aggiunta like: ' + error.message);
         return;
       }
       
@@ -279,9 +279,20 @@ async function togglePostLike(postId, postOwnerId) {
       console.log('✅ Like effettuato');
     }
 
-    // Aggiorna UI
+    // Aggiorna UI con animazione
     const likesSpan = document.getElementById(`likes-${postId}`);
-    if (likesSpan) likesSpan.textContent = post.likes;
+    if (likesSpan) {
+      // Animazione
+      likesSpan.style.transform = 'scale(1.3)';
+      likesSpan.style.color = '#fbbf24';
+      setTimeout(() => {
+        likesSpan.textContent = post.likes;
+        setTimeout(() => {
+          likesSpan.style.transform = 'scale(1)';
+          likesSpan.style.color = '';
+        }, 150);
+      }, 100);
+    }
 
     const btn = event.currentTarget;
     if (post.liked) {
@@ -297,8 +308,8 @@ async function togglePostLike(postId, postOwnerId) {
     }
 
   } catch (error) {
-    console.error('❌ Errore:', error);
-    alert('Errore. Riprova!');
+    console.error('❌ Errore catturato:', error);
+    alert('❌ Errore imprevisto: ' + error.message);
   }
 }
 
