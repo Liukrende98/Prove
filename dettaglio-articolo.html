@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Dettaglio Articolo - NODO</title>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/dettaglio-articolo.css">
+</head>
+
+<body>
+  <div class="particles" id="particles"></div>
+
+  <!-- HEADER FISSO -->
+  <div class="detail-header">
+    <button class="back-btn" onclick="goBack()">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="header-title">Dettaglio Articolo</div>
+    <button class="share-btn" onclick="shareArticolo()">
+      <i class="fas fa-share-alt"></i>
+    </button>
+  </div>
+
+  <!-- LOADING STATE -->
+  <div class="loading-state" id="loadingState">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Caricamento...</div>
+  </div>
+
+  <!-- CONTENUTO ARTICOLO -->
+  <div class="detail-content" id="detailContent" style="display: none;">
+    
+    <!-- GALLERIA FOTO -->
+    <div class="photo-gallery">
+      <div class="photo-slider" id="photoSlider"></div>
+      <div class="photo-dots" id="photoDots"></div>
+    </div>
+
+    <!-- STATO DISPONIBILITÀ -->
+    <div class="availability-banner" id="availabilityBanner"></div>
+
+    <!-- INFO PRINCIPALE -->
+    <div class="article-info-card">
+      <h1 class="article-name" id="articleName"></h1>
+      <div class="article-category" id="articleCategory"></div>
+      
+      <div class="article-price-section">
+        <div class="price-label">
+          <i class="fas fa-tag"></i> Prezzo
+        </div>
+        <div class="price-value" id="articlePrice"></div>
+      </div>
+
+      <div class="article-rating" id="articleRating"></div>
+    </div>
+
+    <!-- DESCRIZIONE -->
+    <div class="description-card" id="descriptionCard"></div>
+
+    <!-- INFO VENDITORE -->
+    <div class="seller-card">
+      <h3 class="card-title">
+        <i class="fas fa-user-tie"></i> Venditore
+      </h3>
+      <div class="seller-info">
+        <div class="seller-avatar">
+          <i class="fas fa-store"></i>
+        </div>
+        <div class="seller-details">
+          <div class="seller-name" id="sellerName"></div>
+          <div class="seller-location" id="sellerLocation"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DETTAGLI ARTICOLO -->
+    <div class="details-card">
+      <h3 class="card-title">
+        <i class="fas fa-info-circle"></i> Dettagli
+      </h3>
+      <div class="details-grid" id="detailsGrid"></div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER FISSO CON AZIONE -->
+  <div class="detail-footer" id="detailFooter" style="display: none;">
+    <button class="contact-btn" id="contactBtn">
+      <i class="fas fa-envelope"></i> Contatta Venditore
+    </button>
+  </div>
+
+  <!-- LIGHTBOX FOTO -->
+  <div class="photo-lightbox" id="photoLightbox" onclick="closeLightbox()">
+    <button class="lightbox-close">
+      <i class="fas fa-times"></i>
+    </button>
+    <img src="" alt="Foto" id="lightboxImage">
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/dettaglio-articolo.js"></script>
+
+  <script>
+    requireAuth();
+    window.addEventListener('DOMContentLoaded', () => {
+      loadArticoloDettaglio();
+    });
+  </script>
+</body>
+</html>
