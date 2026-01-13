@@ -552,22 +552,44 @@ async function toggleFollowVendor(vendorUserId) {
 
   try {
     if (isFollowing) {
+      // UNFOLLOW
       const { error } = await supabaseClient
         .from('Followers')
         .delete()
         .eq('utente_seguito_id', vendorUserId)
         .eq('follower_id', currentUserId);
+      
       if (!error) {
         btn.classList.remove('following');
         btn.innerHTML = '<i class="fas fa-user-plus"></i><span>Segui</span>';
+        
+        // ✅ DECREMENTA COUNTER FOLLOWER (il secondo stat-box)
+        const statBoxes = document.querySelectorAll('.vendor-stat-box .vendor-stat-value');
+        if (statBoxes.length >= 2) {
+          const followerCounter = statBoxes[1]; // Secondo = Follower
+          const currentCount = parseInt(followerCounter.textContent) || 0;
+          followerCounter.textContent = Math.max(0, currentCount - 1);
+          console.log('✅ Follower decrementati:', currentCount - 1);
+        }
       }
     } else {
+      // FOLLOW
       const { error } = await supabaseClient
         .from('Followers')
         .insert([{ utente_seguito_id: vendorUserId, follower_id: currentUserId }]);
+      
       if (!error) {
         btn.classList.add('following');
         btn.innerHTML = '<i class="fas fa-user-check"></i><span>Seguito</span>';
+        
+        // ✅ INCREMENTA COUNTER FOLLOWER (il secondo stat-box)
+        const statBoxes = document.querySelectorAll('.vendor-stat-box .vendor-stat-value');
+        if (statBoxes.length >= 2) {
+          const followerCounter = statBoxes[1]; // Secondo = Follower
+          const currentCount = parseInt(followerCounter.textContent) || 0;
+          followerCounter.textContent = currentCount + 1;
+          console.log('✅ Follower incrementati:', currentCount + 1);
+        }
       }
     }
   } catch (error) {
