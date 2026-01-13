@@ -1,4 +1,731 @@
-// ========================================
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+  <!-- META iOS DARK MODE -->
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <title>Profilo Venditore - NODO</title>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CSS Base + Stile Filtri da vetrine.html -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    /* OTTIMIZZAZIONE iPHONE */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    /* HEADER */
+    .page-header {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+      padding: 20px;
+      border-bottom: 2px solid #fbbf24;
+      box-shadow: 0 4px 20px rgba(251, 191, 36, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header-logo {
+      font-size: 28px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .main-content {
+      padding-bottom: 100px;
+      padding-top: 10px;
+    }
+
+    /* PROFILO VENDITORE */
+    .vendor-header-card {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+      border-radius: 24px;
+      padding: 20px;
+      margin: 12px;
+      border: 2px solid rgba(251, 191, 36, 0.3);
+      box-shadow: 0 8px 30px rgba(251, 191, 36, 0.3);
+    }
+
+    .vendor-header-top {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+
+    .vendor-header-avatar {
+      width: 80px;
+      height: 80px;
+      min-width: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      color: #0a0a0a;
+      border: 4px solid #fbbf24;
+      box-shadow: 0 0 30px rgba(251, 191, 36, 0.7);
+    }
+
+    .vendor-header-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .vendor-header-name {
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .vendor-name-text {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .vendor-header-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .vendor-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #9ca3af;
+      font-weight: 700;
+    }
+
+    .vendor-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .vendor-stat-box {
+      background: #1a1a1a;
+      border: 2px solid #2a2a2a;
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .vendor-stat-value {
+      font-size: 24px;
+      font-weight: 900;
+      color: #fbbf24;
+      margin-bottom: 4px;
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    .vendor-stat-label {
+      font-size: 12px;
+      color: #6b7280;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .vendor-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .vendor-action-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      min-height: 52px;
+    }
+
+    .vendor-action-btn:active {
+      transform: scale(0.95);
+    }
+
+    .vendor-action-primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: #fff;
+    }
+
+    .vendor-action-secondary {
+      background: #1a1a1a;
+      border: 2px solid #fbbf24;
+      color: #fbbf24;
+    }
+
+    .vendor-action-secondary.following {
+      background: #fbbf24;
+      color: #000;
+    }
+
+    /* TAB NAVIGATION */
+    .vendor-tabs {
+      display: flex;
+      gap: 10px;
+      padding: 12px;
+      background: #0a0a0a;
+      border-radius: 20px;
+      margin: 12px;
+    }
+
+    .vendor-tab {
+      flex: 1;
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 900;
+      text-align: center;
+      background: #1a1a1a;
+      color: #6b7280;
+      border: 2px solid #2a2a2a;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .vendor-tab.active {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #000;
+      border-color: #fbbf24;
+    }
+
+    .vendor-tab:active {
+      transform: scale(0.95);
+    }
+
+    /* TAB CONTENT */
+    .tab-content {
+      display: none;
+      padding: 0 12px 20px 12px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* FILTRI (STILE VETRINE) */
+    .vendor-filter {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+      border-radius: 20px;
+      margin-bottom: 16px;
+      border: 2px solid #2a2a2a;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .filter-header {
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      background: #1a1a1a;
+    }
+
+    .filter-header:active {
+      background: #2a2a2a;
+    }
+
+    .filter-title {
+      font-size: 16px;
+      font-weight: 900;
+      color: #fbbf24;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .filter-toggle-icon {
+      color: #fbbf24;
+      transition: transform 0.3s ease;
+    }
+
+    .vendor-filter.expanded .filter-toggle-icon {
+      transform: rotate(180deg);
+    }
+
+    .filter-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .vendor-filter.expanded .filter-content {
+      max-height: 1000px;
+    }
+
+    .filter-body {
+      padding: 16px;
+    }
+
+    .filter-group {
+      margin-bottom: 16px;
+    }
+
+    .filter-label {
+      font-size: 13px;
+      font-weight: 800;
+      color: #9ca3af;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+    }
+
+    .filter-input,
+    .filter-select {
+      width: 100%;
+      background: #0a0a0a;
+      border: 2px solid #3b82f6;
+      border-radius: 12px;
+      padding: 12px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      outline: none;
+    }
+
+    .filter-input::placeholder {
+      color: #6b7280;
+    }
+
+    .filter-price-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .filter-checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: #0a0a0a;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .filter-checkbox {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+    }
+
+    .filter-checkbox-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #e5e7eb;
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .filter-btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 900;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn:active {
+      transform: scale(0.95);
+    }
+
+    .filter-btn-reset {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    /* GRIGLIA PRODOTTI */
+    .vendor-products-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .vendor-product-card {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+      border-radius: 20px;
+      overflow: hidden;
+      border: 2px solid #2a2a2a;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .vendor-product-card:active {
+      transform: scale(0.97);
+      border-color: #3b82f6;
+    }
+
+    .vendor-product-image {
+      position: relative;
+      width: 100%;
+      padding-top: 140%;
+      background: #0a0a0a;
+      overflow: hidden;
+    }
+
+    .vendor-product-image img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .product-price-badge {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #000;
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 900;
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.5);
+    }
+
+    .product-availability-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge-disponibile {
+      background: #10b981;
+      color: #fff;
+    }
+
+    .badge-non-disponibile {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    .vetrina-product-rating {
+      position: absolute;
+      bottom: 42px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.9);
+      color: #fbbf24;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .vendor-product-info {
+      padding: 12px;
+    }
+
+    .vendor-product-name {
+      font-size: 14px;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .vendor-product-category {
+      font-size: 12px;
+      color: #6b7280;
+      font-weight: 700;
+    }
+
+    /* POST FEED */
+    .vendor-post-card {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 2px solid #2a2a2a;
+    }
+
+    .vendor-post-header {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+
+    .vendor-post-avatar {
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #fff;
+      font-weight: 900;
+    }
+
+    .vendor-post-user h4 {
+      font-size: 16px;
+      font-weight: 900;
+      color: #fbbf24;
+      margin: 0 0 4px 0;
+    }
+
+    .vendor-post-user span {
+      font-size: 13px;
+      color: #6b7280;
+      font-weight: 700;
+    }
+
+    .badge-owner {
+      background: #fbbf24;
+      color: #000;
+      padding: 2px 8px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 900;
+      margin-left: 6px;
+    }
+
+    .vendor-post-content {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #e5e7eb;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .vendor-post-image {
+      width: 100%;
+      height: 200px;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      background: #0a0a0a;
+    }
+
+    .vendor-post-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .vendor-post-actions {
+      display: flex;
+      gap: 10px;
+      padding-top: 12px;
+      border-top: 1px solid #2a2a2a;
+    }
+
+    .vendor-post-action-btn {
+      flex: 1;
+      background: #1a1a1a;
+      border: 2px solid #3b82f6;
+      border-radius: 12px;
+      padding: 10px;
+      color: #3b82f6;
+      font-size: 14px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-height: 44px;
+    }
+
+    .vendor-post-action-btn:active {
+      transform: scale(0.95);
+      background: #3b82f6;
+      color: #fff;
+    }
+
+    .vendor-post-action-btn.liked {
+      background: #ef4444;
+      border-color: #ef4444;
+      color: #fff;
+    }
+
+    .vendor-post-action-btn.disabled {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .vendor-post-action-btn span {
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6b7280;
+    }
+
+    .empty-state i {
+      font-size: 56px;
+      color: #374151;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="particles" id="particles"></div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>
+      <div class="header-logo">
+        <div class="header-logo-ring header-logo-ring-1"></div>
+        <div class="header-logo-ring header-logo-ring-2"></div>
+      </div>
+      <span class="title-gradient">NODO</span>
+    </h1>
+  </div>
+
+  <!-- MENU NAVIGAZIONE -->
+  <div class="bottom-nav">
+    <button class="menu-main-btn" id="menuBtn" onclick="toggleMenu()">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="menu-items" id="menuItems"></div>
+  </div>
+
+  <!-- CONTENUTO PRINCIPALE -->
+  <div class="main-content">
+    <!-- PROFILO VENDITORE -->
+    <div id="vendorProfile"></div>
+
+    <!-- TAB NAVIGATION -->
+    <div class="vendor-tabs">
+      <div class="vendor-tab active" data-tab="vetrina" onclick="switchTab('vetrina')">
+        <i class="fas fa-store"></i> Vetrina
+      </div>
+      <div class="vendor-tab" data-tab="posts" onclick="switchTab('posts')">
+        <i class="fas fa-newspaper"></i> Post
+      </div>
+    </div>
+
+    <!-- TAB VETRINA -->
+    <div class="tab-content active" id="vetrinaTab">
+      <!-- FILTRI -->
+      <div id="filtersContainer"></div>
+
+      <!-- GRIGLIA PRODOTTI -->
+      <div class="vendor-products-grid" id="productsGrid"></div>
+    </div>
+
+    <!-- TAB POSTS -->
+    <div class="tab-content" id="postsTab">
+      <div id="postsFeed"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <div class="footer-logo">NODO</div>
+    <div class="footer-text">La tua collezione Pokémon sempre con te</div>
+    <div class="footer-social">
+      <a href="#" class="footer-social-link"><i class="fab fa-instagram"></i></a>
+      <a href="#" class="footer-social-link"><i class="fab fa-twitter"></i></a>
+      <a href="#" class="footer-social-link"><i class="fab fa-discord"></i></a>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/menu.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/vetrina-venditore.js"></script>
+
+  <script>
+    requireAuth();
+    window.addEventListener('DOMContentLoaded', () => {
+      initVendorPage();
+    });
+  </script>
+</body>
+</html>// ========================================
 // VETRINA VENDITORE - COMPATIBILE CON AUTH PERSONALIZZATO
 // ========================================
 
