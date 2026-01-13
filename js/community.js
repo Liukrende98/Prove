@@ -1,77 +1,23 @@
 // ========================================
-// COMMUNITY.JS - DEFINITIVO CON FORZA LOGIN
+// COMMUNITY.JS - COMPATIBILE CON AUTH PERSONALIZZATO
 // ========================================
 
 let allPosts = [];
 let filteredPosts = [];
 
 // ========================================
-// GET CURRENT USER - CON REDIRECT AUTOMATICO
+// GET CURRENT USER - USA IL TUO SISTEMA AUTH
 // ========================================
-async function getCurrentUserId() {
-  console.log('🔍 Ottenendo utente corrente...');
+function getCurrentUserId() {
+  // USA IL TUO SISTEMA DI AUTH!
+  const userId = localStorage.getItem('nodo_user_id');
   
-  // METODO 1: auth.getUser()
-  try {
-    const { data: { user }, error } = await supabaseClient.auth.getUser();
-    if (user && user.id) {
-      console.log('✅ Utente via auth.getUser():', user.id);
-      // SALVA per sicurezza
-      localStorage.setItem('userData', JSON.stringify(user));
-      sessionStorage.setItem('userData', JSON.stringify(user));
-      return user.id;
-    }
-  } catch (error) {
-    console.warn('⚠️ auth.getUser() fallito');
+  if (userId) {
+    console.log('✅ Utente loggato:', userId);
+    return userId;
   }
   
-  // METODO 2: getSession()
-  try {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (session && session.user && session.user.id) {
-      console.log('✅ Utente via getSession():', session.user.id);
-      localStorage.setItem('userData', JSON.stringify(session.user));
-      sessionStorage.setItem('userData', JSON.stringify(session.user));
-      return session.user.id;
-    }
-  } catch (error) {
-    console.warn('⚠️ getSession() fallito');
-  }
-  
-  // METODO 3: localStorage
-  try {
-    const userData = localStorage.getItem('userData');
-    if (userData) {
-      const parsed = JSON.parse(userData);
-      if (parsed.id) {
-        console.log('✅ Utente via localStorage:', parsed.id);
-        return parsed.id;
-      }
-    }
-  } catch (error) {
-    console.warn('⚠️ localStorage fallito');
-  }
-  
-  // METODO 4: sessionStorage
-  try {
-    const userData = sessionStorage.getItem('userData');
-    if (userData) {
-      const parsed = JSON.parse(userData);
-      if (parsed.id) {
-        console.log('✅ Utente via sessionStorage:', parsed.id);
-        return parsed.id;
-      }
-    }
-  } catch (error) {
-    console.warn('⚠️ sessionStorage fallito');
-  }
-  
-  console.error('❌ TUTTI i metodi falliti! REDIRECT a login!');
-  
-  // ⚠️ SE ARRIVA QUI = NON LOGGATO → REDIRECT!
-  alert('⚠️ Sessione scaduta!\n\nDevi fare login di nuovo.');
-  window.location.href = 'login.html';
-  
+  console.error('❌ Utente NON loggato!');
   return null;
 }
 
@@ -81,10 +27,10 @@ async function getCurrentUserId() {
 async function initCommunityPage() {
   console.log('🚀 INIT Community Page');
   
-  // VERIFICA SUBITO se loggato
-  const userId = await getCurrentUserId();
+  // requireAuth() è già chiamato nell'HTML, quindi se arrivi qui sei loggato
+  const userId = getCurrentUserId();
   if (!userId) {
-    // getCurrentUserId già fa redirect, ma per sicurezza:
+    console.error('❌ Errore: userId null ma requireAuth non ha reindirizzato!');
     return;
   }
   
@@ -153,7 +99,7 @@ async function loadCommunityContentFromDB() {
 
     console.log('✅ Post caricati:', posts.length);
 
-    const currentUserId = await getCurrentUserId();
+    const currentUserId = getCurrentUserId();
     
     let likedPosts = [];
     if (currentUserId) {
@@ -276,8 +222,11 @@ function filterPosts() {
 async function togglePostLike(postId, postOwnerId) {
   console.log('💖 Toggle like post:', postId);
   
-  const currentUserId = await getCurrentUserId();
-  if (!currentUserId) return; // getCurrentUserId già fa redirect
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    alert('❌ Errore: Non sei loggato!\n\nFai logout e login di nuovo.');
+    return;
+  }
   
   console.log('✅ User ID:', currentUserId);
   console.log('📝 Post owner:', postOwnerId);
