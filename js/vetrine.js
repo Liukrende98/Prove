@@ -637,7 +637,6 @@ async function mostraDettaglioArticolo(articoloId) {
 function chiudiModalDettaglio(event) {
   // Funzione non più utilizzata - si usa pagina dettaglio-articolo.html
 }
-}
 
 function contattaVenditore(username, email, nomeArticolo) {
   const messaggio = `Ciao ${username}! Sono interessato all'articolo "${nomeArticolo}". Possiamo parlarne?`;
@@ -812,129 +811,6 @@ let currentModalArticolo = null;
 function openModalDettaglio(articolo) {
   // Apri nuova pagina di dettaglio ottimizzata per mobile
   window.location.href = `dettaglio-articolo.html?id=${articolo.id}`;
-}
-        <div class="modal-body-scroll">
-          <!-- GALLERIA SWIPE -->
-          <div class="modal-gallery-swipe" id="gallerySwipe">
-            ${immagini.length > 0 ? `
-              <div class="gallery-container" id="galleryContainer" style="transform: translateX(0%)">
-                ${immagini.map((img, index) => `
-                  <div class="gallery-slide">
-                    <img src="${img}" alt="Foto ${index + 1}">
-                  </div>
-                `).join('')}
-              </div>
-              
-              ${immagini.length > 1 ? `
-                <button class="gallery-nav-btn gallery-nav-prev" onclick="prevImage()">
-                  <i class="fas fa-chevron-left"></i>
-                </button>
-                <button class="gallery-nav-btn gallery-nav-next" onclick="nextImage()">
-                  <i class="fas fa-chevron-right"></i>
-                </button>
-                
-                <div class="gallery-dots">
-                  ${immagini.map((_, index) => `
-                    <div class="gallery-dot ${index === 0 ? 'active' : ''}" data-index="${index}"></div>
-                  `).join('')}
-                </div>
-              ` : ''}
-            ` : `
-              <div class="gallery-placeholder">
-                <i class="fas fa-image"></i>
-                <p>Nessuna immagine disponibile</p>
-              </div>
-            `}
-          </div>
-          
-          <!-- BADGE DISPONIBILITÀ -->
-          <div class="product-availability-badge ${badgeClass}" style="position:relative;width:fit-content;margin-bottom:16px;">
-            ${badgeText}
-          </div>
-          
-          <!-- PREZZO GRANDE -->
-          <div class="modal-price-big">
-            <div class="modal-price-label">
-              <i class="fas fa-tag"></i> PREZZO
-            </div>
-            <div class="modal-price-value">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
-          </div>
-          
-          <!-- INFO PRODOTTO -->
-          <div class="modal-info-section">
-            <div class="modal-info-section-title">
-              <i class="fas fa-info-circle"></i> Informazioni
-            </div>
-            <div class="modal-info-grid">
-              ${articolo.Categoria ? `
-                <div class="modal-info-item">
-                  <div class="modal-info-label"><i class="fas fa-tag"></i> Categoria</div>
-                  <div class="modal-info-value">${articolo.Categoria}</div>
-                </div>
-              ` : ''}
-              ${articolo.Set ? `
-                <div class="modal-info-item">
-                  <div class="modal-info-label"><i class="fas fa-layer-group"></i> Set</div>
-                  <div class="modal-info-value">${articolo.Set}</div>
-                </div>
-              ` : ''}
-              ${articolo.Espansione ? `
-                <div class="modal-info-item">
-                  <div class="modal-info-label"><i class="fas fa-boxes"></i> Espansione</div>
-                  <div class="modal-info-value">${articolo.Espansione}</div>
-                </div>
-              ` : ''}
-              ${articolo.Numero ? `
-                <div class="modal-info-item">
-                  <div class="modal-info-label"><i class="fas fa-hashtag"></i> Numero</div>
-                  <div class="modal-info-value">${articolo.Numero}</div>
-                </div>
-              ` : ''}
-              ${articolo.Rarita ? `
-                <div class="modal-info-item">
-                  <div class="modal-info-label"><i class="fas fa-gem"></i> Rarità</div>
-                  <div class="modal-info-value">${articolo.Rarita}</div>
-                </div>
-              ` : ''}
-              ${articolo.ValutazioneStato ? `
-                <div class="modal-info-item">
-                  <div class="modal-info-label"><i class="fas fa-star"></i> Valutazione</div>
-                  <div class="modal-info-value">${articolo.ValutazioneStato}/10</div>
-                </div>
-              ` : ''}
-              ${articolo.Lingua ? `
-                <div class="modal-info-item">
-                  <div class="modal-info-label"><i class="fas fa-language"></i> Lingua</div>
-                  <div class="modal-info-value">${articolo.Lingua}</div>
-                </div>
-              ` : ''}
-            </div>
-          </div>
-          
-          <!-- DESCRIZIONE -->
-          ${articolo.Descrizione ? `
-            <div class="modal-description">
-              <h4><i class="fas fa-align-left"></i> Descrizione</h4>
-              <p>${articolo.Descrizione}</p>
-            </div>
-          ` : ''}
-          
-          <!-- BOTTONE CONTATTA -->
-          <button class="modal-contact-btn" onclick="contattaVenditore('${articolo.Utenti?.username || 'Venditore'}', '${articolo.Utenti?.email || ''}', '${articolo.Nome || 'Prodotto'}')">
-            <i class="fas fa-envelope"></i> CONTATTA VENDITORE
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
-  
-  document.body.insertAdjacentHTML('beforeend', modalHtml);
-  document.body.style.overflow = 'hidden';
-  
-  // Setup touch gestures per swipe
-  if (immagini.length > 1) {
-    setupGallerySwipe();
-  }
 }
 
 function closeModalDettaglio(event) {
