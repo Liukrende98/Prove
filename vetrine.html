@@ -180,10 +180,12 @@
   display: none;
 }
 
-/* QUANDO ESPANSA - PIÙ PADDING */
+/* QUANDO ESPANSA - COMPORTAMENTO GALLERIA CON SNAP */
 .vetrina-card-big.expanded .vetrina-products-scroll {
-  padding: 24px 12px;
+  padding: 24px 0;
   background: rgba(0, 0, 0, 0.5);
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 12px;
 }
 
 .vetrina-products-container {
@@ -194,9 +196,11 @@
   transition: gap 0.4s ease;
 }
 
-/* QUANDO ESPANSA - PIÙ GAP */
+/* QUANDO ESPANSA - GALLERIA FULL WIDTH */
 .vetrina-card-big.expanded .vetrina-products-container {
-  gap: 20px;
+  gap: 12px;
+  padding-right: 12px;
+  padding-left: 12px;
 }
 
 /* ARTICOLI - PICCOLI DI DEFAULT */
@@ -212,12 +216,13 @@
   position: relative;
 }
 
-/* QUANDO ESPANSA - ARTICOLI GIGANTI */
+/* QUANDO ESPANSA - ARTICOLI FULL WIDTH CON SCROLL SNAP */
 .vetrina-card-big.expanded .vetrina-product-card {
-  min-width: 340px;
-  max-width: 340px;
+  min-width: calc(100vw - 36px);
+  max-width: calc(100vw - 36px);
   border: 3px solid rgba(251, 191, 36, 0.5);
   box-shadow: 0 10px 40px rgba(251, 191, 36, 0.4);
+  scroll-snap-align: center;
 }
 
 .vetrina-product-card:active {
@@ -388,6 +393,61 @@
   opacity: 0;
 }
 
+/* DOTS INDICATOR PER ARTICOLI NELLA VETRINA ESPANSA */
+.vetrina-products-dots {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0 12px 0;
+  position: relative;
+  z-index: 10;
+}
+
+.vetrina-card-big.expanded .vetrina-products-dots {
+  display: flex;
+}
+
+.vetrina-product-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(251, 191, 36, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.vetrina-product-dot.active {
+  width: 24px;
+  border-radius: 4px;
+  background: #fbbf24;
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
+}
+
+/* COUNTER ARTICOLI NELLA VETRINA ESPANSA */
+.vetrina-products-counter {
+  position: absolute;
+  top: 30px;
+  right: 18px;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fbbf24;
+  z-index: 20;
+  border: 2px solid rgba(251, 191, 36, 0.3);
+  display: none;
+  align-items: center;
+  gap: 5px;
+}
+
+.vetrina-card-big.expanded .vetrina-products-counter {
+  display: flex;
+}
+
 @media (max-width: 375px) {
   .vetrina-avatar {
     width: 54px;
@@ -396,8 +456,8 @@
   }
   
   .vetrina-card-big.expanded .vetrina-product-card {
-    min-width: 320px;
-    max-width: 320px;
+    min-width: calc(100vw - 36px);
+    max-width: calc(100vw - 36px);
   }
   
   .vetrina-card-big.expanded .vetrina-product-image {
