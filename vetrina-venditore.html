@@ -734,6 +734,8 @@
   </div>
 
   <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
   <script src="js/common.js"></script>
   <script src="js/menu.js"></script>
   <script src="js/auth.js"></script>
@@ -742,9 +744,7 @@
   <script>
     requireAuth();
     window.addEventListener('DOMContentLoaded', () => {
-      loadVendorProfile();
-      loadVendorProducts();
-      loadVendorPosts();
+      initVendorPage();
     });
   </script>
 </body>
