@@ -9,7 +9,7 @@ let currentUserId = null;
 // INIZIALIZZAZIONE
 // ========================================
 async function initCommunityPage() {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await supabaseClient.auth.getUser();
   if (user) {
     currentUserId = user.id;
   }
@@ -23,7 +23,7 @@ async function loadCommunityContentFromDB() {
   const container = document.getElementById('communityContainer');
   if (!container) return;
 
-  const { data: posts, error } = await supabase
+  const { data: posts, error } = await supabaseClient
     .from('PostSocial')
     .select(`
       *,
@@ -44,7 +44,7 @@ async function loadCommunityContentFromDB() {
 
   let likedPosts = [];
   if (currentUserId) {
-    const { data: likes } = await supabase
+    const { data: likes } = await supabaseClient
       .from('PostLikes')
       .select('post_id')
       .eq('utente_id', currentUserId);
