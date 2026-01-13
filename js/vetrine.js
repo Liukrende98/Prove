@@ -608,6 +608,12 @@ function createArticoloCompleto(articolo) {
 }
 
 async function mostraDettaglioArticolo(articoloId) {
+  // Apri nuova pagina di dettaglio ottimizzata per mobile
+  window.location.href = `dettaglio-articolo.html?id=${articoloId}`;
+}
+
+// VECCHIA FUNZIONE MODALE (BACKUP)
+async function mostraDettaglioArticoloOLD(articoloId) {
   try {
     // Carica articolo con dati utente
     const { data: articolo, error } = await supabaseClient
@@ -847,6 +853,12 @@ let currentGalleryIndex = 0;
 let currentModalArticolo = null;
 
 function openModalDettaglio(articolo) {
+  // Apri nuova pagina di dettaglio ottimizzata per mobile
+  window.location.href = `dettaglio-articolo.html?id=${articolo.id}`;
+}
+
+// VECCHIA FUNZIONE MODALE (BACKUP)
+function openModalDettaglioOLD(articolo) {
   currentModalArticolo = articolo;
   currentGalleryIndex = 0;
   
