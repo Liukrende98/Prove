@@ -1,5 +1,5 @@
 // ========================================
-// VETRINA VENDITORE - SEMPLIFICATO
+// VETRINA VENDITORE - VERSIONE CORRETTA
 // ========================================
 
 let currentVendorId = null;
@@ -21,7 +21,7 @@ async function initVendorPage() {
     return;
   }
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await supabaseClient.auth.getUser();
   if (user) {
     currentUserId = user.id;
   }
@@ -34,7 +34,7 @@ async function initVendorPage() {
 // ========================================
 async function loadVendorProfile(username) {
   // 1. Carica utente
-  const { data: utente, error: utenteError } = await supabase
+  const { data: utente, error: utenteError } = await supabaseClient
     .from('Utenti')
     .select('*')
     .eq('username', username)
@@ -49,15 +49,25 @@ async function loadVendorProfile(username) {
 
   currentVendorId = utente.id;
 
-  // 2. Conta articoli in vendita
-  const { count: totaleArticoli } = await supabase
+  // 2. Carica articoli dell'utente (usa lo stesso metodo di vetrine.js)
+  const { data: articoli, error: articoliError } = await supabaseClient
     .from('Articoli')
-    .select('*', { count: 'exact', head: true })
-    .eq('utente_id', utente.id)
+    .select(`
+      *,
+      Utenti (
+        id,
+        username,
+        citta,
+        email
+      )
+    `)
+    .eq('Utenti.id', utente.id)
     .eq('in_vetrina', true);
 
+  const totaleArticoli = articoli ? articoli.length : 0;
+
   // 3. Conta followers
-  const { count: followersCount } = await supabase
+  const { count: followersCount } = await supabaseClient
     .from('Followers')
     .select('*', { count: 'exact', head: true })
     .eq('utente_seguito_id', utente.id);
@@ -65,7 +75,7 @@ async function loadVendorProfile(username) {
   // 4. Verifica se l'utente corrente segue questo venditore
   let isFollowing = false;
   if (currentUserId) {
-    const { data: followData } = await supabase
+    const { data: followData } = await supabaseClient
       .from('Followers')
       .select('id')
       .eq('utente_seguito_id', utente.id)
@@ -84,7 +94,7 @@ async function loadVendorProfile(username) {
     bio: utente.bio,
     avatar_initials: utente.username.substring(0, 2).toUpperCase(),
     member_since: new Date(utente.created_at).toLocaleDateString('it-IT', { year: 'numeric', month: 'long' }),
-    totale_articoli: totaleArticoli || 0,
+    totale_articoli: totaleArticoli,
     followersCount: followersCount || 0,
     isFollowing: isFollowing
   });
@@ -160,10 +170,16 @@ function renderVendorProfile(vendor) {
 // CARICAMENTO PRODOTTI
 // ========================================
 async function loadVendorProducts(utenteId) {
-  const { data, error } = await supabase
+  const { data: articoli, error } = await supabaseClient
     .from('Articoli')
-    .select('*')
-    .eq('utente_id', utenteId)
+    .select(`
+      *,
+      Utenti (
+        id,
+        username
+      )
+    `)
+    .eq('Utenti.id', utenteId)
     .eq('in_vetrina', true)
     .order('created_at', { ascending: false });
 
@@ -171,7 +187,7 @@ async function loadVendorProducts(utenteId) {
     console.error('Errore:', error);
     currentProducts = [];
   } else {
-    currentProducts = data || [];
+    currentProducts = articoli || [];
   }
 
   renderProducts(currentProducts);
@@ -213,7 +229,7 @@ function renderProducts(products) {
 // CARICAMENTO POST
 // ========================================
 async function loadVendorPosts(utenteId) {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from('PostSocial')
     .select(`
       *,
@@ -228,7 +244,7 @@ async function loadVendorPosts(utenteId) {
   } else {
     let likedPosts = [];
     if (currentUserId) {
-      const { data: likes } = await supabase
+      const { data: likes } = await supabaseClient
         .from('PostLikes')
         .select('post_id')
         .eq('utente_id', currentUserId);
@@ -368,7 +384,7 @@ async function togglePostLike(postId) {
 
   try {
     if (post.liked) {
-      const { error } = await supabase
+      const { error } = await supabaseClient
         .from('PostLikes')
         .delete()
         .eq('post_id', postId)
@@ -378,7 +394,7 @@ async function togglePostLike(postId) {
         post.likes--;
       }
     } else {
-      const { error } = await supabase
+      const { error } = await supabaseClient
         .from('PostLikes')
         .insert([{ post_id: postId, utente_id: currentUserId }]);
       if (!error) {
@@ -413,7 +429,7 @@ async function toggleFollowVendor(vendorUserId) {
 
   try {
     if (isFollowing) {
-      const { error } = await supabase
+      const { error } = await supabaseClient
         .from('Followers')
         .delete()
         .eq('utente_seguito_id', vendorUserId)
@@ -423,7 +439,7 @@ async function toggleFollowVendor(vendorUserId) {
         btn.innerHTML = '<i class="fas fa-user-plus"></i><span>Segui</span>';
       }
     } else {
-      const { error } = await supabase
+      const { error } = await supabaseClient
         .from('Followers')
         .insert([{ utente_seguito_id: vendorUserId, follower_id: currentUserId }]);
       if (!error) {
@@ -442,7 +458,6 @@ function contactVendor(vendorUserId) {
     alert('Devi essere loggato per contattare!');
     return;
   }
-  // Redirect alla pagina messaggi
   window.location.href = `messaggi.html?to=${vendorUserId}`;
 }
 
