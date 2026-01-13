@@ -24,9 +24,35 @@ async function initVendorPage() {
 
   currentVendorUsername = vendorUsername;
 
-  const { data: { user } } = await supabaseClient.auth.getUser();
-  if (user) {
-    currentUserId = user.id;
+  // OTTIENI UTENTE LOGGATO (prova diversi metodi)
+  try {
+    // Metodo 1: Prova con auth.getUser()
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (user && user.id) {
+      currentUserId = user.id;
+      console.log('✅ Utente loggato via auth.getUser():', currentUserId);
+    } else {
+      // Metodo 2: Prova con getSession()
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session && session.user) {
+        currentUserId = session.user.id;
+        console.log('✅ Utente loggato via getSession():', currentUserId);
+      } else {
+        // Metodo 3: Prova da localStorage
+        const userData = localStorage.getItem('userData');
+        if (userData) {
+          const parsed = JSON.parse(userData);
+          currentUserId = parsed.id;
+          console.log('✅ Utente loggato via localStorage:', currentUserId);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('⚠️ Errore ottenendo utente:', error);
+  }
+
+  if (!currentUserId) {
+    console.warn('⚠️ Nessun utente loggato trovato');
   }
 
   await loadVendorProfile(vendorUsername);
@@ -105,7 +131,7 @@ async function loadVendorProfile(username) {
     nome_completo: utente.nome_completo,
     citta: utente.citta,
     bio: utente.bio,
-    avatar_initials: utente.username.substring(0, 2).toUpperCase(),
+    avatar_icon: '<i class="fas fa-user"></i>', // Icona invece di iniziali
     member_since: new Date(utente.created_at).toLocaleDateString('it-IT', { year: 'numeric', month: 'long' }),
     totale_articoli: totaleArticoli,
     followersCount: followersCount || 0,
@@ -130,7 +156,7 @@ function renderVendorProfile(vendor) {
   container.innerHTML = `
     <div class="vendor-header-card">
       <div class="vendor-header-top">
-        <div class="vendor-header-avatar">${vendor.avatar_initials}</div>
+        <div class="vendor-header-avatar">${vendor.avatar_icon}</div>
         <div class="vendor-header-info">
           <div class="vendor-header-name">
             <span class="vendor-name-text">${vendor.username}</span>
@@ -265,6 +291,7 @@ async function loadVendorPosts(utenteId) {
 
     currentPosts = data.map(post => ({
       id: post.id,
+      utente_id: post.utente_id, // Serve per controllo anti-auto-like
       content: post.contenuto,
       time: formatDate(new Date(post.created_at)),
       likes: post.likes_count || 0,
@@ -386,12 +413,21 @@ function applyFilters() {
 // ========================================
 async function togglePostLike(postId) {
   if (!currentUserId) {
-    alert('Devi essere loggato per mettere like!');
+    alert('⚠️ Devi essere loggato per mettere like!\n\nSe sei già loggato, ricarica la pagina.');
+    console.error('❌ currentUserId è null. Ricarica la pagina!');
     return;
   }
 
   const post = currentPosts.find(p => p.id === postId);
   if (!post) return;
+
+  // CONTROLLO: Non puoi mettere like ai TUOI post
+  if (post.utente_id === currentUserId) {
+    alert('❌ Non puoi mettere like ai tuoi stessi post!');
+    return;
+  }
+
+  console.log('💖 Toggle like post:', postId, 'utente:', currentUserId);
 
   try {
     if (post.liked) {
@@ -431,9 +467,18 @@ async function togglePostLike(postId) {
 
 async function toggleFollowVendor(vendorUserId) {
   if (!currentUserId) {
-    alert('Devi essere loggato per seguire!');
+    alert('⚠️ Devi essere loggato per seguire!\n\nSe sei già loggato, ricarica la pagina.');
+    console.error('❌ currentUserId è null. Ricarica la pagina!');
     return;
   }
+
+  // CONTROLLO: Non puoi seguire te stesso
+  if (vendorUserId === currentUserId) {
+    alert('❌ Non puoi seguire te stesso!');
+    return;
+  }
+
+  console.log('👥 Toggle follow venditore:', vendorUserId, 'utente:', currentUserId);
 
   const btn = document.getElementById('followBtn');
   const isFollowing = btn.classList.contains('following');
@@ -466,9 +511,17 @@ async function toggleFollowVendor(vendorUserId) {
 
 function contactVendor(vendorUserId) {
   if (!currentUserId) {
-    alert('Devi essere loggato per contattare!');
+    alert('⚠️ Devi essere loggato per contattare!\n\nSe sei già loggato, ricarica la pagina.');
+    console.error('❌ currentUserId è null. Ricarica la pagina!');
     return;
   }
+
+  // CONTROLLO: Non puoi contattare te stesso
+  if (vendorUserId === currentUserId) {
+    alert('❌ Non puoi inviare messaggi a te stesso!');
+    return;
+  }
+
   window.location.href = `messaggi.html?to=${vendorUserId}`;
 }
 
