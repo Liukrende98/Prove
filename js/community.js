@@ -1,42 +1,80 @@
 // ========================================
-// COMMUNITY.JS - DEFINITIVO CON CONTROLLI
+// COMMUNITY.JS - ULTRA-SICURO
 // ========================================
 
 let allPosts = [];
-let currentUserId = null;
+let filteredPosts = [];
+
+// ========================================
+// GET CURRENT USER - PROVA TUTTI I METODI
+// ========================================
+async function getCurrentUserId() {
+  console.log('🔍 Ottenendo utente corrente...');
+  
+  // METODO 1: auth.getUser()
+  try {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (user && user.id) {
+      console.log('✅ Utente via auth.getUser():', user.id);
+      return user.id;
+    }
+  } catch (error) {
+    console.warn('⚠️ auth.getUser() fallito:', error);
+  }
+  
+  // METODO 2: getSession()
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session && session.user && session.user.id) {
+      console.log('✅ Utente via getSession():', session.user.id);
+      return session.user.id;
+    }
+  } catch (error) {
+    console.warn('⚠️ getSession() fallito:', error);
+  }
+  
+  // METODO 3: localStorage userData
+  try {
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      const parsed = JSON.parse(userData);
+      if (parsed.id) {
+        console.log('✅ Utente via localStorage:', parsed.id);
+        return parsed.id;
+      }
+    }
+  } catch (error) {
+    console.warn('⚠️ localStorage fallito:', error);
+  }
+  
+  // METODO 4: sessionStorage userData
+  try {
+    const userData = sessionStorage.getItem('userData');
+    if (userData) {
+      const parsed = JSON.parse(userData);
+      if (parsed.id) {
+        console.log('✅ Utente via sessionStorage:', parsed.id);
+        return parsed.id;
+      }
+    }
+  } catch (error) {
+    console.warn('⚠️ sessionStorage fallito:', error);
+  }
+  
+  console.error('❌ NESSUN metodo ha funzionato! Utente NON trovato!');
+  console.log('📋 DEBUG INFO:');
+  console.log('- localStorage.userData:', localStorage.getItem('userData'));
+  console.log('- sessionStorage.userData:', sessionStorage.getItem('userData'));
+  
+  return null;
+}
 
 // ========================================
 // INIZIALIZZAZIONE
 // ========================================
 async function initCommunityPage() {
-  // OTTIENI UTENTE LOGGATO (prova diversi metodi)
-  try {
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (user && user.id) {
-      currentUserId = user.id;
-      console.log('✅ Utente loggato via auth.getUser():', currentUserId);
-    } else {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session && session.user) {
-        currentUserId = session.user.id;
-        console.log('✅ Utente loggato via getSession():', currentUserId);
-      } else {
-        const userData = localStorage.getItem('userData');
-        if (userData) {
-          const parsed = JSON.parse(userData);
-          currentUserId = parsed.id;
-          console.log('✅ Utente loggato via localStorage:', currentUserId);
-        }
-      }
-    }
-  } catch (error) {
-    console.error('⚠️ Errore ottenendo utente:', error);
-  }
-
-  if (!currentUserId) {
-    console.warn('⚠️ Nessun utente loggato trovato');
-  }
-
+  console.log('🚀 INIT Community Page');
+  
   await loadCommunityContentFromDB();
 }
 
@@ -44,51 +82,103 @@ async function initCommunityPage() {
 // CARICAMENTO POST DAL DATABASE
 // ========================================
 async function loadCommunityContentFromDB() {
+  console.log('📰 Caricamento post dal DB...');
   const container = document.getElementById('communityContainer');
-  if (!container) return;
-
-  const { data: posts, error } = await supabaseClient
-    .from('PostSocial')
-    .select(`
-      *,
-      utente:Utenti!PostSocial_utente_id_fkey (
-        id,
-        username,
-        nome_completo
-      )
-    `)
-    .order('created_at', { ascending: false })
-    .limit(50);
-
-  if (error) {
-    console.error('Errore:', error);
-    container.innerHTML = '<p style="color: #ef4444; text-align: center; padding: 40px;">Errore caricamento feed</p>';
+  if (!container) {
+    console.error('❌ Container non trovato!');
     return;
   }
 
-  let likedPosts = [];
-  if (currentUserId) {
-    const { data: likes } = await supabaseClient
-      .from('PostLikes')
-      .select('post_id')
-      .eq('utente_id', currentUserId);
-    likedPosts = likes ? likes.map(l => l.post_id) : [];
+  // Loading
+  container.innerHTML = `
+    <div class="empty-state">
+      <i class="fas fa-spinner fa-spin"></i>
+      <h3>Caricamento...</h3>
+    </div>
+  `;
+
+  try {
+    const { data: posts, error } = await supabaseClient
+      .from('PostSocial')
+      .select(`
+        *,
+        utente:Utenti!PostSocial_utente_id_fkey (
+          id,
+          username,
+          nome_completo
+        )
+      `)
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    console.log('📦 Query result:', { posts, error });
+
+    if (error) {
+      console.error('❌ Errore query:', error);
+      container.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-exclamation-triangle"></i>
+          <h3>Errore</h3>
+          <p>${error.message}</p>
+        </div>
+      `;
+      return;
+    }
+
+    if (!posts || posts.length === 0) {
+      console.warn('⚠️ Nessun post trovato');
+      container.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-users"></i>
+          <h3>Nessun post</h3>
+          <p>Sii il primo a pubblicare!</p>
+        </div>
+      `;
+      return;
+    }
+
+    console.log('✅ Post caricati:', posts.length);
+
+    // Prendi utente corrente PER CONTROLLARE I LIKE
+    const currentUserId = await getCurrentUserId();
+    
+    let likedPosts = [];
+    if (currentUserId) {
+      const { data: likes } = await supabaseClient
+        .from('PostLikes')
+        .select('post_id')
+        .eq('utente_id', currentUserId);
+      likedPosts = likes ? likes.map(l => l.post_id) : [];
+      console.log('💖 Post liked:', likedPosts.length);
+    }
+
+    allPosts = posts.map(post => ({
+      id: post.id,
+      utente_id: post.utente_id,
+      username: post.utente?.username || 'Utente',
+      avatar: post.utente?.username?.substring(0, 2).toUpperCase() || 'U',
+      contenuto: post.contenuto,
+      immagine_url: post.immagine_url,
+      likes: post.likes_count || 0,
+      comments: post.comments_count || 0,
+      time: formatDate(new Date(post.created_at)),
+      liked: likedPosts.includes(post.id)
+    }));
+
+    filteredPosts = [...allPosts];
+    console.log('🎨 Rendering', filteredPosts.length, 'post');
+    renderCommunityFeed();
+
+  } catch (error) {
+    console.error('❌ Errore catturato:', error);
+    container.innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-exclamation-triangle"></i>
+        <h3>Errore imprevisto</h3>
+        <p>${error.message}</p>
+      </div>
+    `;
   }
-
-  allPosts = posts.map(post => ({
-    id: post.id,
-    utente_id: post.utente_id, // Serve per controllo anti-auto-like
-    username: post.utente?.username || 'Utente',
-    avatar: post.utente?.username?.substring(0, 2).toUpperCase() || 'U',
-    contenuto: post.contenuto,
-    immagine_url: post.immagine_url,
-    likes: post.likes_count || 0,
-    comments: post.comments_count || 0,
-    time: formatDate(new Date(post.created_at)),
-    liked: likedPosts.includes(post.id)
-  }));
-
-  renderCommunityFeed();
 }
 
 // ========================================
@@ -98,45 +188,46 @@ function renderCommunityFeed() {
   const container = document.getElementById('communityContainer');
   if (!container) return;
 
-  if (allPosts.length === 0) {
+  if (filteredPosts.length === 0) {
     container.innerHTML = `
-      <div style="text-align: center; padding: 60px 20px; color: #6b7280;">
-        <i class="fas fa-users" style="font-size: 64px; color: #374151; margin-bottom: 20px; opacity: 0.5;"></i>
-        <h3 style="font-size: 20px; font-weight: 800; color: #9ca3af; margin-bottom: 10px;">Nessun post</h3>
-        <p style="font-size: 14px; font-weight: 600;">Sii il primo a pubblicare!</p>
+      <div class="empty-state">
+        <i class="fas fa-search"></i>
+        <h3>Nessun risultato</h3>
+        <p>Prova con un'altra ricerca</p>
       </div>
     `;
     return;
   }
 
-  container.innerHTML = allPosts.map(post => createPostCard(post)).join('');
+  container.innerHTML = filteredPosts.map(post => createPostCard(post)).join('');
+  console.log('✅ Render completato:', filteredPosts.length);
 }
 
 // ========================================
 // CREA CARD POST
 // ========================================
 function createPostCard(post) {
-  // Mostra se il post è TUO
-  const isMyPost = post.utente_id === currentUserId;
-  const badgeOwner = isMyPost ? '<span style="background: #fbbf24; color: #000; padding: 2px 8px; border-radius: 8px; font-size: 10px; font-weight: 900; margin-left: 8px;">TUO POST</span>' : '';
-
+  // Non possiamo sapere se è "mio post" finché non facciamo l'azione
+  // Ma possiamo mostrare il badge solo se l'id matcha
+  
   return `
     <div class="post-card" id="post-${post.id}">
       <div class="post-header">
         <div class="post-avatar">${post.avatar}</div>
         <div class="post-user">
-          <h4>${post.username} ${badgeOwner}</h4>
+          <h4>${post.username}</h4>
           <span>${post.time}</span>
         </div>
       </div>
       <div class="post-content">${post.contenuto}</div>
       ${post.immagine_url ? `
-        <div class="post-image" style="width: 100%; height: 250px; border-radius: 16px; overflow: hidden; margin-bottom: 16px; background: #0a0a0a;">
-          <img src="${post.immagine_url}" alt="Post" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentElement.style.display='none'">
+        <div class="post-image">
+          <img src="${post.immagine_url}" alt="Post" onerror="this.parentElement.style.display='none'">
         </div>
       ` : ''}
       <div class="post-actions">
-        <button class="post-action-btn ${post.liked ? 'liked' : ''} ${isMyPost ? 'disabled' : ''}" onclick="togglePostLike('${post.id}')" ${isMyPost ? 'style="opacity: 0.5; cursor: not-allowed;"' : ''}>
+        <button class="post-action-btn ${post.liked ? 'liked' : ''}" 
+                onclick="togglePostLike('${post.id}', '${post.utente_id}')">
           <i class="fas fa-heart"></i>
           <span id="likes-${post.id}">${post.likes}</span>
         </button>
@@ -150,49 +241,104 @@ function createPostCard(post) {
 }
 
 // ========================================
-// TOGGLE LIKE
+// FILTRO POST
 // ========================================
-async function togglePostLike(postId) {
+function filterPosts() {
+  const search = document.getElementById('filterSearch')?.value.toLowerCase() || '';
+  console.log('🔍 Filtrando per:', search);
+
+  if (search === '') {
+    filteredPosts = [...allPosts];
+  } else {
+    filteredPosts = allPosts.filter(post =>
+      post.contenuto.toLowerCase().includes(search) ||
+      post.username.toLowerCase().includes(search)
+    );
+  }
+
+  console.log('✅ Post filtrati:', filteredPosts.length);
+  renderCommunityFeed();
+}
+
+// ========================================
+// TOGGLE LIKE - PRENDE UTENTE OGNI VOLTA
+// ========================================
+async function togglePostLike(postId, postOwnerId) {
+  console.log('💖 INIZIO togglePostLike per post:', postId);
+  
+  // PRENDI UTENTE CORRENTE ADESSO
+  const currentUserId = await getCurrentUserId();
+  
   if (!currentUserId) {
-    alert('⚠️ Devi essere loggato per mettere like!\n\nSe sei già loggato, ricarica la pagina.');
-    console.error('❌ currentUserId è null. Ricarica la pagina!');
+    alert('❌ ERRORE: Non sei loggato!\n\n🔧 DEBUG:\nApri Console (F12) e cerca:\n- localStorage.userData\n- sessionStorage.userData\n\nPoi fai logout e login di nuovo!');
+    console.error('❌ currentUserId è NULL!');
+    console.log('📋 Prova questi comandi nella console:');
+    console.log('localStorage.getItem("userData")');
+    console.log('sessionStorage.getItem("userData")');
+    console.log('await supabaseClient.auth.getUser()');
     return;
   }
 
-  const post = allPosts.find(p => p.id === postId);
-  if (!post) return;
+  console.log('✅ Utente corrente:', currentUserId);
+  console.log('📝 Owner del post:', postOwnerId);
 
-  // CONTROLLO: Non puoi mettere like ai TUOI post
-  if (post.utente_id === currentUserId) {
+  // NO auto-like
+  if (postOwnerId === currentUserId) {
     alert('❌ Non puoi mettere like ai tuoi stessi post!');
     return;
   }
 
-  console.log('💖 Toggle like post:', postId, 'utente:', currentUserId);
+  const post = allPosts.find(p => p.id === postId);
+  if (!post) {
+    console.error('❌ Post non trovato:', postId);
+    return;
+  }
+
+  console.log('🔄 Toggle like:', post.liked ? 'UNLIKE' : 'LIKE');
 
   try {
     if (post.liked) {
+      // UNLIKE
+      console.log('🔴 Rimuovendo like...');
       const { error } = await supabaseClient
         .from('PostLikes')
         .delete()
         .eq('post_id', postId)
         .eq('utente_id', currentUserId);
-      if (!error) {
-        post.liked = false;
-        post.likes--;
+      
+      if (error) {
+        console.error('❌ Errore unlike:', error);
+        alert('Errore. Riprova!');
+        return;
       }
+      
+      post.liked = false;
+      post.likes--;
+      console.log('✅ Unlike effettuato. Nuovi likes:', post.likes);
     } else {
+      // LIKE
+      console.log('💚 Aggiungendo like...');
       const { error } = await supabaseClient
         .from('PostLikes')
         .insert([{ post_id: postId, utente_id: currentUserId }]);
-      if (!error) {
-        post.liked = true;
-        post.likes++;
+      
+      if (error) {
+        console.error('❌ Errore like:', error);
+        alert('Errore. Riprova!');
+        return;
       }
+      
+      post.liked = true;
+      post.likes++;
+      console.log('✅ Like effettuato. Nuovi likes:', post.likes);
     }
 
+    // Aggiorna UI
     const likesSpan = document.getElementById(`likes-${postId}`);
-    if (likesSpan) likesSpan.textContent = post.likes;
+    if (likesSpan) {
+      likesSpan.textContent = post.likes;
+      console.log('✅ UI aggiornata');
+    }
 
     const btn = event.currentTarget;
     if (post.liked) {
@@ -200,8 +346,16 @@ async function togglePostLike(postId) {
     } else {
       btn.classList.remove('liked');
     }
+
+    // Aggiorna filteredPosts
+    const filteredPost = filteredPosts.find(p => p.id === postId);
+    if (filteredPost) {
+      filteredPost.liked = post.liked;
+      filteredPost.likes = post.likes;
+    }
+
   } catch (error) {
-    console.error('Errore:', error);
+    console.error('❌ Errore catturato:', error);
     alert('Errore. Riprova!');
   }
 }
@@ -210,6 +364,8 @@ async function togglePostLike(postId) {
 // VISUALIZZA COMMENTI
 // ========================================
 async function viewPostComments(postId) {
+  console.log('💬 Visualizzando commenti per:', postId);
+  
   const { data: comments, error } = await supabaseClient
     .from('PostCommenti')
     .select(`
@@ -220,16 +376,16 @@ async function viewPostComments(postId) {
     .order('created_at', { ascending: true });
 
   if (error) {
-    console.error('Errore:', error);
+    console.error('❌ Errore:', error);
     alert('Errore caricamento commenti');
     return;
   }
 
   if (comments.length === 0) {
-    alert('💬 Nessun commento.\n\nSii il primo a commentare!\n\n✅ NOTA: Puoi commentare anche i tuoi post!');
+    alert('💬 Nessun commento.\n\nSii il primo a commentare!\n\n✅ Puoi commentare anche i tuoi post!');
   } else {
     const text = comments.map(c => `👤 ${c.utente.username}: ${c.contenuto}`).join('\n\n');
-    alert(`💬 Commenti (${comments.length}):\n\n${text}\n\n✅ NOTA: Puoi commentare anche i tuoi post!`);
+    alert(`💬 Commenti (${comments.length}):\n\n${text}`);
   }
 }
 
@@ -244,13 +400,16 @@ function formatDate(date) {
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
   if (minutes < 1) return 'Pochi secondi fa';
-  if (minutes < 60) return `${minutes} minuti fa`;
+  if (minutes < 60) return `${minutes} min fa`;
   if (hours < 24) return `${hours} ore fa`;
   if (days === 1) return '1 giorno fa';
   if (days < 7) return `${days} giorni fa`;
-  return date.toLocaleDateString('it-IT');
+  return date.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
 }
 
+// Export
 window.initCommunityPage = initCommunityPage;
 window.togglePostLike = togglePostLike;
 window.viewPostComments = viewPostComments;
+window.filterPosts = filterPosts;
+window.getCurrentUserId = getCurrentUserId;
