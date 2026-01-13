@@ -507,22 +507,43 @@ async function togglePostLike(postId, postOwnerId) {
         .delete()
         .eq('post_id', postId)
         .eq('utente_id', currentUserId);
-      if (!error) {
-        post.liked = false;
-        post.likes--;
+      
+      if (error) {
+        console.error('❌ Errore unlike:', error);
+        alert('❌ Errore: ' + error.message);
+        return;
       }
+      
+      post.liked = false;
+      post.likes--;
     } else {
       const { error } = await supabaseClient
         .from('PostLikes')
         .insert([{ post_id: postId, utente_id: currentUserId }]);
-      if (!error) {
-        post.liked = true;
-        post.likes++;
+      
+      if (error) {
+        console.error('❌ Errore like:', error);
+        alert('❌ Errore: ' + error.message);
+        return;
       }
+      
+      post.liked = true;
+      post.likes++;
     }
 
+    // Aggiorna UI con animazione
     const likesSpan = document.getElementById(`likes-${postId}`);
-    if (likesSpan) likesSpan.textContent = post.likes;
+    if (likesSpan) {
+      likesSpan.style.transform = 'scale(1.3)';
+      likesSpan.style.color = '#fbbf24';
+      setTimeout(() => {
+        likesSpan.textContent = post.likes;
+        setTimeout(() => {
+          likesSpan.style.transform = 'scale(1)';
+          likesSpan.style.color = '';
+        }, 150);
+      }, 100);
+    }
 
     const btn = event.currentTarget;
     if (post.liked) {
@@ -531,7 +552,8 @@ async function togglePostLike(postId, postOwnerId) {
       btn.classList.remove('liked');
     }
   } catch (error) {
-    console.error('Errore:', error);
+    console.error('❌ Errore:', error);
+    alert('❌ Errore: ' + error.message);
   }
 }
 
@@ -553,47 +575,82 @@ async function toggleFollowVendor(vendorUserId) {
   try {
     if (isFollowing) {
       // UNFOLLOW
+      console.log('👥 Unfollow in corso...');
       const { error } = await supabaseClient
         .from('Followers')
         .delete()
         .eq('utente_seguito_id', vendorUserId)
         .eq('follower_id', currentUserId);
       
-      if (!error) {
-        btn.classList.remove('following');
-        btn.innerHTML = '<i class="fas fa-user-plus"></i><span>Segui</span>';
+      if (error) {
+        console.error('❌ Errore unfollow:', error);
+        alert('❌ Errore: ' + error.message);
+        return;
+      }
+      
+      btn.classList.remove('following');
+      btn.innerHTML = '<i class="fas fa-user-plus"></i><span>Segui</span>';
+      
+      // ✅ DECREMENTA COUNTER FOLLOWER con animazione
+      const statBoxes = document.querySelectorAll('.vendor-stat-box .vendor-stat-value');
+      if (statBoxes.length >= 2) {
+        const followerCounter = statBoxes[1]; // Secondo = Follower
+        const currentCount = parseInt(followerCounter.textContent) || 0;
+        const newCount = Math.max(0, currentCount - 1);
         
-        // ✅ DECREMENTA COUNTER FOLLOWER (il secondo stat-box)
-        const statBoxes = document.querySelectorAll('.vendor-stat-box .vendor-stat-value');
-        if (statBoxes.length >= 2) {
-          const followerCounter = statBoxes[1]; // Secondo = Follower
-          const currentCount = parseInt(followerCounter.textContent) || 0;
-          followerCounter.textContent = Math.max(0, currentCount - 1);
-          console.log('✅ Follower decrementati:', currentCount - 1);
-        }
+        // Animazione
+        followerCounter.style.transform = 'scale(1.4)';
+        followerCounter.style.color = '#ef4444';
+        setTimeout(() => {
+          followerCounter.textContent = newCount;
+          setTimeout(() => {
+            followerCounter.style.transform = 'scale(1)';
+            followerCounter.style.color = '#fbbf24';
+          }, 200);
+        }, 150);
+        
+        console.log('✅ Follower decrementati:', newCount);
       }
     } else {
       // FOLLOW
+      console.log('👥 Follow in corso...');
       const { error } = await supabaseClient
         .from('Followers')
         .insert([{ utente_seguito_id: vendorUserId, follower_id: currentUserId }]);
       
-      if (!error) {
-        btn.classList.add('following');
-        btn.innerHTML = '<i class="fas fa-user-check"></i><span>Seguito</span>';
+      if (error) {
+        console.error('❌ Errore follow:', error);
+        alert('❌ Errore: ' + error.message);
+        return;
+      }
+      
+      btn.classList.add('following');
+      btn.innerHTML = '<i class="fas fa-user-check"></i><span>Seguito</span>';
+      
+      // ✅ INCREMENTA COUNTER FOLLOWER con animazione
+      const statBoxes = document.querySelectorAll('.vendor-stat-box .vendor-stat-value');
+      if (statBoxes.length >= 2) {
+        const followerCounter = statBoxes[1]; // Secondo = Follower
+        const currentCount = parseInt(followerCounter.textContent) || 0;
+        const newCount = currentCount + 1;
         
-        // ✅ INCREMENTA COUNTER FOLLOWER (il secondo stat-box)
-        const statBoxes = document.querySelectorAll('.vendor-stat-box .vendor-stat-value');
-        if (statBoxes.length >= 2) {
-          const followerCounter = statBoxes[1]; // Secondo = Follower
-          const currentCount = parseInt(followerCounter.textContent) || 0;
-          followerCounter.textContent = currentCount + 1;
-          console.log('✅ Follower incrementati:', currentCount + 1);
-        }
+        // Animazione
+        followerCounter.style.transform = 'scale(1.4)';
+        followerCounter.style.color = '#10b981';
+        setTimeout(() => {
+          followerCounter.textContent = newCount;
+          setTimeout(() => {
+            followerCounter.style.transform = 'scale(1)';
+            followerCounter.style.color = '#fbbf24';
+          }, 200);
+        }, 150);
+        
+        console.log('✅ Follower incrementati:', newCount);
       }
     }
   } catch (error) {
-    console.error('Errore:', error);
+    console.error('❌ Errore catturato:', error);
+    alert('❌ Errore imprevisto: ' + error.message);
   }
 }
 
