@@ -1,5 +1,5 @@
 // ========================================
-// VETRINA VENDITORE - FINALE CON REDIRECT FORZATO
+// VETRINA VENDITORE - COMPATIBILE CON AUTH PERSONALIZZATO
 // ========================================
 
 let currentVendorId = null;
@@ -20,60 +20,18 @@ let currentFilters = {
 };
 
 // ========================================
-// GET CURRENT USER - CON REDIRECT
+// GET CURRENT USER - USA IL TUO SISTEMA AUTH
 // ========================================
-async function getCurrentUserId() {
-  console.log('🔍 Ottenendo utente...');
+function getCurrentUserId() {
+  // USA IL TUO SISTEMA DI AUTH!
+  const userId = localStorage.getItem('nodo_user_id');
   
-  // METODO 1
-  try {
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (user && user.id) {
-      console.log('✅ Via auth.getUser():', user.id);
-      localStorage.setItem('userData', JSON.stringify(user));
-      sessionStorage.setItem('userData', JSON.stringify(user));
-      return user.id;
-    }
-  } catch (e) {}
+  if (userId) {
+    console.log('✅ Utente loggato:', userId);
+    return userId;
+  }
   
-  // METODO 2
-  try {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (session && session.user && session.user.id) {
-      console.log('✅ Via getSession():', session.user.id);
-      localStorage.setItem('userData', JSON.stringify(session.user));
-      sessionStorage.setItem('userData', JSON.stringify(session.user));
-      return session.user.id;
-    }
-  } catch (e) {}
-  
-  // METODO 3
-  try {
-    const userData = localStorage.getItem('userData');
-    if (userData) {
-      const parsed = JSON.parse(userData);
-      if (parsed.id) {
-        console.log('✅ Via localStorage:', parsed.id);
-        return parsed.id;
-      }
-    }
-  } catch (e) {}
-  
-  // METODO 4
-  try {
-    const userData = sessionStorage.getItem('userData');
-    if (userData) {
-      const parsed = JSON.parse(userData);
-      if (parsed.id) {
-        console.log('✅ Via sessionStorage:', parsed.id);
-        return parsed.id;
-      }
-    }
-  } catch (e) {}
-  
-  console.error('❌ REDIRECT a login!');
-  alert('⚠️ Sessione scaduta! Devi fare login.');
-  window.location.href = 'login.html';
+  console.error('❌ Utente NON loggato!');
   return null;
 }
 
@@ -92,10 +50,7 @@ async function initVendorPage() {
 
   currentVendorUsername = vendorUsername;
   
-  // Verifica login
-  const userId = await getCurrentUserId();
-  if (!userId) return; // getCurrentUserId già fa redirect
-  
+  // requireAuth() è già chiamato nell'HTML
   await loadVendorProfile(vendorUsername);
 }
 
@@ -140,7 +95,7 @@ async function loadVendorProfile(username) {
     .select('*', { count: 'exact', head: true })
     .eq('utente_seguito_id', utente.id);
 
-  const currentUserId = await getCurrentUserId();
+  const currentUserId = getCurrentUserId();
   let isFollowing = false;
   if (currentUserId) {
     const { data } = await supabaseClient
@@ -357,7 +312,7 @@ function resetFilters() {
 }
 
 // ========================================
-// RENDER PRODOTTI - IMMAGINI FIXATE
+// RENDER PRODOTTI - IMMAGINI SVG + RATING SOPRA PREZZO
 // ========================================
 function renderProducts(products) {
   const container = document.getElementById('productsGrid');
@@ -374,7 +329,7 @@ function renderProducts(products) {
   }
 
   container.innerHTML = products.map(p => {
-    // ✅ FIX IMMAGINI - Usa Foto1 o placeholder CORRETTO
+    // ✅ FIX IMMAGINI - Usa Foto1 o placeholder SVG
     const mainPhoto = p.Foto1 || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="420"%3E%3Crect fill="%231a1a1a" width="300" height="420"/%3E%3Ctext fill="%23fbbf24" font-family="Arial" font-size="24" font-weight="bold" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
     
     const disponibile = p.Presente === true;
@@ -417,7 +372,7 @@ async function loadVendorPosts(utenteId) {
   if (error) {
     currentPosts = [];
   } else {
-    const currentUserId = await getCurrentUserId();
+    const currentUserId = getCurrentUserId();
     
     let likedPosts = [];
     if (currentUserId) {
@@ -521,8 +476,11 @@ function switchTab(tabName) {
 async function togglePostLike(postId, postOwnerId) {
   console.log('💖 Toggle like:', postId);
   
-  const currentUserId = await getCurrentUserId();
-  if (!currentUserId) return;
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    alert('❌ Errore: Non sei loggato!');
+    return;
+  }
 
   if (postOwnerId === currentUserId) {
     alert('❌ Non puoi mettere like ai tuoi post!');
@@ -568,8 +526,11 @@ async function togglePostLike(postId, postOwnerId) {
 }
 
 async function toggleFollowVendor(vendorUserId) {
-  const currentUserId = await getCurrentUserId();
-  if (!currentUserId) return;
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    alert('❌ Errore: Non sei loggato!');
+    return;
+  }
 
   if (vendorUserId === currentUserId) {
     alert('❌ Non puoi seguire te stesso!');
@@ -605,8 +566,11 @@ async function toggleFollowVendor(vendorUserId) {
 }
 
 async function contactVendor(vendorUserId) {
-  const currentUserId = await getCurrentUserId();
-  if (!currentUserId) return;
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    alert('❌ Errore: Non sei loggato!');
+    return;
+  }
 
   if (vendorUserId === currentUserId) {
     alert('❌ Non puoi messaggiare te stesso!');
