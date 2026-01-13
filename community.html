@@ -2,7 +2,13 @@
 <html lang="it">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  
+  <!-- META iOS DARK MODE -->
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
   <title>Community - NODO</title>
   
   <!-- Font Awesome -->
@@ -12,316 +18,228 @@
   <link rel="stylesheet" href="css/style.css">
 
   <style>
+    /* OTTIMIZZAZIONE iPHONE */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .main-content {
+      padding-bottom: 100px;
+      padding-top: 10px;
+    }
+
+    /* FILTRI COMMUNITY */
+    .community-filter {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+      border-radius: 20px;
+      padding: 16px;
+      margin: 12px;
+      border: 2px solid #2a2a2a;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .filter-search {
+      width: 100%;
+      background: #1a1a1a;
+      border: 2px solid #3b82f6;
+      border-radius: 16px;
+      padding: 14px 16px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      outline: none;
+    }
+
+    .filter-search::placeholder {
+      color: #6b7280;
+      font-weight: 600;
+    }
+
+    /* COMMUNITY FEED */
     .community-feed {
       display: grid;
-      gap: 20px;
-      margin-top: 20px;
+      gap: 16px;
+      padding: 0 12px;
     }
 
-    /* EVENT CARDS */
-    .event-card-big {
+    /* POST CARD - OTTIMIZZATO iPHONE */
+    .post-card {
       background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
       border-radius: 24px;
-      overflow: hidden;
+      padding: 18px;
       border: 2px solid #2a2a2a;
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
-      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      transition: all 0.2s ease;
     }
 
-    .event-card-big:hover {
-      border-color: #f97316;
-      box-shadow: 0 12px 50px rgba(249, 115, 22, 0.4);
+    .post-card:active {
+      transform: scale(0.98);
+      border-color: #3b82f6;
     }
 
-    .event-header {
-      padding: 20px;
-      background: linear-gradient(135deg, #1f1f1f 0%, #1a1a1a 100%);
-      border-bottom: 3px solid #f97316;
-      cursor: pointer;
+    /* POST HEADER */
+    .post-header {
       display: flex;
-      gap: 16px;
+      gap: 12px;
+      margin-bottom: 14px;
+      align-items: center;
     }
 
-    .event-video {
-      width: 70px;
-      height: 70px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-      border: 3px solid #f97316;
+    .post-avatar {
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 32px;
-      color: #000;
-      flex-shrink: 0;
-      box-shadow: 0 0 20px rgba(249, 115, 22, 0.5);
+      font-size: 18px;
+      color: #fff;
+      font-weight: 900;
+      border: 2px solid #3b82f6;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5);
     }
 
-    .event-info {
+    .post-user {
       flex: 1;
       min-width: 0;
     }
 
-    .event-info h3 {
-      font-size: 20px;
-      font-weight: 800;
-      color: #f97316;
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .event-expand-icon {
-      font-size: 16px;
-      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      flex-shrink: 0;
-    }
-
-    .event-card-big.expanded .event-expand-icon {
-      transform: rotate(180deg);
-    }
-
-    .event-info p {
-      color: #9ca3af;
-      font-size: 14px;
-    }
-
-    .event-details {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-      background: #0a0a0a;
-    }
-
-    .event-card-big.expanded .event-details {
-      max-height: 3000px;
-    }
-
-    .event-meta {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .event-meta-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px;
-      background: #1a1a1a;
-      border-radius: 12px;
-      border: 2px solid #2a2a2a;
-      color: #e5e7eb;
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    .event-meta-item i {
-      color: #f97316;
-      font-size: 18px;
-    }
-
-    .vendor-section {
-      margin-top: 24px;
-    }
-
-    .vendor-section h4 {
-      color: #f97316;
-      font-size: 18px;
-      font-weight: 800;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .vendor-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-
-    .vendor-booth {
-      background: #1a1a1a;
-      border-radius: 16px;
-      padding: 16px;
-      border: 2px solid #2a2a2a;
-      transition: all 0.3s ease;
-    }
-
-    .vendor-booth:hover {
-      border-color: #f97316;
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(249, 115, 22, 0.3);
-    }
-
-    .vendor-booth-header {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .vendor-photo {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-      border: 2px solid #f97316;
-      flex-shrink: 0;
-    }
-
-    .vendor-info h5 {
-      color: #f97316;
-      font-size: 16px;
-      font-weight: 800;
-      margin-bottom: 4px;
-    }
-
-    .vendor-info p {
-      color: #9ca3af;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .vendor-articles {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .vendor-article-mini {
-      background: #0f0f0f;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #2a2a2a;
-      color: #e5e7eb;
-      font-size: 13px;
-      font-weight: 600;
-      text-align: center;
-    }
-
-    /* POST CARDS */
-    .post-card {
-      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-      border-radius: 24px;
-      padding: 20px;
-      border: 2px solid #2a2a2a;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
-      transition: all 0.3s ease;
-    }
-
-    .post-card:hover {
-      border-color: #3b82f6;
-      box-shadow: 0 12px 50px rgba(59, 130, 246, 0.3);
-    }
-
-    .post-header {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .post-avatar {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      border: 2px solid #3b82f6;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      font-weight: 900;
-      color: #fff;
-      flex-shrink: 0;
-    }
-
     .post-user h4 {
-      color: #3b82f6;
       font-size: 16px;
-      font-weight: 800;
-      margin-bottom: 4px;
+      font-weight: 900;
+      color: #fbbf24;
+      margin: 0 0 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
     }
 
     .post-user span {
-      color: #6b7280;
       font-size: 13px;
-      font-weight: 600;
+      color: #6b7280;
+      font-weight: 700;
     }
 
+    .badge-owner {
+      background: #fbbf24;
+      color: #000;
+      padding: 2px 8px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    /* POST CONTENT */
     .post-content {
-      color: #e5e7eb;
-      font-size: 15px;
+      font-size: 16px;
       line-height: 1.6;
-      margin-bottom: 16px;
-      font-weight: 500;
+      color: #e5e7eb;
+      font-weight: 600;
+      margin-bottom: 14px;
+      word-wrap: break-word;
     }
 
+    /* POST IMAGE */
+    .post-image {
+      width: 100%;
+      height: 220px;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 14px;
+      background: #0a0a0a;
+    }
+
+    .post-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* POST ACTIONS - iPHONE FRIENDLY */
     .post-actions {
       display: flex;
-      gap: 12px;
+      gap: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #2a2a2a;
     }
 
     .post-action-btn {
       flex: 1;
-      padding: 12px;
-      border-radius: 12px;
-      border: 2px solid #2a2a2a;
       background: #1a1a1a;
-      color: #9ca3af;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.3s ease;
+      border: 2px solid #3b82f6;
+      border-radius: 14px;
+      padding: 12px;
+      color: #3b82f6;
+      font-size: 15px;
+      font-weight: 900;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-height: 48px; /* iPHONE touch target */
     }
 
-    .post-action-btn:hover {
-      border-color: #3b82f6;
-      color: #3b82f6;
-      background: #1f1f1f;
+    .post-action-btn:active {
+      transform: scale(0.95);
+      background: #3b82f6;
+      color: #fff;
     }
 
     .post-action-btn.liked {
+      background: #ef4444;
       border-color: #ef4444;
-      color: #ef4444;
-      background: rgba(239, 68, 68, 0.1);
+      color: #fff;
     }
 
-    .post-action-btn.liked:hover {
-      background: rgba(239, 68, 68, 0.2);
+    .post-action-btn.liked:active {
+      background: #dc2626;
+      border-color: #dc2626;
     }
 
-    @media (max-width: 768px) {
-      .vendor-grid {
-        grid-template-columns: 1fr;
-      }
+    .post-action-btn.disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
 
-      .event-meta {
-        grid-template-columns: 1fr;
-      }
+    .post-action-btn i {
+      font-size: 18px;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6b7280;
+    }
+
+    .empty-state i {
+      font-size: 64px;
+      color: #374151;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      font-size: 20px;
+      font-weight: 800;
+      color: #9ca3af;
+      margin-bottom: 10px;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+      font-weight: 600;
     }
   </style>
 </head>
-
 <body>
-  <div class="particles" id="particles"></div>
-
-  <!-- HEADER -->
-  <div class="header">
-    <h1>
-      <div class="header-logo">
-        <div class="header-logo-ring header-logo-ring-1"></div>
-        <div class="header-logo-ring header-logo-ring-2"></div>
-      </div>
-      <span class="title-gradient">NODO</span>
-    </h1>
-  </div>
 
   <!-- MENU NAVIGAZIONE -->
   <div class="bottom-nav">
@@ -333,6 +251,12 @@
 
   <!-- CONTENUTO PRINCIPALE -->
   <div class="main-content">
+    <!-- FILTRO RICERCA -->
+    <div class="community-filter">
+      <input type="text" class="filter-search" id="filterSearch" placeholder="🔍 Cerca nei post..." oninput="filterPosts()">
+    </div>
+
+    <!-- FEED COMMUNITY -->
     <div class="community-feed" id="communityContainer"></div>
   </div>
 
@@ -347,16 +271,18 @@
     </div>
   </div>
 
-<!-- SCRIPTS -->
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
   <script src="js/common.js"></script>
   <script src="js/menu.js"></script>
-  <script src="js/auth.js"></script> <!-- AGGIUNGI -->
+  <script src="js/auth.js"></script>
   <script src="js/community.js"></script>
 
   <script>
-    requireAuth(); // AGGIUNGI
+    requireAuth();
     window.addEventListener('DOMContentLoaded', () => {
-      loadCommunityContent();
+      initCommunityPage();
     });
   </script>
 </body>
