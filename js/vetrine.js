@@ -1091,10 +1091,9 @@ function createVetrinaCardNew(userId, username, citta, disponibili, acquisti, me
           <div class="vetrina-avatar">
             <i class="fas fa-store"></i>
           </div>
-          <div class="vetrina-info" onclick="toggleVetrinaExpand('${userId}')">
+          <div class="vetrina-info">
             <h3>
               <span class="vetrina-username">${username}</span>
-              <span class="vetrina-expand-icon">▼</span>
             </h3>
             <p><i class="fas fa-map-marker-alt"></i> ${citta}</p>
             <div class="vetrina-rating">
