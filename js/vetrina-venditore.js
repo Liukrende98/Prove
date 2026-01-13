@@ -1,13 +1,83 @@
 // ========================================
-// VETRINA VENDITORE - VERSIONE DEFINITIVA
+// VETRINA VENDITORE - ULTRA-SICURO
 // ========================================
 
 let currentVendorId = null;
 let currentVendorUsername = null;
-let currentUserId = null;
+let allProducts = [];
 let currentProducts = [];
 let currentPosts = [];
 let activeTab = 'vetrina';
+
+let currentFilters = {
+  search: '',
+  categoria: 'all',
+  set: 'all',
+  prezzoMin: '',
+  prezzoMax: '',
+  ratingMin: 0,
+  disponibili: false
+};
+
+// ========================================
+// GET CURRENT USER - PROVA TUTTI I METODI
+// ========================================
+async function getCurrentUserId() {
+  console.log('🔍 Ottenendo utente corrente...');
+  
+  // METODO 1: auth.getUser()
+  try {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (user && user.id) {
+      console.log('✅ Utente via auth.getUser():', user.id);
+      return user.id;
+    }
+  } catch (error) {
+    console.warn('⚠️ auth.getUser() fallito');
+  }
+  
+  // METODO 2: getSession()
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session && session.user && session.user.id) {
+      console.log('✅ Utente via getSession():', session.user.id);
+      return session.user.id;
+    }
+  } catch (error) {
+    console.warn('⚠️ getSession() fallito');
+  }
+  
+  // METODO 3: localStorage
+  try {
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      const parsed = JSON.parse(userData);
+      if (parsed.id) {
+        console.log('✅ Utente via localStorage:', parsed.id);
+        return parsed.id;
+      }
+    }
+  } catch (error) {
+    console.warn('⚠️ localStorage fallito');
+  }
+  
+  // METODO 4: sessionStorage
+  try {
+    const userData = sessionStorage.getItem('userData');
+    if (userData) {
+      const parsed = JSON.parse(userData);
+      if (parsed.id) {
+        console.log('✅ Utente via sessionStorage:', parsed.id);
+        return parsed.id;
+      }
+    }
+  } catch (error) {
+    console.warn('⚠️ sessionStorage fallito');
+  }
+  
+  console.error('❌ Utente NON trovato!');
+  return null;
+}
 
 // ========================================
 // INIZIALIZZAZIONE
@@ -23,43 +93,11 @@ async function initVendorPage() {
   }
 
   currentVendorUsername = vendorUsername;
-
-  // OTTIENI UTENTE LOGGATO (prova diversi metodi)
-  try {
-    // Metodo 1: Prova con auth.getUser()
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (user && user.id) {
-      currentUserId = user.id;
-      console.log('✅ Utente loggato via auth.getUser():', currentUserId);
-    } else {
-      // Metodo 2: Prova con getSession()
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session && session.user) {
-        currentUserId = session.user.id;
-        console.log('✅ Utente loggato via getSession():', currentUserId);
-      } else {
-        // Metodo 3: Prova da localStorage
-        const userData = localStorage.getItem('userData');
-        if (userData) {
-          const parsed = JSON.parse(userData);
-          currentUserId = parsed.id;
-          console.log('✅ Utente loggato via localStorage:', currentUserId);
-        }
-      }
-    }
-  } catch (error) {
-    console.error('⚠️ Errore ottenendo utente:', error);
-  }
-
-  if (!currentUserId) {
-    console.warn('⚠️ Nessun utente loggato trovato');
-  }
-
   await loadVendorProfile(vendorUsername);
 }
 
 // ========================================
-// CARICAMENTO PROFILO VENDITORE
+// CARICAMENTO PROFILO
 // ========================================
 async function loadVendorProfile(username) {
   console.log('🔍 Caricamento profilo:', username);
@@ -81,8 +119,8 @@ async function loadVendorProfile(username) {
   console.log('✅ Utente trovato:', utente);
   currentVendorId = utente.id;
 
-  // 2. Carica TUTTI gli articoli con JOIN, poi filtro quelli del venditore
-  const { data: tuttiArticoli, error: articoliError } = await supabaseClient
+  // 2. Carica articoli
+  const { data: tuttiArticoli } = await supabaseClient
     .from('Articoli')
     .select(`
       *,
@@ -93,15 +131,14 @@ async function loadVendorProfile(username) {
     `)
     .eq('in_vetrina', true);
 
-  console.log('📦 Tutti articoli caricati:', tuttiArticoli?.length);
-
-  // FILTRA SOLO GLI ARTICOLI DI QUESTO VENDITORE
   const articoliVenditore = tuttiArticoli?.filter(art => 
     art.Utenti?.id === utente.id
   ) || [];
 
-  console.log('✅ Articoli del venditore:', articoliVenditore.length);
-  const totaleArticoli = articoliVenditore.length;
+  console.log('✅ Articoli:', articoliVenditore.length);
+  
+  allProducts = articoliVenditore;
+  currentProducts = [...allProducts];
 
   // 3. Conta followers
   const { count: followersCount } = await supabaseClient
@@ -109,9 +146,8 @@ async function loadVendorProfile(username) {
     .select('*', { count: 'exact', head: true })
     .eq('utente_seguito_id', utente.id);
 
-  console.log('👥 Followers:', followersCount);
-
-  // 4. Verifica se l'utente corrente segue questo venditore
+  // 4. Verifica follow
+  const currentUserId = await getCurrentUserId();
   let isFollowing = false;
   if (currentUserId) {
     const { data: followData } = await supabaseClient
@@ -124,25 +160,22 @@ async function loadVendorProfile(username) {
     isFollowing = !!followData;
   }
 
-  // 5. Renderizza profilo
+  // 5. Render
   renderVendorProfile({
     id: utente.id,
     username: utente.username,
     nome_completo: utente.nome_completo,
     citta: utente.citta,
     bio: utente.bio,
-    avatar_icon: '<i class="fas fa-user"></i>', // Icona invece di iniziali
+    avatar_icon: '<i class="fas fa-user"></i>',
     member_since: new Date(utente.created_at).toLocaleDateString('it-IT', { year: 'numeric', month: 'long' }),
-    totale_articoli: totaleArticoli,
+    totale_articoli: allProducts.length,
     followersCount: followersCount || 0,
     isFollowing: isFollowing
   });
 
-  // 6. Salva articoli e caricali
-  currentProducts = articoliVenditore;
+  renderFilters();
   renderProducts(currentProducts);
-
-  // 7. Carica post
   await loadVendorPosts(utente.id);
 }
 
@@ -209,49 +242,185 @@ function renderVendorProfile(vendor) {
 }
 
 // ========================================
+// RENDER FILTRI
+// ========================================
+function renderFilters() {
+  const container = document.getElementById('filtersContainer');
+  if (!container) return;
+
+  const categorie = getCategorie();
+  const sets = getSets();
+
+  container.innerHTML = `
+    <div class="vendor-filter" id="vendorFilter">
+      <div class="filter-header" onclick="toggleFilter()">
+        <div class="filter-title">
+          <i class="fas fa-filter"></i> FILTRI E RICERCA
+        </div>
+        <i class="fas fa-chevron-down filter-toggle-icon"></i>
+      </div>
+      <div class="filter-content">
+        <div class="filter-body">
+          <div class="filter-group">
+            <div class="filter-label"><i class="fas fa-search"></i> Cerca</div>
+            <input type="text" class="filter-input" id="filterSearch" placeholder="es. Charizard..." oninput="applyFilters()">
+          </div>
+          
+          <div class="filter-group">
+            <div class="filter-label"><i class="fas fa-tags"></i> Categoria</div>
+            <select class="filter-select" id="filterCategoria" onchange="applyFilters()">
+              <option value="all">Tutte</option>
+              ${categorie.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <div class="filter-label"><i class="fas fa-layer-group"></i> Set</div>
+            <select class="filter-select" id="filterSet" onchange="applyFilters()">
+              <option value="all">Tutti</option>
+              ${sets.map(set => `<option value="${set}">${set}</option>`).join('')}
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <div class="filter-label"><i class="fas fa-euro-sign"></i> Prezzo</div>
+            <div class="filter-price-inputs">
+              <input type="number" class="filter-input" id="filterPrezzoMin" placeholder="Min €" oninput="applyFilters()">
+              <input type="number" class="filter-input" id="filterPrezzoMax" placeholder="Max €" oninput="applyFilters()">
+            </div>
+          </div>
+          
+          <div class="filter-group">
+            <div class="filter-label"><i class="fas fa-star"></i> Rating</div>
+            <select class="filter-select" id="filterRating" onchange="applyFilters()">
+              <option value="0">Tutti</option>
+              <option value="5">5+ ⭐</option>
+              <option value="6">6+ ⭐</option>
+              <option value="7">7+ ⭐</option>
+              <option value="8">8+ ⭐</option>
+              <option value="9">9+ ⭐</option>
+              <option value="10">10 ⭐</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <div class="filter-label"><i class="fas fa-box"></i> Disponibilità</div>
+            <div class="filter-checkboxes">
+              <label class="filter-checkbox-item">
+                <input type="checkbox" class="filter-checkbox" id="filterDisponibili" onchange="applyFilters()">
+                <span class="filter-checkbox-label">Solo disponibili</span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="filter-actions">
+            <button class="filter-btn filter-btn-reset" onclick="resetFilters()">
+              <i class="fas fa-redo"></i> Reset
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function getCategorie() {
+  const cat = new Set();
+  allProducts.forEach(a => { if (a.Categoria) cat.add(a.Categoria); });
+  return Array.from(cat).sort();
+}
+
+function getSets() {
+  const sets = new Set();
+  allProducts.forEach(a => {
+    if (a.Set) sets.add(a.Set);
+    if (a.Espansione) sets.add(a.Espansione);
+  });
+  return Array.from(sets).sort();
+}
+
+function toggleFilter() {
+  document.getElementById('vendorFilter')?.classList.toggle('expanded');
+}
+
+function applyFilters() {
+  currentFilters.search = document.getElementById('filterSearch')?.value.toLowerCase() || '';
+  currentFilters.categoria = document.getElementById('filterCategoria')?.value || 'all';
+  currentFilters.set = document.getElementById('filterSet')?.value || 'all';
+  currentFilters.prezzoMin = parseFloat(document.getElementById('filterPrezzoMin')?.value) || 0;
+  currentFilters.prezzoMax = parseFloat(document.getElementById('filterPrezzoMax')?.value) || Infinity;
+  currentFilters.ratingMin = parseInt(document.getElementById('filterRating')?.value) || 0;
+  currentFilters.disponibili = document.getElementById('filterDisponibili')?.checked || false;
+
+  currentProducts = allProducts.filter(p => {
+    const matchesSearch = p.Nome.toLowerCase().includes(currentFilters.search);
+    const matchesCategoria = currentFilters.categoria === 'all' || p.Categoria === currentFilters.categoria;
+    const matchesSet = currentFilters.set === 'all' || p.Set === currentFilters.set || p.Espansione === currentFilters.set;
+    const prezzo = parseFloat(p.prezzo_vendita) || 0;
+    const matchesPrezzo = prezzo >= currentFilters.prezzoMin && prezzo <= currentFilters.prezzoMax;
+    const rating = p.ValutazioneStato || 0;
+    const matchesRating = rating >= currentFilters.ratingMin;
+    const matchesDisp = !currentFilters.disponibili || p.Presente === true;
+    
+    return matchesSearch && matchesCategoria && matchesSet && matchesPrezzo && matchesRating && matchesDisp;
+  });
+
+  console.log('✅ Prodotti filtrati:', currentProducts.length, '/', allProducts.length);
+  renderProducts(currentProducts);
+}
+
+function resetFilters() {
+  document.getElementById('filterSearch').value = '';
+  document.getElementById('filterCategoria').value = 'all';
+  document.getElementById('filterSet').value = 'all';
+  document.getElementById('filterPrezzoMin').value = '';
+  document.getElementById('filterPrezzoMax').value = '';
+  document.getElementById('filterRating').value = '0';
+  document.getElementById('filterDisponibili').checked = false;
+  
+  applyFilters();
+}
+
+// ========================================
 // RENDER PRODOTTI
 // ========================================
 function renderProducts(products) {
   const container = document.getElementById('productsGrid');
   if (!container) return;
 
-  console.log('🎨 Rendering', products.length, 'prodotti');
-
   if (products.length === 0) {
     container.innerHTML = `
       <div class="empty-state" style="grid-column: 1 / -1;">
         <i class="fas fa-box-open"></i>
-        <h3>Nessun articolo disponibile</h3>
-        <p>Il venditore non ha ancora pubblicato articoli</p>
+        <h3>Nessun articolo</h3>
       </div>
     `;
     return;
   }
 
-  container.innerHTML = products.map(product => {
-    // Usa i campi GIUSTI come nel file originale
-    const mainPhoto = product.Foto1 || product.foto_principale || 'https://via.placeholder.com/300x420/1a1a1a/fbbf24?text=No+Image';
-    const disponibile = product.Presente === true;
-    const rating = product.ValutazioneStato || 0;
+  container.innerHTML = products.map(p => {
+    const mainPhoto = p.Foto1 || 'https://via.placeholder.com/300x420/1a1a1a/fbbf24?text=No+Image';
+    const disponibile = p.Presente === true;
+    const rating = p.ValutazioneStato || 0;
 
     return `
-      <div class="vendor-product-card" onclick="openProduct('${product.id}')">
+      <div class="vendor-product-card" onclick="openProduct('${p.id}')">
         <div class="vendor-product-image">
-          <img src="${mainPhoto}" alt="${product.Nome}" onerror="this.src='https://via.placeholder.com/300x420/1a1a1a/fbbf24?text=No+Image'">
+          <img src="${mainPhoto}" alt="${p.Nome}" onerror="this.src='https://via.placeholder.com/300x420/1a1a1a/fbbf24?text=No+Image'">
           ${disponibile 
             ? '<div class="product-availability-badge badge-disponibile"><i class="fas fa-check"></i> DISPONIBILE</div>'
-            : '<div class="product-availability-badge badge-non-disponibile"><i class="fas fa-times"></i> NON DISPONIBILE</div>'
+            : '<div class="product-availability-badge badge-non-disponibile"><i class="fas fa-times"></i> ESAURITO</div>'
           }
           ${rating > 0 ? `
             <div class="vetrina-product-rating">
               <i class="fas fa-star"></i> ${rating}/10
             </div>
           ` : ''}
-          <div class="product-price-badge">€${parseFloat(product.prezzo_vendita || 0).toFixed(2)}</div>
+          <div class="product-price-badge">€${parseFloat(p.prezzo_vendita || 0).toFixed(2)}</div>
         </div>
         <div class="vendor-product-info">
-          <div class="vendor-product-name">${product.Nome || 'Prodotto'}</div>
-          <div class="vendor-product-category">${product.Categoria || 'Carte'}</div>
+          <div class="vendor-product-name">${p.Nome || 'Prodotto'}</div>
+          <div class="vendor-product-category">${p.Categoria || 'Carte'}</div>
         </div>
       </div>
     `;
@@ -262,22 +431,19 @@ function renderProducts(products) {
 // CARICAMENTO POST
 // ========================================
 async function loadVendorPosts(utenteId) {
-  console.log('📰 Caricamento post per utente:', utenteId);
-
   const { data, error } = await supabaseClient
     .from('PostSocial')
     .select(`
       *,
-      utente:Utenti!PostSocial_utente_id_fkey (username, nome_completo)
+      utente:Utenti!PostSocial_utente_id_fkey (username)
     `)
     .eq('utente_id', utenteId)
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('❌ Errore caricamento post:', error);
     currentPosts = [];
   } else {
-    console.log('✅ Post caricati:', data?.length);
+    const currentUserId = await getCurrentUserId();
     
     let likedPosts = [];
     if (currentUserId) {
@@ -291,7 +457,7 @@ async function loadVendorPosts(utenteId) {
 
     currentPosts = data.map(post => ({
       id: post.id,
-      utente_id: post.utente_id, // Serve per controllo anti-auto-like
+      utente_id: post.utente_id,
       content: post.contenuto,
       time: formatDate(new Date(post.created_at)),
       likes: post.likes_count || 0,
@@ -316,8 +482,7 @@ function renderPosts(posts) {
     container.innerHTML = `
       <div class="empty-state">
         <i class="fas fa-newspaper"></i>
-        <h3>Nessun post disponibile</h3>
-        <p>Il venditore non ha ancora pubblicato nulla</p>
+        <h3>Nessun post</h3>
       </div>
     `;
     return;
@@ -337,11 +502,12 @@ function renderPosts(posts) {
       <div class="vendor-post-content">${post.content}</div>
       ${post.image ? `
         <div class="vendor-post-image">
-          <img src="${post.image}" alt="Post image" onerror="this.style.display='none'">
+          <img src="${post.image}" alt="Post" onerror="this.style.display='none'">
         </div>
       ` : ''}
       <div class="vendor-post-actions">
-        <button class="vendor-post-action-btn ${post.liked ? 'liked' : ''}" onclick="togglePostLike('${post.id}')">
+        <button class="vendor-post-action-btn ${post.liked ? 'liked' : ''}" 
+                onclick="togglePostLike('${post.id}', '${post.utente_id}')">
           <i class="fas fa-heart"></i>
           <span id="likes-${post.id}">${post.likes}</span>
         </button>
@@ -355,7 +521,7 @@ function renderPosts(posts) {
 }
 
 // ========================================
-// GESTIONE TAB
+// TAB
 // ========================================
 function switchTab(tabName) {
   activeTab = tabName;
@@ -380,54 +546,25 @@ function switchTab(tabName) {
 }
 
 // ========================================
-// FILTRI PRODOTTI
+// AZIONI - PRENDE UTENTE OGNI VOLTA
 // ========================================
-function applyFilters() {
-  const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
-  const categoryFilter = document.getElementById('categoryFilter')?.value || '';
-  const sortFilter = document.getElementById('sortFilter')?.value || 'newest';
-
-  let filtered = currentProducts.filter(product => {
-    const matchesSearch = product.Nome.toLowerCase().includes(searchTerm);
-    const matchesCategory = !categoryFilter || product.Categoria === categoryFilter;
-    return matchesSearch && matchesCategory;
-  });
-
-  filtered.sort((a, b) => {
-    switch(sortFilter) {
-      case 'price-low':
-        return (a.prezzo_vendita || 0) - (b.prezzo_vendita || 0);
-      case 'price-high':
-        return (b.prezzo_vendita || 0) - (a.prezzo_vendita || 0);
-      case 'newest':
-      default:
-        return new Date(b.created_at) - new Date(a.created_at);
-    }
-  });
-
-  renderProducts(filtered);
-}
-
-// ========================================
-// AZIONI INTERATTIVE
-// ========================================
-async function togglePostLike(postId) {
+async function togglePostLike(postId, postOwnerId) {
+  console.log('💖 Toggle like post:', postId);
+  
+  const currentUserId = await getCurrentUserId();
+  
   if (!currentUserId) {
-    alert('⚠️ Devi essere loggato per mettere like!\n\nSe sei già loggato, ricarica la pagina.');
-    console.error('❌ currentUserId è null. Ricarica la pagina!');
+    alert('❌ NON SEI LOGGATO!\n\n🔧 Apri Console (F12) e scrivi:\nlocalStorage.getItem("userData")\n\nPoi fai logout/login!');
+    return;
+  }
+
+  if (postOwnerId === currentUserId) {
+    alert('❌ Non puoi mettere like ai tuoi post!');
     return;
   }
 
   const post = currentPosts.find(p => p.id === postId);
   if (!post) return;
-
-  // CONTROLLO: Non puoi mettere like ai TUOI post
-  if (post.utente_id === currentUserId) {
-    alert('❌ Non puoi mettere like ai tuoi stessi post!');
-    return;
-  }
-
-  console.log('💖 Toggle like post:', postId, 'utente:', currentUserId);
 
   try {
     if (post.liked) {
@@ -461,24 +598,23 @@ async function togglePostLike(postId) {
     }
   } catch (error) {
     console.error('Errore:', error);
-    alert('Errore. Riprova!');
   }
 }
 
 async function toggleFollowVendor(vendorUserId) {
+  console.log('👥 Toggle follow:', vendorUserId);
+  
+  const currentUserId = await getCurrentUserId();
+  
   if (!currentUserId) {
-    alert('⚠️ Devi essere loggato per seguire!\n\nSe sei già loggato, ricarica la pagina.');
-    console.error('❌ currentUserId è null. Ricarica la pagina!');
+    alert('❌ NON SEI LOGGATO!\n\nFai logout/login!');
     return;
   }
 
-  // CONTROLLO: Non puoi seguire te stesso
   if (vendorUserId === currentUserId) {
     alert('❌ Non puoi seguire te stesso!');
     return;
   }
-
-  console.log('👥 Toggle follow venditore:', vendorUserId, 'utente:', currentUserId);
 
   const btn = document.getElementById('followBtn');
   const isFollowing = btn.classList.contains('following');
@@ -505,20 +641,19 @@ async function toggleFollowVendor(vendorUserId) {
     }
   } catch (error) {
     console.error('Errore:', error);
-    alert('Errore. Riprova!');
   }
 }
 
-function contactVendor(vendorUserId) {
+async function contactVendor(vendorUserId) {
+  const currentUserId = await getCurrentUserId();
+  
   if (!currentUserId) {
-    alert('⚠️ Devi essere loggato per contattare!\n\nSe sei già loggato, ricarica la pagina.');
-    console.error('❌ currentUserId è null. Ricarica la pagina!');
+    alert('❌ NON SEI LOGGATO!');
     return;
   }
 
-  // CONTROLLO: Non puoi contattare te stesso
   if (vendorUserId === currentUserId) {
-    alert('❌ Non puoi inviare messaggi a te stesso!');
+    alert('❌ Non puoi messaggiare te stesso!');
     return;
   }
 
@@ -530,12 +665,9 @@ function openProduct(productId) {
 }
 
 function viewComments(postId) {
-  alert(`💬 Commenti\n\nFunzione in arrivo!`);
+  alert('💬 Commenti in arrivo!');
 }
 
-// ========================================
-// UTILITY
-// ========================================
 function formatDate(date) {
   const now = new Date();
   const diff = now - date;
@@ -546,14 +678,17 @@ function formatDate(date) {
   if (hours < 24) return `${hours} ore fa`;
   if (days === 1) return '1 giorno fa';
   if (days < 7) return `${days} giorni fa`;
-  return date.toLocaleDateString('it-IT');
+  return date.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
 }
 
 window.initVendorPage = initVendorPage;
 window.switchTab = switchTab;
 window.applyFilters = applyFilters;
+window.resetFilters = resetFilters;
+window.toggleFilter = toggleFilter;
 window.togglePostLike = togglePostLike;
 window.toggleFollowVendor = toggleFollowVendor;
 window.contactVendor = contactVendor;
 window.openProduct = openProduct;
 window.viewComments = viewComments;
+window.getCurrentUserId = getCurrentUserId;
