@@ -1,14 +1,7 @@
 // ========================================
-// VETRINA VENDITORE - VERSIONE CON SUPABASE
+// VETRINA VENDITORE - SEMPLIFICATO
 // ========================================
 
-// NOTA: Assicurati che config.js sia caricato prima di questo file
-// <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-// <script src="js/config.js"></script>
-
-// ========================================
-// VARIABILI GLOBALI
-// ========================================
 let currentVendorId = null;
 let currentUserId = null;
 let currentProducts = [];
@@ -19,9 +12,8 @@ let activeTab = 'vetrina';
 // INIZIALIZZAZIONE
 // ========================================
 async function initVendorPage() {
-  // Ottieni l'ID del venditore dalla URL
   const urlParams = new URLSearchParams(window.location.search);
-  const vendorUsername = urlParams.get('vendor'); // ES: ?vendor=CardsMaster
+  const vendorUsername = urlParams.get('vendor');
   
   if (!vendorUsername) {
     alert('Venditore non specificato!');
@@ -29,21 +21,19 @@ async function initVendorPage() {
     return;
   }
 
-  // Ottieni l'utente corrente loggato
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
     currentUserId = user.id;
   }
 
-  // Carica il profilo del venditore
-  await loadVendorProfileFromDB(vendorUsername);
+  await loadVendorProfile(vendorUsername);
 }
 
 // ========================================
-// CARICAMENTO PROFILO VENDITORE DA DB
+// CARICAMENTO PROFILO VENDITORE
 // ========================================
-async function loadVendorProfileFromDB(username) {
-  // 1. Trova l'utente
+async function loadVendorProfile(username) {
+  // 1. Carica utente
   const { data: utente, error: utenteError } = await supabase
     .from('Utenti')
     .select('*')
@@ -51,27 +41,20 @@ async function loadVendorProfileFromDB(username) {
     .single();
 
   if (utenteError || !utente) {
-    console.error('Errore caricamento utente:', utenteError);
+    console.error('Errore:', utenteError);
     alert('Venditore non trovato!');
     window.location.href = 'vetrine.html';
     return;
   }
 
-  // 2. Trova il profilo venditore
-  const { data: profilo, error: profiloError } = await supabase
-    .from('ProfiloVenditore')
-    .select('*')
+  currentVendorId = utente.id;
+
+  // 2. Conta articoli in vendita
+  const { count: totaleArticoli } = await supabase
+    .from('Articoli')
+    .select('*', { count: 'exact', head: true })
     .eq('utente_id', utente.id)
-    .single();
-
-  if (profiloError || !profilo) {
-    console.error('Errore caricamento profilo venditore:', profiloError);
-    alert('Questo utente non è un venditore!');
-    window.location.href = 'vetrine.html';
-    return;
-  }
-
-  currentVendorId = profilo.id;
+    .eq('in_vetrina', true);
 
   // 3. Conta followers
   const { count: followersCount } = await supabase
@@ -92,33 +75,27 @@ async function loadVendorProfileFromDB(username) {
     isFollowing = !!followData;
   }
 
-  // 5. Renderizza il profilo
+  // 5. Renderizza profilo
   renderVendorProfile({
-    id: profilo.id,
-    utente_id: utente.id,
+    id: utente.id,
     username: utente.username,
     nome_completo: utente.nome_completo,
     citta: utente.citta,
+    bio: utente.bio,
     avatar_initials: utente.username.substring(0, 2).toUpperCase(),
-    verified: profilo.verificato,
-    rating: profilo.rating,
-    totalReviews: profilo.totale_recensioni,
-    totalSales: profilo.totale_vendite,
-    totalProducts: profilo.totale_prodotti,
-    responseRate: profilo.tasso_risposta,
-    description: profilo.descrizione_negozio || utente.bio,
-    memberSince: new Date(utente.created_at).toLocaleDateString('it-IT', { year: 'numeric', month: 'long' }),
+    member_since: new Date(utente.created_at).toLocaleDateString('it-IT', { year: 'numeric', month: 'long' }),
+    totale_articoli: totaleArticoli || 0,
     followersCount: followersCount || 0,
     isFollowing: isFollowing
   });
 
   // 6. Carica prodotti e post
-  await loadVendorProductsFromDB(utente.id);
-  await loadVendorPostsFromDB(utente.id);
+  await loadVendorProducts(utente.id);
+  await loadVendorPosts(utente.id);
 }
 
 // ========================================
-// RENDER PROFILO VENDITORE
+// RENDER PROFILO
 // ========================================
 function renderVendorProfile(vendor) {
   const container = document.getElementById('vendorProfile');
@@ -131,18 +108,8 @@ function renderVendorProfile(vendor) {
         <div class="vendor-header-info">
           <div class="vendor-header-name">
             <span class="vendor-name-text">${vendor.username}</span>
-            ${vendor.verified ? `
-              <div class="vendor-verified-badge">
-                <i class="fas fa-check-circle"></i>
-                Verificato
-              </div>
-            ` : ''}
           </div>
           <div class="vendor-header-meta">
-            <div class="vendor-rating-large">
-              <span class="vendor-rating-stars">★ ${vendor.rating.toFixed(1)}</span>
-              <span class="vendor-rating-count">(${vendor.totalReviews} recensioni)</span>
-            </div>
             ${vendor.citta ? `
               <div class="vendor-meta-item">
                 <i class="fas fa-map-marker-alt"></i>
@@ -151,20 +118,21 @@ function renderVendorProfile(vendor) {
             ` : ''}
             <div class="vendor-meta-item">
               <i class="fas fa-calendar-alt"></i>
-              <span>Membro da ${vendor.memberSince}</span>
+              <span>Membro da ${vendor.member_since}</span>
             </div>
           </div>
+          ${vendor.bio ? `
+            <div style="margin-top: 12px; color: #9ca3af; font-size: 14px; font-weight: 600;">
+              ${vendor.bio}
+            </div>
+          ` : ''}
         </div>
       </div>
 
       <div class="vendor-stats-grid">
         <div class="vendor-stat-box">
-          <div class="vendor-stat-value">${vendor.totalSales}</div>
-          <div class="vendor-stat-label">Vendite</div>
-        </div>
-        <div class="vendor-stat-box">
-          <div class="vendor-stat-value">${vendor.totalProducts}</div>
-          <div class="vendor-stat-label">Prodotti</div>
+          <div class="vendor-stat-value">${vendor.totale_articoli}</div>
+          <div class="vendor-stat-label">Articoli</div>
         </div>
         <div class="vendor-stat-box">
           <div class="vendor-stat-value">${vendor.followersCount}</div>
@@ -173,13 +141,13 @@ function renderVendorProfile(vendor) {
       </div>
 
       <div class="vendor-actions">
-        <button class="vendor-action-btn vendor-action-primary" onclick="contactVendor('${vendor.utente_id}')">
+        <button class="vendor-action-btn vendor-action-primary" onclick="contactVendor('${vendor.id}')">
           <i class="fas fa-comment"></i>
           <span>Contatta</span>
         </button>
         <button class="vendor-action-btn vendor-action-secondary ${vendor.isFollowing ? 'following' : ''}" 
                 id="followBtn" 
-                onclick="toggleFollowVendor('${vendor.utente_id}')">
+                onclick="toggleFollowVendor('${vendor.id}')">
           <i class="fas ${vendor.isFollowing ? 'fa-user-check' : 'fa-user-plus'}"></i>
           <span>${vendor.isFollowing ? 'Seguito' : 'Segui'}</span>
         </button>
@@ -189,57 +157,75 @@ function renderVendorProfile(vendor) {
 }
 
 // ========================================
-// CARICAMENTO PRODOTTI DA DB
+// CARICAMENTO PRODOTTI
 // ========================================
-async function loadVendorProductsFromDB(utenteId) {
-  // Carica dalla tabella Articoli (assumendo che esista e abbia utente_id)
+async function loadVendorProducts(utenteId) {
   const { data, error } = await supabase
     .from('Articoli')
     .select('*')
-    .eq('utente_id', utenteId) // O venditore_id se hai questo campo
+    .eq('utente_id', utenteId)
+    .eq('in_vetrina', true)
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Errore caricamento prodotti:', error);
+    console.error('Errore:', error);
     currentProducts = [];
   } else {
-    // Mappa i campi della tua tabella Articoli
-    currentProducts = data.map(art => ({
-      id: art.id,
-      name: art.nome || art.name, // Adatta ai tuoi campi
-      category: art.categoria || 'Carte Singole',
-      price: parseFloat(art.prezzo || 0),
-      rating: parseFloat(art.rating || 0),
-      image: art.immagine_url || art.image,
-      available: art.disponibile !== false,
-      dateAdded: new Date(art.created_at)
-    }));
+    currentProducts = data || [];
   }
 
   renderProducts(currentProducts);
 }
 
 // ========================================
-// CARICAMENTO POST DA DB
+// RENDER PRODOTTI
 // ========================================
-async function loadVendorPostsFromDB(utenteId) {
+function renderProducts(products) {
+  const container = document.getElementById('productsGrid');
+  if (!container) return;
+
+  if (products.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <i class="fas fa-box-open"></i>
+        <h3>Nessun articolo disponibile</h3>
+        <p>Il venditore non ha ancora pubblicato articoli</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = products.map(product => `
+    <div class="vendor-product-card" onclick="openProduct('${product.id}')">
+      <div class="vendor-product-image">
+        <img src="${product.immagine_url || 'https://via.placeholder.com/300x420/1a1a1a/fbbf24?text=No+Image'}" alt="${product.Nome}" onerror="this.src='https://via.placeholder.com/300x420/1a1a1a/fbbf24?text=No+Image'">
+        <div class="product-price-badge">€${parseFloat(product.prezzo_vendita || 0).toFixed(2)}</div>
+      </div>
+      <div class="vendor-product-info">
+        <div class="vendor-product-name">${product.Nome || 'Prodotto'}</div>
+        <div class="vendor-product-category">${product.Categoria || 'Carte'}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ========================================
+// CARICAMENTO POST
+// ========================================
+async function loadVendorPosts(utenteId) {
   const { data, error } = await supabase
     .from('PostSocial')
     .select(`
       *,
-      utente:Utenti!PostSocial_utente_id_fkey (
-        username,
-        nome_completo
-      )
+      utente:Utenti!PostSocial_utente_id_fkey (username, nome_completo)
     `)
     .eq('utente_id', utenteId)
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Errore caricamento post:', error);
+    console.error('Errore:', error);
     currentPosts = [];
   } else {
-    // Verifica quali post l'utente corrente ha già likato
     let likedPosts = [];
     if (currentUserId) {
       const { data: likes } = await supabase
@@ -263,44 +249,6 @@ async function loadVendorPostsFromDB(utenteId) {
   }
 
   renderPosts(currentPosts);
-}
-
-// ========================================
-// RENDER PRODOTTI
-// ========================================
-function renderProducts(products) {
-  const container = document.getElementById('productsGrid');
-  if (!container) return;
-
-  if (products.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state" style="grid-column: 1 / -1;">
-        <i class="fas fa-box-open"></i>
-        <h3>Nessun prodotto disponibile</h3>
-        <p>Il venditore non ha ancora pubblicato prodotti</p>
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = products.map(product => `
-    <div class="vendor-product-card" onclick="openProduct('${product.id}')">
-      <div class="vendor-product-image">
-        <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x420/1a1a1a/fbbf24?text=No+Image'">
-        ${product.rating > 0 ? `
-          <div class="product-rating-badge">
-            <i class="fas fa-star"></i>
-            ${product.rating.toFixed(1)}
-          </div>
-        ` : ''}
-        <div class="product-price-badge">€${product.price.toFixed(2)}</div>
-      </div>
-      <div class="vendor-product-info">
-        <div class="vendor-product-name">${product.name}</div>
-        <div class="vendor-product-category">${product.category}</div>
-      </div>
-    </div>
-  `).join('');
 }
 
 // ========================================
@@ -339,7 +287,7 @@ function renderPosts(posts) {
         </div>
       ` : ''}
       <div class="vendor-post-actions">
-        <button class="vendor-post-action-btn ${post.liked ? 'liked' : ''}" onclick="togglePostLikeDB('${post.id}')">
+        <button class="vendor-post-action-btn ${post.liked ? 'liked' : ''}" onclick="togglePostLike('${post.id}')">
           <i class="fas fa-heart"></i>
           <span id="likes-${post.id}">${post.likes}</span>
         </button>
@@ -386,22 +334,20 @@ function applyFilters() {
   const sortFilter = document.getElementById('sortFilter')?.value || 'newest';
 
   let filtered = currentProducts.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm);
-    const matchesCategory = !categoryFilter || product.category === categoryFilter;
+    const matchesSearch = product.Nome.toLowerCase().includes(searchTerm);
+    const matchesCategory = !categoryFilter || product.Categoria === categoryFilter;
     return matchesSearch && matchesCategory;
   });
 
   filtered.sort((a, b) => {
     switch(sortFilter) {
       case 'price-low':
-        return a.price - b.price;
+        return (a.prezzo_vendita || 0) - (b.prezzo_vendita || 0);
       case 'price-high':
-        return b.price - a.price;
-      case 'rating':
-        return b.rating - a.rating;
+        return (b.prezzo_vendita || 0) - (a.prezzo_vendita || 0);
       case 'newest':
       default:
-        return b.dateAdded - a.dateAdded;
+        return new Date(b.created_at) - new Date(a.created_at);
     }
   });
 
@@ -409,53 +355,40 @@ function applyFilters() {
 }
 
 // ========================================
-// AZIONI INTERATTIVE CON DB
+// AZIONI INTERATTIVE
 // ========================================
-async function togglePostLikeDB(postId) {
+async function togglePostLike(postId) {
   if (!currentUserId) {
     alert('Devi essere loggato per mettere like!');
     return;
   }
 
-  // Trova il post nei dati locali
   const post = currentPosts.find(p => p.id === postId);
   if (!post) return;
 
   try {
     if (post.liked) {
-      // Rimuovi like
       const { error } = await supabase
         .from('PostLikes')
         .delete()
         .eq('post_id', postId)
         .eq('utente_id', currentUserId);
-
       if (!error) {
         post.liked = false;
         post.likes--;
       }
     } else {
-      // Aggiungi like
       const { error } = await supabase
         .from('PostLikes')
-        .insert([
-          {
-            post_id: postId,
-            utente_id: currentUserId
-          }
-        ]);
-
+        .insert([{ post_id: postId, utente_id: currentUserId }]);
       if (!error) {
         post.liked = true;
         post.likes++;
       }
     }
 
-    // Aggiorna UI
     const likesSpan = document.getElementById(`likes-${postId}`);
-    if (likesSpan) {
-      likesSpan.textContent = post.likes;
-    }
+    if (likesSpan) likesSpan.textContent = post.likes;
 
     const btn = event.currentTarget;
     if (post.liked) {
@@ -463,16 +396,15 @@ async function togglePostLikeDB(postId) {
     } else {
       btn.classList.remove('liked');
     }
-
   } catch (error) {
-    console.error('Errore toggle like:', error);
-    alert('Errore durante l\'operazione. Riprova!');
+    console.error('Errore:', error);
+    alert('Errore. Riprova!');
   }
 }
 
-async function toggleFollowVendor(utenteVenditoreId) {
+async function toggleFollowVendor(vendorUserId) {
   if (!currentUserId) {
-    alert('Devi essere loggato per seguire un venditore!');
+    alert('Devi essere loggato per seguire!');
     return;
   }
 
@@ -481,57 +413,45 @@ async function toggleFollowVendor(utenteVenditoreId) {
 
   try {
     if (isFollowing) {
-      // Unfollow
       const { error } = await supabase
         .from('Followers')
         .delete()
-        .eq('utente_seguito_id', utenteVenditoreId)
+        .eq('utente_seguito_id', vendorUserId)
         .eq('follower_id', currentUserId);
-
       if (!error) {
         btn.classList.remove('following');
         btn.innerHTML = '<i class="fas fa-user-plus"></i><span>Segui</span>';
       }
     } else {
-      // Follow
       const { error } = await supabase
         .from('Followers')
-        .insert([
-          {
-            utente_seguito_id: utenteVenditoreId,
-            follower_id: currentUserId
-          }
-        ]);
-
+        .insert([{ utente_seguito_id: vendorUserId, follower_id: currentUserId }]);
       if (!error) {
         btn.classList.add('following');
         btn.innerHTML = '<i class="fas fa-user-check"></i><span>Seguito</span>';
       }
     }
   } catch (error) {
-    console.error('Errore toggle follow:', error);
-    alert('Errore durante l\'operazione. Riprova!');
+    console.error('Errore:', error);
+    alert('Errore. Riprova!');
   }
 }
 
-async function contactVendor(utenteVenditoreId) {
+function contactVendor(vendorUserId) {
   if (!currentUserId) {
-    alert('Devi essere loggato per contattare un venditore!');
+    alert('Devi essere loggato per contattare!');
     return;
   }
-
-  // Redirect alla pagina messaggi con parametro destinatario
-  window.location.href = `messaggi.html?to=${utenteVenditoreId}`;
+  // Redirect alla pagina messaggi
+  window.location.href = `messaggi.html?to=${vendorUserId}`;
 }
 
 function openProduct(productId) {
-  // Redirect alla pagina dettaglio prodotto
   window.location.href = `dettaglio-articolo.html?id=${productId}`;
 }
 
 function viewComments(postId) {
-  alert(`💬 Commenti per post ${postId}\n\nFunzione in arrivo! Qui potrai vedere e aggiungere commenti.`);
-  // TODO: Implementare modal commenti o redirect a pagina dettaglio post
+  alert(`💬 Commenti\n\nFunzione in arrivo!`);
 }
 
 // ========================================
@@ -544,19 +464,16 @@ function formatDate(date) {
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
   if (hours < 1) return 'Pochi minuti fa';
-  if (hours < 24) return `${hours} ${hours === 1 ? 'ora' : 'ore'} fa`;
+  if (hours < 24) return `${hours} ore fa`;
   if (days === 1) return '1 giorno fa';
   if (days < 7) return `${days} giorni fa`;
   return date.toLocaleDateString('it-IT');
 }
 
-// ========================================
-// ESPORTA FUNZIONI GLOBALI
-// ========================================
 window.initVendorPage = initVendorPage;
 window.switchTab = switchTab;
 window.applyFilters = applyFilters;
-window.togglePostLikeDB = togglePostLikeDB;
+window.togglePostLike = togglePostLike;
 window.toggleFollowVendor = toggleFollowVendor;
 window.contactVendor = contactVendor;
 window.openProduct = openProduct;
