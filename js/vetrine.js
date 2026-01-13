@@ -480,8 +480,13 @@ function setupScrollIndicators() {
 }
 
 function createVetrinaCard(userId, username, citta, disponibili, acquisti, mediaRecensioni, percentualeRecensioni, articoli) {
+  // Crea dots per gli articoli
+  const dotsHtml = articoli.length > 1 ? articoli.map((_, idx) => 
+    `<div class="vetrina-product-dot ${idx === 0 ? 'active' : ''}" data-index="${idx}"></div>`
+  ).join('') : '';
+  
   return `
-    <div class="vetrina-card-big" id="vetrina-${userId}">
+    <div class="vetrina-card-big" id="vetrina-${userId}" data-user-id="${userId}">
       <div class="vetrina-header" onclick="toggleVetrina('${userId}')">
         <div class="vetrina-top">
           <div class="vetrina-avatar">
@@ -515,12 +520,15 @@ function createVetrinaCard(userId, username, citta, disponibili, acquisti, media
         </div>
       </div>
       
-      <div class="vetrina-products-scroll" style="position: relative;">
-        <div class="vetrina-products-container">
+      <div class="vetrina-products-scroll" style="position: relative;" data-user-id="${userId}">
+        ${articoli.length > 1 ? '<div class="vetrina-products-counter"><i class="fas fa-images"></i> <span id="counter-${userId}">1</span>/${articoli.length}</div>' : ''}
+        <div class="vetrina-products-container" id="products-${userId}">
           ${articoli.map(art => createArticoloCard(art)).join('')}
         </div>
         ${articoli.length > 2 ? '<div class="scroll-indicator">SCORRI <i class="fas fa-chevron-right"></i></div>' : ''}
       </div>
+      
+      ${articoli.length > 1 ? `<div class="vetrina-products-dots" id="dots-${userId}">${dotsHtml}</div>` : ''}
       
       <div class="vetrina-products-expanded">
         <div class="vetrina-products-grid-expanded">
@@ -608,12 +616,6 @@ function createArticoloCompleto(articolo) {
 }
 
 async function mostraDettaglioArticolo(articoloId) {
-  // Apri nuova pagina di dettaglio ottimizzata per mobile
-  window.location.href = `dettaglio-articolo.html?id=${articoloId}`;
-}
-
-// VECCHIA FUNZIONE MODALE (BACKUP)
-async function mostraDettaglioArticoloOLD(articoloId) {
   try {
     // Carica articolo con dati utente
     const { data: articolo, error } = await supabaseClient
@@ -810,7 +812,74 @@ function scrollToFilter() {
 function toggleVetrina(userId) {
   const vetrina = document.getElementById(`vetrina-${userId}`);
   if (vetrina) {
+    const isExpanding = !vetrina.classList.contains('expanded');
     vetrina.classList.toggle('expanded');
+    
+    // Se sta espandendo, aggiungi listener scroll
+    if (isExpanding) {
+      setTimeout(() => {
+        setupVetrinaScrollListener(userId);
+      }, 400); // Dopo l'animazione
+    }
+  }
+}
+
+// Setup listener scroll per vetrina espansa
+function setupVetrinaScrollListener(userId) {
+  const scrollContainer = document.querySelector(`[data-user-id="${userId}"].vetrina-products-scroll`);
+  const dotsContainer = document.getElementById(`dots-${userId}`);
+  const counter = document.getElementById(`counter-${userId}`);
+  
+  if (!scrollContainer) return;
+  
+  // Rimuovi listener precedente se esiste
+  const existingListener = scrollContainer._scrollListener;
+  if (existingListener) {
+    scrollContainer.removeEventListener('scroll', existingListener);
+  }
+  
+  // Crea nuovo listener
+  const scrollListener = () => {
+    const scrollLeft = scrollContainer.scrollLeft;
+    const containerWidth = scrollContainer.offsetWidth;
+    const currentIndex = Math.round(scrollLeft / containerWidth);
+    
+    // Aggiorna dots
+    if (dotsContainer) {
+      const dots = dotsContainer.querySelectorAll('.vetrina-product-dot');
+      dots.forEach((dot, index) => {
+        if (index === currentIndex) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.remove('active');
+        }
+      });
+    }
+    
+    // Aggiorna counter
+    if (counter) {
+      counter.textContent = currentIndex + 1;
+    }
+  };
+  
+  // Salva riferimento al listener
+  scrollContainer._scrollListener = scrollListener;
+  
+  // Aggiungi listener
+  scrollContainer.addEventListener('scroll', scrollListener);
+  
+  // Click sui dots per navigare
+  if (dotsContainer) {
+    const dots = dotsContainer.querySelectorAll('.vetrina-product-dot');
+    dots.forEach((dot, index) => {
+      dot.onclick = () => {
+        const containerWidth = scrollContainer.offsetWidth;
+        scrollContainer.scrollTo({
+          left: index * containerWidth,
+          behavior: 'smooth'
+        });
+      };
+    });
   }
 }
 
@@ -853,12 +922,6 @@ let currentGalleryIndex = 0;
 let currentModalArticolo = null;
 
 function openModalDettaglio(articolo) {
-  // Apri nuova pagina di dettaglio ottimizzata per mobile
-  window.location.href = `dettaglio-articolo.html?id=${articolo.id}`;
-}
-
-// VECCHIA FUNZIONE MODALE (BACKUP)
-function openModalDettaglioOLD(articolo) {
   currentModalArticolo = articolo;
   currentGalleryIndex = 0;
   
