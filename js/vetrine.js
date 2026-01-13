@@ -18,6 +18,28 @@ let currentPage = 1;
 const itemsPerPage = 10;
 let scrollIndicatorTimers = new Map();
 
+// Crea HTML paginazione
+function createPaginationHtml(currentPage, totalPages, position = 'bottom') {
+  if (totalPages <= 1) return '';
+  
+  const prevDisabled = currentPage === 1 ? 'disabled' : '';
+  const nextDisabled = currentPage === totalPages ? 'disabled' : '';
+  
+  return `
+    <div class="vetrine-pagination pagination-${position}">
+      <button class="pagination-btn" onclick="changePage(-1)" ${prevDisabled}>
+        <i class="fas fa-chevron-left"></i> Indietro
+      </button>
+      <div class="pagination-info">
+        Pagina <span>${currentPage}</span> di <span>${totalPages}</span>
+      </div>
+      <button class="pagination-btn" onclick="changePage(1)" ${nextDisabled}>
+        Avanti <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  `;
+}
+
 async function loadVetrineContent() {
   const container = document.getElementById('vetrineContainer');
   
@@ -397,10 +419,13 @@ function renderVetrine(articoli) {
   const endIndex = startIndex + itemsPerPage;
   const vetrinePaginate = vetrine.slice(startIndex, endIndex);
   
+  // Paginazione TOP (sotto filtro)
+  const paginationTop = createPaginationHtml(currentPage, totalPages, 'top');
+  
   // Crea HTML vetrine
-  let html = '';
+  let htmlVetrine = '';
   vetrinePaginate.forEach(v => {
-    html += createVetrinaCard(
+    htmlVetrine += createVetrinaCard(
       v.userId,
       v.username,
       v.citta,
@@ -412,22 +437,11 @@ function renderVetrine(articoli) {
     );
   });
   
-  // Aggiungi paginazione
-  if (totalPages > 1) {
-    html += `
-      <div class="vetrine-pagination">
-        <button class="pagination-btn" id="btnPrev" onclick="changePage(-1)" ${currentPage === 1 ? 'disabled' : ''}>
-          <i class="fas fa-chevron-left"></i> Indietro
-        </button>
-        <div class="pagination-info">
-          Pagina <span>${currentPage}</span> di <span>${totalPages}</span>
-        </div>
-        <button class="pagination-btn" id="btnNext" onclick="changePage(1)" ${currentPage === totalPages ? 'disabled' : ''}>
-          Avanti <i class="fas fa-chevron-right"></i>
-        </button>
-      </div>
-    `;
-  }
+  // Paginazione BOTTOM (in fondo)
+  const paginationBottom = createPaginationHtml(currentPage, totalPages, 'bottom');
+  
+  // Combina tutto
+  const html = paginationTop + htmlVetrine + paginationBottom;
   
   container.innerHTML = html;
   
