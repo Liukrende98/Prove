@@ -1086,12 +1086,12 @@ window.carouselIndices = {}; // userId -> currentIndex
 function createVetrinaCardNew(userId, username, citta, disponibili, acquisti, mediaRecensioni, percentualeRecensioni, articoli) {
   return `
     <div class="vetrina-card-big" id="vetrina-${userId}">
-      <div class="vetrina-header" onclick="toggleVetrinaExpand('${userId}')">
+      <div class="vetrina-header">
         <div class="vetrina-top">
           <div class="vetrina-avatar">
             <i class="fas fa-store"></i>
           </div>
-          <div class="vetrina-info">
+          <div class="vetrina-info" onclick="toggleVetrinaExpand('${userId}')">
             <h3>
               <span class="vetrina-username">${username}</span>
               <span class="vetrina-expand-icon">▼</span>
@@ -1100,6 +1100,14 @@ function createVetrinaCardNew(userId, username, citta, disponibili, acquisti, me
             <div class="vetrina-rating">
               <i class="fas fa-box-open"></i> ${articoli.length} articol${articoli.length === 1 ? 'o' : 'i'}
             </div>
+          </div>
+          <div class="vetrina-actions">
+            <button class="vetrina-action-btn" onclick="event.stopPropagation(); toggleVetrinaExpand('${userId}')" title="Espandi articoli">
+              <i class="fas fa-expand-alt"></i>
+            </button>
+            <button class="vetrina-action-btn" onclick="event.stopPropagation(); openVendorProfile('${userId}', '${username}')" title="Profilo venditore">
+              <i class="fas fa-user"></i>
+            </button>
           </div>
         </div>
       </div>
@@ -1865,4 +1873,16 @@ function openFullscreen(imageUrl) {
     `);
     fullscreenWindow.document.close();
   }
+}
+
+// ============================================
+// PROFILO VENDITORE (DA SVILUPPARE)
+// ============================================
+
+function openVendorProfile(userId, username) {
+  // TODO: Implementare pagina profilo venditore
+  alert(`Apertura profilo venditore: ${username}\n\nFunzionalità in sviluppo!`);
+  
+  // Quando sarà pronto:
+  // window.location.href = `profilo-venditore.html?id=${userId}`;
 }
