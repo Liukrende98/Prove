@@ -30,6 +30,20 @@ function saveSession(user) {
   localStorage.setItem('nodo_user_id', user.id);
   localStorage.setItem('nodo_username', user.username);
   localStorage.setItem('nodo_email', user.email);
+  
+  // ⭐ AGGIUNGI QUESTO per compatibilità con community/vetrina
+  localStorage.setItem('userData', JSON.stringify({
+    id: user.id,
+    username: user.username,
+    email: user.email
+  }));
+  sessionStorage.setItem('userData', JSON.stringify({
+    id: user.id,
+    username: user.username,
+    email: user.email
+  }));
+  
+  console.log('✅ Sessione salvata per utente:', user.id);
 }
 
 // Cancella sessione utente
