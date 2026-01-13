@@ -613,9 +613,9 @@ function createArticoloCard(articolo) {
         ${ratingHtml}
       </div>
       <div class="vetrina-product-info">
+        <div class="vetrina-product-price">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
         <div class="vetrina-product-name">${articolo.Nome}</div>
         <div class="vetrina-product-category">${articolo.Categoria || 'Varie'}</div>
-        <div class="vetrina-product-price">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
       </div>
     </div>
   `;
