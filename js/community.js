@@ -1,5 +1,5 @@
 // ========================================
-// COMMUNITY.JS - COMPLETO CON SUPABASE
+// COMMUNITY.JS - DEFINITIVO CON CONTROLLI
 // ========================================
 
 let allPosts = [];
@@ -9,10 +9,34 @@ let currentUserId = null;
 // INIZIALIZZAZIONE
 // ========================================
 async function initCommunityPage() {
-  const { data: { user } } = await supabaseClient.auth.getUser();
-  if (user) {
-    currentUserId = user.id;
+  // OTTIENI UTENTE LOGGATO (prova diversi metodi)
+  try {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (user && user.id) {
+      currentUserId = user.id;
+      console.log('✅ Utente loggato via auth.getUser():', currentUserId);
+    } else {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session && session.user) {
+        currentUserId = session.user.id;
+        console.log('✅ Utente loggato via getSession():', currentUserId);
+      } else {
+        const userData = localStorage.getItem('userData');
+        if (userData) {
+          const parsed = JSON.parse(userData);
+          currentUserId = parsed.id;
+          console.log('✅ Utente loggato via localStorage:', currentUserId);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('⚠️ Errore ottenendo utente:', error);
   }
+
+  if (!currentUserId) {
+    console.warn('⚠️ Nessun utente loggato trovato');
+  }
+
   await loadCommunityContentFromDB();
 }
 
@@ -53,7 +77,7 @@ async function loadCommunityContentFromDB() {
 
   allPosts = posts.map(post => ({
     id: post.id,
-    utente_id: post.utente_id,
+    utente_id: post.utente_id, // Serve per controllo anti-auto-like
     username: post.utente?.username || 'Utente',
     avatar: post.utente?.username?.substring(0, 2).toUpperCase() || 'U',
     contenuto: post.contenuto,
@@ -92,23 +116,27 @@ function renderCommunityFeed() {
 // CREA CARD POST
 // ========================================
 function createPostCard(post) {
+  // Mostra se il post è TUO
+  const isMyPost = post.utente_id === currentUserId;
+  const badgeOwner = isMyPost ? '<span style="background: #fbbf24; color: #000; padding: 2px 8px; border-radius: 8px; font-size: 10px; font-weight: 900; margin-left: 8px;">TUO POST</span>' : '';
+
   return `
     <div class="post-card" id="post-${post.id}">
       <div class="post-header">
         <div class="post-avatar">${post.avatar}</div>
         <div class="post-user">
-          <h4>${post.username}</h4>
+          <h4>${post.username} ${badgeOwner}</h4>
           <span>${post.time}</span>
         </div>
       </div>
       <div class="post-content">${post.contenuto}</div>
       ${post.immagine_url ? `
-        <div class="post-image">
-          <img src="${post.immagine_url}" alt="Post" onerror="this.parentElement.style.display='none'">
+        <div class="post-image" style="width: 100%; height: 250px; border-radius: 16px; overflow: hidden; margin-bottom: 16px; background: #0a0a0a;">
+          <img src="${post.immagine_url}" alt="Post" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentElement.style.display='none'">
         </div>
       ` : ''}
       <div class="post-actions">
-        <button class="post-action-btn ${post.liked ? 'liked' : ''}" onclick="togglePostLike('${post.id}')">
+        <button class="post-action-btn ${post.liked ? 'liked' : ''} ${isMyPost ? 'disabled' : ''}" onclick="togglePostLike('${post.id}')" ${isMyPost ? 'style="opacity: 0.5; cursor: not-allowed;"' : ''}>
           <i class="fas fa-heart"></i>
           <span id="likes-${post.id}">${post.likes}</span>
         </button>
@@ -126,16 +154,25 @@ function createPostCard(post) {
 // ========================================
 async function togglePostLike(postId) {
   if (!currentUserId) {
-    alert('Devi essere loggato per mettere like!');
+    alert('⚠️ Devi essere loggato per mettere like!\n\nSe sei già loggato, ricarica la pagina.');
+    console.error('❌ currentUserId è null. Ricarica la pagina!');
     return;
   }
 
   const post = allPosts.find(p => p.id === postId);
   if (!post) return;
 
+  // CONTROLLO: Non puoi mettere like ai TUOI post
+  if (post.utente_id === currentUserId) {
+    alert('❌ Non puoi mettere like ai tuoi stessi post!');
+    return;
+  }
+
+  console.log('💖 Toggle like post:', postId, 'utente:', currentUserId);
+
   try {
     if (post.liked) {
-      const { error } = await supabase
+      const { error } = await supabaseClient
         .from('PostLikes')
         .delete()
         .eq('post_id', postId)
@@ -145,7 +182,7 @@ async function togglePostLike(postId) {
         post.likes--;
       }
     } else {
-      const { error } = await supabase
+      const { error } = await supabaseClient
         .from('PostLikes')
         .insert([{ post_id: postId, utente_id: currentUserId }]);
       if (!error) {
@@ -173,7 +210,7 @@ async function togglePostLike(postId) {
 // VISUALIZZA COMMENTI
 // ========================================
 async function viewPostComments(postId) {
-  const { data: comments, error } = await supabase
+  const { data: comments, error } = await supabaseClient
     .from('PostCommenti')
     .select(`
       *,
@@ -189,10 +226,10 @@ async function viewPostComments(postId) {
   }
 
   if (comments.length === 0) {
-    alert('💬 Nessun commento.\n\nSii il primo a commentare!');
+    alert('💬 Nessun commento.\n\nSii il primo a commentare!\n\n✅ NOTA: Puoi commentare anche i tuoi post!');
   } else {
     const text = comments.map(c => `👤 ${c.utente.username}: ${c.contenuto}`).join('\n\n');
-    alert(`💬 Commenti (${comments.length}):\n\n${text}`);
+    alert(`💬 Commenti (${comments.length}):\n\n${text}\n\n✅ NOTA: Puoi commentare anche i tuoi post!`);
   }
 }
 
