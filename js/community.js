@@ -165,6 +165,17 @@ function createPostCard(post) {
   const currentUserId = getCurrentUserId();
   const isMyPost = post.utente_id === currentUserId;
   
+  // Determina se è video o immagine
+  const mediaUrl = post.immagine_url;
+  const isVideo = mediaUrl && (
+    mediaUrl.includes('youtube.com') || 
+    mediaUrl.includes('youtu.be') || 
+    mediaUrl.endsWith('.mp4') || 
+    mediaUrl.endsWith('.webm') || 
+    mediaUrl.endsWith('.ogg') ||
+    mediaUrl.startsWith('data:video/')
+  );
+  
   return `
     <div class="post-card" id="post-${post.id}">
       <div class="post-header">
@@ -180,11 +191,18 @@ function createPostCard(post) {
         </div>
       </div>
       <div class="post-content">${post.contenuto}</div>
-      ${post.immagine_url ? `
-        <div class="post-image">
-          <img src="${post.immagine_url}" alt="Post" onerror="this.parentElement.style.display='none'">
+      ${mediaUrl ? (isVideo ? `
+        <div class="post-video">
+          <video controls>
+            <source src="${mediaUrl}" type="video/mp4">
+            Il tuo browser non supporta i video.
+          </video>
         </div>
-      ` : ''}
+      ` : `
+        <div class="post-image">
+          <img src="${mediaUrl}" alt="Post" onerror="this.parentElement.style.display='none'">
+        </div>
+      `) : ''}
       <div class="post-actions">
         <button class="post-action-btn ${post.liked ? 'liked' : ''} ${isMyPost ? 'disabled' : ''}" 
                 onclick="togglePostLike(event, '${post.id}', '${post.utente_id}')">
@@ -449,14 +467,115 @@ function closeCreatePostModal() {
   document.getElementById('createPostModal').style.display = 'none';
   document.getElementById('newPostContent').value = '';
   document.getElementById('newPostImage').value = '';
+  document.getElementById('fileInput').value = '';
+  document.getElementById('filePreview').style.display = 'none';
+  document.getElementById('filePreview').innerHTML = '';
+  selectedFile = null;
 }
+
+// ========================================
+// GESTIONE UPLOAD FILE
+// ========================================
+let selectedFile = null;
+
+function handleFileSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  // Verifica dimensione (max 10MB)
+  if (file.size > 10 * 1024 * 1024) {
+    alert('❌ File troppo grande! Max 10MB');
+    return;
+  }
+  
+  // Verifica tipo
+  if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+    alert('❌ Solo immagini o video!');
+    return;
+  }
+  
+  selectedFile = file;
+  
+  // Preview
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const preview = document.getElementById('filePreview');
+    preview.style.display = 'block';
+    
+    if (file.type.startsWith('image/')) {
+      preview.innerHTML = `
+        <img src="${e.target.result}" alt="Preview">
+        <button class="file-remove" onclick="removeFile()">
+          <i class="fas fa-trash"></i> Rimuovi
+        </button>
+      `;
+    } else {
+      preview.innerHTML = `
+        <video controls>
+          <source src="${e.target.result}" type="${file.type}">
+        </video>
+        <button class="file-remove" onclick="removeFile()">
+          <i class="fas fa-trash"></i> Rimuovi
+        </button>
+      `;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeFile() {
+  selectedFile = null;
+  document.getElementById('fileInput').value = '';
+  document.getElementById('filePreview').style.display = 'none';
+  document.getElementById('filePreview').innerHTML = '';
+}
+
+// ========================================
+// DRAG & DROP
+// ========================================
+window.addEventListener('DOMContentLoaded', () => {
+  const dropArea = document.getElementById('fileUploadArea');
+  
+  if (dropArea) {
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropArea.addEventListener(eventName, () => {
+        dropArea.classList.add('dragover');
+      }, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, () => {
+        dropArea.classList.remove('dragover');
+      }, false);
+    });
+    
+    dropArea.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      
+      if (files.length > 0) {
+        document.getElementById('fileInput').files = files;
+        handleFileSelect({ target: { files: files } });
+      }
+    }, false);
+  }
+});
 
 // ========================================
 // CREA NUOVO POST
 // ========================================
 async function createNewPost() {
   const contenuto = document.getElementById('newPostContent').value.trim();
-  const immagine_url = document.getElementById('newPostImage').value.trim();
+  let immagine_url = document.getElementById('newPostImage').value.trim();
   
   if (!contenuto) {
     alert('❌ Scrivi qualcosa!');
@@ -474,6 +593,18 @@ async function createNewPost() {
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Pubblicazione...';
   
   try {
+    // Se c'è un file selezionato, converti in base64
+    if (selectedFile && !immagine_url) {
+      const reader = new FileReader();
+      immagine_url = await new Promise((resolve, reject) => {
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(selectedFile);
+      });
+      
+      console.log('📎 File convertito in base64');
+    }
+    
     const { data, error } = await supabaseClient
       .from('PostSocial')
       .insert([{
@@ -489,16 +620,32 @@ async function createNewPost() {
     
     if (error) {
       console.error('❌ Errore:', error);
-      alert('❌ Errore pubblicazione post');
+      alert('❌ Errore pubblicazione post: ' + error.message);
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-paper-plane"></i> Pubblica';
       return;
     }
     
+    console.log('✅ Post pubblicato:', data);
+    
     // Ricarica i post
     await loadCommunityContentFromDB();
     
     closeCreatePostModal();
+    
+    // Scroll al top per vedere il nuovo post
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    alert('✅ Post pubblicato con successo!');
+    
+  } catch (error) {
+    console.error('❌ Errore catturato:', error);
+    alert('❌ Errore imprevisto: ' + error.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Pubblica';
+  }
+}
     
     alert('✅ Post pubblicato con successo!');
     
@@ -540,4 +687,6 @@ window.addComment = addComment;
 window.showCreatePostModal = showCreatePostModal;
 window.closeCreatePostModal = closeCreatePostModal;
 window.createNewPost = createNewPost;
+window.handleFileSelect = handleFileSelect;
+window.removeFile = removeFile;
 window.getCurrentUserId = getCurrentUserId;
