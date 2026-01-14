@@ -24,43 +24,6 @@
       touch-action: manipulation;
     }
 
-    /* HEADER */
-    .page-header {
-      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-      padding: 20px;
-      border-bottom: 2px solid #fbbf24;
-      box-shadow: 0 4px 20px rgba(251, 191, 36, 0.3);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .header-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .header-logo {
-      font-size: 28px;
-      font-weight: 900;
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .header-title {
-      font-size: 18px;
-      font-weight: 800;
-      color: #fff;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
     .main-content {
       padding-bottom: 100px;
       padding-top: 10px;
@@ -128,6 +91,17 @@
       flex-wrap: wrap;
     }
 
+    .username-link {
+      color: #fbbf24;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .username-link:hover {
+      color: #f59e0b;
+      text-decoration: underline;
+    }
+
     .post-user span {
       font-size: 13px;
       color: #6b7280;
@@ -140,6 +114,15 @@
       padding: 2px 8px;
       border-radius: 8px;
       font-size: 10px;
+      font-weight: 900;
+    }
+
+    .badge-small {
+      background: #3b82f6;
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 9px;
       font-weight: 900;
     }
 
@@ -192,7 +175,7 @@
       gap: 8px;
       cursor: pointer;
       transition: all 0.2s ease;
-      min-height: 48px; /* iPHONE touch target */
+      min-height: 48px;
     }
 
     .post-action-btn:active {
@@ -226,6 +209,282 @@
       transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     }
 
+    /* FAB - BOTTONE CREA POST */
+    .fab-btn {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      border: none;
+      box-shadow: 0 8px 30px rgba(251, 191, 36, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #000;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .fab-btn:active {
+      transform: scale(0.9);
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+    }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow: hidden;
+      border: 2px solid #fbbf24;
+      box-shadow: 0 20px 60px rgba(251, 191, 36, 0.3);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 2px solid #2a2a2a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #6b7280;
+      cursor: pointer;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .modal-close:active {
+      color: #ef4444;
+      transform: scale(0.9);
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-footer {
+      padding: 20px;
+      border-top: 2px solid #2a2a2a;
+      display: flex;
+      gap: 10px;
+    }
+
+    /* COMMENTS */
+    .comment-item {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: #1a1a1a;
+      border-radius: 16px;
+      border: 1px solid #2a2a2a;
+    }
+
+    .comment-item.my-comment {
+      background: #0f0f0f;
+      border-color: #3b82f6;
+    }
+
+    .comment-avatar {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #fff;
+      font-weight: 900;
+    }
+
+    .comment-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .comment-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .comment-username {
+      font-size: 14px;
+      font-weight: 900;
+      color: #fbbf24;
+      text-decoration: none;
+    }
+
+    .comment-username:hover {
+      text-decoration: underline;
+    }
+
+    .comment-content p {
+      font-size: 14px;
+      color: #e5e7eb;
+      margin: 0 0 6px 0;
+      word-wrap: break-word;
+    }
+
+    .comment-time {
+      font-size: 11px;
+      color: #6b7280;
+      font-weight: 700;
+    }
+
+    .comment-input-container {
+      display: flex;
+      gap: 10px;
+    }
+
+    .comment-input {
+      flex: 1;
+      background: #1a1a1a;
+      border: 2px solid #3b82f6;
+      border-radius: 16px;
+      padding: 12px 16px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      resize: none;
+      min-height: 48px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .comment-input:focus {
+      outline: none;
+      border-color: #fbbf24;
+    }
+
+    .comment-btn {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      border: none;
+      border-radius: 16px;
+      padding: 12px 20px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-width: 80px;
+    }
+
+    .comment-btn:active {
+      transform: scale(0.95);
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    }
+
+    /* CREATE POST FORM */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 900;
+      color: #fbbf24;
+      margin-bottom: 8px;
+    }
+
+    .form-group textarea,
+    .form-group input {
+      width: 100%;
+      background: #1a1a1a;
+      border: 2px solid #3b82f6;
+      border-radius: 16px;
+      padding: 12px 16px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .form-group textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .form-group textarea:focus,
+    .form-group input:focus {
+      outline: none;
+      border-color: #fbbf24;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      border: none;
+      border-radius: 16px;
+      padding: 14px 24px;
+      color: #000;
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     /* EMPTY STATE */
     .empty-state {
       text-align: center;
@@ -250,6 +509,41 @@
     .empty-state p {
       font-size: 14px;
       font-weight: 600;
+    }
+
+    .empty-state-small {
+      text-align: center;
+      padding: 30px 20px;
+      color: #6b7280;
+    }
+
+    .empty-state-small i {
+      font-size: 40px;
+      color: #374151;
+      margin-bottom: 10px;
+      opacity: 0.5;
+    }
+
+    .empty-state-small p {
+      font-size: 13px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 30px;
+      color: #3b82f6;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .error {
+      text-align: center;
+      padding: 30px;
+      color: #ef4444;
+      font-size: 14px;
+      font-weight: 700;
     }
   </style>
 </head>
@@ -280,6 +574,64 @@
   <div class="main-content">
     <!-- FEED COMMUNITY -->
     <div class="community-feed" id="communityContainer"></div>
+  </div>
+
+  <!-- FAB - CREA POST -->
+  <button class="fab-btn" onclick="showCreatePostModal()">
+    <i class="fas fa-plus"></i>
+  </button>
+
+  <!-- MODAL COMMENTI -->
+  <div class="modal" id="commentsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-comments"></i> Commenti</h3>
+        <button class="modal-close" onclick="closeCommentsModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modalCommentsList"></div>
+      <div class="modal-footer">
+        <input type="hidden" id="modalPostId">
+        <div class="comment-input-container">
+          <textarea class="comment-input" id="commentInput" placeholder="Scrivi un commento..." rows="1"></textarea>
+          <button class="comment-btn" onclick="addComment()">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CREA POST -->
+  <div class="modal" id="createPostModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-pen"></i> Nuovo Post</h3>
+        <button class="modal-close" onclick="closeCreatePostModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="newPostContent">
+            <i class="fas fa-align-left"></i> Contenuto *
+          </label>
+          <textarea id="newPostContent" placeholder="Cosa vuoi condividere?" rows="5"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="newPostImage">
+            <i class="fas fa-image"></i> URL Immagine (opzionale)
+          </label>
+          <input type="url" id="newPostImage" placeholder="https://esempio.com/immagine.jpg">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" onclick="createNewPost()">
+          <i class="fas fa-paper-plane"></i> Pubblica
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- FOOTER -->
