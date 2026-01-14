@@ -1,318 +1,208 @@
 // ========================================
-// MENU NAVIGAZIONE
+// MENU NAVIGAZIONE BLU CON NOTIFICHE
 // ========================================
 
 let menuOpen = false;
-let notificationsCount = 0;
+let notificationCount = 0;
+
+// Struttura menu items
+const menuItems = [
+  { icon: 'fa-home', label: 'Home', action: () => window.location.href = 'index.html' },
+  { icon: 'fa-store', label: 'Vetrine', action: () => window.location.href = 'vetrine.html' },
+  { icon: 'fa-comments', label: 'Messaggi', action: () => openMessagesCenter(), badge: true }, // NUOVO!
+  { icon: 'fa-user', label: 'Profilo', action: () => window.location.href = 'il-tuo-profilo.html' },
+  { icon: 'fa-sign-out-alt', label: 'Esci', action: logout }
+];
 
 // ========================================
-// HELPER FUNCTIONS
+// INIT MENU
 // ========================================
-function getCurrentUserId() {
-  return localStorage.getItem('nodo_user_id');
-}
+function initMenu() {
+  const menuItemsContainer = document.getElementById('menuItems');
+  if (!menuItemsContainer) return;
 
-function getCurrentUsername() {
-  return localStorage.getItem('nodo_username');
-}
+  menuItemsContainer.innerHTML = '';
 
-// ========================================
-// CONTA NOTIFICHE
-// ========================================
-async function loadNotificationsCount() {
-  const userId = getCurrentUserId();
-  if (!userId || !window.supabaseClient) {
-    notificationsCount = 0;
-    return;
-  }
+  menuItems.forEach((item, index) => {
+    const menuItem = document.createElement('div');
+    menuItem.className = 'menu-item';
+    menuItem.innerHTML = `
+      <i class="fas ${item.icon}"></i>
+      <div class="menu-label">${item.label}</div>
+      ${item.badge ? '<div class="menu-item-badge" id="messagesBadge" style="display: none;">0</div>' : ''}
+    `;
 
-  try {
-    let totalNotifications = 0;
+    menuItem.addEventListener('click', (e) => {
+      e.stopPropagation();
+      item.action();
+      closeMenu();
+    });
 
-    // 1. Conta nuovi like sui miei post (nelle ultime 24h)
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    const { data: myPosts } = await window.supabaseClient
-      .from('PostSocial')
-      .select('id')
-      .eq('utente_id', userId);
+    menuItemsContainer.appendChild(menuItem);
 
-    if (myPosts && myPosts.length > 0) {
-      const postIds = myPosts.map(p => p.id);
+    // Posizionamento radiale
+    if (menuOpen) {
+      const angle = (index * 50) - 90;
+      const radius = 90;
+      const x = Math.cos((angle * Math.PI) / 180) * radius;
+      const y = Math.sin((angle * Math.PI) / 180) * radius;
       
-      // Like
-      const { count: likesCount } = await window.supabaseClient
-        .from('PostLikes')
-        .select('*', { count: 'exact', head: true })
-        .in('post_id', postIds)
-        .gte('created_at', yesterday.toISOString());
-      
-      totalNotifications += likesCount || 0;
-
-      // Commenti
-      const { count: commentsCount } = await window.supabaseClient
-        .from('PostCommenti')
-        .select('*', { count: 'exact', head: true })
-        .in('post_id', postIds)
-        .neq('utente_id', userId) // Escludi i tuoi commenti
-        .gte('created_at', yesterday.toISOString());
-      
-      totalNotifications += commentsCount || 0;
+      menuItem.style.transform = `translate(${x}px, ${y}px) scale(1)`;
     }
+  });
 
-    // 2. Conta nuovi follower (nelle ultime 24h)
-    const { count: followersCount } = await window.supabaseClient
-      .from('Followers')
-      .select('*', { count: 'exact', head: true })
-      .eq('utente_seguito_id', userId)
-      .gte('created_at', yesterday.toISOString());
-    
-    totalNotifications += followersCount || 0;
-
-    notificationsCount = totalNotifications;
-    updateNotificationsBadge();
-
-  } catch (error) {
-    console.error('❌ Errore caricamento notifiche:', error);
-    notificationsCount = 0;
-  }
+  // Carica notifiche
+  loadNotifications();
 }
 
-function updateNotificationsBadge() {
-  const badge = document.getElementById('profileNotificationBadge');
-  if (!badge) return;
-  
-  if (notificationsCount > 0) {
-    badge.textContent = notificationsCount > 99 ? '99+' : notificationsCount;
-    badge.style.display = 'flex';
-  } else {
-    badge.style.display = 'none';
-  }
-}
-
-const menuStructure = {
-  'mancoliste': {
-    icon: 'fas fa-list-check',
-    label: 'Mancoliste',
-    url: 'mancoliste.html'
-  },
-  'vetrine': {
-    icon: 'fas fa-shop',
-    label: 'Vetrine',
-    url: 'vetrine.html'
-  },
-  'community': {
-    icon: 'fas fa-users',
-    label: 'Community',
-    url: 'community.html'
-  },
-  'profilo': {
-    icon: 'fas fa-user',
-    label: 'Profilo',
-    url: null,
-    hasNotifications: true,
-    submenu: {
-      'mio-profilo': {
-        icon: 'fas fa-user-circle',
-        label: 'Il Mio Profilo',
-        url: null // Dinamico
-      },
-      'il-mio-negozio': {
-        icon: 'fas fa-store',
-        label: 'Il Mio Negozio',
-        url: 'il-tuo-negozio.html'
-      },
-      'logout': {
-        icon: 'fas fa-sign-out-alt',
-        label: 'Logout',
-        url: null, // Funzione speciale
-        isLogout: true
-      }
-    }
-  }
-};
-
-// Crea overlay blur una volta sola
-function createMenuOverlay() {
-  if (document.getElementById('menuOverlay')) return;
-  
-  const overlay = document.createElement('div');
-  overlay.id = 'menuOverlay';
-  overlay.className = 'menu-overlay';
-  overlay.onclick = () => toggleMenu(); // Chiudi menu se clicchi sull'overlay
-  
-  document.body.appendChild(overlay);
-}
-
+// ========================================
+// TOGGLE MENU
+// ========================================
 function toggleMenu() {
   menuOpen = !menuOpen;
   const menuBtn = document.getElementById('menuBtn');
-  const menuItems = document.getElementById('menuItems');
-  const mainContent = document.querySelector('.main-content');
-  const header = document.querySelector('.header');
-  const addBtnContainer = document.querySelector('.add-btn-container');
-  const overlay = document.getElementById('menuOverlay');
+  const menuItemsContainer = document.getElementById('menuItems');
   
-  menuBtn.classList.toggle('active');
-  
+  if (!menuBtn || !menuItemsContainer) return;
+
   if (menuOpen) {
-    // Apri menu
-    document.body.classList.add('menu-active');
-    if (overlay) overlay.classList.add('active');
-    if (mainContent) mainContent.classList.add('blur-content');
-    if (header) header.classList.add('blur-content');
-    if (addBtnContainer) addBtnContainer.classList.add('blur-content');
+    menuBtn.classList.add('active');
+    const items = menuItemsContainer.querySelectorAll('.menu-item');
     
-    loadMenu();
-  } else {
-    // Chiudi menu
-    document.body.classList.remove('menu-active');
-    if (overlay) overlay.classList.remove('active');
-    if (mainContent) mainContent.classList.remove('blur-content');
-    if (header) header.classList.remove('blur-content');
-    if (addBtnContainer) addBtnContainer.classList.remove('blur-content');
-    
-    menuItems.innerHTML = '';
-  }
-}
-
-function loadMenu() {
-  const menuItems = document.getElementById('menuItems');
-  menuItems.innerHTML = '';
-  
-  const items = Object.entries(menuStructure);
-  const currentUserId = getCurrentUserId();
-  const currentUsername = getCurrentUsername();
-  
-  items.forEach(([key, item], index) => {
-    const menuItem = document.createElement('div');
-    menuItem.className = 'menu-item';
-    
-    const yOffset = 80 * (index + 1);
-    
-    setTimeout(() => {
-      menuItem.classList.add('active');
-      menuItem.style.transform = `translateY(-${yOffset}px)`;
-    }, index * 50);
-    
-    // Badge notifiche per Profilo
-    const notificationBadge = (key === 'profilo' && item.hasNotifications && notificationsCount > 0) 
-      ? `<span class="notification-badge" id="profileNotificationBadge">${notificationsCount > 99 ? '99+' : notificationsCount}</span>` 
-      : '';
-    
-    menuItem.innerHTML = `
-      <i class="${item.icon}"></i>
-      <div class="menu-label">${item.label}</div>
-      ${notificationBadge}
-    `;
-    
-    menuItem.onclick = () => {
-      if (key === 'profilo') {
-        // Profilo → Apri la TUA vetrina
-        if (item.submenu) {
-          loadSubmenu(key, item.submenu);
-        } else if (currentUsername) {
-          window.location.href = `vetrina-venditore.html?vendor=${currentUsername}`;
-        } else {
-          alert('❌ Username non trovato!');
-        }
-      } else if (item.submenu) {
-        loadSubmenu(key, item.submenu);
-      } else if (item.url) {
-        window.location.href = item.url;
-      }
-    };
-    
-    menuItems.appendChild(menuItem);
-  });
-}
-
-function loadSubmenu(parentKey, submenu) {
-  const menuItems = document.getElementById('menuItems');
-  menuItems.innerHTML = '';
-  
-  const items = Object.entries(submenu);
-  const currentUsername = getCurrentUsername();
-  
-  items.forEach(([key, item], index) => {
-    const menuItem = document.createElement('div');
-    menuItem.className = 'menu-item';
-    
-    const yOffset = 80 * (index + 1);
-    
-    setTimeout(() => {
-      menuItem.classList.add('active');
-      menuItem.style.transform = `translateY(-${yOffset}px)`;
-    }, index * 50);
-    
-    menuItem.innerHTML = `
-      <i class="${item.icon}"></i>
-      <div class="menu-label">${item.label}</div>
-    `;
-    
-    menuItem.onclick = () => {
-      // Logout
-      if (item.isLogout) {
-        if (confirm('🚪 Sei sicuro di voler uscire?')) {
-          localStorage.removeItem('nodo_user_id');
-          localStorage.removeItem('nodo_username');
-          localStorage.removeItem('nodo_email');
-          window.location.href = 'login.html';
-        }
-        return;
-      }
-      
-      // Il Mio Profilo
-      if (key === 'mio-profilo' && currentUsername) {
-        window.location.href = `vetrina-venditore.html?vendor=${currentUsername}`;
-      } else if (item.url) {
-        window.location.href = item.url;
-      } else {
-        alert('❌ Username non trovato!');
-      }
-    };
-    
-    menuItems.appendChild(menuItem);
-  });
-  
-  // Aggiungi pulsante "Indietro"
-  const backItem = document.createElement('div');
-  backItem.className = 'menu-item';
-  
-  setTimeout(() => {
-    backItem.classList.add('active');
-    backItem.style.transform = `translateY(-${80 * (items.length + 1)}px)`;
-  }, items.length * 50);
-  
-  backItem.innerHTML = `
-    <i class="fas fa-arrow-left"></i>
-    <div class="menu-label">Indietro</div>
-  `;
-  
-  backItem.onclick = () => {
-    loadMenu();
-  };
-  
-  menuItems.appendChild(backItem);
-}
-
-// Inizializza overlay al caricamento della pagina
-window.addEventListener('DOMContentLoaded', () => {
-  createMenuOverlay();
-  
-  // Carica notifiche se l'utente è loggato
-  const userId = getCurrentUserId();
-  if (userId) {
-    // Aspetta che supabase sia disponibile
-    const checkSupabase = setInterval(() => {
-      if (window.supabaseClient) {
-        clearInterval(checkSupabase);
-        loadNotificationsCount();
+    items.forEach((item, index) => {
+      setTimeout(() => {
+        const angle = (index * 50) - 90;
+        const radius = 90;
+        const x = Math.cos((angle * Math.PI) / 180) * radius;
+        const y = Math.sin((angle * Math.PI) / 180) * radius;
         
-        // Aggiorna notifiche ogni 2 minuti
-        setInterval(loadNotificationsCount, 120000);
-      }
-    }, 100);
+        item.classList.add('active');
+        item.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+      }, index * 50);
+    });
+  } else {
+    closeMenu();
   }
+}
+
+function closeMenu() {
+  menuOpen = false;
+  const menuBtn = document.getElementById('menuBtn');
+  const menuItemsContainer = document.getElementById('menuItems');
+  
+  if (!menuBtn || !menuItemsContainer) return;
+
+  menuBtn.classList.remove('active');
+  const items = menuItemsContainer.querySelectorAll('.menu-item');
+  
+  items.forEach((item, index) => {
+    setTimeout(() => {
+      item.classList.remove('active');
+      item.style.transform = 'translate(0, 0) scale(0)';
+    }, index * 30);
+  });
+}
+
+// ========================================
+// NOTIFICHE
+// ========================================
+async function loadNotifications() {
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) return;
+
+  try {
+    // Conta messaggi non letti
+    const { count: unreadMessages } = await supabaseClient
+      .from('Messaggi')
+      .select('*', { count: 'exact', head: true })
+      .eq('destinatario_id', currentUserId)
+      .eq('letto', false);
+
+    // Conta notifiche varie (likes, commenti, follow)
+    const { count: unreadNotifications } = await supabaseClient
+      .from('Notifiche')
+      .select('*', { count: 'exact', head: true })
+      .eq('utente_id', currentUserId)
+      .eq('letta', false);
+
+    const totalUnread = (unreadMessages || 0) + (unreadNotifications || 0);
+    
+    updateNotificationBadge(totalUnread, unreadMessages || 0);
+  } catch (error) {
+    console.error('❌ Errore caricamento notifiche:', error);
+  }
+}
+
+function updateNotificationBadge(total, messages) {
+  // Badge sul bottone principale del menu
+  const menuBtn = document.getElementById('menuBtn');
+  if (!menuBtn) return;
+
+  let mainBadge = menuBtn.querySelector('.menu-notification-badge');
+  
+  if (total > 0) {
+    if (!mainBadge) {
+      mainBadge = document.createElement('div');
+      mainBadge.className = 'menu-notification-badge';
+      menuBtn.appendChild(mainBadge);
+    }
+    mainBadge.textContent = total > 99 ? '99+' : total;
+    mainBadge.style.display = 'flex';
+  } else {
+    if (mainBadge) {
+      mainBadge.style.display = 'none';
+    }
+  }
+
+  // Badge sui messaggi specifici
+  const messagesBadge = document.getElementById('messagesBadge');
+  if (messagesBadge) {
+    if (messages > 0) {
+      messagesBadge.textContent = messages > 99 ? '99+' : messages;
+      messagesBadge.style.display = 'flex';
+    } else {
+      messagesBadge.style.display = 'none';
+    }
+  }
+
+  notificationCount = total;
+}
+
+// Aggiorna notifiche ogni 30 secondi
+setInterval(() => {
+  if (getCurrentUserId()) {
+    loadNotifications();
+  }
+}, 30000);
+
+// ========================================
+// LOGOUT
+// ========================================
+function logout() {
+  if (confirm('🚪 Sei sicuro di voler uscire?')) {
+    localStorage.removeItem('nodo_user_id');
+    localStorage.removeItem('nodo_username');
+    window.location.href = 'login.html';
+  }
+}
+
+// Init al caricamento
+document.addEventListener('DOMContentLoaded', () => {
+  initMenu();
+  
+  // Chiudi menu cliccando fuori
+  document.addEventListener('click', (e) => {
+    const menuBtn = document.getElementById('menuBtn');
+    const menuItems = document.getElementById('menuItems');
+    
+    if (menuOpen && menuBtn && menuItems) {
+      if (!menuBtn.contains(e.target) && !menuItems.contains(e.target)) {
+        closeMenu();
+      }
+    }
+  });
 });
+
+window.toggleMenu = toggleMenu;
+window.closeMenu = closeMenu;
+window.loadNotifications = loadNotifications;
