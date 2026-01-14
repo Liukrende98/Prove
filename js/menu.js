@@ -4,6 +4,7 @@
 
 let menuOpen = false;
 let notificationsCount = 0;
+let unreadMessagesCount = 0; // NUOVO: conta messaggi non letti
 
 // ========================================
 // HELPER FUNCTIONS
@@ -23,6 +24,7 @@ async function loadNotificationsCount() {
   const userId = getCurrentUserId();
   if (!userId || !window.supabaseClient) {
     notificationsCount = 0;
+    unreadMessagesCount = 0;
     return;
   }
 
@@ -70,12 +72,23 @@ async function loadNotificationsCount() {
     
     totalNotifications += followersCount || 0;
 
+    // 3. NUOVO: Conta messaggi non letti
+    const { count: messagesCount } = await window.supabaseClient
+      .from('Messaggi')
+      .select('*', { count: 'exact', head: true })
+      .eq('destinatario_id', userId)
+      .eq('letto', false);
+    
+    unreadMessagesCount = messagesCount || 0;
+    totalNotifications += unreadMessagesCount;
+
     notificationsCount = totalNotifications;
     updateNotificationsBadge();
 
   } catch (error) {
     console.error('❌ Errore caricamento notifiche:', error);
     notificationsCount = 0;
+    unreadMessagesCount = 0;
   }
 }
 
@@ -89,6 +102,17 @@ function updateNotificationsBadge() {
   } else {
     badge.style.display = 'none';
   }
+  
+  // NUOVO: Aggiorna badge messaggi
+  const messagesBadge = document.getElementById('messagesNotificationBadge');
+  if (messagesBadge) {
+    if (unreadMessagesCount > 0) {
+      messagesBadge.textContent = unreadMessagesCount > 99 ? '99+' : unreadMessagesCount;
+      messagesBadge.style.display = 'flex';
+    } else {
+      messagesBadge.style.display = 'none';
+    }
+  }
 }
 
 const menuStructure = {
@@ -101,6 +125,13 @@ const menuStructure = {
     icon: 'fas fa-shop',
     label: 'Vetrine',
     url: 'vetrine.html'
+  },
+  'messaggi': {  // NUOVO: Voce Messaggi
+    icon: 'fas fa-comments',
+    label: 'Messaggi',
+    url: null,
+    hasNotifications: true,
+    isMessages: true
   },
   'community': {
     icon: 'fas fa-users',
@@ -196,10 +227,13 @@ function loadMenu() {
       menuItem.style.transform = `translateY(-${yOffset}px)`;
     }, index * 50);
     
-    // Badge notifiche per Profilo
-    const notificationBadge = (key === 'profilo' && item.hasNotifications && notificationsCount > 0) 
-      ? `<span class="notification-badge" id="profileNotificationBadge">${notificationsCount > 99 ? '99+' : notificationsCount}</span>` 
-      : '';
+    // Badge notifiche
+    let notificationBadge = '';
+    if (key === 'profilo' && item.hasNotifications && notificationsCount > 0) {
+      notificationBadge = `<span class="notification-badge" id="profileNotificationBadge">${notificationsCount > 99 ? '99+' : notificationsCount}</span>`;
+    } else if (key === 'messaggi' && item.hasNotifications && unreadMessagesCount > 0) {
+      notificationBadge = `<span class="notification-badge" id="messagesNotificationBadge">${unreadMessagesCount > 99 ? '99+' : unreadMessagesCount}</span>`;
+    }
     
     menuItem.innerHTML = `
       <i class="${item.icon}"></i>
@@ -208,7 +242,15 @@ function loadMenu() {
     `;
     
     menuItem.onclick = () => {
-      if (key === 'profilo') {
+      // NUOVO: Messaggi
+      if (key === 'messaggi' && item.isMessages) {
+        toggleMenu(); // Chiudi menu
+        if (typeof openMessagesCenter === 'function') {
+          openMessagesCenter();
+        } else {
+          alert('❌ Sistema messaggi non disponibile. Assicurati di aver incluso messages.js');
+        }
+      } else if (key === 'profilo') {
         // Profilo → Apri la TUA vetrina
         if (item.submenu) {
           loadSubmenu(key, item.submenu);
