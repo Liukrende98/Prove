@@ -2,6 +2,8 @@
 // SISTEMA MESSAGGISTICA TIPO WHATSAPP
 // ========================================
 
+console.log('📨 messages.js caricato!');
+
 let currentChatUserId = null;
 let currentChatUsername = null;
 let messagesPollingInterval = null;
@@ -75,7 +77,6 @@ function createMessagesUI() {
         </div>
         <div class="messages-user-info">
           <div class="messages-username">Messaggi</div>
-          <div class="messages-status">Seleziona una chat</div>
         </div>
       </div>
       <button class="messages-close-btn" onclick="closeMessages()">
@@ -256,7 +257,6 @@ async function openChat(userId, username) {
       </div>
       <div class="messages-user-info">
         <div class="messages-username">${username}</div>
-        <div class="messages-status">Online</div>
       </div>
     `;
   }
@@ -425,9 +425,9 @@ async function markMessagesAsRead(senderId) {
       .eq('mittente_id', senderId)
       .eq('letto', false);
     
-    // Aggiorna badge notifiche
-    if (typeof loadNotifications === 'function') {
-      loadNotifications();
+    // Aggiorna badge notifiche SUBITO
+    if (typeof loadNotificationsCount === 'function') {
+      await loadNotificationsCount();
     }
   } catch (error) {
     console.error('❌ Errore marcatura lettura:', error);
@@ -507,3 +507,9 @@ window.showConversationsList = showConversationsList;
 window.openChat = openChat;
 window.sendMessage = sendMessage;
 window.openDirectChat = openDirectChat;
+
+console.log('✅ Funzioni messaggi esportate:', {
+  openMessagesCenter: typeof window.openMessagesCenter,
+  closeMessages: typeof window.closeMessages,
+  openDirectChat: typeof window.openDirectChat
+});
