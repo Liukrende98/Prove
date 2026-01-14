@@ -40,18 +40,21 @@ function getCurrentUserId() {
 // ========================================
 async function initVendorPage() {
   const urlParams = new URLSearchParams(window.location.search);
+  const vendorId = urlParams.get('id');
   const vendorUsername = urlParams.get('vendor');
   
-  if (!vendorUsername) {
+  if (!vendorId && !vendorUsername) {
     alert('Venditore non specificato!');
     window.location.href = 'vetrine.html';
     return;
   }
 
-  currentVendorUsername = vendorUsername;
-  
   // requireAuth() è già chiamato nell'HTML
-  await loadVendorProfile(vendorUsername);
+  if (vendorId) {
+    await loadVendorProfileById(vendorId);
+  } else {
+    await loadVendorProfile(vendorUsername);
+  }
 }
 
 // ========================================
@@ -75,7 +78,35 @@ async function loadVendorProfile(username) {
 
   console.log('✅ Utente trovato');
   currentVendorId = utente.id;
+  currentVendorUsername = utente.username;
 
+  await loadVendorData(utente);
+}
+
+async function loadVendorProfileById(userId) {
+  console.log('🔍 Caricamento per ID:', userId);
+  
+  const { data: utente, error } = await supabaseClient
+    .from('Utenti')
+    .select('*')
+    .eq('id', userId)
+    .single();
+
+  if (error || !utente) {
+    console.error('❌ Errore:', error);
+    alert('Venditore non trovato!');
+    window.location.href = 'vetrine.html';
+    return;
+  }
+
+  console.log('✅ Utente trovato');
+  currentVendorId = utente.id;
+  currentVendorUsername = utente.username;
+
+  await loadVendorData(utente);
+}
+
+async function loadVendorData(utente) {
   const { data: tuttiArticoli } = await supabaseClient
     .from('Articoli')
     .select('*, Utenti(id, username)')
@@ -423,14 +454,17 @@ function renderPosts(posts) {
     return;
   }
 
+  const currentUserId = getCurrentUserId();
   const avatarInitials = posts[0]?.username?.substring(0, 2).toUpperCase() || 'VE';
 
-  container.innerHTML = posts.map(post => `
+  container.innerHTML = posts.map(post => {
+    const isMyPost = post.utente_id === currentUserId;
+    return `
     <div class="vendor-post-card">
       <div class="vendor-post-header">
         <div class="vendor-post-avatar">${avatarInitials}</div>
         <div class="vendor-post-user">
-          <h4>${post.username}</h4>
+          <h4>${post.username} ${isMyPost ? '<span class="badge-owner">TU</span>' : ''}</h4>
           <span>${post.time}</span>
         </div>
       </div>
@@ -441,18 +475,18 @@ function renderPosts(posts) {
         </div>
       ` : ''}
       <div class="vendor-post-actions">
-        <button class="vendor-post-action-btn ${post.liked ? 'liked' : ''}" 
-                onclick="togglePostLike('${post.id}', '${post.utente_id}')">
+        <button class="vendor-post-action-btn ${post.liked ? 'liked' : ''} ${isMyPost ? 'disabled' : ''}" 
+                onclick="togglePostLike(event, '${post.id}', '${post.utente_id}')">
           <i class="fas fa-heart"></i>
           <span id="likes-${post.id}">${post.likes}</span>
         </button>
         <button class="vendor-post-action-btn" onclick="viewComments('${post.id}')">
           <i class="fas fa-comment"></i>
-          <span>${post.comments}</span>
+          <span id="comments-${post.id}">${post.comments}</span>
         </button>
       </div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 // ========================================
@@ -483,7 +517,7 @@ function switchTab(tabName) {
 // ========================================
 // AZIONI
 // ========================================
-async function togglePostLike(postId, postOwnerId) {
+async function togglePostLike(event, postId, postOwnerId) {
   console.log('💖 Toggle like:', postId);
   
   const currentUserId = getCurrentUserId();
