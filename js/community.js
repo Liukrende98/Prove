@@ -373,69 +373,6 @@ function collapseCreatePost() {
   removeFile();
 }
 
-// ========================================
-// ELIMINA POST
-// ========================================
-async function deletePost(postId) {
-  if (!confirm('🗑️ Sei sicuro di voler eliminare questo post?')) {
-    return;
-  }
-  
-  const currentUserId = getCurrentUserId();
-  if (!currentUserId) {
-    alert('❌ Devi essere loggato!');
-    return;
-  }
-  
-  try {
-    console.log('🗑️ Eliminazione post:', postId);
-    
-    // Verifica che sia il proprietario
-    const post = allPosts.find(p => p.id === postId);
-    if (!post || post.utente_id !== currentUserId) {
-      alert('❌ Non puoi eliminare questo post!');
-      return;
-    }
-    
-    // Elimina dal DB
-    const { error } = await supabaseClient
-      .from('PostSocial')
-      .delete()
-      .eq('id', postId)
-      .eq('utente_id', currentUserId);  // Sicurezza extra
-    
-    if (error) {
-      console.error('❌ Errore:', error);
-      alert('❌ Errore eliminazione: ' + error.message);
-      return;
-    }
-    
-    console.log('✅ Post eliminato');
-    
-    // Rimuovi dalla UI con animazione
-    const postCard = document.getElementById(`post-${postId}`);
-    if (postCard) {
-      postCard.style.transition = 'all 0.3s ease';
-      postCard.style.opacity = '0';
-      postCard.style.transform = 'scale(0.9)';
-      setTimeout(() => {
-        postCard.remove();
-        // Rimuovi anche dall'array
-        allPosts = allPosts.filter(p => p.id !== postId);
-        
-        // Se non ci sono più post, mostra empty state
-        if (allPosts.length === 0) {
-          renderCommunityFeed();
-        }
-      }, 300);
-    }
-    
-  } catch (error) {
-    console.error('❌ Errore:', error);
-    alert('❌ Errore: ' + error.message);
-  }
-}
-
 function handleFileSelect(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -599,7 +536,6 @@ window.addComment = addComment;
 window.expandCreatePost = expandCreatePost;
 window.collapseCreatePost = collapseCreatePost;
 window.createNewPost = createNewPost;
-window.deletePost = deletePost;
 window.handleFileSelect = handleFileSelect;
 window.removeFile = removeFile;
 window.getCurrentUserId = getCurrentUserId;
