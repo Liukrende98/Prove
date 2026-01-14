@@ -8,7 +8,6 @@ let allPosts = [];
 // GET CURRENT USER - USA IL TUO SISTEMA AUTH
 // ========================================
 function getCurrentUserId() {
-  // USA IL TUO SISTEMA DI AUTH!
   const userId = localStorage.getItem('nodo_user_id');
   
   if (userId) {
@@ -26,7 +25,6 @@ function getCurrentUserId() {
 async function initCommunityPage() {
   console.log('🚀 INIT Community Page');
   
-  // requireAuth() è già chiamato nell'HTML, quindi se arrivi qui sei loggato
   const userId = getCurrentUserId();
   if (!userId) {
     console.error('❌ Errore: userId null ma requireAuth non ha reindirizzato!');
@@ -164,12 +162,20 @@ function renderCommunityFeed() {
 // CREA CARD POST
 // ========================================
 function createPostCard(post) {
+  const currentUserId = getCurrentUserId();
+  const isMyPost = post.utente_id === currentUserId;
+  
   return `
     <div class="post-card" id="post-${post.id}">
       <div class="post-header">
         <div class="post-avatar">${post.avatar}</div>
         <div class="post-user">
-          <h4>${post.username}</h4>
+          <h4>
+            <a href="vetrina-venditore.html?id=${post.utente_id}" class="username-link">
+              ${post.username}
+            </a>
+            ${isMyPost ? '<span class="badge-owner">TU</span>' : ''}
+          </h4>
           <span>${post.time}</span>
         </div>
       </div>
@@ -180,12 +186,12 @@ function createPostCard(post) {
         </div>
       ` : ''}
       <div class="post-actions">
-        <button class="post-action-btn ${post.liked ? 'liked' : ''}" 
-                onclick="togglePostLike('${post.id}', '${post.utente_id}')">
+        <button class="post-action-btn ${post.liked ? 'liked' : ''} ${isMyPost ? 'disabled' : ''}" 
+                onclick="togglePostLike(event, '${post.id}', '${post.utente_id}')">
           <i class="fas fa-heart"></i>
           <span id="likes-${post.id}">${post.likes}</span>
         </button>
-        <button class="post-action-btn" onclick="viewPostComments('${post.id}')">
+        <button class="post-action-btn" onclick="showCommentsModal('${post.id}')">
           <i class="fas fa-comment"></i>
           <span id="comments-${post.id}">${post.comments}</span>
         </button>
@@ -195,9 +201,9 @@ function createPostCard(post) {
 }
 
 // ========================================
-// TOGGLE LIKE
+// TOGGLE LIKE - FIX ERRORE EVENT
 // ========================================
-async function togglePostLike(postId, postOwnerId) {
+async function togglePostLike(event, postId, postOwnerId) {
   console.log('💖 Toggle like post:', postId);
   
   const currentUserId = getCurrentUserId();
@@ -207,7 +213,7 @@ async function togglePostLike(postId, postOwnerId) {
   }
   
   console.log('✅ User ID:', currentUserId);
-  console.log('📝 Post owner:', postOwnerId);
+  console.log('🔍 Post owner:', postOwnerId);
 
   if (postOwnerId === currentUserId) {
     alert('❌ Non puoi mettere like ai tuoi post!');
@@ -260,7 +266,6 @@ async function togglePostLike(postId, postOwnerId) {
     // Aggiorna UI con animazione
     const likesSpan = document.getElementById(`likes-${postId}`);
     if (likesSpan) {
-      // Animazione
       likesSpan.style.transform = 'scale(1.3)';
       likesSpan.style.color = '#fbbf24';
       setTimeout(() => {
@@ -272,6 +277,7 @@ async function togglePostLike(postId, postOwnerId) {
       }, 100);
     }
 
+    // FIX: Ottieni il bottone dall'evento
     const btn = event.currentTarget;
     if (post.liked) {
       btn.classList.add('liked');
@@ -286,31 +292,214 @@ async function togglePostLike(postId, postOwnerId) {
 }
 
 // ========================================
-// COMMENTI
+// MOSTRA MODAL COMMENTI
 // ========================================
-async function viewPostComments(postId) {
-  console.log('💬 Commenti:', postId);
+async function showCommentsModal(postId) {
+  console.log('💬 Mostra commenti:', postId);
   
-  const { data: comments, error } = await supabaseClient
-    .from('PostCommenti')
-    .select(`
-      *,
-      utente:Utenti!PostCommenti_utente_id_fkey (username)
-    `)
-    .eq('post_id', postId)
-    .order('created_at', { ascending: true });
+  const modal = document.getElementById('commentsModal');
+  const commentsContainer = document.getElementById('modalCommentsList');
+  const modalPostId = document.getElementById('modalPostId');
+  
+  modalPostId.value = postId;
+  commentsContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Caricamento...</div>';
+  modal.style.display = 'flex';
+  
+  await loadComments(postId);
+}
 
-  if (error) {
+// ========================================
+// CARICA COMMENTI
+// ========================================
+async function loadComments(postId) {
+  const commentsContainer = document.getElementById('modalCommentsList');
+  
+  try {
+    const { data: comments, error } = await supabaseClient
+      .from('PostCommenti')
+      .select(`
+        *,
+        utente:Utenti!PostCommenti_utente_id_fkey (id, username)
+      `)
+      .eq('post_id', postId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('❌ Errore:', error);
+      commentsContainer.innerHTML = '<div class="error">❌ Errore caricamento commenti</div>';
+      return;
+    }
+
+    if (comments.length === 0) {
+      commentsContainer.innerHTML = `
+        <div class="empty-state-small">
+          <i class="fas fa-comment-slash"></i>
+          <p>Nessun commento ancora.<br>Sii il primo!</p>
+        </div>
+      `;
+      return;
+    }
+
+    const currentUserId = getCurrentUserId();
+    
+    commentsContainer.innerHTML = comments.map(c => {
+      const isMyComment = c.utente_id === currentUserId;
+      return `
+        <div class="comment-item ${isMyComment ? 'my-comment' : ''}">
+          <div class="comment-avatar">${c.utente.username.substring(0, 2).toUpperCase()}</div>
+          <div class="comment-content">
+            <div class="comment-header">
+              <a href="vetrina-venditore.html?id=${c.utente.id}" class="comment-username">
+                ${c.utente.username}
+              </a>
+              ${isMyComment ? '<span class="badge-small">TU</span>' : ''}
+            </div>
+            <p>${c.contenuto}</p>
+            <span class="comment-time">${formatDate(new Date(c.created_at))}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+  } catch (error) {
     console.error('❌ Errore:', error);
-    alert('Errore caricamento commenti');
+    commentsContainer.innerHTML = '<div class="error">❌ Errore imprevisto</div>';
+  }
+}
+
+// ========================================
+// AGGIUNGI COMMENTO
+// ========================================
+async function addComment() {
+  const postId = document.getElementById('modalPostId').value;
+  const input = document.getElementById('commentInput');
+  const contenuto = input.value.trim();
+  
+  if (!contenuto) {
+    alert('❌ Scrivi un commento!');
     return;
   }
+  
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    alert('❌ Devi essere loggato!');
+    return;
+  }
+  
+  try {
+    const { error } = await supabaseClient
+      .from('PostCommenti')
+      .insert([{
+        post_id: postId,
+        utente_id: currentUserId,
+        contenuto: contenuto
+      }]);
+    
+    if (error) {
+      console.error('❌ Errore:', error);
+      alert('❌ Errore aggiunta commento');
+      return;
+    }
+    
+    input.value = '';
+    
+    // Aggiorna contatore
+    const post = allPosts.find(p => p.id === postId);
+    if (post) {
+      post.comments++;
+      const commentsSpan = document.getElementById(`comments-${postId}`);
+      if (commentsSpan) commentsSpan.textContent = post.comments;
+    }
+    
+    await loadComments(postId);
+    
+  } catch (error) {
+    console.error('❌ Errore:', error);
+    alert('❌ Errore imprevisto');
+  }
+}
 
-  if (comments.length === 0) {
-    alert('💬 Nessun commento.\n\nSii il primo!');
-  } else {
-    const text = comments.map(c => `👤 ${c.utente.username}: ${c.contenuto}`).join('\n\n');
-    alert(`💬 Commenti (${comments.length}):\n\n${text}`);
+// ========================================
+// CHIUDI MODAL COMMENTI
+// ========================================
+function closeCommentsModal() {
+  document.getElementById('commentsModal').style.display = 'none';
+  document.getElementById('commentInput').value = '';
+}
+
+// ========================================
+// MOSTRA MODAL CREA POST
+// ========================================
+function showCreatePostModal() {
+  document.getElementById('createPostModal').style.display = 'flex';
+}
+
+// ========================================
+// CHIUDI MODAL CREA POST
+// ========================================
+function closeCreatePostModal() {
+  document.getElementById('createPostModal').style.display = 'none';
+  document.getElementById('newPostContent').value = '';
+  document.getElementById('newPostImage').value = '';
+}
+
+// ========================================
+// CREA NUOVO POST
+// ========================================
+async function createNewPost() {
+  const contenuto = document.getElementById('newPostContent').value.trim();
+  const immagine_url = document.getElementById('newPostImage').value.trim();
+  
+  if (!contenuto) {
+    alert('❌ Scrivi qualcosa!');
+    return;
+  }
+  
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    alert('❌ Devi essere loggato!');
+    return;
+  }
+  
+  const btn = event.currentTarget;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Pubblicazione...';
+  
+  try {
+    const { data, error } = await supabaseClient
+      .from('PostSocial')
+      .insert([{
+        utente_id: currentUserId,
+        contenuto: contenuto,
+        immagine_url: immagine_url || null
+      }])
+      .select(`
+        *,
+        utente:Utenti!PostSocial_utente_id_fkey (id, username, nome_completo)
+      `)
+      .single();
+    
+    if (error) {
+      console.error('❌ Errore:', error);
+      alert('❌ Errore pubblicazione post');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Pubblica';
+      return;
+    }
+    
+    // Ricarica i post
+    await loadCommunityContentFromDB();
+    
+    closeCreatePostModal();
+    
+    alert('✅ Post pubblicato con successo!');
+    
+  } catch (error) {
+    console.error('❌ Errore:', error);
+    alert('❌ Errore imprevisto');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Pubblica';
   }
 }
 
@@ -332,7 +521,15 @@ function formatDate(date) {
   return date.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
 }
 
+// ========================================
+// EXPORTS
+// ========================================
 window.initCommunityPage = initCommunityPage;
 window.togglePostLike = togglePostLike;
-window.viewPostComments = viewPostComments;
+window.showCommentsModal = showCommentsModal;
+window.closeCommentsModal = closeCommentsModal;
+window.addComment = addComment;
+window.showCreatePostModal = showCreatePostModal;
+window.closeCreatePostModal = closeCreatePostModal;
+window.createNewPost = createNewPost;
 window.getCurrentUserId = getCurrentUserId;
