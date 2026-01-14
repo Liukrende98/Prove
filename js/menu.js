@@ -3,6 +3,93 @@
 // ========================================
 
 let menuOpen = false;
+let notificationsCount = 0;
+
+// ========================================
+// HELPER FUNCTIONS
+// ========================================
+function getCurrentUserId() {
+  return localStorage.getItem('nodo_user_id');
+}
+
+function getCurrentUsername() {
+  return localStorage.getItem('nodo_username');
+}
+
+// ========================================
+// CONTA NOTIFICHE
+// ========================================
+async function loadNotificationsCount() {
+  const userId = getCurrentUserId();
+  if (!userId || !window.supabaseClient) {
+    notificationsCount = 0;
+    return;
+  }
+
+  try {
+    let totalNotifications = 0;
+
+    // 1. Conta nuovi like sui miei post (nelle ultime 24h)
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const { data: myPosts } = await window.supabaseClient
+      .from('PostSocial')
+      .select('id')
+      .eq('utente_id', userId);
+
+    if (myPosts && myPosts.length > 0) {
+      const postIds = myPosts.map(p => p.id);
+      
+      // Like
+      const { count: likesCount } = await window.supabaseClient
+        .from('PostLikes')
+        .select('*', { count: 'exact', head: true })
+        .in('post_id', postIds)
+        .gte('created_at', yesterday.toISOString());
+      
+      totalNotifications += likesCount || 0;
+
+      // Commenti
+      const { count: commentsCount } = await window.supabaseClient
+        .from('PostCommenti')
+        .select('*', { count: 'exact', head: true })
+        .in('post_id', postIds)
+        .neq('utente_id', userId) // Escludi i tuoi commenti
+        .gte('created_at', yesterday.toISOString());
+      
+      totalNotifications += commentsCount || 0;
+    }
+
+    // 2. Conta nuovi follower (nelle ultime 24h)
+    const { count: followersCount } = await window.supabaseClient
+      .from('Followers')
+      .select('*', { count: 'exact', head: true })
+      .eq('utente_seguito_id', userId)
+      .gte('created_at', yesterday.toISOString());
+    
+    totalNotifications += followersCount || 0;
+
+    notificationsCount = totalNotifications;
+    updateNotificationsBadge();
+
+  } catch (error) {
+    console.error('❌ Errore caricamento notifiche:', error);
+    notificationsCount = 0;
+  }
+}
+
+function updateNotificationsBadge() {
+  const badge = document.getElementById('profileNotificationBadge');
+  if (!badge) return;
+  
+  if (notificationsCount > 0) {
+    badge.textContent = notificationsCount > 99 ? '99+' : notificationsCount;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
 
 const menuStructure = {
   'mancoliste': {
@@ -23,17 +110,23 @@ const menuStructure = {
   'profilo': {
     icon: 'fas fa-user',
     label: 'Profilo',
-    url: 'profilo.html',
+    url: null, // Apre direttamente la propria vetrina
+    hasNotifications: true, // Flag per mostrare notifiche
     submenu: {
+      'mio-profilo': {
+        icon: 'fas fa-user-circle',
+        label: 'Il Mio Profilo',
+        url: null // Dinamico, viene calcolato con lo username
+      },
+      'modifica-profilo': {
+        icon: 'fas fa-user-edit',
+        label: 'Modifica Profilo',
+        url: 'il-tuo-profilo.html'
+      },
       'il-tuo-negozio': {
         icon: 'fas fa-store',
         label: 'Il Tuo Negozio',
         url: 'il-tuo-negozio.html'
-      },
-      'il-tuo-profilo': {
-        icon: 'fas fa-user-circle',
-        label: 'Il Tuo Profilo',
-        url: 'il-tuo-profilo.html'
       }
     }
   }
@@ -88,6 +181,8 @@ function loadMenu() {
   menuItems.innerHTML = '';
   
   const items = Object.entries(menuStructure);
+  const currentUserId = getCurrentUserId();
+  const currentUsername = getCurrentUsername();
   
   items.forEach(([key, item], index) => {
     const menuItem = document.createElement('div');
@@ -100,15 +195,30 @@ function loadMenu() {
       menuItem.style.transform = `translateY(-${yOffset}px)`;
     }, index * 50);
     
+    // Badge notifiche per Profilo
+    const notificationBadge = (key === 'profilo' && item.hasNotifications && notificationsCount > 0) 
+      ? `<span class="notification-badge" id="profileNotificationBadge">${notificationsCount > 99 ? '99+' : notificationsCount}</span>` 
+      : '';
+    
     menuItem.innerHTML = `
       <i class="${item.icon}"></i>
       <div class="menu-label">${item.label}</div>
+      ${notificationBadge}
     `;
     
     menuItem.onclick = () => {
-      if (item.submenu) {
+      if (key === 'profilo') {
+        // Profilo → Apri la TUA vetrina
+        if (item.submenu) {
+          loadSubmenu(key, item.submenu);
+        } else if (currentUsername) {
+          window.location.href = `vetrina-venditore.html?vendor=${currentUsername}`;
+        } else {
+          alert('❌ Username non trovato!');
+        }
+      } else if (item.submenu) {
         loadSubmenu(key, item.submenu);
-      } else {
+      } else if (item.url) {
         window.location.href = item.url;
       }
     };
@@ -122,6 +232,7 @@ function loadSubmenu(parentKey, submenu) {
   menuItems.innerHTML = '';
   
   const items = Object.entries(submenu);
+  const currentUsername = getCurrentUsername();
   
   items.forEach(([key, item], index) => {
     const menuItem = document.createElement('div');
@@ -140,7 +251,14 @@ function loadSubmenu(parentKey, submenu) {
     `;
     
     menuItem.onclick = () => {
-      window.location.href = item.url;
+      // Gestione URL dinamico per "Il Mio Profilo"
+      if (key === 'mio-profilo' && currentUsername) {
+        window.location.href = `vetrina-venditore.html?vendor=${currentUsername}`;
+      } else if (item.url) {
+        window.location.href = item.url;
+      } else {
+        alert('❌ Username non trovato!');
+      }
     };
     
     menuItems.appendChild(menuItem);
@@ -170,4 +288,19 @@ function loadSubmenu(parentKey, submenu) {
 // Inizializza overlay al caricamento della pagina
 window.addEventListener('DOMContentLoaded', () => {
   createMenuOverlay();
+  
+  // Carica notifiche se l'utente è loggato
+  const userId = getCurrentUserId();
+  if (userId) {
+    // Aspetta che supabase sia disponibile
+    const checkSupabase = setInterval(() => {
+      if (window.supabaseClient) {
+        clearInterval(checkSupabase);
+        loadNotificationsCount();
+        
+        // Aggiorna notifiche ogni 2 minuti
+        setInterval(loadNotificationsCount, 120000);
+      }
+    }, 100);
+  }
 });
