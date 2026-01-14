@@ -454,23 +454,19 @@ function closeCommentsModal() {
 }
 
 // ========================================
-// MOSTRA MODAL CREA POST
+// BOX CREA POST INLINE (STILE FACEBOOK)
 // ========================================
-function showCreatePostModal() {
-  document.getElementById('createPostModal').style.display = 'flex';
+function expandCreatePost() {
+  const expanded = document.getElementById('createPostExpanded');
+  expanded.style.display = 'block';
+  document.getElementById('newPostContent').focus();
 }
 
-// ========================================
-// CHIUDI MODAL CREA POST
-// ========================================
-function closeCreatePostModal() {
-  document.getElementById('createPostModal').style.display = 'none';
+function collapseCreatePost() {
+  const expanded = document.getElementById('createPostExpanded');
+  expanded.style.display = 'none';
   document.getElementById('newPostContent').value = '';
-  document.getElementById('newPostImage').value = '';
-  document.getElementById('fileInput').value = '';
-  document.getElementById('filePreview').style.display = 'none';
-  document.getElementById('filePreview').innerHTML = '';
-  selectedFile = null;
+  removeFile();
 }
 
 // ========================================
@@ -482,9 +478,9 @@ function handleFileSelect(event) {
   const file = event.target.files[0];
   if (!file) return;
   
-  // Verifica dimensione (max 10MB)
-  if (file.size > 10 * 1024 * 1024) {
-    alert('❌ File troppo grande! Max 10MB');
+  // Verifica dimensione (max 5MB per evitare problemi)
+  if (file.size > 5 * 1024 * 1024) {
+    alert('❌ File troppo grande! Max 5MB\n\nPer file più grandi usa un servizio di hosting.');
     return;
   }
   
@@ -495,18 +491,19 @@ function handleFileSelect(event) {
   }
   
   selectedFile = file;
+  console.log('📎 File selezionato:', file.name, '(' + (file.size / 1024 / 1024).toFixed(2) + ' MB)');
   
   // Preview
   const reader = new FileReader();
   reader.onload = function(e) {
-    const preview = document.getElementById('filePreview');
+    const preview = document.getElementById('filePreviewContainer');
     preview.style.display = 'block';
     
     if (file.type.startsWith('image/')) {
       preview.innerHTML = `
         <img src="${e.target.result}" alt="Preview">
-        <button class="file-remove" onclick="removeFile()">
-          <i class="fas fa-trash"></i> Rimuovi
+        <button class="remove-file-btn" onclick="removeFile()">
+          <i class="fas fa-times"></i>
         </button>
       `;
     } else {
@@ -514,8 +511,8 @@ function handleFileSelect(event) {
         <video controls>
           <source src="${e.target.result}" type="${file.type}">
         </video>
-        <button class="file-remove" onclick="removeFile()">
-          <i class="fas fa-trash"></i> Rimuovi
+        <button class="remove-file-btn" onclick="removeFile()">
+          <i class="fas fa-times"></i>
         </button>
       `;
     }
@@ -526,56 +523,16 @@ function handleFileSelect(event) {
 function removeFile() {
   selectedFile = null;
   document.getElementById('fileInput').value = '';
-  document.getElementById('filePreview').style.display = 'none';
-  document.getElementById('filePreview').innerHTML = '';
+  const preview = document.getElementById('filePreviewContainer');
+  preview.style.display = 'none';
+  preview.innerHTML = '';
 }
-
-// ========================================
-// DRAG & DROP
-// ========================================
-window.addEventListener('DOMContentLoaded', () => {
-  const dropArea = document.getElementById('fileUploadArea');
-  
-  if (dropArea) {
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-      dropArea.addEventListener(eventName, preventDefaults, false);
-    });
-    
-    function preventDefaults(e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    
-    ['dragenter', 'dragover'].forEach(eventName => {
-      dropArea.addEventListener(eventName, () => {
-        dropArea.classList.add('dragover');
-      }, false);
-    });
-    
-    ['dragleave', 'drop'].forEach(eventName => {
-      dropArea.addEventListener(eventName, () => {
-        dropArea.classList.remove('dragover');
-      }, false);
-    });
-    
-    dropArea.addEventListener('drop', (e) => {
-      const dt = e.dataTransfer;
-      const files = dt.files;
-      
-      if (files.length > 0) {
-        document.getElementById('fileInput').files = files;
-        handleFileSelect({ target: { files: files } });
-      }
-    }, false);
-  }
-});
 
 // ========================================
 // CREA NUOVO POST
 // ========================================
 async function createNewPost() {
   const contenuto = document.getElementById('newPostContent').value.trim();
-  let immagine_url = document.getElementById('newPostImage').value.trim();
   
   if (!contenuto) {
     alert('❌ Scrivi qualcosa!');
@@ -590,27 +547,32 @@ async function createNewPost() {
   
   const btn = event.currentTarget;
   btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Pubblicazione...';
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Caricamento...';
   
   try {
+    let immagine_url = null;
+    
     // Se c'è un file selezionato, converti in base64
-    if (selectedFile && !immagine_url) {
+    if (selectedFile) {
+      console.log('📎 Conversione file in base64...');
       const reader = new FileReader();
       immagine_url = await new Promise((resolve, reject) => {
-        reader.onload = (e) => resolve(e.target.result);
+        reader.onload = (e) => {
+          console.log('✅ File convertito');
+          resolve(e.target.result);
+        };
         reader.onerror = reject;
         reader.readAsDataURL(selectedFile);
       });
-      
-      console.log('📎 File convertito in base64');
     }
     
+    console.log('💾 Salvataggio post...');
     const { data, error } = await supabaseClient
       .from('PostSocial')
       .insert([{
         utente_id: currentUserId,
         contenuto: contenuto,
-        immagine_url: immagine_url || null
+        immagine_url: immagine_url
       }])
       .select(`
         *,
@@ -620,39 +582,28 @@ async function createNewPost() {
     
     if (error) {
       console.error('❌ Errore:', error);
-      alert('❌ Errore pubblicazione post: ' + error.message);
+      alert('❌ Errore pubblicazione: ' + error.message);
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-paper-plane"></i> Pubblica';
       return;
     }
     
-    console.log('✅ Post pubblicato:', data);
+    console.log('✅ Post pubblicato con successo');
+    
+    // Reset form
+    collapseCreatePost();
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Pubblica';
     
     // Ricarica i post
     await loadCommunityContentFromDB();
     
-    closeCreatePostModal();
-    
-    // Scroll al top per vedere il nuovo post
+    // Scroll al top
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    alert('✅ Post pubblicato con successo!');
     
   } catch (error) {
     console.error('❌ Errore catturato:', error);
     alert('❌ Errore imprevisto: ' + error.message);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Pubblica';
-  }
-}
-    
-    alert('✅ Post pubblicato con successo!');
-    
-  } catch (error) {
-    console.error('❌ Errore:', error);
-    alert('❌ Errore imprevisto');
-  } finally {
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-paper-plane"></i> Pubblica';
   }
@@ -684,8 +635,8 @@ window.togglePostLike = togglePostLike;
 window.showCommentsModal = showCommentsModal;
 window.closeCommentsModal = closeCommentsModal;
 window.addComment = addComment;
-window.showCreatePostModal = showCreatePostModal;
-window.closeCreatePostModal = closeCreatePostModal;
+window.expandCreatePost = expandCreatePost;
+window.collapseCreatePost = collapseCreatePost;
 window.createNewPost = createNewPost;
 window.handleFileSelect = handleFileSelect;
 window.removeFile = removeFile;
