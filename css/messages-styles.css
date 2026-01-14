@@ -14,8 +14,8 @@
   max-height: 85vh;
   background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
   border-radius: 30px 30px 0 0;
-  border-top: 4px solid #3b82f6;
-  box-shadow: 0 -10px 50px rgba(59, 130, 246, 0.3);
+  border-top: 4px solid #fbbf24;
+  box-shadow: 0 -10px 50px rgba(251, 191, 36, 0.3);
   transform: translateY(100%);
   transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   z-index: 3001;
@@ -51,15 +51,15 @@
   height: 48px;
   min-width: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 20px;
-  color: #fff;
+  color: #000;
   font-weight: 900;
-  border: 3px solid #3b82f6;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5);
+  border: 3px solid #fbbf24;
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.5);
 }
 
 .messages-user-info {
@@ -83,8 +83,8 @@
   min-width: 40px;
   border-radius: 50%;
   background: transparent;
-  border: 2px solid #3b82f6;
-  color: #3b82f6;
+  border: 2px solid #fbbf24;
+  color: #fbbf24;
   font-size: 18px;
   cursor: pointer;
   display: flex;
@@ -95,8 +95,8 @@
 
 .messages-close-btn:active {
   transform: scale(0.9);
-  background: #3b82f6;
-  color: #fff;
+  background: #fbbf24;
+  color: #000;
 }
 
 /* 🔧 FIX CRITICO: Area messaggi con altezza corretta */
@@ -144,9 +144,10 @@
 
 .message-bubble.sent {
   align-self: flex-end;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: #fff;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #000;
   border-bottom-right-radius: 4px;
+  font-weight: 700;
 }
 
 .message-bubble.received {
@@ -159,7 +160,7 @@
 
 .message-time {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(0, 0, 0, 0.6);
   margin-top: 4px;
   text-align: right;
   font-weight: 600;
@@ -179,7 +180,7 @@
   display: block;
 }
 
-/* 🔧 FIX: Input container sempre visibile */
+/* 🔧 FIX: Input container SEMPRE FISSO IN BASSO */
 .messages-input-container {
   padding: 16px;
   background: #1a1a1a;
@@ -188,12 +189,14 @@
   gap: 12px;
   align-items: flex-end;
   flex-shrink: 0;
+  position: relative;
+  z-index: 10;
 }
 
 .messages-input {
   flex: 1;
   background: #0a0a0a;
-  border: 2px solid #3b82f6;
+  border: 2px solid #fbbf24;
   border-radius: 24px;
   padding: 12px 18px;
   color: #fff;
@@ -217,8 +220,8 @@
   min-width: 48px;
   border-radius: 50%;
   background: #1f1f1f;
-  border: 2px solid #3b82f6;
-  color: #3b82f6;
+  border: 2px solid #fbbf24;
+  color: #fbbf24;
   font-size: 20px;
   cursor: pointer;
   display: flex;
@@ -229,31 +232,32 @@
 
 .messages-photo-btn:active {
   transform: scale(0.9);
-  background: #3b82f6;
-  color: #fff;
+  background: #fbbf24;
+  color: #000;
 }
 
-/* 🔧 FIX: Bottone invio con icona freccia su */
+/* 🆕 BOTTONE SEND GIALLO CON ICONA FRECCIA SU */
 .messages-send-btn {
   width: 48px;
   height: 48px;
   min-width: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
   border: none;
-  color: #fff;
+  color: #000;
   font-size: 20px;
+  font-weight: 900;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5);
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.6);
   transition: all 0.2s ease;
 }
 
 .messages-send-btn:active {
   transform: scale(0.9);
-  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.7);
+  box-shadow: 0 2px 10px rgba(251, 191, 36, 0.8);
 }
 
 .messages-send-btn:disabled {
@@ -315,7 +319,7 @@
 
 .conversation-item:active {
   transform: scale(0.98);
-  border-color: #3b82f6;
+  border-color: #fbbf24;
   background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
 }
 
@@ -343,14 +347,14 @@
   height: 56px;
   min-width: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 22px;
-  color: #fff;
+  color: #000;
   font-weight: 900;
-  border: 3px solid #3b82f6;
+  border: 3px solid #fbbf24;
   z-index: 1;
 }
 
@@ -421,13 +425,13 @@
 
 .messages-content::-webkit-scrollbar-thumb,
 .conversations-list::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
   border-radius: 10px;
 }
 
 .messages-content::-webkit-scrollbar-thumb:hover,
 .conversations-list::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%);
 }
 
 .messages-overlay {
@@ -447,4 +451,27 @@
 .messages-overlay.active {
   opacity: 1;
   pointer-events: all;
+}
+
+/* 🔧 OTTIMIZZAZIONI MOBILE */
+@media (max-width: 768px) {
+  .messages-box {
+    height: 90vh;
+    max-height: 90vh;
+  }
+  
+  .messages-input-container {
+    padding: 12px;
+  }
+  
+  .message-bubble {
+    max-width: 85%;
+  }
+}
+
+/* 🔧 FIX SAFARI iOS: Previene zoom automatico */
+@supports (-webkit-touch-callout: none) {
+  .messages-input {
+    font-size: 16px !important;
+  }
 }
