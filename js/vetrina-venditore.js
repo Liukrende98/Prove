@@ -579,12 +579,19 @@ async function togglePostLike(event, postId, postOwnerId) {
       }, 100);
     }
 
-    const btn = event.currentTarget;
-    if (post.liked) {
-      btn.classList.add('liked');
-    } else {
-      btn.classList.remove('liked');
-    }
+    // FIX: Trova bottone dal DOM invece di usare event.currentTarget
+    const postCards = document.querySelectorAll('.vendor-post-card');
+    postCards.forEach(card => {
+      const likeBtn = card.querySelector('.vendor-post-action-btn');
+      const likeSpan = card.querySelector(`#likes-${postId}`);
+      if (likeSpan) {
+        if (post.liked) {
+          likeBtn?.classList.add('liked');
+        } else {
+          likeBtn?.classList.remove('liked');
+        }
+      }
+    });
   } catch (error) {
     console.error('❌ Errore:', error);
     alert('❌ Errore: ' + error.message);
@@ -707,8 +714,97 @@ function openProduct(productId) {
   window.location.href = `dettaglio-articolo.html?id=${productId}`;
 }
 
-function viewComments(postId) {
-  alert('💬 Commenti in arrivo!');
+async function viewComments(postId) {
+  console.log('💬 Visualizza commenti:', postId);
+  
+  try {
+    const { data: comments, error } = await supabaseClient
+      .from('PostCommenti')
+      .select(`
+        *,
+        utente:Utenti!PostCommenti_utente_id_fkey (id, username)
+      `)
+      .eq('post_id', postId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('❌ Errore:', error);
+      alert('❌ Errore caricamento commenti: ' + error.message);
+      return;
+    }
+
+    const currentUserId = getCurrentUserId();
+    
+    if (comments.length === 0) {
+      const addComment = confirm('💬 Nessun commento ancora.\n\nVuoi essere il primo a commentare?');
+      if (addComment) {
+        const commentText = prompt('💬 Scrivi il tuo commento:');
+        if (commentText && commentText.trim()) {
+          await addCommentToPost(postId, commentText.trim());
+        }
+      }
+    } else {
+      let message = `💬 Commenti (${comments.length}):\n\n`;
+      comments.forEach(c => {
+        const isMe = c.utente_id === currentUserId;
+        const badge = isMe ? ' [TU]' : '';
+        const time = formatDate(new Date(c.created_at));
+        message += `👤 ${c.utente.username}${badge} • ${time}\n${c.contenuto}\n\n`;
+      });
+      
+      const addNew = confirm(message + '\n➕ Vuoi aggiungere un commento?');
+      if (addNew) {
+        const commentText = prompt('💬 Scrivi il tuo commento:');
+        if (commentText && commentText.trim()) {
+          await addCommentToPost(postId, commentText.trim());
+        }
+      }
+    }
+  } catch (error) {
+    console.error('❌ Errore catturato:', error);
+    alert('❌ Errore imprevisto: ' + error.message);
+  }
+}
+
+async function addCommentToPost(postId, contenuto) {
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    alert('❌ Devi essere loggato!');
+    return;
+  }
+  
+  try {
+    const { error } = await supabaseClient
+      .from('PostCommenti')
+      .insert([{
+        post_id: postId,
+        utente_id: currentUserId,
+        contenuto: contenuto
+      }]);
+    
+    if (error) {
+      console.error('❌ Errore:', error);
+      alert('❌ Errore aggiunta commento: ' + error.message);
+      return;
+    }
+    
+    // Aggiorna contatore
+    const post = currentPosts.find(p => p.id === postId);
+    if (post) {
+      post.comments++;
+      const commentsSpan = document.getElementById(`comments-${postId}`);
+      if (commentsSpan) commentsSpan.textContent = post.comments;
+    }
+    
+    alert('✅ Commento aggiunto!');
+    
+    // Ricarica commenti
+    await viewComments(postId);
+    
+  } catch (error) {
+    console.error('❌ Errore:', error);
+    alert('❌ Errore imprevisto: ' + error.message);
+  }
 }
 
 function formatDate(date) {
@@ -734,4 +830,5 @@ window.toggleFollowVendor = toggleFollowVendor;
 window.contactVendor = contactVendor;
 window.openProduct = openProduct;
 window.viewComments = viewComments;
+window.addCommentToPost = addCommentToPost;
 window.getCurrentUserId = getCurrentUserId;
