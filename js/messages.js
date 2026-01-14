@@ -224,6 +224,11 @@ async function showConversationsList() {
       `;
     }
     
+    // Aggiorna badge notifiche dopo aver mostrato lista
+    if (typeof window.loadNotificationsCount === 'function') {
+      await window.loadNotificationsCount();
+    }
+    
   } catch (error) {
     console.error('❌ Errore caricamento conversazioni:', error);
     mainContent.innerHTML = `
@@ -243,7 +248,7 @@ async function openChat(userId, username) {
   currentChatUserId = userId;
   currentChatUsername = username;
   
-  console.log('💬 Apertura chat con:', username);
+  console.log('💬 Apertura chat con:', username, 'ID:', userId);
   
   // Aggiorna header
   const headerLeft = document.getElementById('messagesHeaderLeft');
@@ -265,11 +270,12 @@ async function openChat(userId, username) {
   const inputContainer = document.getElementById('messagesInputContainer');
   if (inputContainer) inputContainer.style.display = 'flex';
   
-  // Carica messaggi
-  await loadChatMessages();
-  
-  // Segna come letti
+  // IMPORTANTE: Segna come letti SUBITO
+  console.log('📖 Segno messaggi come letti...');
   await markMessagesAsRead(userId);
+  
+  // POI carica messaggi
+  await loadChatMessages();
   
   // Start polling per nuovi messaggi
   if (messagesPollingInterval) clearInterval(messagesPollingInterval);
@@ -415,22 +421,55 @@ async function sendMessage() {
 // ========================================
 async function markMessagesAsRead(senderId) {
   const currentUserId = getCurrentUserId();
-  if (!currentUserId) return;
+  if (!currentUserId) {
+    console.error('❌ markMessagesAsRead: utente non loggato');
+    return;
+  }
+  
+  console.log('📖 markMessagesAsRead - Mittente:', senderId, 'Destinatario:', currentUserId);
   
   try {
-    await supabaseClient
+    // Prima conta quanti sono da segnare
+    const { count: beforeCount } = await supabaseClient
       .from('Messaggi')
-      .update({ letto: true })
+      .select('*', { count: 'exact', head: true })
       .eq('destinatario_id', currentUserId)
       .eq('mittente_id', senderId)
       .eq('letto', false);
     
-    // Aggiorna badge notifiche SUBITO
-    if (typeof loadNotificationsCount === 'function') {
-      await loadNotificationsCount();
+    console.log('📊 Messaggi da segnare come letti:', beforeCount);
+    
+    if (beforeCount === 0) {
+      console.log('✅ Nessun messaggio da segnare');
+      return;
     }
+    
+    // Segna come letti
+    const { data, error } = await supabaseClient
+      .from('Messaggi')
+      .update({ letto: true })
+      .eq('destinatario_id', currentUserId)
+      .eq('mittente_id', senderId)
+      .eq('letto', false)
+      .select();
+    
+    if (error) {
+      console.error('❌ Errore update:', error);
+      throw error;
+    }
+    
+    console.log('✅ Messaggi segnati come letti:', data?.length || 0);
+    
+    // Aggiorna badge notifiche SUBITO
+    if (typeof window.loadNotificationsCount === 'function') {
+      console.log('🔄 Aggiornamento notifiche...');
+      await window.loadNotificationsCount();
+    } else {
+      console.warn('⚠️ loadNotificationsCount non disponibile');
+    }
+    
   } catch (error) {
-    console.error('❌ Errore marcatura lettura:', error);
+    console.error('❌ Errore markMessagesAsRead:', error);
   }
 }
 
