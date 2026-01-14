@@ -1,20 +1,17 @@
-// ========================================
-// COMMUNITY.JS - COMPATIBILE CON AUTH PERSONALIZZATO
-// ========================================
+// COMMUNITY.JS - VERSIONE SICURA
 
 let allPosts = [];
+let selectedFile = null;
 
 // ========================================
-// GET CURRENT USER - USA IL TUO SISTEMA AUTH
+// GET CURRENT USER
 // ========================================
 function getCurrentUserId() {
   const userId = localStorage.getItem('nodo_user_id');
-  
   if (userId) {
     console.log('✅ Utente loggato:', userId);
     return userId;
   }
-  
   console.error('❌ Utente NON loggato!');
   return null;
 }
@@ -27,11 +24,9 @@ async function initCommunityPage() {
   
   const userId = getCurrentUserId();
   if (!userId) {
-    console.error('❌ Errore: userId null ma requireAuth non ha reindirizzato!');
+    console.error('❌ Errore: userId null');
     return;
   }
-  
-  console.log('✅ Utente verificato:', userId);
   
   await loadCommunityContentFromDB();
 }
@@ -68,33 +63,16 @@ async function loadCommunityContentFromDB() {
       .order('created_at', { ascending: false })
       .limit(100);
 
-    console.log('📦 Query result:', { postsCount: posts?.length, error });
-
     if (error) {
       console.error('❌ Errore query:', error);
-      container.innerHTML = `
-        <div class="empty-state">
-          <i class="fas fa-exclamation-triangle"></i>
-          <h3>Errore caricamento</h3>
-          <p>${error.message}</p>
-        </div>
-      `;
+      container.innerHTML = `<div class="empty-state"><h3>Errore caricamento</h3><p>${error.message}</p></div>`;
       return;
     }
 
     if (!posts || posts.length === 0) {
-      console.warn('⚠️ Nessun post trovato');
-      container.innerHTML = `
-        <div class="empty-state">
-          <i class="fas fa-users"></i>
-          <h3>Nessun post</h3>
-          <p>Sii il primo a pubblicare!</p>
-        </div>
-      `;
+      container.innerHTML = `<div class="empty-state"><i class="fas fa-users"></i><h3>Nessun post</h3><p>Sii il primo a pubblicare!</p></div>`;
       return;
     }
-
-    console.log('✅ Post caricati:', posts.length);
 
     const currentUserId = getCurrentUserId();
     
@@ -105,7 +83,6 @@ async function loadCommunityContentFromDB() {
         .select('post_id')
         .eq('utente_id', currentUserId);
       likedPosts = likes ? likes.map(l => l.post_id) : [];
-      console.log('💖 Post liked:', likedPosts.length);
     }
 
     allPosts = posts.map(post => ({
@@ -121,18 +98,11 @@ async function loadCommunityContentFromDB() {
       liked: likedPosts.includes(post.id)
     }));
 
-    console.log('🎨 Rendering', allPosts.length, 'post');
     renderCommunityFeed();
 
   } catch (error) {
     console.error('❌ Errore catturato:', error);
-    container.innerHTML = `
-      <div class="empty-state">
-        <i class="fas fa-exclamation-triangle"></i>
-        <h3>Errore imprevisto</h3>
-        <p>${error.message}</p>
-      </div>
-    `;
+    container.innerHTML = `<div class="empty-state"><h3>Errore imprevisto</h3><p>${error.message}</p></div>`;
   }
 }
 
@@ -144,18 +114,11 @@ function renderCommunityFeed() {
   if (!container) return;
 
   if (allPosts.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <i class="fas fa-users"></i>
-        <h3>Nessun post</h3>
-        <p>Sii il primo a pubblicare!</p>
-      </div>
-    `;
+    container.innerHTML = `<div class="empty-state"><i class="fas fa-users"></i><h3>Nessun post</h3></div>`;
     return;
   }
 
   container.innerHTML = allPosts.map(post => createPostCard(post)).join('');
-  console.log('✅ Render completato:', allPosts.length);
 }
 
 // ========================================
@@ -165,11 +128,9 @@ function createPostCard(post) {
   const currentUserId = getCurrentUserId();
   const isMyPost = post.utente_id === currentUserId;
   
-  // Determina se è video o immagine
+  // Determina se è video
   const mediaUrl = post.immagine_url;
   const isVideo = mediaUrl && (
-    mediaUrl.includes('youtube.com') || 
-    mediaUrl.includes('youtu.be') || 
     mediaUrl.endsWith('.mp4') || 
     mediaUrl.endsWith('.webm') || 
     mediaUrl.endsWith('.ogg') ||
@@ -195,12 +156,11 @@ function createPostCard(post) {
         <div class="post-video">
           <video controls>
             <source src="${mediaUrl}" type="video/mp4">
-            Il tuo browser non supporta i video.
           </video>
         </div>
       ` : `
         <div class="post-image">
-          <img src="${mediaUrl}" alt="Post" onerror="this.parentElement.style.display='none'">
+          <img src="${mediaUrl}" alt="Post" onerror="this.style.display='none'">
         </div>
       `) : ''}
       <div class="post-actions">
@@ -219,39 +179,27 @@ function createPostCard(post) {
 }
 
 // ========================================
-// TOGGLE LIKE - FIX ERRORE EVENT
+// TOGGLE LIKE
 // ========================================
 async function togglePostLike(event, postId, postOwnerId) {
-  console.log('💖 Toggle like post:', postId);
-  
-  // Salva riferimento bottone SUBITO prima di await
-  const btn = event?.currentTarget;
+  console.log('💖 Toggle like:', postId);
   
   const currentUserId = getCurrentUserId();
   if (!currentUserId) {
-    alert('❌ Errore: Non sei loggato!\n\nFai logout e login di nuovo.');
+    alert('❌ Non sei loggato!');
     return;
   }
-  
-  console.log('✅ User ID:', currentUserId);
-  console.log('🔍 Post owner:', postOwnerId);
 
   if (postOwnerId === currentUserId) {
-    alert('❌ Non puoi mettere like ai tuoi post!');
+    alert('❌ Non puoi likare i tuoi post!');
     return;
   }
 
   const post = allPosts.find(p => p.id === postId);
-  if (!post) {
-    console.error('❌ Post non trovato');
-    return;
-  }
-
-  console.log('🔄 Toggle:', post.liked ? 'UNLIKE' : 'LIKE');
+  if (!post) return;
 
   try {
     if (post.liked) {
-      console.log('🔴 Rimuovendo like...');
       const { error } = await supabaseClient
         .from('PostLikes')
         .delete()
@@ -259,46 +207,30 @@ async function togglePostLike(event, postId, postOwnerId) {
         .eq('utente_id', currentUserId);
       
       if (error) {
-        console.error('❌ Errore unlike:', error);
-        alert('❌ Errore rimozione like: ' + error.message);
+        alert('❌ Errore unlike: ' + error.message);
         return;
       }
       
       post.liked = false;
       post.likes--;
-      console.log('✅ Unlike effettuato');
     } else {
-      console.log('💚 Aggiungendo like...');
       const { error } = await supabaseClient
         .from('PostLikes')
         .insert([{ post_id: postId, utente_id: currentUserId }]);
       
       if (error) {
-        console.error('❌ Errore like:', error);
-        alert('❌ Errore aggiunta like: ' + error.message);
+        alert('❌ Errore like: ' + error.message);
         return;
       }
       
       post.liked = true;
       post.likes++;
-      console.log('✅ Like effettuato');
     }
 
-    // Aggiorna UI con animazione
+    // Aggiorna UI
     const likesSpan = document.getElementById(`likes-${postId}`);
-    if (likesSpan) {
-      likesSpan.style.transform = 'scale(1.3)';
-      likesSpan.style.color = '#fbbf24';
-      setTimeout(() => {
-        likesSpan.textContent = post.likes;
-        setTimeout(() => {
-          likesSpan.style.transform = 'scale(1)';
-          likesSpan.style.color = '';
-        }, 150);
-      }, 100);
-    }
+    if (likesSpan) likesSpan.textContent = post.likes;
 
-    // FIX: Trova il bottone nel DOM (più robusto)
     const postCard = document.getElementById(`post-${postId}`);
     if (postCard) {
       const likeButton = postCard.querySelector('.post-action-btn');
@@ -312,33 +244,32 @@ async function togglePostLike(event, postId, postOwnerId) {
     }
 
   } catch (error) {
-    console.error('❌ Errore catturato:', error);
-    alert('❌ Errore imprevisto: ' + error.message);
+    console.error('❌ Errore:', error);
+    alert('❌ Errore: ' + error.message);
   }
 }
 
 // ========================================
-// MOSTRA MODAL COMMENTI
+// MODAL COMMENTI
 // ========================================
 async function showCommentsModal(postId) {
-  console.log('💬 Mostra commenti:', postId);
-  
   const modal = document.getElementById('commentsModal');
-  const commentsContainer = document.getElementById('modalCommentsList');
   const modalPostId = document.getElementById('modalPostId');
   
   modalPostId.value = postId;
-  commentsContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Caricamento...</div>';
   modal.style.display = 'flex';
   
   await loadComments(postId);
 }
 
-// ========================================
-// CARICA COMMENTI
-// ========================================
+function closeCommentsModal() {
+  document.getElementById('commentsModal').style.display = 'none';
+  document.getElementById('commentInput').value = '';
+}
+
 async function loadComments(postId) {
-  const commentsContainer = document.getElementById('modalCommentsList');
+  const container = document.getElementById('modalCommentsList');
+  container.innerHTML = '<div class="empty-state-small"><i class="fas fa-spinner fa-spin"></i><p>Caricamento...</p></div>';
   
   try {
     const { data: comments, error } = await supabaseClient
@@ -351,35 +282,27 @@ async function loadComments(postId) {
       .order('created_at', { ascending: true });
 
     if (error) {
-      console.error('❌ Errore:', error);
-      commentsContainer.innerHTML = '<div class="error">❌ Errore caricamento commenti</div>';
+      container.innerHTML = '<div class="empty-state-small">❌ Errore caricamento</div>';
       return;
     }
 
     if (comments.length === 0) {
-      commentsContainer.innerHTML = `
-        <div class="empty-state-small">
-          <i class="fas fa-comment-slash"></i>
-          <p>Nessun commento ancora.<br>Sii il primo!</p>
-        </div>
-      `;
+      container.innerHTML = '<div class="empty-state-small"><i class="fas fa-comment-slash"></i><p>Nessun commento.<br>Sii il primo!</p></div>';
       return;
     }
 
     const currentUserId = getCurrentUserId();
     
-    commentsContainer.innerHTML = comments.map(c => {
+    container.innerHTML = comments.map(c => {
       const isMyComment = c.utente_id === currentUserId;
       return `
-        <div class="comment-item ${isMyComment ? 'my-comment' : ''}">
+        <div class="comment-item">
           <div class="comment-avatar">${c.utente.username.substring(0, 2).toUpperCase()}</div>
           <div class="comment-content">
-            <div class="comment-header">
-              <a href="vetrina-venditore.html?id=${c.utente.id}" class="comment-username">
-                ${c.utente.username}
-              </a>
-              ${isMyComment ? '<span class="badge-small">TU</span>' : ''}
-            </div>
+            <a href="vetrina-venditore.html?id=${c.utente.id}" class="comment-username">
+              ${c.utente.username}
+            </a>
+            ${isMyComment ? '<span class="badge-small">TU</span>' : ''}
             <p>${c.contenuto}</p>
             <span class="comment-time">${formatDate(new Date(c.created_at))}</span>
           </div>
@@ -388,14 +311,10 @@ async function loadComments(postId) {
     }).join('');
 
   } catch (error) {
-    console.error('❌ Errore:', error);
-    commentsContainer.innerHTML = '<div class="error">❌ Errore imprevisto</div>';
+    container.innerHTML = '<div class="empty-state-small">❌ Errore</div>';
   }
 }
 
-// ========================================
-// AGGIUNGI COMMENTO
-// ========================================
 async function addComment() {
   const postId = document.getElementById('modalPostId').value;
   const input = document.getElementById('commentInput');
@@ -422,8 +341,7 @@ async function addComment() {
       }]);
     
     if (error) {
-      console.error('❌ Errore:', error);
-      alert('❌ Errore aggiunta commento');
+      alert('❌ Errore: ' + error.message);
       return;
     }
     
@@ -440,69 +358,53 @@ async function addComment() {
     await loadComments(postId);
     
   } catch (error) {
-    console.error('❌ Errore:', error);
-    alert('❌ Errore imprevisto');
+    alert('❌ Errore: ' + error.message);
   }
 }
 
 // ========================================
-// CHIUDI MODAL COMMENTI
-// ========================================
-function closeCommentsModal() {
-  document.getElementById('commentsModal').style.display = 'none';
-  document.getElementById('commentInput').value = '';
-}
-
-// ========================================
-// BOX CREA POST INLINE (STILE FACEBOOK)
+// BOX CREA POST
 // ========================================
 function expandCreatePost() {
-  const expanded = document.getElementById('createPostExpanded');
-  expanded.style.display = 'block';
+  const form = document.getElementById('createPostForm');
+  form.classList.add('active');
   document.getElementById('newPostContent').focus();
 }
 
 function collapseCreatePost() {
-  const expanded = document.getElementById('createPostExpanded');
-  expanded.style.display = 'none';
+  const form = document.getElementById('createPostForm');
+  form.classList.remove('active');
   document.getElementById('newPostContent').value = '';
   removeFile();
 }
-
-// ========================================
-// GESTIONE UPLOAD FILE
-// ========================================
-let selectedFile = null;
 
 function handleFileSelect(event) {
   const file = event.target.files[0];
   if (!file) return;
   
-  // Verifica dimensione (max 5MB per evitare problemi)
+  // Max 5MB
   if (file.size > 5 * 1024 * 1024) {
-    alert('❌ File troppo grande! Max 5MB\n\nPer file più grandi usa un servizio di hosting.');
+    alert('❌ File troppo grande! Max 5MB');
     return;
   }
   
-  // Verifica tipo
   if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
     alert('❌ Solo immagini o video!');
     return;
   }
   
   selectedFile = file;
-  console.log('📎 File selezionato:', file.name, '(' + (file.size / 1024 / 1024).toFixed(2) + ' MB)');
+  console.log('📎 File:', file.name, (file.size / 1024 / 1024).toFixed(2) + ' MB');
   
-  // Preview
   const reader = new FileReader();
   reader.onload = function(e) {
-    const preview = document.getElementById('filePreviewContainer');
-    preview.style.display = 'block';
+    const preview = document.getElementById('filePreviewBox');
+    preview.classList.add('active');
     
     if (file.type.startsWith('image/')) {
       preview.innerHTML = `
         <img src="${e.target.result}" alt="Preview">
-        <button class="remove-file-btn" onclick="removeFile()">
+        <button class="file-remove-btn" onclick="removeFile()">
           <i class="fas fa-times"></i>
         </button>
       `;
@@ -511,7 +413,7 @@ function handleFileSelect(event) {
         <video controls>
           <source src="${e.target.result}" type="${file.type}">
         </video>
-        <button class="remove-file-btn" onclick="removeFile()">
+        <button class="file-remove-btn" onclick="removeFile()">
           <i class="fas fa-times"></i>
         </button>
       `;
@@ -523,14 +425,11 @@ function handleFileSelect(event) {
 function removeFile() {
   selectedFile = null;
   document.getElementById('fileInput').value = '';
-  const preview = document.getElementById('filePreviewContainer');
-  preview.style.display = 'none';
+  const preview = document.getElementById('filePreviewBox');
+  preview.classList.remove('active');
   preview.innerHTML = '';
 }
 
-// ========================================
-// CREA NUOVO POST
-// ========================================
 async function createNewPost() {
   const contenuto = document.getElementById('newPostContent').value.trim();
   
@@ -552,18 +451,16 @@ async function createNewPost() {
   try {
     let immagine_url = null;
     
-    // Se c'è un file selezionato, converti in base64
+    // Converti file in base64
     if (selectedFile) {
-      console.log('📎 Conversione file in base64...');
+      console.log('📎 Conversione file...');
       const reader = new FileReader();
       immagine_url = await new Promise((resolve, reject) => {
-        reader.onload = (e) => {
-          console.log('✅ File convertito');
-          resolve(e.target.result);
-        };
+        reader.onload = (e) => resolve(e.target.result);
         reader.onerror = reject;
         reader.readAsDataURL(selectedFile);
       });
+      console.log('✅ File convertito');
     }
     
     console.log('💾 Salvataggio post...');
@@ -582,28 +479,27 @@ async function createNewPost() {
     
     if (error) {
       console.error('❌ Errore:', error);
-      alert('❌ Errore pubblicazione: ' + error.message);
+      alert('❌ Errore: ' + error.message);
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-paper-plane"></i> Pubblica';
       return;
     }
     
-    console.log('✅ Post pubblicato con successo');
+    console.log('✅ Post pubblicato');
     
-    // Reset form
+    // Reset
     collapseCreatePost();
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-paper-plane"></i> Pubblica';
     
-    // Ricarica i post
+    // Ricarica
     await loadCommunityContentFromDB();
     
-    // Scroll al top
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
   } catch (error) {
-    console.error('❌ Errore catturato:', error);
-    alert('❌ Errore imprevisto: ' + error.message);
+    console.error('❌ Errore:', error);
+    alert('❌ Errore: ' + error.message);
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-paper-plane"></i> Pubblica';
   }
