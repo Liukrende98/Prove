@@ -41,17 +41,23 @@ function getCurrentUserId() {
 async function initVendorPage() {
   const urlParams = new URLSearchParams(window.location.search);
   const vendorUsername = urlParams.get('vendor');
+  const vendorId = urlParams.get('id');
   
-  if (!vendorUsername) {
+  // Supporta sia ?vendor= che ?id=
+  if (!vendorUsername && !vendorId) {
     alert('Venditore non specificato!');
     window.location.href = 'vetrine.html';
     return;
   }
 
-  currentVendorUsername = vendorUsername;
-  
-  // requireAuth() è già chiamato nell'HTML
-  await loadVendorProfile(vendorUsername);
+  if (vendorId) {
+    // Carica tramite ID
+    await loadVendorProfileById(vendorId);
+  } else {
+    // Carica tramite username
+    currentVendorUsername = vendorUsername;
+    await loadVendorProfile(vendorUsername);
+  }
 }
 
 // ========================================
@@ -74,7 +80,34 @@ async function loadVendorProfile(username) {
   }
 
   console.log('✅ Utente trovato');
+  await loadVendorData(utente);
+}
+
+// Carica profilo tramite ID
+async function loadVendorProfileById(userId) {
+  console.log('🔍 Caricamento tramite ID:', userId);
+  
+  const { data: utente, error } = await supabaseClient
+    .from('Utenti')
+    .select('*')
+    .eq('id', userId)
+    .single();
+
+  if (error || !utente) {
+    console.error('❌ Errore:', error);
+    alert('Venditore non trovato!');
+    window.location.href = 'vetrine.html';
+    return;
+  }
+
+  console.log('✅ Utente trovato:', utente.username);
+  await loadVendorData(utente);
+}
+
+// Funzione condivisa per caricare dati venditore
+async function loadVendorData(utente) {
   currentVendorId = utente.id;
+  currentVendorUsername = utente.username;
 
   const { data: tuttiArticoli } = await supabaseClient
     .from('Articoli')
@@ -132,6 +165,9 @@ function renderVendorProfile(vendor) {
   const container = document.getElementById('vendorProfile');
   if (!container) return;
 
+  const currentUserId = getCurrentUserId();
+  const isMyProfile = currentUserId === vendor.id;
+
   container.innerHTML = `
     <div class="vendor-header-card">
       <div class="vendor-header-top">
@@ -139,6 +175,7 @@ function renderVendorProfile(vendor) {
         <div class="vendor-header-info">
           <div class="vendor-header-name">
             <span class="vendor-name-text">${vendor.username}</span>
+            ${isMyProfile ? '<span class="badge-my-profile">TUO PROFILO</span>' : ''}
           </div>
           <div class="vendor-header-meta">
             ${vendor.citta ? `
@@ -172,16 +209,25 @@ function renderVendorProfile(vendor) {
       </div>
 
       <div class="vendor-actions">
-        <button class="vendor-action-btn vendor-action-primary" onclick="contactVendor('${vendor.id}')">
-          <i class="fas fa-comment"></i>
-          <span>Contatta</span>
-        </button>
-        <button class="vendor-action-btn vendor-action-secondary ${vendor.isFollowing ? 'following' : ''}" 
-                id="followBtn" 
-                onclick="toggleFollowVendor('${vendor.id}')">
-          <i class="fas ${vendor.isFollowing ? 'fa-user-check' : 'fa-user-plus'}"></i>
-          <span>${vendor.isFollowing ? 'Seguito' : 'Segui'}</span>
-        </button>
+        ${isMyProfile ? `
+          <!-- Bottone Modifica Profilo -->
+          <button class="vendor-action-btn vendor-action-edit-profile" onclick="window.location.href='il-tuo-profilo.html'">
+            <i class="fas fa-user-edit"></i>
+            <span>Modifica Profilo</span>
+          </button>
+        ` : `
+          <!-- Bottoni per altri profili -->
+          <button class="vendor-action-btn vendor-action-primary" onclick="contactVendor('${vendor.id}')">
+            <i class="fas fa-comment"></i>
+            <span>Contatta</span>
+          </button>
+          <button class="vendor-action-btn vendor-action-secondary ${vendor.isFollowing ? 'following' : ''}" 
+                  id="followBtn" 
+                  onclick="toggleFollowVendor('${vendor.id}')">
+            <i class="fas ${vendor.isFollowing ? 'fa-user-check' : 'fa-user-plus'}"></i>
+            <span>${vendor.isFollowing ? 'Seguito' : 'Segui'}</span>
+          </button>
+        `}
       </div>
     </div>
   `;
