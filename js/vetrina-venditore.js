@@ -785,7 +785,12 @@ async function contactVendor(vendorUserId) {
     return;
   }
 
-  window.location.href = `messaggi.html?to=${vendorUserId}`;
+  // Apri chat diretta
+  if (typeof openDirectChat === 'function') {
+    openDirectChat(vendorUserId, currentVendorUsername);
+  } else {
+    console.error('❌ openDirectChat non disponibile');
+  }
 }
 
 function openProduct(productId) {
