@@ -4,7 +4,7 @@
 
 let menuOpen = false;
 let notificationsCount = 0;
-let unreadMessagesCount = 0; // NUOVO: conta messaggi non letti
+let unreadMessagesCount = 0;
 
 // ========================================
 // HELPER FUNCTIONS
@@ -18,7 +18,7 @@ function getCurrentUsername() {
 }
 
 // ========================================
-// CONTA NOTIFICHE
+// CONTA NOTIFICHE - SOLO MESSAGGI NON LETTI
 // ========================================
 async function loadNotificationsCount() {
   const userId = getCurrentUserId();
@@ -29,60 +29,24 @@ async function loadNotificationsCount() {
   }
 
   try {
-    let totalNotifications = 0;
-
-    // 1. Conta nuovi like sui miei post (nelle ultime 24h)
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    const { data: myPosts } = await window.supabaseClient
-      .from('PostSocial')
-      .select('id')
-      .eq('utente_id', userId);
-
-    if (myPosts && myPosts.length > 0) {
-      const postIds = myPosts.map(p => p.id);
-      
-      // Like
-      const { count: likesCount } = await window.supabaseClient
-        .from('PostLikes')
-        .select('*', { count: 'exact', head: true })
-        .in('post_id', postIds)
-        .gte('created_at', yesterday.toISOString());
-      
-      totalNotifications += likesCount || 0;
-
-      // Commenti
-      const { count: commentsCount } = await window.supabaseClient
-        .from('PostCommenti')
-        .select('*', { count: 'exact', head: true })
-        .in('post_id', postIds)
-        .neq('utente_id', userId) // Escludi i tuoi commenti
-        .gte('created_at', yesterday.toISOString());
-      
-      totalNotifications += commentsCount || 0;
-    }
-
-    // 2. Conta nuovi follower (nelle ultime 24h)
-    const { count: followersCount } = await window.supabaseClient
-      .from('Followers')
-      .select('*', { count: 'exact', head: true })
-      .eq('utente_seguito_id', userId)
-      .gte('created_at', yesterday.toISOString());
-    
-    totalNotifications += followersCount || 0;
-
-    // 3. NUOVO: Conta messaggi non letti
-    const { count: messagesCount } = await window.supabaseClient
+    // Conta SOLO messaggi non letti
+    const { count: messagesCount, error } = await window.supabaseClient
       .from('Messaggi')
       .select('*', { count: 'exact', head: true })
       .eq('destinatario_id', userId)
       .eq('letto', false);
     
-    unreadMessagesCount = messagesCount || 0;
-    totalNotifications += unreadMessagesCount;
-
-    notificationsCount = totalNotifications;
+    if (error) {
+      console.error('❌ Errore conteggio:', error);
+      unreadMessagesCount = 0;
+    } else {
+      unreadMessagesCount = messagesCount || 0;
+    }
+    
+    notificationsCount = unreadMessagesCount;
+    
+    console.log('📊 Messaggi non letti:', unreadMessagesCount);
+    
     updateNotificationsBadge();
 
   } catch (error) {
@@ -115,7 +79,7 @@ function updateNotificationsBadge() {
     }
   }
   
-  // NUOVO: Badge sul bottone principale del menu
+  // Badge sul bottone principale del menu
   const menuBtn = document.getElementById('menuBtn');
   if (menuBtn) {
     let mainBadge = menuBtn.querySelector('.menu-main-badge');
@@ -147,7 +111,7 @@ const menuStructure = {
     label: 'Vetrine',
     url: 'vetrine.html'
   },
-  'messaggi': {  // NUOVO: Voce Messaggi
+  'messaggi': {
     icon: 'fas fa-comments',
     label: 'Messaggi',
     url: null,
@@ -168,7 +132,7 @@ const menuStructure = {
       'mio-profilo': {
         icon: 'fas fa-user-circle',
         label: 'Il Mio Profilo',
-        url: null // Dinamico
+        url: null
       },
       'il-mio-negozio': {
         icon: 'fas fa-store',
@@ -178,21 +142,20 @@ const menuStructure = {
       'logout': {
         icon: 'fas fa-sign-out-alt',
         label: 'Logout',
-        url: null, // Funzione speciale
+        url: null,
         isLogout: true
       }
     }
   }
 };
 
-// Crea overlay blur una volta sola
 function createMenuOverlay() {
   if (document.getElementById('menuOverlay')) return;
   
   const overlay = document.createElement('div');
   overlay.id = 'menuOverlay';
   overlay.className = 'menu-overlay';
-  overlay.onclick = () => toggleMenu(); // Chiudi menu se clicchi sull'overlay
+  overlay.onclick = () => toggleMenu();
   
   document.body.appendChild(overlay);
 }
@@ -209,7 +172,6 @@ function toggleMenu() {
   menuBtn.classList.toggle('active');
   
   if (menuOpen) {
-    // Apri menu
     document.body.classList.add('menu-active');
     if (overlay) overlay.classList.add('active');
     if (mainContent) mainContent.classList.add('blur-content');
@@ -218,7 +180,6 @@ function toggleMenu() {
     
     loadMenu();
   } else {
-    // Chiudi menu
     document.body.classList.remove('menu-active');
     if (overlay) overlay.classList.remove('active');
     if (mainContent) mainContent.classList.remove('blur-content');
@@ -248,7 +209,6 @@ function loadMenu() {
       menuItem.style.transform = `translateY(-${yOffset}px)`;
     }, index * 50);
     
-    // Badge notifiche
     let notificationBadge = '';
     if (key === 'profilo' && item.hasNotifications && notificationsCount > 0) {
       notificationBadge = `<span class="notification-badge" id="profileNotificationBadge">${notificationsCount > 99 ? '99+' : notificationsCount}</span>`;
@@ -263,23 +223,24 @@ function loadMenu() {
     `;
     
     menuItem.onclick = () => {
-      // NUOVO: Messaggi
       if (key === 'messaggi' && item.isMessages) {
-        toggleMenu(); // Chiudi menu
+        console.log('💬 Click su Messaggi dal menu');
+        toggleMenu();
         
-        // Aggiungi un piccolo delay per aspettare che messages.js sia caricato
         setTimeout(() => {
-          if (typeof openMessagesCenter === 'function') {
-            console.log('✅ Apertura centro messaggi...');
-            openMessagesCenter();
-          } else {
-            console.error('❌ openMessagesCenter non definita!');
-            console.log('Funzioni disponibili:', Object.keys(window).filter(k => k.includes('message')));
-            alert('❌ Sistema messaggi non disponibile.\n\nControlla la console per dettagli.\nAssicurati di aver incluso messages.js DOPO menu.js');
+          try {
+            if (window.openMessagesCenter) {
+              console.log('✅ Apertura messaggi...');
+              window.openMessagesCenter();
+            } else {
+              throw new Error('openMessagesCenter non definita');
+            }
+          } catch (error) {
+            console.error('❌ Errore:', error);
+            alert('❌ Errore apertura messaggi.\n\nVerifica che messages.js sia incluso nell\'HTML dopo menu.js');
           }
-        }, 100);
+        }, 150);
       } else if (key === 'profilo') {
-        // Profilo → Apri la TUA vetrina
         if (item.submenu) {
           loadSubmenu(key, item.submenu);
         } else if (currentUsername) {
@@ -322,7 +283,6 @@ function loadSubmenu(parentKey, submenu) {
     `;
     
     menuItem.onclick = () => {
-      // Logout
       if (item.isLogout) {
         if (confirm('🚪 Sei sicuro di voler uscire?')) {
           localStorage.removeItem('nodo_user_id');
@@ -333,7 +293,6 @@ function loadSubmenu(parentKey, submenu) {
         return;
       }
       
-      // Il Mio Profilo
       if (key === 'mio-profilo' && currentUsername) {
         window.location.href = `vetrina-venditore.html?vendor=${currentUsername}`;
       } else if (item.url) {
@@ -346,7 +305,6 @@ function loadSubmenu(parentKey, submenu) {
     menuItems.appendChild(menuItem);
   });
   
-  // Aggiungi pulsante "Indietro"
   const backItem = document.createElement('div');
   backItem.className = 'menu-item';
   
@@ -367,22 +325,23 @@ function loadSubmenu(parentKey, submenu) {
   menuItems.appendChild(backItem);
 }
 
-// Inizializza overlay al caricamento della pagina
+// Inizializza
 window.addEventListener('DOMContentLoaded', () => {
   createMenuOverlay();
   
-  // Carica notifiche se l'utente è loggato
   const userId = getCurrentUserId();
   if (userId) {
-    // Aspetta che supabase sia disponibile
     const checkSupabase = setInterval(() => {
       if (window.supabaseClient) {
         clearInterval(checkSupabase);
         loadNotificationsCount();
         
-        // Aggiorna notifiche ogni 10 secondi (tempo reale)
+        // Aggiorna ogni 10 secondi
         setInterval(loadNotificationsCount, 10000);
       }
     }, 100);
   }
 });
+
+// Esporta per essere chiamata da messages.js
+window.loadNotificationsCount = loadNotificationsCount;
