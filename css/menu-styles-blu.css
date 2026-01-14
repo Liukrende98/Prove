@@ -1,43 +1,69 @@
 /* ========================================
-   MENU NAVIGAZIONE - COLORI BLU
+   MENU NAVIGAZIONE - COLORI BLU + ANIMAZIONE
    ======================================== */
 
-/* Bottone menu principale - BLU */
+/* Bottone menu principale - BLU PULSANTE */
 .menu-main-btn {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   border: 2px solid #3b82f6;
   box-shadow: 0 8px 30px rgba(59, 130, 246, 0.6);
+  animation: pulse-menu-btn 2s infinite;
+}
+
+@keyframes pulse-menu-btn {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 8px 30px rgba(59, 130, 246, 0.6);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 12px 40px rgba(59, 130, 246, 0.9);
+  }
 }
 
 .menu-main-btn:hover {
+  animation: none; /* Stop pulse on hover */
   box-shadow: 0 12px 40px rgba(59, 130, 246, 0.8);
   transform: scale(1.1);
 }
 
 .menu-main-btn.active {
+  animation: none; /* Stop pulse when active */
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   box-shadow: 0 12px 40px rgba(37, 99, 235, 0.9);
 }
 
-/* Menu items - BLU */
+/* Menu items - BLU CON ANIMAZIONE */
 .menu-item {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   border: 2px solid #60a5fa;
   box-shadow: 0 8px 30px rgba(59, 130, 246, 0.8);
+  position: relative;
+  animation: pulse-menu-item 3s infinite ease-in-out;
+}
+
+@keyframes pulse-menu-item {
+  0%, 100% {
+    box-shadow: 0 8px 30px rgba(59, 130, 246, 0.8);
+  }
+  50% {
+    box-shadow: 0 10px 35px rgba(96, 165, 250, 0.9);
+  }
 }
 
 .menu-item:hover {
+  animation: none; /* Stop pulse on hover */
   background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
   border-color: #93c5fd;
   box-shadow: 0 12px 40px rgba(96, 165, 250, 0.9);
-  transform: translateY(-${yOffset}px) scale(1.05);
+  transform: translateY(var(--y-offset, 0)) scale(1.05) !important;
 }
 
 .menu-item:active {
-  transform: translateY(-${yOffset}px) scale(0.95);
+  transform: translateY(var(--y-offset, 0)) scale(0.95) !important;
 }
 
-/* Badge notifiche - ROSSO */
+/* Badge notifiche - ROSSO PULSANTE */
 .notification-badge {
   position: absolute;
   top: -8px;
@@ -56,6 +82,7 @@
   box-shadow: 0 4px 15px rgba(239, 68, 68, 0.8);
   border: 2px solid #000;
   animation: pulse-notification 2s infinite;
+  z-index: 10;
 }
 
 @keyframes pulse-notification {
@@ -64,7 +91,7 @@
     box-shadow: 0 4px 15px rgba(239, 68, 68, 0.8);
   }
   50% {
-    transform: scale(1.1);
+    transform: scale(1.15);
     box-shadow: 0 6px 25px rgba(239, 68, 68, 1);
   }
 }
@@ -73,9 +100,4 @@
 .menu-overlay.active {
   backdrop-filter: blur(8px);
   background: rgba(59, 130, 246, 0.1);
-}
-
-/* Assicurati che menu-item sia position: relative per il badge */
-.menu-item {
-  position: relative;
 }
