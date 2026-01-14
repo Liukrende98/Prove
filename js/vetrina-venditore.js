@@ -40,21 +40,18 @@ function getCurrentUserId() {
 // ========================================
 async function initVendorPage() {
   const urlParams = new URLSearchParams(window.location.search);
-  const vendorId = urlParams.get('id');
   const vendorUsername = urlParams.get('vendor');
   
-  if (!vendorId && !vendorUsername) {
+  if (!vendorUsername) {
     alert('Venditore non specificato!');
     window.location.href = 'vetrine.html';
     return;
   }
 
+  currentVendorUsername = vendorUsername;
+  
   // requireAuth() è già chiamato nell'HTML
-  if (vendorId) {
-    await loadVendorProfileById(vendorId);
-  } else {
-    await loadVendorProfile(vendorUsername);
-  }
+  await loadVendorProfile(vendorUsername);
 }
 
 // ========================================
@@ -78,35 +75,7 @@ async function loadVendorProfile(username) {
 
   console.log('✅ Utente trovato');
   currentVendorId = utente.id;
-  currentVendorUsername = utente.username;
 
-  await loadVendorData(utente);
-}
-
-async function loadVendorProfileById(userId) {
-  console.log('🔍 Caricamento per ID:', userId);
-  
-  const { data: utente, error } = await supabaseClient
-    .from('Utenti')
-    .select('*')
-    .eq('id', userId)
-    .single();
-
-  if (error || !utente) {
-    console.error('❌ Errore:', error);
-    alert('Venditore non trovato!');
-    window.location.href = 'vetrine.html';
-    return;
-  }
-
-  console.log('✅ Utente trovato');
-  currentVendorId = utente.id;
-  currentVendorUsername = utente.username;
-
-  await loadVendorData(utente);
-}
-
-async function loadVendorData(utente) {
   const { data: tuttiArticoli } = await supabaseClient
     .from('Articoli')
     .select('*, Utenti(id, username)')
@@ -454,19 +423,25 @@ function renderPosts(posts) {
     return;
   }
 
-  const currentUserId = getCurrentUserId();
   const avatarInitials = posts[0]?.username?.substring(0, 2).toUpperCase() || 'VE';
+  const currentUserId = getCurrentUserId();
 
   container.innerHTML = posts.map(post => {
-    const isMyPost = post.utente_id === currentUserId;
+    const isMyPost = currentUserId && post.utente_id === currentUserId;
+    
     return `
-    <div class="vendor-post-card">
+    <div class="vendor-post-card" id="post-${post.id}">
       <div class="vendor-post-header">
         <div class="vendor-post-avatar">${avatarInitials}</div>
         <div class="vendor-post-user">
-          <h4>${post.username} ${isMyPost ? '<span class="badge-owner">TU</span>' : ''}</h4>
+          <h4>${post.username} ${isMyPost ? '<span class="badge-owner-small">TU</span>' : ''}</h4>
           <span>${post.time}</span>
         </div>
+        ${isMyPost ? `
+          <button class="vendor-post-delete-btn" onclick="deleteVendorPost('${post.id}')" title="Elimina post">
+            <i class="fas fa-trash"></i>
+          </button>
+        ` : ''}
       </div>
       <div class="vendor-post-content">${post.content}</div>
       ${post.image ? `
@@ -482,11 +457,12 @@ function renderPosts(posts) {
         </button>
         <button class="vendor-post-action-btn" onclick="viewComments('${post.id}')">
           <i class="fas fa-comment"></i>
-          <span id="comments-${post.id}">${post.comments}</span>
+          <span>${post.comments}</span>
         </button>
       </div>
     </div>
-  `}).join('');
+  `;
+  }).join('');
 }
 
 // ========================================
@@ -517,7 +493,7 @@ function switchTab(tabName) {
 // ========================================
 // AZIONI
 // ========================================
-async function togglePostLike(event, postId, postOwnerId) {
+async function togglePostLike(postId, postOwnerId) {
   console.log('💖 Toggle like:', postId);
   
   const currentUserId = getCurrentUserId();
@@ -579,19 +555,75 @@ async function togglePostLike(event, postId, postOwnerId) {
       }, 100);
     }
 
-    // FIX: Trova bottone dal DOM invece di usare event.currentTarget
-    const postCards = document.querySelectorAll('.vendor-post-card');
-    postCards.forEach(card => {
-      const likeBtn = card.querySelector('.vendor-post-action-btn');
-      const likeSpan = card.querySelector(`#likes-${postId}`);
-      if (likeSpan) {
-        if (post.liked) {
-          likeBtn?.classList.add('liked');
-        } else {
-          likeBtn?.classList.remove('liked');
+    const btn = event.currentTarget;
+    if (post.liked) {
+      btn.classList.add('liked');
+    } else {
+      btn.classList.remove('liked');
+    }
+  } catch (error) {
+    console.error('❌ Errore:', error);
+    alert('❌ Errore: ' + error.message);
+  }
+}
+
+// ========================================
+// ELIMINA POST (SOLO PROPRI)
+// ========================================
+async function deleteVendorPost(postId) {
+  if (!confirm('🗑️ Sei sicuro di voler eliminare questo post?')) {
+    return;
+  }
+  
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    alert('❌ Devi essere loggato!');
+    return;
+  }
+  
+  try {
+    console.log('🗑️ Eliminazione post:', postId);
+    
+    // Verifica che sia il proprietario
+    const post = currentPosts.find(p => p.id === postId);
+    if (!post || post.utente_id !== currentUserId) {
+      alert('❌ Non puoi eliminare questo post!');
+      return;
+    }
+    
+    // Elimina dal DB
+    const { error } = await supabaseClient
+      .from('PostSocial')
+      .delete()
+      .eq('id', postId)
+      .eq('utente_id', currentUserId);  // Sicurezza extra
+    
+    if (error) {
+      console.error('❌ Errore:', error);
+      alert('❌ Errore eliminazione: ' + error.message);
+      return;
+    }
+    
+    console.log('✅ Post eliminato');
+    
+    // Rimuovi dalla UI con animazione
+    const postCard = document.getElementById(`post-${postId}`);
+    if (postCard) {
+      postCard.style.transition = 'all 0.3s ease';
+      postCard.style.opacity = '0';
+      postCard.style.transform = 'scale(0.9)';
+      setTimeout(() => {
+        postCard.remove();
+        // Rimuovi anche dall'array
+        currentPosts = currentPosts.filter(p => p.id !== postId);
+        
+        // Se non ci sono più post, mostra empty state
+        if (currentPosts.length === 0) {
+          renderPosts(currentPosts);
         }
-      }
-    });
+      }, 300);
+    }
+    
   } catch (error) {
     console.error('❌ Errore:', error);
     alert('❌ Errore: ' + error.message);
@@ -714,97 +746,8 @@ function openProduct(productId) {
   window.location.href = `dettaglio-articolo.html?id=${productId}`;
 }
 
-async function viewComments(postId) {
-  console.log('💬 Visualizza commenti:', postId);
-  
-  try {
-    const { data: comments, error } = await supabaseClient
-      .from('PostCommenti')
-      .select(`
-        *,
-        utente:Utenti!PostCommenti_utente_id_fkey (id, username)
-      `)
-      .eq('post_id', postId)
-      .order('created_at', { ascending: true });
-
-    if (error) {
-      console.error('❌ Errore:', error);
-      alert('❌ Errore caricamento commenti: ' + error.message);
-      return;
-    }
-
-    const currentUserId = getCurrentUserId();
-    
-    if (comments.length === 0) {
-      const addComment = confirm('💬 Nessun commento ancora.\n\nVuoi essere il primo a commentare?');
-      if (addComment) {
-        const commentText = prompt('💬 Scrivi il tuo commento:');
-        if (commentText && commentText.trim()) {
-          await addCommentToPost(postId, commentText.trim());
-        }
-      }
-    } else {
-      let message = `💬 Commenti (${comments.length}):\n\n`;
-      comments.forEach(c => {
-        const isMe = c.utente_id === currentUserId;
-        const badge = isMe ? ' [TU]' : '';
-        const time = formatDate(new Date(c.created_at));
-        message += `👤 ${c.utente.username}${badge} • ${time}\n${c.contenuto}\n\n`;
-      });
-      
-      const addNew = confirm(message + '\n➕ Vuoi aggiungere un commento?');
-      if (addNew) {
-        const commentText = prompt('💬 Scrivi il tuo commento:');
-        if (commentText && commentText.trim()) {
-          await addCommentToPost(postId, commentText.trim());
-        }
-      }
-    }
-  } catch (error) {
-    console.error('❌ Errore catturato:', error);
-    alert('❌ Errore imprevisto: ' + error.message);
-  }
-}
-
-async function addCommentToPost(postId, contenuto) {
-  const currentUserId = getCurrentUserId();
-  if (!currentUserId) {
-    alert('❌ Devi essere loggato!');
-    return;
-  }
-  
-  try {
-    const { error } = await supabaseClient
-      .from('PostCommenti')
-      .insert([{
-        post_id: postId,
-        utente_id: currentUserId,
-        contenuto: contenuto
-      }]);
-    
-    if (error) {
-      console.error('❌ Errore:', error);
-      alert('❌ Errore aggiunta commento: ' + error.message);
-      return;
-    }
-    
-    // Aggiorna contatore
-    const post = currentPosts.find(p => p.id === postId);
-    if (post) {
-      post.comments++;
-      const commentsSpan = document.getElementById(`comments-${postId}`);
-      if (commentsSpan) commentsSpan.textContent = post.comments;
-    }
-    
-    alert('✅ Commento aggiunto!');
-    
-    // Ricarica commenti
-    await viewComments(postId);
-    
-  } catch (error) {
-    console.error('❌ Errore:', error);
-    alert('❌ Errore imprevisto: ' + error.message);
-  }
+function viewComments(postId) {
+  alert('💬 Commenti in arrivo!');
 }
 
 function formatDate(date) {
@@ -826,9 +769,9 @@ window.applyFilters = applyFilters;
 window.resetFilters = resetFilters;
 window.toggleFilter = toggleFilter;
 window.togglePostLike = togglePostLike;
+window.deleteVendorPost = deleteVendorPost;
 window.toggleFollowVendor = toggleFollowVendor;
 window.contactVendor = contactVendor;
 window.openProduct = openProduct;
 window.viewComments = viewComments;
-window.addCommentToPost = addCommentToPost;
 window.getCurrentUserId = getCurrentUserId;
