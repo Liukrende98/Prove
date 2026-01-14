@@ -26,7 +26,7 @@
 
     .main-content {
       padding-bottom: 100px;
-      padding-top: 10px;
+      padding-top: 20px; /* Spazio per evitare sovrapposizione */
     }
 
     /* COMMUNITY FEED */
@@ -34,6 +34,7 @@
       display: grid;
       gap: 16px;
       padding: 0 12px;
+      margin-top: 10px; /* Spazio extra dal top */
     }
 
     /* POST CARD - OTTIMIZZATO iPHONE */
@@ -209,22 +210,22 @@
       transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     }
 
-    /* FAB - BOTTONE CREA POST */
+    /* FAB - BOTTONE CREA POST BLU */
     .fab-btn {
       position: fixed;
       bottom: 90px;
       right: 20px;
-      width: 60px;
-      height: 60px;
+      width: 64px;
+      height: 64px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
       border: none;
-      box-shadow: 0 8px 30px rgba(251, 191, 36, 0.6);
+      box-shadow: 0 8px 30px rgba(59, 130, 246, 0.6);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
-      color: #000;
+      font-size: 26px;
+      color: #fff;
       cursor: pointer;
       transition: all 0.3s ease;
       z-index: 1000;
@@ -232,7 +233,12 @@
 
     .fab-btn:active {
       transform: scale(0.9);
-      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    }
+
+    .fab-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 12px 40px rgba(59, 130, 246, 0.8);
     }
 
     /* MODAL */
@@ -458,6 +464,85 @@
       border-color: #fbbf24;
     }
 
+    /* FILE UPLOAD */
+    .file-upload-area {
+      border: 2px dashed #3b82f6;
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      background: #0f0f0f;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .file-upload-area:hover {
+      border-color: #fbbf24;
+      background: #1a1a1a;
+    }
+
+    .file-upload-area.dragover {
+      border-color: #10b981;
+      background: #1a1a1a;
+    }
+
+    .file-upload-icon {
+      font-size: 48px;
+      color: #3b82f6;
+      margin-bottom: 10px;
+    }
+
+    .file-upload-text {
+      color: #9ca3af;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .file-upload-input {
+      display: none;
+    }
+
+    .file-preview {
+      margin-top: 15px;
+      border-radius: 16px;
+      overflow: hidden;
+      max-height: 300px;
+    }
+
+    .file-preview img,
+    .file-preview video {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .file-remove {
+      margin-top: 10px;
+      background: #ef4444;
+      border: none;
+      border-radius: 12px;
+      padding: 8px 16px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    /* POST VIDEO */
+    .post-video {
+      width: 100%;
+      max-height: 400px;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 14px;
+      background: #0a0a0a;
+    }
+
+    .post-video video {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
     .btn-primary {
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
       border: none;
@@ -617,11 +702,31 @@
           <label for="newPostContent">
             <i class="fas fa-align-left"></i> Contenuto *
           </label>
-          <textarea id="newPostContent" placeholder="Cosa vuoi condividere?" rows="5"></textarea>
+          <textarea id="newPostContent" placeholder="Cosa vuoi condividere con la community?" rows="5"></textarea>
         </div>
+
+        <!-- CARICA FOTO/VIDEO -->
+        <div class="form-group">
+          <label>
+            <i class="fas fa-camera"></i> Foto o Video (opzionale)
+          </label>
+          <div class="file-upload-area" id="fileUploadArea" onclick="document.getElementById('fileInput').click()">
+            <div class="file-upload-icon">
+              <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+            <div class="file-upload-text">
+              Clicca per caricare foto o video<br>
+              <small>oppure trascina qui il file</small>
+            </div>
+            <input type="file" id="fileInput" class="file-upload-input" accept="image/*,video/*" onchange="handleFileSelect(event)">
+          </div>
+          <div id="filePreview" class="file-preview" style="display: none;"></div>
+        </div>
+
+        <!-- OPPURE URL -->
         <div class="form-group">
           <label for="newPostImage">
-            <i class="fas fa-image"></i> URL Immagine (opzionale)
+            <i class="fas fa-link"></i> Oppure inserisci URL
           </label>
           <input type="url" id="newPostImage" placeholder="https://esempio.com/immagine.jpg">
         </div>
