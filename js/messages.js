@@ -73,7 +73,7 @@ function createMessagesUI() {
     <div class="messages-header">
       <div class="messages-header-left" id="messagesHeaderLeft">
         <div class="messages-avatar">
-          <i class="fas fa-comments"></i>
+          <i class="fas fa-envelope"></i>
         </div>
         <div class="messages-user-info">
           <div class="messages-username">Messaggi</div>
@@ -94,7 +94,7 @@ function createMessagesUI() {
         rows="1"
       ></textarea>
       <button class="messages-send-btn" id="messagesSendBtn" onclick="sendMessage()">
-        <i class="fas fa-paper-plane"></i>
+        <i class="fas fa-arrow-up"></i>
       </button>
     </div>
   `;
@@ -270,15 +270,17 @@ async function openChat(userId, username) {
   const inputContainer = document.getElementById('messagesInputContainer');
   if (inputContainer) inputContainer.style.display = 'flex';
   
-  // IMPORTANTE: Segna come letti SUBITO
-  console.log('📖 Segno messaggi come letti...');
+  // 🔧 FIX CRITICO: Segna messaggi come letti E cancella notifiche
   await markMessagesAsRead(userId);
+  await deleteMessageNotifications(userId);
   
-  // POI carica messaggi
+  // Carica messaggi
   await loadChatMessages();
   
   // Start polling per nuovi messaggi
-  if (messagesPollingInterval) clearInterval(messagesPollingInterval);
+  if (messagesPollingInterval) {
+    clearInterval(messagesPollingInterval);
+  }
   messagesPollingInterval = setInterval(() => loadChatMessages(true), 3000);
 }
 
@@ -460,16 +462,49 @@ async function markMessagesAsRead(senderId) {
     
     console.log('✅ Messaggi segnati come letti:', data?.length || 0);
     
+  } catch (error) {
+    console.error('❌ Errore markMessagesAsRead:', error);
+  }
+}
+
+// ========================================
+// 🆕 CANCELLA NOTIFICHE MESSAGGI
+// ========================================
+async function deleteMessageNotifications(senderId) {
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    console.error('❌ deleteMessageNotifications: utente non loggato');
+    return;
+  }
+  
+  console.log('🗑️ deleteMessageNotifications - Da utente:', senderId);
+  
+  try {
+    // Cancella tutte le notifiche di messaggi da questo mittente
+    const { error } = await supabaseClient
+      .from('Notifiche')
+      .delete()
+      .eq('utente_id', currentUserId)
+      .eq('tipo', 'new_message')
+      .eq('letta', false);
+    
+    if (error) {
+      console.error('❌ Errore delete notifiche:', error);
+      throw error;
+    }
+    
+    console.log('✅ Notifiche cancellate!');
+    
     // Aggiorna badge notifiche SUBITO
     if (typeof window.loadNotificationsCount === 'function') {
-      console.log('🔄 Aggiornamento notifiche...');
+      console.log('🔄 Aggiornamento badge notifiche...');
       await window.loadNotificationsCount();
     } else {
       console.warn('⚠️ loadNotificationsCount non disponibile');
     }
     
   } catch (error) {
-    console.error('❌ Errore markMessagesAsRead:', error);
+    console.error('❌ Errore deleteMessageNotifications:', error);
   }
 }
 
