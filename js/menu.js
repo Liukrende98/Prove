@@ -110,23 +110,24 @@ const menuStructure = {
   'profilo': {
     icon: 'fas fa-user',
     label: 'Profilo',
-    url: null, // Apre direttamente la propria vetrina
-    hasNotifications: true, // Flag per mostrare notifiche
+    url: null,
+    hasNotifications: true,
     submenu: {
       'mio-profilo': {
         icon: 'fas fa-user-circle',
         label: 'Il Mio Profilo',
-        url: null // Dinamico, viene calcolato con lo username
+        url: null // Dinamico
       },
-      'modifica-profilo': {
-        icon: 'fas fa-user-edit',
-        label: 'Modifica Profilo',
-        url: 'il-tuo-profilo.html'
-      },
-      'il-tuo-negozio': {
+      'il-mio-negozio': {
         icon: 'fas fa-store',
-        label: 'Il Tuo Negozio',
+        label: 'Il Mio Negozio',
         url: 'il-tuo-negozio.html'
+      },
+      'logout': {
+        icon: 'fas fa-sign-out-alt',
+        label: 'Logout',
+        url: null, // Funzione speciale
+        isLogout: true
       }
     }
   }
@@ -251,7 +252,18 @@ function loadSubmenu(parentKey, submenu) {
     `;
     
     menuItem.onclick = () => {
-      // Gestione URL dinamico per "Il Mio Profilo"
+      // Logout
+      if (item.isLogout) {
+        if (confirm('🚪 Sei sicuro di voler uscire?')) {
+          localStorage.removeItem('nodo_user_id');
+          localStorage.removeItem('nodo_username');
+          localStorage.removeItem('nodo_email');
+          window.location.href = 'login.html';
+        }
+        return;
+      }
+      
+      // Il Mio Profilo
       if (key === 'mio-profilo' && currentUsername) {
         window.location.href = `vetrina-venditore.html?vendor=${currentUsername}`;
       } else if (item.url) {
