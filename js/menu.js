@@ -93,17 +93,18 @@ async function loadNotificationsCount() {
 }
 
 function updateNotificationsBadge() {
+  // Badge sul profilo (nel menu aperto)
   const badge = document.getElementById('profileNotificationBadge');
-  if (!badge) return;
-  
-  if (notificationsCount > 0) {
-    badge.textContent = notificationsCount > 99 ? '99+' : notificationsCount;
-    badge.style.display = 'flex';
-  } else {
-    badge.style.display = 'none';
+  if (badge) {
+    if (notificationsCount > 0) {
+      badge.textContent = notificationsCount > 99 ? '99+' : notificationsCount;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
   }
   
-  // NUOVO: Aggiorna badge messaggi
+  // Badge sui messaggi (nel menu aperto)
   const messagesBadge = document.getElementById('messagesNotificationBadge');
   if (messagesBadge) {
     if (unreadMessagesCount > 0) {
@@ -111,6 +112,26 @@ function updateNotificationsBadge() {
       messagesBadge.style.display = 'flex';
     } else {
       messagesBadge.style.display = 'none';
+    }
+  }
+  
+  // NUOVO: Badge sul bottone principale del menu
+  const menuBtn = document.getElementById('menuBtn');
+  if (menuBtn) {
+    let mainBadge = menuBtn.querySelector('.menu-main-badge');
+    
+    if (notificationsCount > 0) {
+      if (!mainBadge) {
+        mainBadge = document.createElement('div');
+        mainBadge.className = 'menu-main-badge';
+        menuBtn.appendChild(mainBadge);
+      }
+      mainBadge.textContent = notificationsCount > 99 ? '99+' : notificationsCount;
+      mainBadge.style.display = 'flex';
+    } else {
+      if (mainBadge) {
+        mainBadge.style.display = 'none';
+      }
     }
   }
 }
@@ -245,11 +266,18 @@ function loadMenu() {
       // NUOVO: Messaggi
       if (key === 'messaggi' && item.isMessages) {
         toggleMenu(); // Chiudi menu
-        if (typeof openMessagesCenter === 'function') {
-          openMessagesCenter();
-        } else {
-          alert('❌ Sistema messaggi non disponibile. Assicurati di aver incluso messages.js');
-        }
+        
+        // Aggiungi un piccolo delay per aspettare che messages.js sia caricato
+        setTimeout(() => {
+          if (typeof openMessagesCenter === 'function') {
+            console.log('✅ Apertura centro messaggi...');
+            openMessagesCenter();
+          } else {
+            console.error('❌ openMessagesCenter non definita!');
+            console.log('Funzioni disponibili:', Object.keys(window).filter(k => k.includes('message')));
+            alert('❌ Sistema messaggi non disponibile.\n\nControlla la console per dettagli.\nAssicurati di aver incluso messages.js DOPO menu.js');
+          }
+        }, 100);
       } else if (key === 'profilo') {
         // Profilo → Apri la TUA vetrina
         if (item.submenu) {
@@ -352,8 +380,8 @@ window.addEventListener('DOMContentLoaded', () => {
         clearInterval(checkSupabase);
         loadNotificationsCount();
         
-        // Aggiorna notifiche ogni 2 minuti
-        setInterval(loadNotificationsCount, 120000);
+        // Aggiorna notifiche ogni 10 secondi (tempo reale)
+        setInterval(loadNotificationsCount, 10000);
       }
     }, 100);
   }
