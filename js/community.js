@@ -206,6 +206,9 @@ function createPostCard(post) {
 async function togglePostLike(event, postId, postOwnerId) {
   console.log('💖 Toggle like post:', postId);
   
+  // Salva riferimento bottone SUBITO prima di await
+  const btn = event?.currentTarget;
+  
   const currentUserId = getCurrentUserId();
   if (!currentUserId) {
     alert('❌ Errore: Non sei loggato!\n\nFai logout e login di nuovo.');
@@ -277,12 +280,17 @@ async function togglePostLike(event, postId, postOwnerId) {
       }, 100);
     }
 
-    // FIX: Ottieni il bottone dall'evento
-    const btn = event.currentTarget;
-    if (post.liked) {
-      btn.classList.add('liked');
-    } else {
-      btn.classList.remove('liked');
+    // FIX: Trova il bottone nel DOM (più robusto)
+    const postCard = document.getElementById(`post-${postId}`);
+    if (postCard) {
+      const likeButton = postCard.querySelector('.post-action-btn');
+      if (likeButton) {
+        if (post.liked) {
+          likeButton.classList.add('liked');
+        } else {
+          likeButton.classList.remove('liked');
+        }
+      }
     }
 
   } catch (error) {
