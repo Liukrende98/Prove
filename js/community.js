@@ -50,6 +50,9 @@ async function loadCommunityContentFromDB() {
   `;
 
   try {
+    const currentUserId = getCurrentUserId();
+    
+    // ESCLUDI i post dell'utente corrente
     const { data: posts, error } = await supabaseClient
       .from('PostSocial')
       .select(`
@@ -60,6 +63,7 @@ async function loadCommunityContentFromDB() {
           nome_completo
         )
       `)
+      .neq('utente_id', currentUserId)  // ← FILTRO: solo post degli altri
       .order('created_at', { ascending: false })
       .limit(100);
 
@@ -70,11 +74,9 @@ async function loadCommunityContentFromDB() {
     }
 
     if (!posts || posts.length === 0) {
-      container.innerHTML = `<div class="empty-state"><i class="fas fa-users"></i><h3>Nessun post</h3><p>Sii il primo a pubblicare!</p></div>`;
+      container.innerHTML = `<div class="empty-state"><i class="fas fa-users"></i><h3>Nessun post della community</h3><p>Aspetta che qualcuno pubblichi qualcosa!</p></div>`;
       return;
     }
-
-    const currentUserId = getCurrentUserId();
     
     let likedPosts = [];
     if (currentUserId) {
@@ -126,7 +128,6 @@ function renderCommunityFeed() {
 // ========================================
 function createPostCard(post) {
   const currentUserId = getCurrentUserId();
-  const isMyPost = post.utente_id === currentUserId;
   
   // Determina se è video
   const mediaUrl = post.immagine_url;
@@ -146,7 +147,6 @@ function createPostCard(post) {
             <a href="vetrina-venditore.html?id=${post.utente_id}" class="username-link">
               ${post.username}
             </a>
-            ${isMyPost ? '<span class="badge-owner">TU</span>' : ''}
           </h4>
           <span>${post.time}</span>
         </div>
@@ -164,7 +164,7 @@ function createPostCard(post) {
         </div>
       `) : ''}
       <div class="post-actions">
-        <button class="post-action-btn ${post.liked ? 'liked' : ''} ${isMyPost ? 'disabled' : ''}" 
+        <button class="post-action-btn ${post.liked ? 'liked' : ''}" 
                 onclick="togglePostLike(event, '${post.id}', '${post.utente_id}')">
           <i class="fas fa-heart"></i>
           <span id="likes-${post.id}">${post.likes}</span>
@@ -187,11 +187,6 @@ async function togglePostLike(event, postId, postOwnerId) {
   const currentUserId = getCurrentUserId();
   if (!currentUserId) {
     alert('❌ Non sei loggato!');
-    return;
-  }
-
-  if (postOwnerId === currentUserId) {
-    alert('❌ Non puoi likare i tuoi post!');
     return;
   }
 
@@ -378,6 +373,69 @@ function collapseCreatePost() {
   removeFile();
 }
 
+// ========================================
+// ELIMINA POST
+// ========================================
+async function deletePost(postId) {
+  if (!confirm('🗑️ Sei sicuro di voler eliminare questo post?')) {
+    return;
+  }
+  
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    alert('❌ Devi essere loggato!');
+    return;
+  }
+  
+  try {
+    console.log('🗑️ Eliminazione post:', postId);
+    
+    // Verifica che sia il proprietario
+    const post = allPosts.find(p => p.id === postId);
+    if (!post || post.utente_id !== currentUserId) {
+      alert('❌ Non puoi eliminare questo post!');
+      return;
+    }
+    
+    // Elimina dal DB
+    const { error } = await supabaseClient
+      .from('PostSocial')
+      .delete()
+      .eq('id', postId)
+      .eq('utente_id', currentUserId);  // Sicurezza extra
+    
+    if (error) {
+      console.error('❌ Errore:', error);
+      alert('❌ Errore eliminazione: ' + error.message);
+      return;
+    }
+    
+    console.log('✅ Post eliminato');
+    
+    // Rimuovi dalla UI con animazione
+    const postCard = document.getElementById(`post-${postId}`);
+    if (postCard) {
+      postCard.style.transition = 'all 0.3s ease';
+      postCard.style.opacity = '0';
+      postCard.style.transform = 'scale(0.9)';
+      setTimeout(() => {
+        postCard.remove();
+        // Rimuovi anche dall'array
+        allPosts = allPosts.filter(p => p.id !== postId);
+        
+        // Se non ci sono più post, mostra empty state
+        if (allPosts.length === 0) {
+          renderCommunityFeed();
+        }
+      }, 300);
+    }
+    
+  } catch (error) {
+    console.error('❌ Errore:', error);
+    alert('❌ Errore: ' + error.message);
+  }
+}
+
 function handleFileSelect(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -445,6 +503,7 @@ async function createNewPost() {
   }
   
   const btn = event.currentTarget;
+  const originalHTML = btn.innerHTML;
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Caricamento...';
   
@@ -481,27 +540,33 @@ async function createNewPost() {
       console.error('❌ Errore:', error);
       alert('❌ Errore: ' + error.message);
       btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Pubblica';
+      btn.innerHTML = originalHTML;
       return;
     }
     
     console.log('✅ Post pubblicato');
     
-    // Reset
-    collapseCreatePost();
+    // IMPORTANTE: Reset completo del form PRIMA di ricaricare
+    document.getElementById('newPostContent').value = '';
+    removeFile();
     btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Pubblica';
+    btn.innerHTML = originalHTML;
     
-    // Ricarica
+    // Chiudi il form
+    const form = document.getElementById('createPostForm');
+    form.classList.remove('active');
+    
+    // Ricarica feed
     await loadCommunityContentFromDB();
     
+    // Scroll al top
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
   } catch (error) {
     console.error('❌ Errore:', error);
     alert('❌ Errore: ' + error.message);
     btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Pubblica';
+    btn.innerHTML = originalHTML;
   }
 }
 
@@ -534,6 +599,7 @@ window.addComment = addComment;
 window.expandCreatePost = expandCreatePost;
 window.collapseCreatePost = collapseCreatePost;
 window.createNewPost = createNewPost;
+window.deletePost = deletePost;
 window.handleFileSelect = handleFileSelect;
 window.removeFile = removeFile;
 window.getCurrentUserId = getCurrentUserId;
