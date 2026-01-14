@@ -1,0 +1,78 @@
+/* ==========================================
+   OVERRIDE MENU - BLU CON ANIMAZIONE
+   Inserisci DOPO style.css nell'HTML
+   ========================================== */
+
+/* Bottone menu principale - BLU PULSANTE */
+.menu-main-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.6) !important;
+  animation: pulse-menu-btn 2s infinite !important;
+}
+
+@keyframes pulse-menu-btn {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    box-shadow: 0 8px 30px rgba(59, 130, 246, 0.6);
+  }
+  50% {
+    transform: scale(1.05) rotate(0deg);
+    box-shadow: 0 12px 40px rgba(59, 130, 246, 0.9);
+  }
+}
+
+.menu-main-btn:hover {
+  animation: none !important;
+  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.8) !important;
+}
+
+.menu-main-btn:active {
+  animation: none !important;
+}
+
+.menu-main-btn.active {
+  animation: none !important;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+}
+
+/* Menu items - BLU */
+.menu-item {
+  border: 3px solid #3b82f6 !important;
+  color: #3b82f6 !important;
+}
+
+.menu-item:active {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  color: #fff !important;
+}
+
+/* Badge notifiche */
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  padding: 3px 7px;
+  border-radius: 10px;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.8);
+  border: 2px solid #000;
+  animation: pulse-notification 2s infinite;
+  z-index: 10;
+}
+
+@keyframes pulse-notification {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
