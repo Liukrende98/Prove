@@ -179,6 +179,7 @@ async function showConversationsList() {
   try {
     // 1. Carica TUTTI gli utenti seguiti
     console.log('🔍 Cerco utenti seguiti per user:', currentUserId);
+    console.log('📊 Query Seguiti con foreign key...');
     
     const { data: follows, error: followError } = await supabaseClient
       .from('Seguiti')
@@ -190,11 +191,35 @@ async function showConversationsList() {
     
     if (followError) {
       console.error('❌ Errore caricamento seguiti:', followError);
+      console.error('❌ Dettagli errore:', JSON.stringify(followError, null, 2));
       throw followError;
     }
     
-    console.log('✅ Utenti seguiti:', follows?.length || 0);
-    console.log('📊 Dati seguiti:', follows);
+    console.log('✅ Query seguiti completata!');
+    console.log('📊 Numero seguiti:', follows?.length || 0);
+    console.log('📊 Dati seguiti RAW:', JSON.stringify(follows, null, 2));
+    
+    if (!follows || follows.length === 0) {
+      console.warn('⚠️ ATTENZIONE: Nessun seguito trovato!');
+      console.warn('⚠️ Verifica su Supabase Dashboard:');
+      console.warn('   1. Tabella "Seguiti" ha righe?');
+      console.warn('   2. Campo "utente_id" = ' + currentUserId + '?');
+      console.warn('   3. Foreign key "Seguiti_seguito_id_fkey" esiste?');
+      
+      // Query semplice per debug
+      console.log('🔍 Provo query semplice senza foreign key...');
+      const { data: segutiSemplice, error: errSemplice } = await supabaseClient
+        .from('Seguiti')
+        .select('*')
+        .eq('utente_id', currentUserId);
+      
+      console.log('📊 Risultato query semplice:', segutiSemplice);
+      
+      if (segutiSemplice && segutiSemplice.length > 0) {
+        console.error('🔥 PROBLEMA: Seguiti esistono ma foreign key NON funziona!');
+        console.error('🔥 Colonne nella tabella Seguiti:', Object.keys(segutiSemplice[0]));
+      }
+    }
     
     // 2. Carica messaggi
     const { data: messaggi, error: msgError } = await supabaseClient
@@ -222,23 +247,58 @@ async function showConversationsList() {
     console.log('🔧 Creo mappa conversazioni...');
     
     // Aggiungi TUTTI gli utenti seguiti (anche senza messaggi)
-    follows?.forEach(follow => {
-      console.log('👤 Processo seguito:', follow);
-      if (follow.seguito) {
-        conversazioni.set(follow.seguito_id, {
-          userId: follow.seguito_id,
-          username: follow.seguito.username || 'Utente',
-          lastMessage: null,  // Nessun messaggio ancora
-          lastMessageTime: null,
-          unreadCount: 0,
-          isFollowed: true,
-          hasMessages: false
-        });
-        console.log('✅ Aggiunto alla mappa:', follow.seguito.username);
-      } else {
-        console.warn('⚠️ Seguito senza dati utente:', follow);
+    if (follows && follows.length > 0) {
+      follows.forEach(follow => {
+        console.log('👤 Processo seguito:', follow);
+        if (follow.seguito) {
+          conversazioni.set(follow.seguito_id, {
+            userId: follow.seguito_id,
+            username: follow.seguito.username || 'Utente',
+            lastMessage: null,
+            lastMessageTime: null,
+            unreadCount: 0,
+            isFollowed: true,
+            hasMessages: false
+          });
+          console.log('✅ Aggiunto alla mappa:', follow.seguito.username);
+        } else {
+          console.warn('⚠️ Seguito senza dati utente:', follow);
+        }
+      });
+    } else {
+      console.warn('⚠️ Nessun seguito da processare, provo metodo alternativo...');
+      
+      // FALLBACK: Carica seguiti manualmente
+      const { data: segutiManuale } = await supabaseClient
+        .from('Seguiti')
+        .select('seguito_id')
+        .eq('utente_id', currentUserId);
+      
+      if (segutiManuale && segutiManuale.length > 0) {
+        console.log('🔄 Carico utenti seguiti uno per uno...');
+        
+        for (const seg of segutiManuale) {
+          const { data: utente } = await supabaseClient
+            .from('Utenti')
+            .select('id, username')
+            .eq('id', seg.seguito_id)
+            .single();
+          
+          if (utente) {
+            conversazioni.set(utente.id, {
+              userId: utente.id,
+              username: utente.username || 'Utente',
+              lastMessage: null,
+              lastMessageTime: null,
+              unreadCount: 0,
+              isFollowed: true,
+              hasMessages: false
+            });
+            console.log('✅ Aggiunto manualmente:', utente.username);
+          }
+        }
       }
-    });
+    }
     
     console.log('📊 Conversazioni dopo seguiti:', conversazioni.size);
     
@@ -328,8 +388,8 @@ async function showConversationsList() {
                  data-is-followed="${conv.isFollowed}">
               <div class="conversation-avatar">
                 <i class="fas fa-user"></i>
-                ${conv.isFollowed ? '<div class="conversation-followed-badge"><i class="fas fa-star"></i></div>' : ''}
               </div>
+              ${conv.isFollowed ? '<div class="conversation-followed-badge"><i class="fas fa-star"></i></div>' : ''}
               <div class="conversation-info" onclick="openChat('${conv.userId}', '${escapeHtml(conv.username)}')">
                 <div class="conversation-name">
                   ${escapeHtml(conv.username)}
