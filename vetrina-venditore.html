@@ -363,56 +363,86 @@
       gap: 10px;
     }
 
-    .filter-checkbox-item {
+    .filter-input[type="number"] {
+      text-align: center;
+    }
+
+    .filter-rating {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .rating-btn {
+      flex: 1;
+      background: #0a0a0a;
+      border: 2px solid #3b82f6;
+      border-radius: 10px;
+      padding: 10px;
+      color: #3b82f6;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .rating-btn.active {
+      background: #3b82f6;
+      color: #fff;
+    }
+
+    .filter-checkbox-wrapper {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 12px;
+      gap: 12px;
       background: #0a0a0a;
+      border: 2px solid #3b82f6;
       border-radius: 12px;
+      padding: 12px;
       cursor: pointer;
     }
 
     .filter-checkbox {
       width: 24px;
       height: 24px;
+      accent-color: #3b82f6;
       cursor: pointer;
     }
 
     .filter-checkbox-label {
+      flex: 1;
+      color: #fff;
       font-size: 14px;
       font-weight: 700;
-      color: #e5e7eb;
+      cursor: pointer;
     }
 
     .filter-actions {
       display: flex;
       gap: 10px;
-      margin-top: 20px;
+      margin-top: 16px;
     }
 
     .filter-btn {
       flex: 1;
-      padding: 14px;
+      padding: 12px;
       border-radius: 12px;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 900;
-      border: none;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+      border: none;
       transition: all 0.2s ease;
     }
 
-    .filter-btn:active {
-      transform: scale(0.95);
+    .filter-btn-primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: #fff;
     }
 
-    .filter-btn-reset {
-      background: #ef4444;
-      color: #fff;
+    .filter-btn-secondary {
+      background: #1a1a1a;
+      border: 2px solid #6b7280;
+      color: #6b7280;
     }
 
     /* GRIGLIA PRODOTTI */
@@ -621,9 +651,8 @@
       margin-bottom: 12px;
     }
 
-    .vendor-post-image {
+    .vendor-post-image, .vendor-post-video {
       width: 100%;
-      height: 200px;
       border-radius: 16px;
       overflow: hidden;
       margin-bottom: 12px;
@@ -632,8 +661,15 @@
 
     .vendor-post-image img {
       width: 100%;
-      height: 100%;
+      height: auto;
+      max-height: 400px;
       object-fit: cover;
+    }
+
+    .vendor-post-video video {
+      width: 100%;
+      height: auto;
+      max-height: 400px;
     }
 
     .vendor-post-actions {
@@ -663,8 +699,6 @@
 
     .vendor-post-action-btn:active {
       transform: scale(0.95);
-      background: #3b82f6;
-      color: #fff;
     }
 
     .vendor-post-action-btn.liked {
@@ -706,6 +740,165 @@
     .empty-state p {
       font-size: 14px;
       font-weight: 600;
+    }
+
+    /* MODAL COMMENTI */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow: hidden;
+      border: 2px solid #fbbf24;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 2px solid #2a2a2a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 900;
+      color: #fbbf24;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #6b7280;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-footer {
+      padding: 20px;
+      border-top: 2px solid #2a2a2a;
+    }
+
+    .comment-input {
+      width: 100%;
+      background: #1a1a1a;
+      border: 2px solid #3b82f6;
+      border-radius: 16px;
+      padding: 12px 16px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      resize: none;
+      min-height: 48px;
+      font-family: 'Poppins', sans-serif;
+      margin-bottom: 10px;
+    }
+
+    .comment-btn {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      border: none;
+      border-radius: 16px;
+      padding: 12px 20px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .comment-item {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: #1a1a1a;
+      border-radius: 16px;
+    }
+
+    .comment-avatar {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #fff;
+      font-weight: 900;
+    }
+
+    .comment-content {
+      flex: 1;
+    }
+
+    .comment-username {
+      font-size: 14px;
+      font-weight: 900;
+      color: #fbbf24;
+      text-decoration: none;
+      margin-bottom: 6px;
+      display: inline-block;
+    }
+
+    .comment-content p {
+      font-size: 14px;
+      color: #e5e7eb;
+      margin: 0;
+    }
+
+    .comment-time {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 6px;
+      display: block;
+    }
+
+    .badge-small {
+      background: #3b82f6;
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 9px;
+      font-weight: 900;
+      margin-left: 6px;
+    }
+
+    .empty-state-small {
+      text-align: center;
+      padding: 30px 20px;
+      color: #6b7280;
+    }
+
+    .empty-state-small i {
+      font-size: 40px;
+      margin-bottom: 10px;
+      opacity: 0.5;
     }
   </style>
 </head>
@@ -759,6 +952,26 @@
     <!-- TAB POSTS -->
     <div class="tab-content" id="postsTab">
       <div id="postsFeed"></div>
+    </div>
+  </div>
+
+  <!-- MODAL COMMENTI -->
+  <div class="modal" id="commentsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-comments"></i> Commenti</h3>
+        <button class="modal-close" onclick="closeCommentsModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modalCommentsList"></div>
+      <div class="modal-footer">
+        <input type="hidden" id="modalPostId">
+        <textarea class="comment-input" id="commentInput" placeholder="Scrivi un commento..."></textarea>
+        <button class="comment-btn" onclick="addComment()">
+          <i class="fas fa-paper-plane"></i> Invia
+        </button>
+      </div>
     </div>
   </div>
 
