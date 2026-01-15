@@ -71,13 +71,19 @@ function renderArticolo(articolo) {
   
   renderPhotoGallery();
   
-  // DISPONIBILITÀ
-  const disponibile = articolo.Presente === true;
+  // DISPONIBILITÀ - RIMUOVI IL BANNER
+  // const disponibile = articolo.Presente === true;
+  // const availabilityBanner = document.getElementById('availabilityBanner');
+  // availabilityBanner.className = `availability-banner ${disponibile ? 'availability-disponibile' : 'availability-non-disponibile'}`;
+  // availabilityBanner.innerHTML = disponibile
+  //   ? '<i class="fas fa-check-circle"></i> Disponibile in Magazzino'
+  //   : '<i class="fas fa-times-circle"></i> Non Disponibile';
+  
+  // Nascondi il banner
   const availabilityBanner = document.getElementById('availabilityBanner');
-  availabilityBanner.className = `availability-banner ${disponibile ? 'availability-disponibile' : 'availability-non-disponibile'}`;
-  availabilityBanner.innerHTML = disponibile
-    ? '<i class="fas fa-check-circle"></i> Disponibile in Magazzino'
-    : '<i class="fas fa-times-circle"></i> Non Disponibile';
+  if (availabilityBanner) {
+    availabilityBanner.style.display = 'none';
+  }
   
   // INFO PRINCIPALE
   document.getElementById('articleName').textContent = articolo.Nome || 'Articolo';
@@ -135,6 +141,7 @@ function renderArticolo(articolo) {
   // DETTAGLI
   const detailsGrid = document.getElementById('detailsGrid');
   const details = [];
+  const disponibile = articolo.Presente === true;
   
   if (articolo.Set) {
     details.push({ icon: 'fa-layer-group', label: 'Set', value: articolo.Set });
@@ -169,7 +176,7 @@ function renderArticolo(articolo) {
     `).join('');
   }
   
-  // BOTTONE CONTATTO
+  // BOTTONE CONTATTO - USA LA STESSA LOGICA DI contactVendor
   const contactBtn = document.getElementById('contactBtn');
   contactBtn.onclick = () => contattaVenditore();
 }
@@ -269,28 +276,27 @@ function closeLightbox() {
   document.body.style.overflow = '';
 }
 
-// Contatta venditore
+// Contatta venditore - USA LA STESSA LOGICA DI contactVendor
 function contattaVenditore() {
   if (!currentArticolo) return;
   
-  const username = currentArticolo.Utenti?.username || 'Venditore';
-  const email = currentArticolo.Utenti?.email || '';
-  const nomeArticolo = currentArticolo.Nome || 'Articolo';
+  const vendorId = currentArticolo.Utenti?.id;
+  const vendorUsername = currentArticolo.Utenti?.username;
   
-  const messaggio = `Ciao ${username}! Sono interessato all'articolo "${nomeArticolo}". Possiamo parlarne?`;
-  const subject = `Interesse per: ${nomeArticolo}`;
-  const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(messaggio)}`;
+  if (!vendorId) {
+    alert('❌ Errore: dati venditore non disponibili');
+    return;
+  }
   
-  // Apri email
-  window.location.href = mailtoLink;
+  console.log('💬 Apertura chat con venditore:', vendorUsername, vendorId);
   
-  // Fallback con alert
-  setTimeout(() => {
-    const message = email 
-      ? `📧 Contatta ${username} via email:\n${email}\n\nOppure usa WhatsApp se disponibile.`
-      : `📧 Email del venditore non disponibile.\n\nProva a contattare ${username} tramite altri canali.`;
-    alert(message);
-  }, 500);
+  // Usa la stessa funzione di vetrina-venditore
+  if (window.openMessagesCenter && typeof window.openMessagesCenter === 'function') {
+    window.openMessagesCenter(vendorId);
+  } else {
+    console.error('❌ openMessagesCenter non disponibile');
+    alert('❌ Errore: sistema messaggi non disponibile.\n\nVerifica che messages.js sia caricato correttamente.');
+  }
 }
 
 // Condividi articolo
