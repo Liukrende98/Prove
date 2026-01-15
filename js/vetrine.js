@@ -551,7 +551,7 @@ function createVetrinaCard(userId, username, citta, disponibili, acquisti, media
   
   return `
     <div class="vetrina-card-big" id="vetrina-${userId}" data-user-id="${userId}">
-      <div class="vetrina-header" onclick="toggleVetrina('${userId}')">
+      <div class="vetrina-header">
         <div class="vetrina-top">
           <div class="vetrina-avatar">
             <i class="fas fa-store"></i>
@@ -563,7 +563,6 @@ function createVetrinaCard(userId, username, citta, disponibili, acquisti, media
                  onclick="event.stopPropagation()">
                 <span class="vetrina-username">${username}</span>
               </a>
-              <span class="vetrina-expand-icon">▼</span>
             </h3>
             <p><i class="fas fa-map-marker-alt"></i> ${citta}</p>
             <div class="vetrina-rating">
@@ -603,12 +602,6 @@ function createVetrinaCard(userId, username, citta, disponibili, acquisti, media
       </div>
       
       ${articoli.length > 1 ? `<div class="vetrina-products-dots" id="dots-${userId}">${dotsHtml}</div>` : ''}
-      
-      <div class="vetrina-products-expanded">
-        <div class="vetrina-products-grid-expanded">
-          ${articoli.map(art => createArticoloExpanded(art)).join('')}
-        </div>
-      </div>
     </div>
   `;
 }
@@ -755,114 +748,13 @@ function scrollToFilter() {
   }
 }
 
-// TOGGLE ESPANSIONE VETRINA
-function toggleVetrina(userId) {
-  const vetrina = document.getElementById(`vetrina-${userId}`);
-  if (vetrina) {
-    const isExpanding = !vetrina.classList.contains('expanded');
-    vetrina.classList.toggle('expanded');
-    
-    // Se sta espandendo, aggiungi listener scroll
-    if (isExpanding) {
-      setTimeout(() => {
-        setupVetrinaScrollListener(userId);
-      }, 400); // Dopo l'animazione
-    }
-  }
-}
+// ============================================
+// TOGGLE VETRINA - RIMOSSO
+// ============================================
+// La funzionalità di espansione è stata rimossa
 
-// Setup listener scroll per vetrina espansa
-function setupVetrinaScrollListener(userId) {
-  const scrollContainer = document.querySelector(`[data-user-id="${userId}"].vetrina-products-scroll`);
-  const dotsContainer = document.getElementById(`dots-${userId}`);
-  const counter = document.getElementById(`counter-${userId}`);
-  
-  if (!scrollContainer) return;
-  
-  // Rimuovi listener precedente se esiste
-  const existingListener = scrollContainer._scrollListener;
-  if (existingListener) {
-    scrollContainer.removeEventListener('scroll', existingListener);
-  }
-  
-  // Crea nuovo listener
-  const scrollListener = () => {
-    const scrollLeft = scrollContainer.scrollLeft;
-    const containerWidth = scrollContainer.offsetWidth;
-    const currentIndex = Math.round(scrollLeft / containerWidth);
-    
-    // Aggiorna dots
-    if (dotsContainer) {
-      const dots = dotsContainer.querySelectorAll('.vetrina-product-dot');
-      dots.forEach((dot, index) => {
-        if (index === currentIndex) {
-          dot.classList.add('active');
-        } else {
-          dot.classList.remove('active');
-        }
-      });
-    }
-    
-    // Aggiorna counter
-    if (counter) {
-      counter.textContent = currentIndex + 1;
-    }
-  };
-  
-  // Salva riferimento al listener
-  scrollContainer._scrollListener = scrollListener;
-  
-  // Aggiungi listener
-  scrollContainer.addEventListener('scroll', scrollListener);
-  
-  // Click sui dots per navigare
-  if (dotsContainer) {
-    const dots = dotsContainer.querySelectorAll('.vetrina-product-dot');
-    dots.forEach((dot, index) => {
-      dot.onclick = () => {
-        const containerWidth = scrollContainer.offsetWidth;
-        scrollContainer.scrollTo({
-          left: index * containerWidth,
-          behavior: 'smooth'
-        });
-      };
-    });
-  }
-}
-
-// CREA ARTICOLO ESPANSO (GRANDE)
-function createArticoloExpanded(articolo) {
-  const disponibile = articolo.Presente === true;
-  const badgeClass = disponibile ? 'badge-disponibile' : 'badge-non-disponibile';
-  const badgeText = disponibile ? 'DISPONIBILE' : 'NON DISPONIBILE';
-  const badgeIcon = disponibile ? 'fa-check' : 'fa-times';
-  
-  const immagine = articolo.Foto1 || articolo.Foto2 || articolo.Foto3 || articolo.Foto4 || articolo.Foto5;
-  
-  return `
-    <div class="vetrina-product-expanded" onclick='openModalDettaglio(${JSON.stringify(articolo).replace(/'/g, "&apos;")})'>
-      <div class="vetrina-product-expanded-image">
-        ${immagine ? `<img src="${immagine}" alt="${articolo.Nome || 'Prodotto'}">` : 
-        `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;">
-          <i class="fas fa-image" style="font-size:40px;"></i>
-        </div>`}
-        <div class="product-availability-badge ${badgeClass}">
-          <i class="fas ${badgeIcon}"></i> ${badgeText}
-        </div>
-        ${articolo.ValutazioneStato ? `
-          <div class="vetrina-product-rating">
-            <i class="fas fa-star"></i> ${articolo.ValutazioneStato}/10
-          </div>
-        ` : ''}
-      </div>
-      <div class="vetrina-product-expanded-info">
-        <div class="vetrina-product-expanded-name">${articolo.Nome || 'Prodotto'}</div>
-        <div class="vetrina-product-expanded-category">${articolo.Categoria || 'N/D'}</div>
-        <div class="vetrina-product-expanded-price">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
-      </div>
-    </div>
-  `;
-}
+// CREA ARTICOLO ESPANSO (GRANDE) - RIMOSSO
+// La funzione createArticoloExpanded è stata rimossa
 
 // MODAL DETTAGLIO SUPER FIGO
 let currentGalleryIndex = 0;
@@ -969,12 +861,8 @@ window.carouselIndices = {}; // userId -> currentIndex
 // che include il nome cliccabile e il pulsante messaggi
 
 // TOGGLE ESPANSIONE - INGRANDISCE ARTICOLI NELLA SCROLL
-function toggleVetrinaExpand(userId) {
-  const vetrina = document.getElementById(`vetrina-${userId}`);
-  if (vetrina) {
-    vetrina.classList.toggle('expanded');
-  }
-}
+// TOGGLE ESPANSIONE - RIMOSSO
+// La funzione toggleVetrinaExpand è stata rimossa
 
 // SCROLL INDICATOR - SCOMPARE PERMANENTEMENTE
 function setupScrollIndicatorsOptimized() {
