@@ -1,1703 +1,1599 @@
-// ========================================
-// LOGICA VETRINE - ARTICOLI REALI - OTTIMIZZATO MOBILE
-// ========================================
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
-// Variabili globali
-let allArticoli = [];
-let currentFilters = {
-  nome: '',
-  venditore: '',
-  set: 'all',
-  categoria: 'all',
-  prezzoMin: '',
-  prezzoMax: '',
-  disponibili: false,
-  ratingMin: 0
-};
-let currentPage = 1;
-const itemsPerPage = 10;
-let scrollIndicatorTimers = new Map();
+   <!-- META iOS DARK MODE -->
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <title>Vetrine - NODO</title>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CSS Base -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/messages-styles.css">
 
-// Crea HTML paginazione
-function createPaginationHtml(currentPage, totalPages, position = 'bottom') {
-  if (totalPages <= 1) return '';
-  
-  const prevDisabled = currentPage === 1 ? 'disabled' : '';
-  const nextDisabled = currentPage === totalPages ? 'disabled' : '';
-  
-  return `
-    <div class="vetrine-pagination pagination-${position}">
-      <button class="pagination-btn" onclick="changePage(-1)" ${prevDisabled}>
-        <i class="fas fa-chevron-left"></i> Indietro
-      </button>
-      <div class="pagination-info">
-        Pagina <span>${currentPage}</span> di <span>${totalPages}</span>
-      </div>
-      <button class="pagination-btn" onclick="changePage(1)" ${nextDisabled}>
-        Avanti <i class="fas fa-chevron-right"></i>
-      </button>
-    </div>
-  `;
+  <style>
+/* ============================================
+   VETRINE NODO - ARTICOLI SI INGRANDISCONO
+   ============================================ */
+
+.vetrine-grid {
+  padding: 0 12px 40px 12px;
 }
 
-async function loadVetrineContent() {
-  const container = document.getElementById('vetrineContainer');
-  
-  try {
-    // Carica TUTTI gli articoli in vetrina (da tutti gli utenti) con JOIN su Utenti
-    const { data: articoli, error } = await supabaseClient
-      .from('Articoli')
-      .select(`
-        *,
-        Utenti (
-          id,
-          username,
-          citta,
-          email
-        )
-      `)
-      .eq('in_vetrina', true)
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.error('Errore query:', error);
-      throw error;
-    }
-    
-    console.log('📦 Articoli in vetrina caricati:', articoli?.length || 0);
-    
-    if (!articoli || articoli.length === 0) {
-      container.innerHTML = `
-        <div class="wip-container">
-          <div class="wip-icon"><i class="fas fa-store-slash"></i></div>
-          <div class="wip-text">NESSUN ARTICOLO IN VETRINA</div>
-          <div class="wip-subtext">Gli utenti non hanno ancora messo articoli in vendita</div>
-        </div>
-      `;
-      return;
-    }
-    
-    // Salva articoli globalmente
-    allArticoli = articoli;
-    
-    // Crea filtro
-    const filterHtml = createFilterHtml();
-    
-    // Mostra filtro + vetrine
-    container.innerHTML = filterHtml;
-    renderVetrine(articoli);
-    
-  } catch (error) {
-    console.error('❌ Errore caricamento vetrine:', error);
-    container.innerHTML = `
-      <div class="msg error" style="margin: 20px;">
-        ❌ Errore nel caricamento delle vetrine: ${error.message}
-      </div>
-    `;
+.vetrina-card-big {
+  background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+  border-radius: 20px;
+  overflow: hidden;
+  border: 2px solid rgba(251, 191, 36, 0.3);
+  box-shadow: 0 6px 30px rgba(251, 191, 36, 0.2);
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+}
+
+.vetrina-header {
+  padding: 18px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, transparent 100%);
+  border-bottom: 2px solid #fbbf24;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.vetrina-header:active {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, transparent 100%);
+}
+
+.vetrina-top {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.vetrina-avatar {
+  width: 58px;
+  height: 58px;
+  min-width: 58px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  border: 3px solid #fbbf24;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+  animation: avatarPulse 2s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: #0a0a0a;
+}
+
+@keyframes avatarPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.6); }
+  50% { box-shadow: 0 0 30px rgba(251, 191, 36, 0.9); }
+}
+
+.vetrina-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.vetrina-info h3 {
+  font-size: 18px;
+  font-weight: 900;
+  margin: 0 0 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vetrina-username {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.vetrina-username-link {
+  text-decoration: none;
+  color: inherit;
+  display: inline-block;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.vetrina-username-link:hover {
+  transform: scale(1.05);
+}
+
+.vetrina-username-link:hover .vetrina-username {
+  filter: brightness(1.2);
+}
+
+.vetrina-action-btn-messages {
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  border: 3px solid #fbbf24;
+  color: #0a0a0a;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.5);
+  transition: all 0.3s ease;
+  animation: messagePulse 2s ease-in-out infinite;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+@keyframes messagePulse {
+  0%, 100% { 
+    box-shadow: 0 4px 20px rgba(251, 191, 36, 0.5);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 6px 30px rgba(251, 191, 36, 0.8);
+    transform: scale(1.05);
   }
 }
 
-function createFilterHtml() {
-  const categorie = getCategorie();
-  const sets = getSets();
-  const activeFiltersCount = getActiveFiltersCount();
+.vetrina-action-btn-messages:hover {
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+  box-shadow: 0 8px 35px rgba(251, 191, 36, 0.9);
+  transform: scale(1.1) rotate(5deg);
+}
+
+.vetrina-action-btn-messages:active {
+  transform: scale(0.95);
+}
+
+.vetrina-expand-icon {
+  font-size: 14px;
+  color: #fbbf24;
+  transition: transform 0.3s ease;
+  margin-left: 4px;
+}
+
+.vetrina-card-big.expanded .vetrina-expand-icon {
+  transform: rotate(180deg);
+}
+
+.vetrina-info p {
+  font-size: 13px;
+  color: #9ca3af;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+}
+
+.vetrina-info p i {
+  color: #fbbf24;
+  margin-right: 5px;
+  font-size: 12px;
+}
+
+.vetrina-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: 700;
+}
+
+.vetrina-rating i {
+  color: #fbbf24;
+  font-size: 13px;
+}
+
+/* STATS INLINE */
+.vetrina-stats-inline {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 14px 18px 16px 18px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(251, 191, 36, 0.2);
+  margin-bottom: 0;
+}
+
+.vetrina-stat-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #9ca3af;
+  font-weight: 700;
+  padding: 7px 11px;
+  background: rgba(251, 191, 36, 0.08);
+  border-radius: 12px;
+  border: 1px solid rgba(251, 191, 36, 0.15);
+}
+
+.vetrina-stat-inline i {
+  color: #fbbf24;
+  font-size: 12px;
+}
+
+.vetrina-stat-inline-value {
+  color: #fbbf24;
+  font-weight: 900;
+  font-size: 12px;
+}
+
+/* SCROLL ORIZZONTALE - ARTICOLI PICCOLI DI DEFAULT */
+.vetrina-products-scroll {
+  padding: 16px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  position: relative;
+  margin-bottom: 0;
+  transition: padding 0.4s ease;
+}
+
+.vetrina-products-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* QUANDO ESPANSA - COMPORTAMENTO GALLERIA CON SNAP */
+.vetrina-card-big.expanded .vetrina-products-scroll {
+  padding: 24px 0;
+  background: rgba(0, 0, 0, 0.5);
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 48px;
+}
+
+.vetrina-products-container {
+  display: flex;
+  gap: 12px;
+  padding-bottom: 5px;
+  padding-right: 80px;
+  transition: gap 0.4s ease;
+}
+
+/* QUANDO ESPANSA - GALLERIA FULL WIDTH */
+.vetrina-card-big.expanded .vetrina-products-container {
+  gap: 16px;
+  padding-right: 48px;
+  padding-left: 48px;
+}
+
+/* ARTICOLI - PICCOLI DI DEFAULT */
+.vetrina-product-card {
+  min-width: 140px;
+  max-width: 140px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+  border-radius: 14px;
+  border: 2px solid rgba(251, 191, 36, 0.2);
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+
+/* QUANDO ESPANSA - ARTICOLI FULL WIDTH CON SCROLL SNAP */
+.vetrina-card-big.expanded .vetrina-product-card {
+  min-width: calc(100vw - 96px);
+  max-width: calc(100vw - 96px);
+  border: 3px solid rgba(251, 191, 36, 0.5);
+  box-shadow: 0 10px 40px rgba(251, 191, 36, 0.4);
+  scroll-snap-align: center;
+}
+
+.vetrina-product-card:active {
+  transform: scale(0.96);
+  border-color: #fbbf24;
+}
+
+.vetrina-product-image {
+  width: 100%;
+  height: 140px;
+  background: #0a0a0a;
+  position: relative;
+  overflow: hidden;
+  transition: height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* QUANDO ESPANSA - IMMAGINE MEGA ALTA */
+.vetrina-card-big.expanded .vetrina-product-image {
+  height: 340px;
+}
+
+.vetrina-product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: object-fit 0.4s ease;
+}
+
+/* QUANDO ESPANSA - CONTAIN PER VEDERE MEGLIO */
+.vetrina-card-big.expanded .vetrina-product-image img {
+  object-fit: contain;
+  padding: 10px;
+}
+
+.product-availability-badge {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  padding: 4px 8px;
+  border-radius: 10px;
+  font-size: 8px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.3s ease;
+}
+
+/* QUANDO ESPANSA - BADGE PIÙ GRANDE */
+.vetrina-card-big.expanded .product-availability-badge {
+  padding: 6px 12px;
+  font-size: 10px;
+  bottom: 10px;
+  right: 10px;
+}
+
+.badge-disponibile {
+  background: rgba(34, 197, 94, 0.95);
+  color: #fff;
+}
+
+.badge-non-disponibile {
+  background: rgba(239, 68, 68, 0.95);
+  color: #fff;
+}
+
+.vetrina-product-rating {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 4px 7px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fbbf24;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.3s ease;
+}
+
+/* QUANDO ESPANSA - RATING PIÙ GRANDE */
+.vetrina-card-big.expanded .vetrina-product-rating {
+  padding: 6px 10px;
+  font-size: 12px;
+  top: 10px;
+  left: 10px;
+}
+
+.vetrina-product-info {
+  padding: 10px;
+  transition: padding 0.3s ease;
+}
+
+/* QUANDO ESPANSA - PIÙ PADDING */
+.vetrina-card-big.expanded .vetrina-product-info {
+  padding: 16px;
+}
+
+.vetrina-product-price {
+  font-size: 16px;
+  font-weight: 900;
+  color: #fbbf24;
+  text-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+  margin-bottom: 6px;
+  transition: all 0.3s ease;
+}
+
+/* QUANDO ESPANSA - PREZZO GIGANTE */
+.vetrina-card-big.expanded .vetrina-product-price {
+  font-size: 28px;
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+  margin-bottom: 10px;
+}
+
+.vetrina-product-name {
+  font-size: 12px;
+  font-weight: 800;
+  color: #e5e7eb;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 4px;
+  transition: all 0.3s ease;
+}
+
+/* QUANDO ESPANSA - NOME PIÙ GRANDE, 2 RIGHE */
+.vetrina-card-big.expanded .vetrina-product-name {
+  font-size: 16px;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.vetrina-product-category {
+  font-size: 10px;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+/* QUANDO ESPANSA - CATEGORIA PIÙ GRANDE */
+.vetrina-card-big.expanded .vetrina-product-category {
+  font-size: 12px;
+}
+
+/* SCROLL INDICATOR */
+.scroll-indicator {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(251, 191, 36, 0.95);
+  color: #0a0a0a;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 8px 12px;
+  border-radius: 20px;
+  pointer-events: none;
+  z-index: 15;
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.6);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.scroll-indicator.hidden {
+  opacity: 0;
+}
+
+/* DOTS INDICATOR PER ARTICOLI NELLA VETRINA ESPANSA */
+.vetrina-products-dots {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0 12px 0;
+  position: relative;
+  z-index: 10;
+}
+
+.vetrina-card-big.expanded .vetrina-products-dots {
+  display: flex;
+}
+
+.vetrina-product-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(251, 191, 36, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.vetrina-product-dot.active {
+  width: 24px;
+  border-radius: 4px;
+  background: #fbbf24;
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
+}
+
+/* COUNTER ARTICOLI NELLA VETRINA ESPANSA */
+.vetrina-products-counter {
+  position: absolute;
+  top: 30px;
+  right: 18px;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fbbf24;
+  z-index: 20;
+  border: 2px solid rgba(251, 191, 36, 0.3);
+  display: none;
+  align-items: center;
+  gap: 5px;
+}
+
+.vetrina-card-big.expanded .vetrina-products-counter {
+  display: flex;
+}
+
+@media (max-width: 375px) {
+  .vetrina-avatar {
+    width: 54px;
+    height: 54px;
+    font-size: 24px;
+  }
   
-  return `
-    <div class="vetrine-filter" id="vetrineFilter">
-      <div class="filter-header" onclick="toggleFilter()">
-        <div class="filter-title">
-          <i class="fas fa-filter"></i> FILTRI E RICERCA
-          ${activeFiltersCount > 0 ? `<span class="filter-active-badge"><i class="fas fa-check"></i> ${activeFiltersCount}</span>` : ''}
-        </div>
-        <i class="fas fa-chevron-down filter-toggle-icon"></i>
-      </div>
-      <div class="filter-content">
-        <div class="filter-body">
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-search"></i> Cerca Carta/Articolo</div>
-            <input type="text" class="filter-input" id="filterNome" placeholder="es. Charizard, Pikachu, UPC...">
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-layer-group"></i> Set/Espansione</div>
-            <select class="filter-select" id="filterSet">
-              <option value="all">Tutti i set</option>
-              ${sets.map(set => `<option value="${set}">${set}</option>`).join('')}
-            </select>
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-tags"></i> Categoria</div>
-            <select class="filter-select" id="filterCategoria">
-              <option value="all">Tutte le categorie</option>
-              ${categorie.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
-            </select>
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-euro-sign"></i> Prezzo</div>
-            <div class="filter-price-inputs">
-              <input type="number" class="filter-input" id="filterPrezzoMin" placeholder="Min €" min="0" step="0.01">
-              <input type="number" class="filter-input" id="filterPrezzoMax" placeholder="Max €" min="0" step="0.01">
-            </div>
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-star"></i> Valutazione Minima</div>
-            <select class="filter-select" id="filterRating">
-              <option value="0">Tutte</option>
-              <option value="5">5+ ⭐</option>
-              <option value="6">6+ ⭐</option>
-              <option value="7">7+ ⭐</option>
-              <option value="8">8+ ⭐</option>
-              <option value="9">9+ ⭐</option>
-              <option value="10">10 ⭐ (Perfetto)</option>
-            </select>
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-box"></i> Disponibilità</div>
-            <div class="filter-checkboxes">
-              <label class="filter-checkbox-item">
-                <input type="checkbox" class="filter-checkbox" id="filterDisponibili">
-                <span class="filter-checkbox-label">Solo disponibili in magazzino</span>
-              </label>
-            </div>
-          </div>
-          
-          <div class="filter-actions">
-            <button class="filter-btn filter-btn-reset" onclick="resetFilters()">
-              <i class="fas fa-redo"></i> Reset
-            </button>
-            <button class="filter-btn filter-btn-apply" onclick="applyFilters()">
-              <i class="fas fa-check"></i> Applica
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div id="vetrineList"></div>
-  `;
-}
-
-function getCategorie() {
-  const categorie = new Set();
-  allArticoli.forEach(art => {
-    if (art.Categoria) categorie.add(art.Categoria);
-  });
-  return Array.from(categorie).sort();
-}
-
-function getSets() {
-  const sets = new Set();
-  allArticoli.forEach(art => {
-    if (art.Set) sets.add(art.Set);
-    if (art.Espansione) sets.add(art.Espansione);
-  });
-  return Array.from(sets).sort();
-}
-
-function getActiveFiltersCount() {
-  let count = 0;
-  if (currentFilters.nome !== '') count++;
-  if (currentFilters.venditore !== '') count++;
-  if (currentFilters.set !== 'all') count++;
-  if (currentFilters.categoria !== 'all') count++;
-  if (currentFilters.prezzoMin !== '' && currentFilters.prezzoMin > 0) count++;
-  if (currentFilters.prezzoMax !== '' && currentFilters.prezzoMax < 10000) count++;
-  if (currentFilters.disponibili) count++;
-  if (currentFilters.ratingMin > 0) count++;
-  return count;
-}
-
-function toggleFilter() {
-  const filter = document.getElementById('vetrineFilter');
-  if (filter) {
-    filter.classList.toggle('expanded');
+  .vetrina-card-big.expanded .vetrina-product-card {
+    min-width: calc(100vw - 96px);
+    max-width: calc(100vw - 96px);
+  }
+  
+  .vetrina-card-big.expanded .vetrina-product-image {
+    height: 320px;
   }
 }
 
-function applyFilters(closeFilter = true) {
-  // Leggi valori filtri
-  currentFilters.nome = document.getElementById('filterNome').value.toLowerCase().trim();
-  currentFilters.set = document.getElementById('filterSet').value;
-  currentFilters.categoria = document.getElementById('filterCategoria').value;
-  currentFilters.prezzoMin = document.getElementById('filterPrezzoMin').value;
-  currentFilters.prezzoMax = document.getElementById('filterPrezzoMax').value;
-  currentFilters.disponibili = document.getElementById('filterDisponibili').checked;
-  currentFilters.ratingMin = parseInt(document.getElementById('filterRating').value) || 0;
-  
-  // Reset pagina quando si applicano filtri
-  currentPage = 1;
-  
-  // Filtra articoli
-  let articoliFiltrati = allArticoli.filter(art => {
-    // Filtro nome (ricerca in Nome, Descrizione, Set, Espansione)
-    if (currentFilters.nome !== '') {
-      const nomeArticolo = (art.Nome || '').toLowerCase();
-      const descrizione = (art.Descrizione || '').toLowerCase();
-      const set = (art.Set || '').toLowerCase();
-      const espansione = (art.Espansione || '').toLowerCase();
-      
-      if (!nomeArticolo.includes(currentFilters.nome) && 
-          !descrizione.includes(currentFilters.nome) &&
-          !set.includes(currentFilters.nome) &&
-          !espansione.includes(currentFilters.nome)) {
-        return false;
-      }
-    }
-    
-    // Filtro set/espansione
-    if (currentFilters.set !== 'all') {
-      if (art.Set !== currentFilters.set && art.Espansione !== currentFilters.set) {
-        return false;
-      }
-    }
-    
-    // Filtro categoria
-    if (currentFilters.categoria !== 'all' && art.Categoria !== currentFilters.categoria) {
-      return false;
-    }
-    
-    // Filtro prezzo minimo
-    if (currentFilters.prezzoMin !== '' && parseFloat(art.prezzo_vendita) < parseFloat(currentFilters.prezzoMin)) {
-      return false;
-    }
-    
-    // Filtro prezzo massimo
-    if (currentFilters.prezzoMax !== '' && parseFloat(art.prezzo_vendita) > parseFloat(currentFilters.prezzoMax)) {
-      return false;
-    }
-    
-    // Filtro disponibilità
-    if (currentFilters.disponibili && !art.Presente) {
-      return false;
-    }
-    
-    // Filtro rating
-    if (currentFilters.ratingMin > 0 && (art.ValutazioneStato || 0) < currentFilters.ratingMin) {
-      return false;
-    }
-    
-    return true;
-  });
-  
-  console.log(`🔍 Filtrati: ${articoliFiltrati.length}/${allArticoli.length} articoli`);
-  
-  // Renderizza vetrine filtrate
-  renderVetrine(articoliFiltrati);
-  
-  // Chiudi filtro solo se richiesto
-  if (closeFilter) {
-    toggleFilter();
+/* NAVIGAZIONE FOTO ARTICOLO */
+.article-photo-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(251, 191, 36, 0.95);
+  color: #000;
+  border: none;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  z-index: 12;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.6);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.vetrina-product-card:hover .article-photo-nav,
+.vetrina-product-image:active .article-photo-nav {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.article-photo-nav:active {
+  transform: translateY(-50%) scale(0.9);
+  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.8);
+}
+
+.article-photo-prev {
+  left: 6px;
+}
+
+.article-photo-next {
+  right: 6px;
+}
+
+/* BOTTONE FULLSCREEN */
+.article-fullscreen-btn {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  color: #fbbf24;
+  border: 2px solid rgba(251, 191, 36, 0.5);
+  font-size: 14px;
+  cursor: pointer;
+  z-index: 12;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.article-fullscreen-btn:active {
+  transform: scale(0.9);
+  background: #fbbf24;
+  color: #000;
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.6);
+}
+
+/* QUANDO ESPANSA - BOTTONI PIÙ GRANDI */
+.vetrina-card-big.expanded .article-photo-nav {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.vetrina-card-big.expanded .article-photo-prev {
+  left: 10px;
+}
+
+.vetrina-card-big.expanded .article-photo-next {
+  right: 10px;
+}
+
+.vetrina-card-big.expanded .article-fullscreen-btn {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+  bottom: 10px;
+  left: 10px;
+}
+
+/* DOTS INDICATOR PER FOTO ARTICOLO */
+.article-photo-dots {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  padding: 6px 10px;
+  border-radius: 15px;
+  z-index: 11;
+}
+
+.article-photo-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+}
+
+.article-photo-dot.active {
+  background: #fbbf24;
+  width: 18px;
+  border-radius: 3px;
+}
+
+/* QUANDO ESPANSA - DOTS PIÙ GRANDI */
+.vetrina-card-big.expanded .article-photo-dots {
+  bottom: 50px;
+  padding: 8px 12px;
+  gap: 8px;
+}
+
+.vetrina-card-big.expanded .article-photo-dot {
+  width: 8px;
+  height: 8px;
+}
+
+.vetrina-card-big.expanded .article-photo-dot.active {
+  width: 22px;
+  border-radius: 4px;
+}
+
+/* AZIONI VETRINA (2 BOTTONI VERTICALI) */
+.vetrina-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-left: 8px;
+}
+
+.vetrina-action-btn {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(251, 191, 36, 0.5);
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.vetrina-action-btn:active {
+  transform: scale(0.9);
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #000;
+  border-color: #fbbf24;
+  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.6);
+}
+
+.vetrina-action-btn i {
+  pointer-events: none;
+}
+
+@media (max-width: 375px) {
+  .vetrina-action-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+}
+/* ============================================
+   MODAL DETTAGLIO COMPATTO - OTTIMIZZATO
+   ============================================ */
+
+.modal-dettaglio-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 10000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  overflow: hidden;
+  animation: modalFadeIn 0.25s ease;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-dettaglio-content {
+  background: #000;
+  border-radius: 24px 24px 0 0;
+  width: 100%;
+  max-width: 600px;
+  border: 2px solid #fbbf24;
+  border-bottom: none;
+  box-shadow: 0 -15px 60px rgba(251, 191, 36, 0.6);
+  height: 85vh;
+  display: flex;
+  flex-direction: column;
+  animation: modalSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+
+@keyframes modalSlideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* HEADER MINI */
+.modal-header-sticky {
+  position: sticky;
+  top: 0;
+  background: linear-gradient(135deg, #1a1a1a 0%, #000 100%);
+  padding: 12px 16px;
+  border-bottom: 2px solid #fbbf24;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-title-big {
+  font-size: 16px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  flex: 1;
+  line-height: 1.3;
+  min-width: 0;
+}
+
+.modal-close-btn {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #000;
+  font-size: 20px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.5);
+}
+
+.modal-close-btn:active {
+  transform: scale(0.9);
+}
+
+.modal-body-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 0;
+  background: #000;
+}
+
+/* GALLERIA MINI MINI */
+.modal-gallery-swipe {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  margin: 0;
+  overflow: hidden;
+  background: #0a0a0a;
+  border-bottom: 2px solid rgba(251, 191, 36, 0.3);
+}
+
+.gallery-container {
+  display: flex;
+  height: 100%;
+  transition: transform 0.3s ease;
+}
+
+.gallery-slide {
+  min-width: 100%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+.gallery-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 5px;
+}
+
+.gallery-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #0a0a0a;
+  color: #666;
+}
+
+.gallery-placeholder i {
+  font-size: 40px;
+  margin-bottom: 10px;
+  opacity: 0.3;
+}
+
+.gallery-placeholder p {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.5;
+}
+
+/* DOTS */
+.gallery-dots {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 6px 10px;
+  border-radius: 15px;
+  z-index: 10;
+}
+
+.gallery-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.gallery-dot.active {
+  background: #fbbf24;
+  width: 16px;
+  border-radius: 3px;
+}
+
+/* NAV BUTTONS */
+.gallery-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(251, 191, 36, 0.95);
+  color: #000;
+  border: none;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gallery-nav-btn:active {
+  transform: translateY(-50%) scale(0.9);
+}
+
+.gallery-nav-prev { left: 8px; }
+.gallery-nav-next { right: 8px; }
+
+/* CONTENUTO */
+.modal-content-section {
+  padding: 14px 16px 20px 16px;
+}
+
+.modal-badge-disponibilita {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.modal-badge-disponibilita.disponibile {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: #fff;
+}
+
+.modal-badge-disponibilita.non-disponibile {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #fff;
+}
+
+.modal-price-mega {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(251, 191, 36, 0.05) 100%);
+  padding: 14px 16px;
+  border-radius: 16px;
+  margin-bottom: 14px;
+  border: 2px solid rgba(251, 191, 36, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-price-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: #f59e0b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+}
+
+.modal-price-value {
+  font-size: 32px;
+  font-weight: 900;
+  color: #fbbf24;
+  text-shadow: 0 0 25px rgba(251, 191, 36, 0.8);
+  line-height: 1;
+}
+
+.modal-info-box {
+  background: rgba(251, 191, 36, 0.08);
+  padding: 14px;
+  border-radius: 16px;
+  margin-bottom: 14px;
+  border: 2px solid rgba(251, 191, 36, 0.3);
+}
+
+.modal-info-title {
+  font-size: 13px;
+  font-weight: 900;
+  color: #fbbf24;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  padding-bottom: 10px;
+  border-bottom: 2px solid rgba(251, 191, 36, 0.3);
+}
+
+.modal-info-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.modal-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: rgba(251, 191, 36, 0.1);
+  border-radius: 12px;
+}
+
+.modal-info-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modal-info-label i {
+  color: #fbbf24;
+  font-size: 14px;
+}
+
+.modal-info-value {
+  font-size: 13px;
+  font-weight: 800;
+  color: #e5e7eb;
+  text-align: right;
+  max-width: 65%;
+  word-break: break-word;
+}
+
+.modal-description-box {
+  background: rgba(251, 191, 36, 0.08);
+  padding: 14px;
+  border-radius: 16px;
+  border: 2px solid rgba(251, 191, 36, 0.3);
+  margin-bottom: 14px;
+}
+
+.modal-description-box h4 {
+  font-size: 13px;
+  font-weight: 900;
+  color: #fbbf24;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  padding-bottom: 10px;
+  border-bottom: 2px solid rgba(251, 191, 36, 0.3);
+}
+
+.modal-description-box p {
+  color: #e5e7eb;
+  line-height: 1.6;
+  font-size: 13px;
+}
+
+.modal-contact-mega-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  border: none;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #000;
+  font-size: 15px;
+  font-weight: 900;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.modal-contact-mega-btn:active {
+  transform: scale(0.97);
+}
+
+/* RESPONSIVE */
+@media (min-width: 768px) {
+  .modal-dettaglio-backdrop {
+    align-items: center;
+    padding: 20px;
   }
   
-  // Aggiorna badge
-  const filterHeader = document.querySelector('.filter-header');
-  if (filterHeader) {
-    filterHeader.innerHTML = `
-      <div class="filter-title">
-        <i class="fas fa-filter"></i> FILTRI E RICERCA
-        ${getActiveFiltersCount() > 0 ? `<span class="filter-active-badge"><i class="fas fa-check"></i> ${getActiveFiltersCount()}</span>` : ''}
-      </div>
-      <i class="fas fa-chevron-down filter-toggle-icon"></i>
-    `;
+  .modal-dettaglio-content {
+    border-radius: 24px;
+    border: 2px solid #fbbf24;
+    height: auto;
+    max-height: 85vh;
+  }
+  
+  .modal-gallery-swipe {
+    height: 250px;
   }
 }
 
-function resetFilters() {
-  // Reset valori
-  currentFilters = {
-    nome: '',
-    set: 'all',
-    categoria: 'all',
-    prezzoMin: '',
-    prezzoMax: '',
-    disponibili: false,
-    ratingMin: 0
-  };
-  
-  // Reset pagina
-  currentPage = 1;
-  
-  // Reset inputs
-  document.getElementById('filterNome').value = '';
-  document.getElementById('filterSet').value = 'all';
-  document.getElementById('filterCategoria').value = 'all';
-  document.getElementById('filterPrezzoMin').value = '';
-  document.getElementById('filterPrezzoMax').value = '';
-  document.getElementById('filterDisponibili').checked = false;
-  document.getElementById('filterRating').value = '0';
-  
-  // Mostra tutti gli articoli
-  renderVetrine(allArticoli);
-  
-  // Aggiorna badge
-  const filterHeader = document.querySelector('.filter-header');
-  if (filterHeader) {
-    filterHeader.innerHTML = `
-      <div class="filter-title">
-        <i class="fas fa-filter"></i> FILTRI E RICERCA
-      </div>
-      <i class="fas fa-chevron-down filter-toggle-icon"></i>
-    `;
-  }
-}
-
-function renderVetrine(articoli) {
-  const container = document.getElementById('vetrineList');
-  
-  if (!articoli || articoli.length === 0) {
-    let messaggioFiltri = '';
-    if (currentFilters.nome !== '') {
-      messaggioFiltri = `Nessuna carta trovata per "${currentFilters.nome}"`;
-    } else if (getActiveFiltersCount() > 0) {
-      messaggioFiltri = 'Nessun articolo corrisponde ai filtri';
-    } else {
-      messaggioFiltri = 'Nessun articolo disponibile';
-    }
-    
-    container.innerHTML = `
-      <div class="wip-container" style="margin-top: 20px;">
-        <div class="wip-icon"><i class="fas fa-search"></i></div>
-        <div class="wip-text">${messaggioFiltri}</div>
-        <div class="wip-subtext">Prova a modificare i filtri o la ricerca</div>
-      </div>
-    `;
-    return;
+@media (max-width: 375px) {
+  .modal-gallery-swipe {
+    height: 110px;
   }
   
-  // Raggruppa articoli per utente
-  const articoliPerUtente = {};
-  articoli.forEach(art => {
-    const userId = art.user_id;
-    if (!articoliPerUtente[userId]) {
-      articoliPerUtente[userId] = {
-        username: art.Utenti?.username || 'Utente',
-        citta: art.Utenti?.citta || 'Italia',
-        email: art.Utenti?.email || '',
-        articoli: []
-      };
-    }
-    articoliPerUtente[userId].articoli.push(art);
-  });
-  
-  // Crea array di vetrine
-  const vetrine = [];
-  Object.entries(articoliPerUtente).forEach(([userId, userData]) => {
-    const disponibili = userData.articoli.filter(a => a.Presente).length;
-    
-    // Calcola media recensioni
-    const articoliConRecensione = userData.articoli.filter(a => a.ValutazioneStato && a.ValutazioneStato > 0);
-    const mediaRecensioni = articoliConRecensione.length > 0
-      ? (articoliConRecensione.reduce((sum, a) => sum + a.ValutazioneStato, 0) / articoliConRecensione.length).toFixed(1)
-      : 0;
-    
-    // Calcola percentuale recensioni
-    const percentualeRecensioni = userData.articoli.length > 0 
-      ? Math.round((articoliConRecensione.length / userData.articoli.length) * 100)
-      : 0;
-    
-    // Acquisti - per ora usiamo valore fittizio
-    const acquisti = 0;
-    
-    vetrine.push({
-      userId,
-      username: userData.username,
-      citta: userData.citta,
-      disponibili,
-      acquisti,
-      mediaRecensioni,
-      percentualeRecensioni,
-      articoli: userData.articoli
-    });
-  });
-  
-  // PAGINAZIONE
-  const totalPages = Math.ceil(vetrine.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const vetrinePaginate = vetrine.slice(startIndex, endIndex);
-  
-  // Paginazione TOP (sotto filtro)
-  const paginationTop = createPaginationHtml(currentPage, totalPages, 'top');
-  
-  // Crea HTML vetrine
-  let htmlVetrine = '';
-  vetrinePaginate.forEach(v => {
-    htmlVetrine += createVetrinaCard(
-      v.userId,
-      v.username,
-      v.citta,
-      v.disponibili,
-      v.acquisti,
-      v.mediaRecensioni,
-      v.percentualeRecensioni,
-      v.articoli
-    );
-  });
-  
-  // Paginazione BOTTOM (in fondo)
-  const paginationBottom = createPaginationHtml(currentPage, totalPages, 'bottom');
-  
-  // Combina tutto
-  const html = paginationTop + htmlVetrine + paginationBottom;
-  
-  container.innerHTML = html;
-  
-  // Setup scroll indicator con timer
-  setupScrollIndicators();
+  .modal-price-value {
+    font-size: 28px;
+  }
+}
+/* FILTRO NORMALE - NO ANIMAZIONE MINIMIZZATA */
+.vetrine-filter {
+  margin: 20px 12px 24px 12px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+  border-radius: 20px;
+  border: 2px solid rgba(251, 191, 36, 0.3);
+  overflow: hidden;
+  box-shadow: 0 6px 30px rgba(251, 191, 36, 0.2);
 }
 
-function changePage(direction) {
-  currentPage += direction;
-  
-  // Re-applica filtri con nuova pagina
-  applyFilters(false); // false = non chiudere filtro
-  
-  // Scroll smooth in alto
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+.filter-header {
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, transparent 100%);
+  border-bottom: 2px solid #fbbf24;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
-function setupScrollIndicators() {
-  setTimeout(() => {
-    const scrollContainers = document.querySelectorAll('.vetrina-products-scroll');
-    scrollContainers.forEach((scrollContainer, index) => {
-      const indicator = scrollContainer.querySelector('.scroll-indicator');
-      if (indicator) {
-        let hideTimer = null;
-        
-        scrollContainer.addEventListener('scroll', () => {
-          // Nascondi quando scrolla
-          if (scrollContainer.scrollLeft > 10) {
-            indicator.style.opacity = '0';
-            indicator.style.pointerEvents = 'none';
-            
-            // Clear timer esistente
-            if (hideTimer) clearTimeout(hideTimer);
-            
-            // Riapparirà dopo 3 secondi di inattività
-            hideTimer = setTimeout(() => {
-              if (scrollContainer.scrollLeft > 10) {
-                indicator.style.opacity = '0';
-              } else {
-                indicator.style.opacity = '1';
-              }
-            }, 3000);
-          } else {
-            indicator.style.opacity = '1';
-          }
-        });
-      }
-    });
-  }, 100);
+.filter-title {
+  font-size: 16px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-function createVetrinaCard(userId, username, citta, disponibili, acquisti, mediaRecensioni, percentualeRecensioni, articoli) {
-  // Crea dots per gli articoli
-  const dotsHtml = articoli.length > 1 ? articoli.map((_, idx) => 
-    `<div class="vetrina-product-dot ${idx === 0 ? 'active' : ''}" data-index="${idx}"></div>`
-  ).join('') : '';
-  
-  return `
-    <div class="vetrina-card-big" id="vetrina-${userId}" data-user-id="${userId}">
-      <div class="vetrina-header" onclick="toggleVetrina('${userId}')">
-        <div class="vetrina-top">
-          <div class="vetrina-avatar">
-            <i class="fas fa-store"></i>
-          </div>
-          <div class="vetrina-info">
-            <h3>
-              <span class="vetrina-username">${username}</span>
-              <span class="vetrina-expand-icon">▼</span>
-            </h3>
-            <p><i class="fas fa-map-marker-alt"></i> ${citta}</p>
-            <div class="vetrina-rating">
-              <i class="fas fa-box-open"></i> ${articoli.length} articol${articoli.length === 1 ? 'o' : 'i'}
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="vetrina-stats-inline">
-        <div class="vetrina-stat-inline">
-          <i class="fas fa-check-circle"></i>
-          <span class="vetrina-stat-inline-value">${disponibili}</span> disponibili
-        </div>
-        <div class="vetrina-stat-inline">
-          <i class="fas fa-shopping-bag"></i>
-          <span class="vetrina-stat-inline-value">${acquisti}</span> acquisti
-        </div>
-        <div class="vetrina-stat-inline">
-          <i class="fas fa-star"></i>
-          <span class="vetrina-stat-inline-value">${mediaRecensioni}/10</span> (${percentualeRecensioni}%)
-        </div>
-      </div>
-      
-      <div class="vetrina-products-scroll" style="position: relative;" data-user-id="${userId}">
-        ${articoli.length > 1 ? '<div class="vetrina-products-counter"><i class="fas fa-images"></i> <span id="counter-${userId}">1</span>/${articoli.length}</div>' : ''}
-        <div class="vetrina-products-container" id="products-${userId}">
-          ${articoli.map(art => createArticoloCard(art)).join('')}
-        </div>
-        ${articoli.length > 2 ? '<div class="scroll-indicator">SCORRI <i class="fas fa-chevron-right"></i></div>' : ''}
-      </div>
-      
-      ${articoli.length > 1 ? `<div class="vetrina-products-dots" id="dots-${userId}">${dotsHtml}</div>` : ''}
-      
-      <div class="vetrina-products-expanded">
-        <div class="vetrina-products-grid-expanded">
-          ${articoli.map(art => createArticoloExpanded(art)).join('')}
-        </div>
-      </div>
-    </div>
-  `;
+.filter-toggle-icon {
+  font-size: 14px;
+  color: #fbbf24;
+  transition: transform 0.3s ease;
 }
 
-function createArticoloCard(articolo) {
-  // Raccogli tutte le foto disponibili
-  const allPhotos = [];
-  if (articolo.Foto1) allPhotos.push(articolo.Foto1);
-  if (articolo.Foto2) allPhotos.push(articolo.Foto2);
-  if (articolo.Foto3) allPhotos.push(articolo.Foto3);
-  if (articolo.Foto4) allPhotos.push(articolo.Foto4);
-  if (articolo.Foto5) allPhotos.push(articolo.Foto5);
+.vetrine-filter.expanded .filter-toggle-icon {
+  transform: rotate(180deg);
+}
+
+.filter-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.vetrine-filter.expanded .filter-content {
+  max-height: 1000px;
+}
+
+.filter-body {
+  padding: 16px;
+}
+
+.filter-group {
+  margin-bottom: 16px;
+}
+
+.filter-group:last-child {
+  margin-bottom: 0;
+}
+
+.filter-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-input, .filter-select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 2px solid rgba(251, 191, 36, 0.3);
+  background: #0a0a0a;
+  color: #e5e7eb;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.filter-input:focus, .filter-select:focus {
+  outline: none;
+  border-color: #fbbf24;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+}
+
+/* PRICE SLIDER */
+.price-range-slider {
+  padding: 20px 10px;
+}
+
+.price-range-values {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.price-value {
+  font-size: 18px;
+  font-weight: 900;
+  color: #fbbf24;
+  padding: 8px 14px;
+  background: rgba(251, 191, 36, 0.1);
+  border-radius: 12px;
+  border: 2px solid rgba(251, 191, 36, 0.3);
+}
+
+.price-range-track {
+  position: relative;
+  height: 6px;
+  background: rgba(251, 191, 36, 0.2);
+  border-radius: 3px;
+  margin: 20px 0;
+}
+
+.price-range-fill {
+  position: absolute;
+  height: 100%;
+  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+  border-radius: 3px;
+  left: 0%;
+  right: 0%;
+}
+
+.price-range-inputs {
+  position: relative;
+  height: 6px;
+}
+
+.price-range-input {
+  position: absolute;
+  width: 100%;
+  pointer-events: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  height: 6px;
+  top: -3px;
+}
+
+.price-range-input::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  border: 3px solid #0a0a0a;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+  position: relative;
+  z-index: 10;
+}
+
+.price-range-input::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  border: 3px solid #0a0a0a;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+}
+
+.filter-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.filter-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(251, 191, 36, 0.05);
+  border-radius: 12px;
+  border: 2px solid rgba(251, 191, 36, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.filter-checkbox-item:active {
+  transform: scale(0.98);
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.filter-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: #fbbf24;
+  cursor: pointer;
+}
+
+.filter-checkbox-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e5e7eb;
+  cursor: pointer;
+  flex: 1;
+}
+
+.filter-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 2px solid rgba(251, 191, 36, 0.2);
+}
+
+.filter-btn {
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  font-size: 14px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.filter-btn-apply {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #0a0a0a;
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+}
+
+.filter-btn-apply:active {
+  transform: scale(0.97);
+  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
+}
+
+.filter-btn-reset {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 2px solid rgba(239, 68, 68, 0.3);
+}
+
+.filter-btn-reset:active {
+  transform: scale(0.97);
+  background: rgba(239, 68, 68, 0.25);
+}
+
+.filter-active-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: rgba(251, 191, 36, 0.2);
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fbbf24;
+}
+
+/* FLOATING FILTER BUTTON */
+.filter-floating-btn {
+  position: fixed;
+  bottom: 80px;
+  right: 15px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #0a0a0a;
+  border: 3px solid #fbbf24;
+  box-shadow: 0 8px 30px rgba(251, 191, 36, 0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 999;
+  transition: all 0.3s ease;
+  animation: floatPulse 2s ease-in-out infinite;
+}
+
+.filter-floating-btn.active {
+  display: flex;
+}
+
+.filter-floating-btn:active {
+  transform: scale(0.9);
+}
+
+@keyframes floatPulse {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-5px) scale(1.05); }
+}
+
+/* PAGINAZIONE */
+.vetrine-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 30px 20px;
+  margin-top: 20px;
+}
+
+/* PAGINAZIONE TOP - sotto filtro */
+.pagination-top {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  padding: 20px 20px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, transparent 100%);
+  border-radius: 16px;
+  border: 2px solid rgba(251, 191, 36, 0.2);
+  margin-left: 12px;
+  margin-right: 12px;
+}
+
+/* PAGINAZIONE BOTTOM - in fondo */
+.pagination-bottom {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.pagination-btn {
+  padding: 12px 20px;
+  border-radius: 16px;
+  border: 2px solid rgba(251, 191, 36, 0.3);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, transparent 100%);
+  color: #fbbf24;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pagination-btn:not(:disabled):active {
+  transform: scale(0.95);
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #0a0a0a;
+  border-color: #fbbf24;
+}
+
+.pagination-info {
+  font-size: 14px;
+  font-weight: 800;
+  color: #e5e7eb;
+  padding: 10px 20px;
+  background: rgba(251, 191, 36, 0.1);
+  border-radius: 14px;
+  border: 2px solid rgba(251, 191, 36, 0.2);
+}
+
+.pagination-info span {
+  color: #fbbf24;
+}
+
+@media (max-width: 375px) {
+  .carousel-product-image {
+    height: 280px;
+  }
   
-  const hasMultiplePhotos = allPhotos.length > 1;
-  const mainPhoto = allPhotos[0] || articolo.foto_principale || articolo.image_url || '';
+  .carousel-product-name {
+    font-size: 16px;
+  }
   
-  const imageHtml = mainPhoto 
-    ? `<img src="${mainPhoto}" alt="${articolo.Nome}" id="article-img-${articolo.id}">` 
-    : '<div class="vetrina-product-placeholder"><i class="fas fa-image"></i></div>';
+  .carousel-product-price {
+    font-size: 24px;
+  }
   
-  // Badge disponibilità
-  const disponibile = articolo.Presente === true;
-  const badgeHtml = disponibile
-    ? '<div class="product-availability-badge badge-disponibile"><i class="fas fa-check"></i> DISPONIBILE</div>'
-    : '<div class="product-availability-badge badge-non-disponibile"><i class="fas fa-times"></i> NON DISPONIBILE</div>';
-  
-  // Rating
-  const rating = articolo.ValutazioneStato || 0;
-  const ratingHtml = rating > 0 ? `
-    <div class="vetrina-product-rating">
-      <i class="fas fa-star"></i> ${rating}/10
-    </div>
-  ` : '';
-  
-  // Navigation buttons (solo se più foto)
-  const navHtml = hasMultiplePhotos ? `
-    <button class="article-photo-nav article-photo-prev" onclick="event.stopPropagation(); changeArticlePhoto('${articolo.id}', -1)">
-      <i class="fas fa-chevron-left"></i>
+  .vetrina-avatar {
+    width: 54px;
+    height: 54px;
+    font-size: 24px;
+  }
+}
+  </style>
+</head>
+
+<body>
+  <div class="particles" id="particles"></div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>
+      <div class="header-logo">
+        <div class="header-logo-ring header-logo-ring-1"></div>
+        <div class="header-logo-ring header-logo-ring-2"></div>
+      </div>
+      <span class="title-gradient">NODO</span>
+    </h1>
+  </div>
+
+  <!-- MENU NAVIGAZIONE -->
+  <div class="bottom-nav">
+    <button class="menu-main-btn" id="menuBtn" onclick="toggleMenu()">
+      <i class="fas fa-bars"></i>
     </button>
-    <button class="article-photo-nav article-photo-next" onclick="event.stopPropagation(); changeArticlePhoto('${articolo.id}', 1)">
-      <i class="fas fa-chevron-right"></i>
-    </button>
-    <div class="article-photo-dots" id="dots-${articolo.id}">
-      ${allPhotos.map((_, idx) => `<div class="article-photo-dot ${idx === 0 ? 'active' : ''}"></div>`).join('')}
+    <div class="menu-items" id="menuItems"></div>
+  </div>
+
+  <!-- CONTENUTO PRINCIPALE -->
+  <div class="main-content">
+    <div class="vetrine-grid" id="vetrineContainer"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <div class="footer-logo">NODO</div>
+    <div class="footer-text">La tua collezione Pokémon sempre con te</div>
+    <div class="footer-social">
+      <a href="#" class="footer-social-link"><i class="fab fa-instagram"></i></a>
+      <a href="#" class="footer-social-link"><i class="fab fa-twitter"></i></a>
+      <a href="#" class="footer-social-link"><i class="fab fa-discord"></i></a>
     </div>
-  ` : '';
-  
-  // Fullscreen button
-  const fullscreenHtml = mainPhoto ? `
-    <button class="article-fullscreen-btn" onclick="event.stopPropagation(); openFullscreen('${mainPhoto.replace(/'/g, "\\'")}')">
-      <i class="fas fa-expand"></i>
-    </button>
-  ` : '';
-  
-  return `
-    <div class="vetrina-product-card" onclick="mostraDettaglioArticolo('${articolo.id}')" data-article-id="${articolo.id}" data-current-photo="0" data-photos='${JSON.stringify(allPhotos)}'>
-      <div class="vetrina-product-image">
-        ${imageHtml}
-        ${navHtml}
-        ${fullscreenHtml}
-        ${badgeHtml}
-        ${ratingHtml}
-      </div>
-      <div class="vetrina-product-info">
-        <div class="vetrina-product-price">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
-        <div class="vetrina-product-name">${articolo.Nome}</div>
-        <div class="vetrina-product-category">${articolo.Categoria || 'Varie'}</div>
-      </div>
-    </div>
-  `;
-}
+  </div>
 
-function createArticoloPreview(articolo) {
-  return createArticoloCard(articolo);
-}
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/menu.js"></script>
+  <script src="js/messages.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/vetrine.js"></script>
 
-function createArticoloCompleto(articolo) {
-  return createArticoloCard(articolo);
-}
-
-async function mostraDettaglioArticolo(articoloId) {
-  // Apri nuova pagina di dettaglio ottimizzata per mobile
-  window.location.href = `dettaglio-articolo.html?id=${articoloId}`;
-}
-
-function chiudiModalDettaglio(event) {
-  // Funzione non più utilizzata - si usa pagina dettaglio-articolo.html
-}
-
-function contattaVenditore(username, email, nomeArticolo) {
-  const messaggio = `Ciao ${username}! Sono interessato all'articolo "${nomeArticolo}". Possiamo parlarne?`;
-  const subject = `Interesse per: ${nomeArticolo}`;
-  const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(messaggio)}`;
-  
-  // Prova ad aprire l'app email
-  window.location.href = mailtoLink;
-  
-  // Fallback: mostra alert con email
-  setTimeout(() => {
-    alert(`📧 Contatta ${username} via email:\n${email}\n\nOppure chiama/scrivi su WhatsApp se disponibile.`);
-  }, 500);
-}
-
-// FLOATING FILTER BUTTON
-window.addEventListener('DOMContentLoaded', () => {
-  // Crea bottone floating
-  const floatingBtn = document.createElement('button');
-  floatingBtn.className = 'filter-floating-btn';
-  floatingBtn.innerHTML = '<i class="fas fa-filter"></i>';
-  floatingBtn.onclick = scrollToFilter;
-  document.body.appendChild(floatingBtn);
-  
-  // Scroll listener per mostrare/nascondere bottone
-  let lastScrollTop = 0;
-  window.addEventListener('scroll', () => {
-    const filterElement = document.getElementById('vetrineFilter');
-    if (!filterElement) return;
-    
-    const filterRect = filterElement.getBoundingClientRect();
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    
-    // Mostra bottone se il filtro è fuori schermo verso l'alto
-    if (filterRect.bottom < 0 && scrollTop > lastScrollTop) {
-      floatingBtn.classList.add('active');
-    } else {
-      floatingBtn.classList.remove('active');
-    }
-    
-    lastScrollTop = scrollTop;
-  });
-});
-
-function scrollToFilter() {
-  const filterElement = document.getElementById('vetrineFilter');
-  if (filterElement) {
-    filterElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    
-    // Apri il filtro se è chiuso
-    setTimeout(() => {
-      if (!filterElement.classList.contains('expanded')) {
-        toggleFilter();
-      }
-    }, 500);
-  }
-}
-
-// TOGGLE ESPANSIONE VETRINA
-function toggleVetrina(userId) {
-  const vetrina = document.getElementById(`vetrina-${userId}`);
-  if (vetrina) {
-    const isExpanding = !vetrina.classList.contains('expanded');
-    vetrina.classList.toggle('expanded');
-    
-    // Se sta espandendo, aggiungi listener scroll
-    if (isExpanding) {
-      setTimeout(() => {
-        setupVetrinaScrollListener(userId);
-      }, 400); // Dopo l'animazione
-    }
-  }
-}
-
-// Setup listener scroll per vetrina espansa
-function setupVetrinaScrollListener(userId) {
-  const scrollContainer = document.querySelector(`[data-user-id="${userId}"].vetrina-products-scroll`);
-  const dotsContainer = document.getElementById(`dots-${userId}`);
-  const counter = document.getElementById(`counter-${userId}`);
-  
-  if (!scrollContainer) return;
-  
-  // Rimuovi listener precedente se esiste
-  const existingListener = scrollContainer._scrollListener;
-  if (existingListener) {
-    scrollContainer.removeEventListener('scroll', existingListener);
-  }
-  
-  // Crea nuovo listener
-  const scrollListener = () => {
-    const scrollLeft = scrollContainer.scrollLeft;
-    const containerWidth = scrollContainer.offsetWidth;
-    const currentIndex = Math.round(scrollLeft / containerWidth);
-    
-    // Aggiorna dots
-    if (dotsContainer) {
-      const dots = dotsContainer.querySelectorAll('.vetrina-product-dot');
-      dots.forEach((dot, index) => {
-        if (index === currentIndex) {
-          dot.classList.add('active');
-        } else {
-          dot.classList.remove('active');
-        }
-      });
-    }
-    
-    // Aggiorna counter
-    if (counter) {
-      counter.textContent = currentIndex + 1;
-    }
-  };
-  
-  // Salva riferimento al listener
-  scrollContainer._scrollListener = scrollListener;
-  
-  // Aggiungi listener
-  scrollContainer.addEventListener('scroll', scrollListener);
-  
-  // Click sui dots per navigare
-  if (dotsContainer) {
-    const dots = dotsContainer.querySelectorAll('.vetrina-product-dot');
-    dots.forEach((dot, index) => {
-      dot.onclick = () => {
-        const containerWidth = scrollContainer.offsetWidth;
-        scrollContainer.scrollTo({
-          left: index * containerWidth,
-          behavior: 'smooth'
-        });
-      };
+  <script>
+    requireAuth();
+    window.addEventListener('DOMContentLoaded', () => {
+      loadVetrineContent();
     });
-  }
-}
-
-// CREA ARTICOLO ESPANSO (GRANDE)
-function createArticoloExpanded(articolo) {
-  const disponibile = articolo.Presente === true;
-  const badgeClass = disponibile ? 'badge-disponibile' : 'badge-non-disponibile';
-  const badgeText = disponibile ? 'DISPONIBILE' : 'NON DISPONIBILE';
-  const badgeIcon = disponibile ? 'fa-check' : 'fa-times';
-  
-  const immagine = articolo.Foto1 || articolo.Foto2 || articolo.Foto3 || articolo.Foto4 || articolo.Foto5;
-  
-  return `
-    <div class="vetrina-product-expanded" onclick='openModalDettaglio(${JSON.stringify(articolo).replace(/'/g, "&apos;")})'>
-      <div class="vetrina-product-expanded-image">
-        ${immagine ? `<img src="${immagine}" alt="${articolo.Nome || 'Prodotto'}">` : 
-        `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;">
-          <i class="fas fa-image" style="font-size:40px;"></i>
-        </div>`}
-        <div class="product-availability-badge ${badgeClass}">
-          <i class="fas ${badgeIcon}"></i> ${badgeText}
-        </div>
-        ${articolo.ValutazioneStato ? `
-          <div class="vetrina-product-rating">
-            <i class="fas fa-star"></i> ${articolo.ValutazioneStato}/10
-          </div>
-        ` : ''}
-      </div>
-      <div class="vetrina-product-expanded-info">
-        <div class="vetrina-product-expanded-name">${articolo.Nome || 'Prodotto'}</div>
-        <div class="vetrina-product-expanded-category">${articolo.Categoria || 'N/D'}</div>
-        <div class="vetrina-product-expanded-price">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
-      </div>
-    </div>
-  `;
-}
-
-// MODAL DETTAGLIO SUPER FIGO
-let currentGalleryIndex = 0;
-let currentModalArticolo = null;
-
-function openModalDettaglio(articolo) {
-  // Apri nuova pagina di dettaglio ottimizzata per mobile
-  window.location.href = `dettaglio-articolo.html?id=${articolo.id}`;
-}
-
-function closeModalDettaglio(event) {
-  if (event && event.target.id !== 'modalDettaglio') return;
-  
-  const modal = document.getElementById('modalDettaglio');
-  if (modal) {
-    modal.remove();
-    document.body.style.overflow = '';
-  }
-}
-
-// GALLERIA SWIPE
-function nextImage() {
-  const immagini = [];
-  if (currentModalArticolo.Foto1) immagini.push(currentModalArticolo.Foto1);
-  if (currentModalArticolo.Foto2) immagini.push(currentModalArticolo.Foto2);
-  if (currentModalArticolo.Foto3) immagini.push(currentModalArticolo.Foto3);
-  if (currentModalArticolo.Foto4) immagini.push(currentModalArticolo.Foto4);
-  if (currentModalArticolo.Foto5) immagini.push(currentModalArticolo.Foto5);
-  
-  if (currentGalleryIndex < immagini.length - 1) {
-    currentGalleryIndex++;
-    updateGallery();
-  }
-}
-
-function prevImage() {
-  if (currentGalleryIndex > 0) {
-    currentGalleryIndex--;
-    updateGallery();
-  }
-}
-
-function updateGallery() {
-  const container = document.getElementById('galleryContainer');
-  const dots = document.querySelectorAll('.gallery-dot');
-  
-  if (container) {
-    const translateX = -currentGalleryIndex * 100;
-    container.style.transform = `translateX(${translateX}%)`;
-  }
-  
-  dots.forEach((dot, index) => {
-    if (index === currentGalleryIndex) {
-      dot.classList.add('active');
-    } else {
-      dot.classList.remove('active');
-    }
-  });
-}
-
-// TOUCH SWIPE GESTURES
-function setupGallerySwipe() {
-  const gallery = document.getElementById('gallerySwipe');
-  if (!gallery) return;
-  
-  let touchStartX = 0;
-  let touchEndX = 0;
-  
-  gallery.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-  });
-  
-  gallery.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
-  });
-  
-  function handleSwipe() {
-    const swipeThreshold = 50;
-    
-    if (touchEndX < touchStartX - swipeThreshold) {
-      // Swipe left = next
-      nextImage();
-    }
-    
-    if (touchEndX > touchStartX + swipeThreshold) {
-      // Swipe right = prev
-      prevImage();
-    }
-  }
-}
-// ============================================
-// VETRINE NODO - AGGIUNTE E OTTIMIZZAZIONI
-// ============================================
-
-// Variabili globali per carousel
-window.carouselIndices = {}; // userId -> currentIndex
-
-// MODIFICA createVetrinaCard per aggiungere recensioni e carousel
-function createVetrinaCardNew(userId, username, citta, disponibili, acquisti, mediaRecensioni, percentualeRecensioni, articoli) {
-  return `
-    <div class="vetrina-card-big" id="vetrina-${userId}">
-      <div class="vetrina-header">
-        <div class="vetrina-top">
-          <div class="vetrina-avatar">
-            <i class="fas fa-store"></i>
-          </div>
-          <div class="vetrina-info">
-            <h3>
-              <span class="vetrina-username">${username}</span>
-            </h3>
-            <p><i class="fas fa-map-marker-alt"></i> ${citta}</p>
-            <div class="vetrina-rating">
-              <i class="fas fa-box-open"></i> ${articoli.length} articol${articoli.length === 1 ? 'o' : 'i'}
-            </div>
-          </div>
-          <div class="vetrina-actions">
-            <button class="vetrina-action-btn" onclick="event.stopPropagation(); toggleVetrinaExpand('${userId}')" title="Espandi articoli">
-              <i class="fas fa-expand-alt"></i>
-            </button>
-            <button class="vetrina-action-btn" onclick="event.stopPropagation(); openVendorProfile('${userId}', '${username}')" title="Profilo venditore">
-              <i class="fas fa-user"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <div class="vetrina-stats-inline">
-        <div class="vetrina-stat-inline">
-          <i class="fas fa-check-circle"></i>
-          <span class="vetrina-stat-inline-value">${disponibili}</span> disponibili
-        </div>
-        <div class="vetrina-stat-inline">
-          <i class="fas fa-shopping-bag"></i>
-          <span class="vetrina-stat-inline-value">${acquisti}</span> acquisti
-        </div>
-        <div class="vetrina-stat-inline">
-          <i class="fas fa-star"></i>
-          <span class="vetrina-stat-inline-value">9.7/10</span> recensioni
-        </div>
-      </div>
-      
-      <div class="vetrina-products-scroll" data-user-id="${userId}">
-        <div class="vetrina-products-container">
-          ${articoli.map(art => createArticoloCard(art)).join('')}
-        </div>
-        ${articoli.length > 2 ? '<div class="scroll-indicator" id="scroll-indicator-' + userId + '">SCORRI <i class="fas fa-chevron-right"></i></div>' : ''}
-      </div>
-    </div>
-  `;
-}
-
-// TOGGLE ESPANSIONE - INGRANDISCE ARTICOLI NELLA SCROLL
-function toggleVetrinaExpand(userId) {
-  const vetrina = document.getElementById(`vetrina-${userId}`);
-  if (vetrina) {
-    vetrina.classList.toggle('expanded');
-  }
-}
-
-// SCROLL INDICATOR - SCOMPARE PERMANENTEMENTE
-function setupScrollIndicatorsOptimized() {
-  setTimeout(() => {
-    const scrollContainers = document.querySelectorAll('.vetrina-products-scroll');
-    scrollContainers.forEach((scrollContainer) => {
-      const userId = scrollContainer.getAttribute('data-user-id');
-      const indicator = document.getElementById(`scroll-indicator-${userId}`);
-      
-      if (indicator) {
-        let hasScrolled = false;
-        
-        scrollContainer.addEventListener('scroll', () => {
-          if (!hasScrolled && scrollContainer.scrollLeft > 20) {
-            hasScrolled = true;
-            indicator.classList.add('hidden');
-            
-            // Rimuovi dopo animazione
-            setTimeout(() => {
-              if (indicator && indicator.parentNode) {
-                indicator.remove();
-              }
-            }, 300);
-          }
-        });
-      }
-    });
-  }, 100);
-}
-
-// PRICE RANGE SLIDER
-let priceMin = 0;
-let priceMax = 1000;
-
-function initPriceRangeSlider() {
-  const minInput = document.getElementById('priceRangeMin');
-  const maxInput = document.getElementById('priceRangeMax');
-  const minValue = document.getElementById('priceMinValue');
-  const maxValue = document.getElementById('priceMaxValue');
-  const fill = document.getElementById('priceRangeFill');
-  
-  if (!minInput || !maxInput) return;
-  
-  // Trova max prezzo
-  const maxPrice = Math.max(...allArticoli.map(a => parseFloat(a.prezzo_vendita) || 0));
-  priceMax = Math.ceil(maxPrice / 100) * 100 || 1000;
-  
-  minInput.max = priceMax;
-  maxInput.max = priceMax;
-  maxInput.value = priceMax;
-  
-  function updateSlider() {
-    const min = parseInt(minInput.value);
-    const max = parseInt(maxInput.value);
-    
-    // Evita sovrapposizione
-    if (min >= max - 10) {
-      if (this === minInput) {
-        minInput.value = max - 10;
-      } else {
-        maxInput.value = min + 10;
-      }
-    }
-    
-    priceMin = parseInt(minInput.value);
-    priceMax = parseInt(maxInput.value);
-    
-    minValue.textContent = `${priceMin}€`;
-    maxValue.textContent = `${priceMax}€`;
-    
-    // Aggiorna fill
-    const percentMin = (priceMin / maxInput.max) * 100;
-    const percentMax = (priceMax / maxInput.max) * 100;
-    fill.style.left = `${percentMin}%`;
-    fill.style.right = `${100 - percentMax}%`;
-  }
-  
-  minInput.addEventListener('input', updateSlider);
-  maxInput.addEventListener('input', updateSlider);
-  
-  // Init
-  updateSlider();
-}
-
-// FLOATING FILTER BUTTON SEMPLICE - NO BUGS
-function handleFilterClick() {
-  toggleFilter();
-}
-
-// Setup floating button su scroll
-window.addEventListener('DOMContentLoaded', () => {
-  const floatingBtn = document.createElement('button');
-  floatingBtn.className = 'filter-floating-btn';
-  floatingBtn.innerHTML = '<i class="fas fa-filter"></i>';
-  floatingBtn.onclick = scrollToFilterSimple;
-  document.body.appendChild(floatingBtn);
-  
-  let lastScrollTop = 0;
-  window.addEventListener('scroll', () => {
-    const filterElement = document.getElementById('vetrineFilter');
-    if (!filterElement) return;
-    
-    const filterRect = filterElement.getBoundingClientRect();
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    
-    // Mostra bottone SOLO se filtro fuori schermo
-    if (filterRect.bottom < 0 && scrollTop > lastScrollTop) {
-      floatingBtn.classList.add('active');
-    } else {
-      floatingBtn.classList.remove('active');
-    }
-    
-    lastScrollTop = scrollTop;
-  }, { passive: true });
-});
-
-function scrollToFilterSimple() {
-  const filterElement = document.getElementById('vetrineFilter');
-  if (filterElement) {
-    filterElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setTimeout(() => {
-      if (!filterElement.classList.contains('expanded')) {
-        toggleFilter();
-      }
-    }, 500);
-  }
-}
-
-// AGGIORNA createFilterHtml per includere cerca venditore e price slider
-function createFilterHtmlNew() {
-  const categorie = getCategorie();
-  const sets = getSets();
-  const activeFiltersCount = getActiveFiltersCount();
-  
-  return `
-    <div class="vetrine-filter" id="vetrineFilter">
-      <div class="filter-header" onclick="handleFilterClick()">
-        <div class="filter-title">
-          <i class="fas fa-filter"></i> FILTRI E RICERCA
-          ${activeFiltersCount > 0 ? `<span class="filter-active-badge"><i class="fas fa-check"></i> ${activeFiltersCount}</span>` : ''}
-        </div>
-        <i class="fas fa-chevron-down filter-toggle-icon"></i>
-      </div>
-      <div class="filter-content">
-        <div class="filter-body">
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-search"></i> Cerca Carta/Articolo</div>
-            <input type="text" class="filter-input" id="filterNome" placeholder="es. Charizard, Pikachu, UPC...">
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-user"></i> Cerca Venditore</div>
-            <input type="text" class="filter-input" id="filterVenditore" placeholder="Nome venditore...">
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-layer-group"></i> Set/Espansione</div>
-            <select class="filter-select" id="filterSet">
-              <option value="all">Tutti i set</option>
-              ${sets.map(set => `<option value="${set}">${set}</option>`).join('')}
-            </select>
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-tags"></i> Categoria</div>
-            <select class="filter-select" id="filterCategoria">
-              <option value="all">Tutte le categorie</option>
-              ${categorie.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
-            </select>
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-euro-sign"></i> Fascia di Prezzo</div>
-            <div class="price-range-slider">
-              <div class="price-range-values">
-                <div class="price-value" id="priceMinValue">0€</div>
-                <div class="price-value" id="priceMaxValue">1000€</div>
-              </div>
-              <div class="price-range-track">
-                <div class="price-range-fill" id="priceRangeFill"></div>
-              </div>
-              <div class="price-range-inputs">
-                <input type="range" class="price-range-input" id="priceRangeMin" min="0" max="1000" value="0" step="5">
-                <input type="range" class="price-range-input" id="priceRangeMax" min="0" max="1000" value="1000" step="5">
-              </div>
-            </div>
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-star"></i> Valutazione Minima</div>
-            <select class="filter-select" id="filterRating">
-              <option value="0">Tutte</option>
-              <option value="5">5+ ⭐</option>
-              <option value="6">6+ ⭐</option>
-              <option value="7">7+ ⭐</option>
-              <option value="8">8+ ⭐</option>
-              <option value="9">9+ ⭐</option>
-              <option value="10">10 ⭐ (Perfetto)</option>
-            </select>
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-box"></i> Disponibilità</div>
-            <div class="filter-checkboxes">
-              <label class="filter-checkbox-item">
-                <input type="checkbox" class="filter-checkbox" id="filterDisponibili">
-                <span class="filter-checkbox-label">Solo disponibili in magazzino</span>
-              </label>
-            </div>
-          </div>
-          
-          <div class="filter-actions">
-            <button class="filter-btn filter-btn-reset" onclick="resetFiltersNew()">
-              <i class="fas fa-redo"></i> Reset
-            </button>
-            <button class="filter-btn filter-btn-apply" onclick="applyFiltersNew()">
-              <i class="fas fa-check"></i> Applica
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div id="vetrineList"></div>
-  `;
-}
-
-// SOSTITUISCE renderVetrine per usare nuovo design
-const renderVetrineOriginal = renderVetrine;
-renderVetrine = function(articoli) {
-  const container = document.getElementById('vetrineList');
-  
-  if (!articoli || articoli.length === 0) {
-    let messaggioFiltri = '';
-    if (currentFilters.nome !== '') {
-      messaggioFiltri = `Nessuna carta trovata per "${currentFilters.nome}"`;
-    } else if (getActiveFiltersCount() > 0) {
-      messaggioFiltri = 'Nessun articolo corrisponde ai filtri';
-    } else {
-      messaggioFiltri = 'Nessun articolo disponibile';
-    }
-    
-    container.innerHTML = `
-      <div class="wip-container" style="margin-top: 20px;">
-        <div class="wip-icon"><i class="fas fa-search"></i></div>
-        <div class="wip-text">${messaggioFiltri}</div>
-        <div class="wip-subtext">Prova a modificare i filtri o la ricerca</div>
-      </div>
-    `;
-    return;
-  }
-  
-  // Raggruppa articoli per utente
-  const articoliPerUtente = {};
-  articoli.forEach(art => {
-    const userId = art.user_id;
-    if (!articoliPerUtente[userId]) {
-      articoliPerUtente[userId] = {
-        username: art.Utenti?.username || 'Utente',
-        citta: art.Utenti?.citta || 'Italia',
-        email: art.Utenti?.email || '',
-        articoli: []
-      };
-    }
-    articoliPerUtente[userId].articoli.push(art);
-  });
-  
-  // Filtra per venditore se specificato
-  const venditoreFiltro = currentFilters.venditore || '';
-  if (venditoreFiltro) {
-    Object.keys(articoliPerUtente).forEach(userId => {
-      const userData = articoliPerUtente[userId];
-      if (!userData.username.toLowerCase().includes(venditoreFiltro.toLowerCase())) {
-        delete articoliPerUtente[userId];
-      }
-    });
-  }
-  
-  // Crea array di vetrine
-  const vetrine = [];
-  Object.entries(articoliPerUtente).forEach(([userId, userData]) => {
-    const disponibili = userData.articoli.filter(a => a.Presente).length;
-    const articoliConRecensione = userData.articoli.filter(a => a.ValutazioneStato && a.ValutazioneStato > 0);
-    const mediaRecensioni = articoliConRecensione.length > 0
-      ? (articoliConRecensione.reduce((sum, a) => sum + a.ValutazioneStato, 0) / articoliConRecensione.length).toFixed(1)
-      : 0;
-    const percentualeRecensioni = userData.articoli.length > 0 
-      ? Math.round((articoliConRecensione.length / userData.articoli.length) * 100)
-      : 0;
-    const acquisti = 0;
-    
-    vetrine.push({
-      userId,
-      username: userData.username,
-      citta: userData.citta,
-      disponibili,
-      acquisti,
-      mediaRecensioni,
-      percentualeRecensioni,
-      articoli: userData.articoli
-    });
-  });
-  
-  // PAGINAZIONE
-  const totalPages = Math.ceil(vetrine.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const vetrinePaginate = vetrine.slice(startIndex, endIndex);
-  
-  // Crea HTML vetrine
-  let html = '';
-  vetrinePaginate.forEach(v => {
-    html += createVetrinaCardNew(
-      v.userId,
-      v.username,
-      v.citta,
-      v.disponibili,
-      v.acquisti,
-      v.mediaRecensioni,
-      v.percentualeRecensioni,
-      v.articoli
-    );
-  });
-  
-  // Aggiungi paginazione
-  if (totalPages > 1) {
-    html += `
-      <div class="vetrine-pagination">
-        <button class="pagination-btn" onclick="changePage(-1)" ${currentPage === 1 ? 'disabled' : ''}>
-          <i class="fas fa-chevron-left"></i> Indietro
-        </button>
-        <div class="pagination-info">
-          Pagina <span>${currentPage}</span> di <span>${totalPages}</span>
-        </div>
-        <button class="pagination-btn" onclick="changePage(1)" ${currentPage === totalPages ? 'disabled' : ''}>
-          Avanti <i class="fas fa-chevron-right"></i>
-        </button>
-      </div>
-    `;
-  }
-  
-  container.innerHTML = html;
-  
-  // Setup scroll indicators ottimizzati
-  setupScrollIndicatorsOptimized();
-};
-
-// SOSTITUISCE createFilterHtml
-const createFilterHtmlOriginal = createFilterHtml;
-createFilterHtml = createFilterHtmlNew;
-
-// SOSTITUISCE applyFilters per usare price slider e venditore
-const applyFiltersOriginal = applyFilters;
-applyFilters = function(closeFilter = true) {
-  currentFilters.nome = document.getElementById('filterNome').value.toLowerCase().trim();
-  currentFilters.venditore = document.getElementById('filterVenditore')?.value.toLowerCase().trim() || '';
-  currentFilters.set = document.getElementById('filterSet').value;
-  currentFilters.categoria = document.getElementById('filterCategoria').value;
-  currentFilters.prezzoMin = priceMin;
-  currentFilters.prezzoMax = priceMax;
-  currentFilters.disponibili = document.getElementById('filterDisponibili').checked;
-  currentFilters.ratingMin = parseInt(document.getElementById('filterRating').value) || 0;
-  currentPage = 1;
-  
-  let articoliFiltrati = allArticoli.filter(art => {
-    if (currentFilters.nome !== '') {
-      const nomeArticolo = (art.Nome || '').toLowerCase();
-      const descrizione = (art.Descrizione || '').toLowerCase();
-      const set = (art.Set || '').toLowerCase();
-      const espansione = (art.Espansione || '').toLowerCase();
-      
-      if (!nomeArticolo.includes(currentFilters.nome) && 
-          !descrizione.includes(currentFilters.nome) &&
-          !set.includes(currentFilters.nome) &&
-          !espansione.includes(currentFilters.nome)) {
-        return false;
-      }
-    }
-    
-    if (currentFilters.set !== 'all') {
-      if (art.Set !== currentFilters.set && art.Espansione !== currentFilters.set) {
-        return false;
-      }
-    }
-    
-    if (currentFilters.categoria !== 'all' && art.Categoria !== currentFilters.categoria) {
-      return false;
-    }
-    
-    const prezzo = parseFloat(art.prezzo_vendita) || 0;
-    if (prezzo < currentFilters.prezzoMin || prezzo > currentFilters.prezzoMax) {
-      return false;
-    }
-    
-    if (currentFilters.disponibili && !art.Presente) {
-      return false;
-    }
-    
-    if (currentFilters.ratingMin > 0 && (art.ValutazioneStato || 0) < currentFilters.ratingMin) {
-      return false;
-    }
-    
-    return true;
-  });
-  
-  console.log(`🔍 Filtrati: ${articoliFiltrati.length}/${allArticoli.length} articoli`);
-  
-  renderVetrine(articoliFiltrati);
-  
-  if (closeFilter) {
-    const filterElement = document.getElementById('vetrineFilter');
-    if (filterElement && filterElement.classList.contains('expanded')) {
-      filterElement.classList.remove('expanded');
-    }
-  }
-  
-  const filterHeader = document.querySelector('.filter-header');
-  if (filterHeader) {
-    filterHeader.innerHTML = `
-      <div class="filter-title">
-        <i class="fas fa-filter"></i> FILTRI E RICERCA
-        ${getActiveFiltersCount() > 0 ? `<span class="filter-active-badge"><i class="fas fa-check"></i> ${getActiveFiltersCount()}</span>` : ''}
-      </div>
-      <i class="fas fa-chevron-down filter-toggle-icon"></i>
-    `;
-  }
-};
-
-function resetFiltersNew() {
-  currentFilters = {
-    nome: '',
-    venditore: '',
-    set: 'all',
-    categoria: 'all',
-    prezzoMin: 0,
-    prezzoMax: 1000,
-    disponibili: false,
-    ratingMin: 0
-  };
-  currentPage = 1;
-  
-  document.getElementById('filterNome').value = '';
-  if (document.getElementById('filterVenditore')) {
-    document.getElementById('filterVenditore').value = '';
-  }
-  document.getElementById('filterSet').value = 'all';
-  document.getElementById('filterCategoria').value = 'all';
-  document.getElementById('filterDisponibili').checked = false;
-  document.getElementById('filterRating').value = '0';
-  
-  // Reset slider
-  priceMin = 0;
-  priceMax = Math.ceil(Math.max(...allArticoli.map(a => parseFloat(a.prezzo_vendita) || 0)) / 100) * 100 || 1000;
-  if (document.getElementById('priceRangeMin')) {
-    document.getElementById('priceRangeMin').value = 0;
-    document.getElementById('priceRangeMax').value = priceMax;
-    initPriceRangeSlider();
-  }
-  
-  renderVetrine(allArticoli);
-  
-  const filterHeader = document.querySelector('.filter-header');
-  if (filterHeader) {
-    filterHeader.innerHTML = `
-      <div class="filter-title">
-        <i class="fas fa-filter"></i> FILTRI E RICERCA
-      </div>
-      <i class="fas fa-chevron-down filter-toggle-icon"></i>
-    `;
-  }
-}
-
-function applyFiltersNew() {
-  applyFilters(true);
-}
-
-// Init price slider dopo caricamento filtro
-const loadVetrineContentOriginal = loadVetrineContent;
-loadVetrineContent = async function() {
-  await loadVetrineContentOriginal();
-  setTimeout(() => {
-    initPriceRangeSlider();
-  }, 500);
-};
-
-// MODAL DETTAGLIO OTTIMIZZATO
-function openModalDettaglioOptimized(articolo) {
-  currentModalArticolo = articolo;
-  currentGalleryIndex = 0;
-  
-  const immagini = [];
-  if (articolo.Foto1) immagini.push(articolo.Foto1);
-  if (articolo.Foto2) immagini.push(articolo.Foto2);
-  if (articolo.Foto3) immagini.push(articolo.Foto3);
-  if (articolo.Foto4) immagini.push(articolo.Foto4);
-  if (articolo.Foto5) immagini.push(articolo.Foto5);
-  
-  const disponibile = articolo.Presente === true;
-  const badgeClass = disponibile ? 'disponibile' : 'non-disponibile';
-  const badgeText = disponibile ? '<i class="fas fa-check"></i> DISPONIBILE IN MAGAZZINO' : '<i class="fas fa-times"></i> NON DISPONIBILE';
-  
-  const modalHtml = `
-    <div class="modal-dettaglio-backdrop" id="modalDettaglio" onclick="closeModalDettaglio(event)">
-      <div class="modal-dettaglio-content" onclick="event.stopPropagation()">
-        <div class="modal-header-sticky">
-          <h3 class="modal-title-big">${articolo.Nome || 'Dettaglio Prodotto'}</h3>
-          <button class="modal-close-btn" onclick="closeModalDettaglio()">✕</button>
-        </div>
-        
-        <div class="modal-body-scroll">
-          <div class="modal-gallery-swipe" id="gallerySwipe">
-            ${immagini.length > 0 ? `
-              <div class="gallery-container" id="galleryContainer">
-                ${immagini.map((img, index) => `
-                  <div class="gallery-slide">
-                    <img src="${img}" alt="Foto ${index + 1}">
-                  </div>
-                `).join('')}
-              </div>
-              
-              ${immagini.length > 1 ? `
-                <button class="gallery-nav-btn gallery-nav-prev" onclick="prevImage()">
-                  <i class="fas fa-chevron-left"></i>
-                </button>
-                <button class="gallery-nav-btn gallery-nav-next" onclick="nextImage()">
-                  <i class="fas fa-chevron-right"></i>
-                </button>
-                
-                <div class="gallery-dots">
-                  ${immagini.map((_, index) => `
-                    <div class="gallery-dot ${index === 0 ? 'active' : ''}" onclick="goToImage(${index})"></div>
-                  `).join('')}
-                </div>
-              ` : ''}
-            ` : `
-              <div class="gallery-placeholder">
-                <i class="fas fa-image"></i>
-                <p>Nessuna immagine</p>
-              </div>
-            `}
-          </div>
-          
-          <div class="modal-content-section">
-            <div class="modal-badge-disponibilita ${badgeClass}">
-              ${badgeText}
-            </div>
-            
-            <div class="modal-price-mega">
-              <div class="modal-price-label">
-                <i class="fas fa-tag"></i> PREZZO
-              </div>
-              <div class="modal-price-value">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
-            </div>
-            
-            ${createModalInfoBox(articolo)}
-            
-            ${articolo.Descrizione ? `
-              <div class="modal-description-box">
-                <h4><i class="fas fa-align-left"></i> DESCRIZIONE</h4>
-                <p>${articolo.Descrizione}</p>
-              </div>
-            ` : ''}
-            
-            <button class="modal-contact-mega-btn" onclick="contattaVenditore('${articolo.Utenti?.username || 'Venditore'}', '${articolo.Utenti?.email || ''}', '${articolo.Nome || 'Prodotto'}')">
-              <i class="fas fa-envelope"></i> CONTATTA VENDITORE
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-  
-  document.body.insertAdjacentHTML('beforeend', modalHtml);
-  document.body.style.overflow = 'hidden';
-  
-  if (immagini.length > 1) {
-    setupGallerySwipe();
-  }
-}
-
-function createModalInfoBox(articolo) {
-  const fields = [];
-  
-  if (articolo.Categoria) fields.push({icon: 'fa-tag', label: 'Categoria', value: articolo.Categoria});
-  if (articolo.Set) fields.push({icon: 'fa-layer-group', label: 'Set', value: articolo.Set});
-  if (articolo.Espansione) fields.push({icon: 'fa-boxes', label: 'Espansione', value: articolo.Espansione});
-  if (articolo.Numero) fields.push({icon: 'fa-hashtag', label: 'Numero', value: articolo.Numero});
-  if (articolo.Rarita) fields.push({icon: 'fa-gem', label: 'Rarità', value: articolo.Rarita});
-  if (articolo.ValutazioneStato) fields.push({icon: 'fa-star', label: 'Valutazione', value: `${articolo.ValutazioneStato}/10`});
-  if (articolo.Lingua) fields.push({icon: 'fa-language', label: 'Lingua', value: articolo.Lingua});
-  
-  if (fields.length === 0) return '';
-  
-  return `
-    <div class="modal-info-box">
-      <div class="modal-info-title">
-        <i class="fas fa-info-circle"></i> INFORMAZIONI
-      </div>
-      <div class="modal-info-grid">
-        ${fields.map(f => `
-          <div class="modal-info-row">
-            <div class="modal-info-label"><i class="fas ${f.icon}"></i> ${f.label}</div>
-            <div class="modal-info-value">${f.value}</div>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `;
-}
-
-function goToImage(index) {
-  currentGalleryIndex = index;
-  updateGallery();
-}
-// ============================================
-// OVERRIDE FUNZIONI - VERSIONE PULITA
-
-// ============================================
-
-// ============================================
-// NAVIGAZIONE FOTO ARTICOLI
-// ============================================
-
-function changeArticlePhoto(articleId, direction) {
-  const card = document.querySelector(`[data-article-id="${articleId}"]`);
-  if (!card) return;
-  
-  const photos = JSON.parse(card.getAttribute('data-photos') || '[]');
-  if (photos.length === 0) return;
-  
-  let currentIndex = parseInt(card.getAttribute('data-current-photo') || '0');
-  currentIndex += direction;
-  
-  // Loop circolare
-  if (currentIndex < 0) currentIndex = photos.length - 1;
-  if (currentIndex >= photos.length) currentIndex = 0;
-  
-  // Aggiorna immagine
-  const img = card.querySelector(`#article-img-${articleId}`);
-  if (img) {
-    img.src = photos[currentIndex];
-    
-    // Aggiorna anche bottone fullscreen
-    const fullscreenBtn = card.querySelector('.article-fullscreen-btn');
-    if (fullscreenBtn) {
-      fullscreenBtn.setAttribute('onclick', `event.stopPropagation(); openFullscreen('${photos[currentIndex].replace(/'/g, "\\'")}')` );
-    }
-  }
-  
-  // Aggiorna dots
-  const dotsContainer = card.querySelector(`#dots-${articleId}`);
-  if (dotsContainer) {
-    const dots = dotsContainer.querySelectorAll('.article-photo-dot');
-    dots.forEach((dot, idx) => {
-      if (idx === currentIndex) {
-        dot.classList.add('active');
-      } else {
-        dot.classList.remove('active');
-      }
-    });
-  }
-  
-  // Salva nuovo indice
-  card.setAttribute('data-current-photo', currentIndex);
-}
-
-function openFullscreen(imageUrl) {
-  // Apri immagine in nuova tab/finestra
-  const fullscreenWindow = window.open('', '_blank');
-  
-  if (fullscreenWindow) {
-    fullscreenWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Immagine Full Screen</title>
-        <style>
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-          }
-          body {
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            overflow: hidden;
-          }
-          img {
-            max-width: 100%;
-            max-height: 100vh;
-            object-fit: contain;
-          }
-          .close-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(251, 191, 36, 0.95);
-            color: #000;
-            border: none;
-            font-size: 24px;
-            font-weight: 900;
-            cursor: pointer;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 20px rgba(251, 191, 36, 0.6);
-            transition: all 0.2s;
-          }
-          .close-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 25px rgba(251, 191, 36, 0.8);
-          }
-        </style>
-      </head>
-      <body>
-        <button class="close-btn" onclick="window.close()">✕</button>
-        <img src="${imageUrl}" alt="Full Screen">
-      </body>
-      </html>
-    `);
-    fullscreenWindow.document.close();
-  }
-}
-
-// ============================================
-// PROFILO VENDITORE
-// ============================================
-
-function openVendorProfile(userId, username) {
-  // Reindirizza alla pagina profilo venditore
-  window.location.href = `vetrina-venditore.html?vendor=${username}`;
-}
+  </script>
+</body>
+</html>
