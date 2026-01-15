@@ -282,41 +282,43 @@ function loadSubmenu(parentKey, submenu) {
       <div class="menu-label">${item.label}</div>
     `;
     
-    menuItem.onclick = () => {
-      console.log('🔍 Click su:', key, item);
-      
-      if (item.isLogout) {
-        console.log('🚪 Tentativo logout...');
-        
-        // CHIUDI IL MENU PRIMA DEL CONFIRM
-        toggleMenu();
-        
-        // Aspetta che il menu si chiuda
-        setTimeout(() => {
-          if (confirm('🚪 Sei sicuro di voler uscire?')) {
-            console.log('✅ Logout confermato');
-            localStorage.removeItem('nodo_user_id');
-            localStorage.removeItem('nodo_username');
-            localStorage.removeItem('nodo_email');
-            window.location.href = 'login.html';
-          } else {
-            console.log('❌ Logout annullato');
-            // Se annulla, riapri il menu
-            toggleMenu();
-          }
-        }, 300);
-        
-        return;
-      }
-      
-      if (key === 'mio-profilo' && currentUsername) {
-        window.location.href = `vetrina-venditore.html?vendor=${currentUsername}`;
-      } else if (item.url) {
-        window.location.href = item.url;
+menuItem.onclick = () => {
+  console.log('🔍 Click su:', key, item);
+  
+  if (item.isLogout) {
+    console.log('🚪 Tentativo logout...');
+    
+    // CHIUDI IL MENU PRIMA DEL LOGOUT
+    toggleMenu();
+    
+    // Aspetta che il menu si chiuda
+    setTimeout(() => {
+      // USA LA FUNZIONE logout() DI auth.js
+      if (typeof logout === 'function') {
+        logout();
       } else {
-        alert('❌ Username non trovato!');
+        console.error('❌ Funzione logout() non trovata in auth.js');
+        // Fallback manuale
+        if (confirm('🚪 Sei sicuro di voler uscire?')) {
+          localStorage.removeItem('nodo_user_id');
+          localStorage.removeItem('nodo_username');
+          localStorage.removeItem('nodo_email');
+          window.location.href = 'login.html';
+        }
       }
-    };
+    }, 300);
+    
+    return;
+  }
+  
+  if (key === 'mio-profilo' && currentUsername) {
+    window.location.href = `vetrina-venditore.html?vendor=${currentUsername}`;
+  } else if (item.url) {
+    window.location.href = item.url;
+  } else {
+    alert('❌ Username non trovato!');
+  }
+};
     
     menuItems.appendChild(menuItem);
   });
