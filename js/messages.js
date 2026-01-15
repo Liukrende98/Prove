@@ -1,869 +1,149 @@
-// ========================================
-// 🟡 NODO MESSAGGISTICA - VERSIONE GIALLA
-// ========================================
+-- ===============================================
+-- TABELLA SEGUITI - Per gestire follow/unfollow
+-- ===============================================
 
-let currentChatUserId = null;
-let currentChatUsername = null;
-let messagesPollingInterval = null;
-let lastMessageId = null;
-let isInConversationsList = true;
+-- 1. Crea tabella Seguiti (se non esiste)
+CREATE TABLE IF NOT EXISTS "Seguiti" (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    utente_id UUID NOT NULL REFERENCES "Utenti"(id) ON DELETE CASCADE,
+    seguito_id UUID NOT NULL REFERENCES "Utenti"(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    
+    -- Vincolo: non puoi seguire te stesso
+    CONSTRAINT no_self_follow CHECK (utente_id != seguito_id),
+    
+    -- Vincolo: coppia unica (utente può seguire un altro utente solo una volta)
+    UNIQUE(utente_id, seguito_id)
+);
 
-function getUserId() {
-  if (typeof getCurrentUser === 'function') {
-    const user = getCurrentUser();
-    return user?.id || null;
-  }
-  return localStorage.getItem('nodo_user_id') || null;
-}
+-- 2. Indici per performance
+CREATE INDEX IF NOT EXISTS idx_seguiti_utente ON "Seguiti"(utente_id);
+CREATE INDEX IF NOT EXISTS idx_seguiti_seguito ON "Seguiti"(seguito_id);
 
-function openMessagesCenter() {
-  console.log('📨 Apertura centro messaggi GIALLI...');
-  resetMessagesState();
-  
-  if (!document.getElementById('messagesOverlay')) {
-    createMessagesUI();
-  }
-  
-  const overlay = document.getElementById('messagesOverlay');
-  const box = document.getElementById('messagesBox');
-  
-  if (overlay && box) {
-    overlay.classList.add('active');
-    setTimeout(() => box.classList.add('active'), 50);
-    showConversationsList();
-  }
-}
+-- 3. RLS Policy - Gli utenti possono vedere chi seguono
+CREATE POLICY "Users can view their follows" ON "Seguiti"
+    FOR SELECT
+    USING (auth.uid() = utente_id);
 
-function resetMessagesState() {
-  console.log('🔄 Reset stato...');
-  
-  if (messagesPollingInterval) {
-    clearInterval(messagesPollingInterval);
-    messagesPollingInterval = null;
-  }
-  
-  currentChatUserId = null;
-  currentChatUsername = null;
-  lastMessageId = null;
-  isInConversationsList = true;
-}
+-- 4. RLS Policy - Gli utenti possono aggiungere follow
+CREATE POLICY "Users can follow others" ON "Seguiti"
+    FOR INSERT
+    WITH CHECK (auth.uid() = utente_id);
 
-function closeMessages() {
-  const overlay = document.getElementById('messagesOverlay');
-  const box = document.getElementById('messagesBox');
-  
-  if (box) box.classList.remove('active');
-  setTimeout(() => {
-    if (overlay) overlay.classList.remove('active');
-  }, 400);
-  
-  resetMessagesState();
-}
+-- 5. RLS Policy - Gli utenti possono rimuovere follow
+CREATE POLICY "Users can unfollow others" ON "Seguiti"
+    FOR DELETE
+    USING (auth.uid() = utente_id);
 
-function createMessagesUI() {
-  const overlay = document.createElement('div');
-  overlay.id = 'messagesOverlay';
-  overlay.className = 'messages-overlay';
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) closeMessages();
-  });
-  
-  const box = document.createElement('div');
-  box.id = 'messagesBox';
-  box.className = 'messages-box';
-  box.innerHTML = `
-    <div class="messages-header">
-      <div class="messages-header-left" id="messagesHeaderLeft">
-        <div class="messages-avatar">
-          <i class="fas fa-envelope"></i>
-        </div>
-        <div class="messages-user-info">
-          <div class="messages-username">Messaggi</div>
-        </div>
-      </div>
-      <button class="messages-close-btn" onclick="closeMessages()">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    
-    <div id="messagesMainContent" class="messages-main-content"></div>
-    
-    <div class="messages-input-container" id="messagesInputContainer" style="display: none;">
-      <textarea 
-        class="messages-input" 
-        id="messagesInput" 
-        placeholder="Scrivi un messaggio..."
-        rows="1"
-      ></textarea>
-      <button class="messages-send-btn" id="messagesSendBtn" onclick="sendMessage()">
-        <i class="fas fa-arrow-up"></i>
-      </button>
-    </div>
-  `;
-  
-  document.body.appendChild(overlay);
-  document.body.appendChild(box);
-  
-  const input = document.getElementById('messagesInput');
-  if (input) {
-    input.addEventListener('input', function() {
-      this.style.height = 'auto';
-      this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-    });
-    
-    input.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
-    });
-  }
-}
+-- 6. Abilita RLS
+ALTER TABLE "Seguiti" ENABLE ROW LEVEL SECURITY;
 
-async function showConversationsList() {
-  const currentUserId = getUserId();
-  if (!currentUserId) {
-    alert('❌ Devi essere loggato!');
-    return;
-  }
-  
-  console.log('📋 Caricamento lista...');
-  
-  if (messagesPollingInterval) {
-    clearInterval(messagesPollingInterval);
-    messagesPollingInterval = null;
-  }
-  
-  currentChatUserId = null;
-  currentChatUsername = null;
-  lastMessageId = null;
-  isInConversationsList = true;
-  
-  const headerLeft = document.getElementById('messagesHeaderLeft');
-  if (headerLeft) {
-    headerLeft.innerHTML = `
-      <div class="messages-avatar">
-        <i class="fas fa-envelope"></i>
-      </div>
-      <div class="messages-user-info">
-        <div class="messages-username">Messaggi</div>
-      </div>
-    `;
-  }
-  
-  const mainContent = document.getElementById('messagesMainContent');
-  const inputContainer = document.getElementById('messagesInputContainer');
-  
-  if (inputContainer) inputContainer.style.display = 'none';
-  
-  try {
-    // Carica messaggi
-    const { data: messaggi, error } = await supabaseClient
-      .from('Messaggi')
-      .select(`
-        id,
-        mittente_id,
-        destinatario_id,
-        messaggio,
-        created_at,
-        letto,
-        mittente:Utenti!Messaggi_mittente_id_fkey(id, username),
-        destinatario:Utenti!Messaggi_destinatario_id_fkey(id, username)
-      `)
-      .or(`mittente_id.eq.${currentUserId},destinatario_id.eq.${currentUserId}`)
-      .order('created_at', { ascending: false });
-    
-    if (error) throw error;
-    
-    // Carica utenti seguiti
-    let followedUsers = new Set();
-    try {
-      const { data: follows } = await supabaseClient
-        .from('Seguiti')
-        .select('seguito_id')
-        .eq('utente_id', currentUserId);
-      
-      if (follows) {
-        followedUsers = new Set(follows.map(f => f.seguito_id));
-      }
-    } catch (err) {
-      console.log('⚠️ Tabella Seguiti non disponibile');
-    }
-    
-    console.log('✅ Messaggi:', messaggi?.length || 0);
-    console.log('✅ Utenti seguiti:', followedUsers.size);
-    
-    const conversazioni = new Map();
-    
-    messaggi?.forEach(msg => {
-      const otherUserId = msg.mittente_id === currentUserId 
-        ? msg.destinatario_id 
-        : msg.mittente_id;
-      
-      const otherUser = msg.mittente_id === currentUserId 
-        ? msg.destinatario 
-        : msg.mittente;
-      
-      if (!conversazioni.has(otherUserId)) {
-        conversazioni.set(otherUserId, {
-          userId: otherUserId,
-          username: otherUser?.username || 'Utente',
-          lastMessage: msg.messaggio,
-          lastMessageTime: msg.created_at,
-          unreadCount: 0,
-          isFollowed: followedUsers.has(otherUserId)
-        });
-      }
-      
-      const conv = conversazioni.get(otherUserId);
-      
-      if (msg.destinatario_id === currentUserId && !msg.letto) {
-        conv.unreadCount++;
-      }
-    });
-    
-    const conversazioniArray = Array.from(conversazioni.values())
-      .sort((a, b) => new Date(b.lastMessageTime) - new Date(a.lastMessageTime));
-    
-    if (conversazioniArray.length === 0) {
-      mainContent.innerHTML = `
-        <div class="messages-empty">
-          <i class="fas fa-inbox"></i>
-          <h3>Nessun messaggio</h3>
-          <p>Le tue conversazioni appariranno qui</p>
-        </div>
-      `;
-    } else {
-      mainContent.innerHTML = `
-        <div class="conversations-search-container">
-          <div class="conversations-search-wrapper">
-            <i class="fas fa-search"></i>
-            <input 
-              type="text" 
-              class="conversations-search-input" 
-              id="conversationsSearchInput"
-              placeholder="Cerca contatto..."
-              autocomplete="off"
-            >
-            <button class="conversations-search-clear" id="searchClearBtn" style="display: none;">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-        </div>
-        <div class="conversations-list" id="conversationsList">
-          ${conversazioniArray.map(conv => `
-            <div class="conversation-item-wrapper" data-user-id="${conv.userId}" data-username="${escapeHtml(conv.username)}" data-is-followed="${conv.isFollowed}">
-              <div class="conversation-swipe-delete">
-                <i class="fas fa-trash-alt"></i>
-                <span>Elimina</span>
-              </div>
-              <div class="conversation-item" data-username="${escapeHtml(conv.username).toLowerCase()}" onclick="openChat('${conv.userId}', '${escapeHtml(conv.username)}')">
-                <div class="conversation-avatar">
-                  <i class="fas fa-user"></i>
-                  ${conv.isFollowed ? '<div class="conversation-followed-badge"><i class="fas fa-star"></i></div>' : ''}
-                </div>
-                <div class="conversation-info">
-                  <div class="conversation-name">
-                    ${escapeHtml(conv.username)}
-                    ${conv.isFollowed ? '<i class="fas fa-user-check conversation-following-icon"></i>' : ''}
-                  </div>
-                  <div class="conversation-last-message">${truncateMessage(conv.lastMessage)}</div>
-                </div>
-                <div class="conversation-time">${formatMessageTime(conv.lastMessageTime)}</div>
-                ${conv.unreadCount > 0 ? `
-                  <div class="conversation-unread-badge">${conv.unreadCount}</div>
-                ` : ''}
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      `;
-      
-      // Setup search e swipe
-      setupConversationsSearch();
-      setupSwipeToDelete();
-    }
-    
-    console.log('🗑️ Cancello notifiche...');
-    await deleteAllMessageNotifications();
-    
-    setTimeout(async () => {
-      await updateNotificationsBadge();
-      console.log('✅ Badge aggiornato!');
-    }, 1000);
-    
-  } catch (error) {
-    console.error('❌ Errore:', error);
-    mainContent.innerHTML = `
-      <div class="messages-empty">
-        <i class="fas fa-exclamation-triangle"></i>
-        <h3>Errore</h3>
-        <p>${error.message}</p>
-      </div>
-    `;
-  }
-}
+-- ===============================================
+-- FUNZIONI HELPER
+-- ===============================================
 
-function setupConversationsSearch() {
-  const searchInput = document.getElementById('conversationsSearchInput');
-  const searchClearBtn = document.getElementById('searchClearBtn');
-  const conversationsList = document.getElementById('conversationsList');
-  
-  if (!searchInput || !conversationsList) return;
-  
-  searchInput.addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase().trim();
-    const items = conversationsList.querySelectorAll('.conversation-item');
-    
-    // Show/hide clear button
-    if (searchClearBtn) {
-      searchClearBtn.style.display = searchTerm ? 'flex' : 'none';
-    }
-    
-    let visibleCount = 0;
-    
-    items.forEach(item => {
-      const username = item.getAttribute('data-username') || '';
-      const wrapper = item.closest('.conversation-item-wrapper');
-      
-      if (username.includes(searchTerm)) {
-        if (wrapper) wrapper.style.display = 'block';
-        visibleCount++;
-      } else {
-        if (wrapper) wrapper.style.display = 'none';
-      }
-    });
-    
-    // Show empty state if no results
-    let emptyState = conversationsList.querySelector('.search-no-results');
-    
-    if (visibleCount === 0 && searchTerm) {
-      if (!emptyState) {
-        emptyState = document.createElement('div');
-        emptyState.className = 'search-no-results';
-        emptyState.innerHTML = `
-          <i class="fas fa-search"></i>
-          <h3>Nessun risultato</h3>
-          <p>Nessun contatto trovato per "${escapeHtml(searchTerm)}"</p>
-        `;
-        conversationsList.appendChild(emptyState);
-      }
-    } else if (emptyState) {
-      emptyState.remove();
-    }
-  });
-  
-  // Clear search
-  if (searchClearBtn) {
-    searchClearBtn.addEventListener('click', function() {
-      searchInput.value = '';
-      searchInput.dispatchEvent(new Event('input'));
-      searchInput.focus();
-    });
-  }
-}
+-- Funzione per seguire un utente
+CREATE OR REPLACE FUNCTION follow_user(target_user_id UUID)
+RETURNS void AS $$
+BEGIN
+    INSERT INTO "Seguiti" (utente_id, seguito_id)
+    VALUES (auth.uid(), target_user_id)
+    ON CONFLICT (utente_id, seguito_id) DO NOTHING;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
-function setupSwipeToDelete() {
-  const wrappers = document.querySelectorAll('.conversation-item-wrapper');
-  
-  wrappers.forEach(wrapper => {
-    let startX = 0;
-    let currentX = 0;
-    let isDragging = false;
-    const threshold = 100; // pixels per attivare delete
-    
-    const item = wrapper.querySelector('.conversation-item');
-    if (!item) return;
-    
-    // Touch start
-    wrapper.addEventListener('touchstart', (e) => {
-      startX = e.touches[0].clientX;
-      isDragging = true;
-      wrapper.style.transition = 'none';
-    });
-    
-    // Touch move
-    wrapper.addEventListener('touchmove', (e) => {
-      if (!isDragging) return;
-      
-      currentX = e.touches[0].clientX;
-      const diffX = currentX - startX;
-      
-      // Solo swipe verso destra
-      if (diffX > 0) {
-        const translateX = Math.min(diffX, 150);
-        item.style.transform = `translateX(${translateX}px)`;
-        
-        // Mostra delete button progressivamente
-        if (translateX > threshold) {
-          wrapper.classList.add('swipe-active');
-        } else {
-          wrapper.classList.remove('swipe-active');
-        }
-      }
-    });
-    
-    // Touch end
-    wrapper.addEventListener('touchend', async (e) => {
-      if (!isDragging) return;
-      
-      isDragging = false;
-      const diffX = currentX - startX;
-      
-      wrapper.style.transition = 'all 0.3s ease';
-      
-      // Se swipe abbastanza lungo, elimina
-      if (diffX > threshold) {
-        const userId = wrapper.getAttribute('data-user-id');
-        const username = wrapper.getAttribute('data-username');
-        const isFollowed = wrapper.getAttribute('data-is-followed') === 'true';
-        
-        // Conferma se l'utente è seguito
-        let confirmed = true;
-        if (isFollowed) {
-          confirmed = confirm(`Vuoi eliminare la chat con ${username}?\n\n⚠️ Stai seguendo questo utente. Vuoi anche smettere di seguirlo?`);
-        } else {
-          confirmed = confirm(`Vuoi eliminare la chat con ${username}?`);
-        }
-        
-        if (confirmed) {
-          // Animazione slide-out
-          item.style.transform = 'translateX(100%)';
-          item.style.opacity = '0';
-          
-          setTimeout(async () => {
-            try {
-              // Elimina conversazione (messaggi)
-              const currentUserId = getUserId();
-              await supabaseClient
-                .from('Messaggi')
-                .delete()
-                .or(`and(mittente_id.eq.${currentUserId},destinatario_id.eq.${userId}),and(mittente_id.eq.${userId},destinatario_id.eq.${currentUserId})`);
-              
-              // Se seguito, rimuovi da seguiti
-              if (isFollowed) {
-                await supabaseClient
-                  .from('Seguiti')
-                  .delete()
-                  .eq('utente_id', currentUserId)
-                  .eq('seguito_id', userId);
-                
-                console.log('✅ Smesso di seguire:', username);
-              }
-              
-              // Rimuovi elemento dal DOM
-              wrapper.remove();
-              
-              console.log('✅ Conversazione eliminata');
-              
-              // Se non ci sono più conversazioni, mostra empty state
-              const remainingItems = document.querySelectorAll('.conversation-item-wrapper');
-              if (remainingItems.length === 0) {
-                document.getElementById('conversationsList').innerHTML = `
-                  <div class="messages-empty">
-                    <i class="fas fa-inbox"></i>
-                    <h3>Nessun messaggio</h3>
-                    <p>Le tue conversazioni appariranno qui</p>
-                  </div>
-                `;
-              }
-            } catch (error) {
-              console.error('❌ Errore eliminazione:', error);
-              alert('Errore durante l\'eliminazione');
-              item.style.transform = 'translateX(0)';
-              item.style.opacity = '1';
-            }
-          }, 300);
-        } else {
-          // Annulla swipe
-          item.style.transform = 'translateX(0)';
-          wrapper.classList.remove('swipe-active');
-        }
-      } else {
-        // Reset posizione
-        item.style.transform = 'translateX(0)';
-        wrapper.classList.remove('swipe-active');
-      }
-    });
-  });
-}
+-- Funzione per smettere di seguire
+CREATE OR REPLACE FUNCTION unfollow_user(target_user_id UUID)
+RETURNS void AS $$
+BEGIN
+    DELETE FROM "Seguiti"
+    WHERE utente_id = auth.uid() 
+    AND seguito_id = target_user_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
-async function openChat(userId, username) {
-  console.log('💬 Apertura chat:', username);
-  
-  if (messagesPollingInterval) {
-    clearInterval(messagesPollingInterval);
-    messagesPollingInterval = null;
-  }
-  
-  currentChatUserId = userId;
-  currentChatUsername = username;
-  isInConversationsList = false;
-  lastMessageId = null;
-  
-  // Carica info utente per stato online
-  let userStatus = '';
-  try {
-    const { data: userData } = await supabaseClient
-      .from('Utenti')
-      .select('online, last_seen')
-      .eq('id', userId)
-      .single();
-    
-    if (userData) {
-      if (userData.online) {
-        userStatus = '<span class="user-status-online"><i class="fas fa-circle"></i> Online</span>';
-      } else if (userData.last_seen) {
-        const lastSeen = formatLastSeen(userData.last_seen);
-        userStatus = `<span class="user-status-offline">${lastSeen}</span>`;
-      }
-    }
-  } catch (error) {
-    // Colonne non esistono o errore - continua senza stato
-    console.log('⚠️ Stato utente non disponibile');
-  }
-  
-  const headerLeft = document.getElementById('messagesHeaderLeft');
-  if (headerLeft) {
-    headerLeft.innerHTML = `
-      <button class="messages-back-btn" onclick="backToConversationsList()">
-        <i class="fas fa-arrow-left"></i>
-      </button>
-      <div class="messages-avatar">
-        <i class="fas fa-user"></i>
-      </div>
-      <div class="messages-user-info">
-        <div class="messages-username">${escapeHtml(username)}</div>
-        ${userStatus ? `<div class="messages-user-status">${userStatus}</div>` : ''}
-      </div>
-    `;
-  }
-  
-  const inputContainer = document.getElementById('messagesInputContainer');
-  if (inputContainer) inputContainer.style.display = 'flex';
-  
-  await markMessagesAsRead(userId);
-  await deleteMessageNotifications(userId);
-  
-  setTimeout(async () => {
-    await updateNotificationsBadge();
-    console.log('✅ Badge aggiornato dopo apertura chat');
-  }, 1000);
-  
-  await loadChatMessages();
-  
-  messagesPollingInterval = setInterval(async () => {
-    if (currentChatUserId === userId && !isInConversationsList) {
-      await loadChatMessages(true);
-    }
-  }, 3000);
-}
+-- Funzione per verificare se segui un utente
+CREATE OR REPLACE FUNCTION is_following(target_user_id UUID)
+RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN EXISTS (
+        SELECT 1 FROM "Seguiti"
+        WHERE utente_id = auth.uid() 
+        AND seguito_id = target_user_id
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
-function formatLastSeen(timestamp) {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diff = now - date;
-  const minutes = Math.floor(diff / (1000 * 60));
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  
-  if (minutes < 1) return 'Attivo ora';
-  if (minutes < 60) return `Attivo ${minutes}m fa`;
-  if (hours < 24) return `Attivo ${hours}h fa`;
-  if (days === 1) return 'Attivo ieri';
-  if (days < 7) return `Attivo ${days}g fa`;
-  
-  return `Attivo il ${date.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}`;
-}
+-- ===============================================
+-- TRIGGER: Auto-follow quando invii primo messaggio
+-- ===============================================
 
-async function backToConversationsList() {
-  console.log('⬅️ Indietro');
-  
-  if (messagesPollingInterval) {
-    clearInterval(messagesPollingInterval);
-    messagesPollingInterval = null;
-  }
-  
-  currentChatUserId = null;
-  currentChatUsername = null;
-  lastMessageId = null;
-  isInConversationsList = true;
-  
-  await showConversationsList();
-}
+CREATE OR REPLACE FUNCTION auto_follow_on_first_message()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Quando invii un messaggio, segui automaticamente il destinatario
+    INSERT INTO "Seguiti" (utente_id, seguito_id)
+    VALUES (NEW.mittente_id, NEW.destinatario_id)
+    ON CONFLICT (utente_id, seguito_id) DO NOTHING;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-async function loadChatMessages(silent = false) {
-  const currentUserId = getUserId();
-  if (!currentUserId || !currentChatUserId || isInConversationsList) return;
-  
-  const mainContent = document.getElementById('messagesMainContent');
-  
-  try {
-    if (!silent) {
-      mainContent.innerHTML = `
-        <div class="messages-content-scroll">
-          <div class="messages-empty">
-            <i class="fas fa-spinner fa-spin"></i>
-            <h3>Caricamento...</h3>
-          </div>
-        </div>
-      `;
-    }
-    
-    const { data: messaggi, error } = await supabaseClient
-      .from('Messaggi')
-      .select('*')
-      .or(`and(mittente_id.eq.${currentUserId},destinatario_id.eq.${currentChatUserId}),and(mittente_id.eq.${currentChatUserId},destinatario_id.eq.${currentUserId})`)
-      .order('created_at', { ascending: true });
-    
-    if (error) throw error;
-    
-    if (silent && messaggi && messaggi.length > 0) {
-      const latestId = messaggi[messaggi.length - 1].id;
-      if (latestId === lastMessageId) return;
-      lastMessageId = latestId;
-    }
-    
-    const messagesHTML = messaggi && messaggi.length > 0 ? 
-      messaggi.map(msg => {
-        const isSent = msg.mittente_id === currentUserId;
-        return `
-          <div class="message-bubble ${isSent ? 'sent' : 'received'}">
-            <div>${escapeHtml(msg.messaggio)}</div>
-            <div class="message-time">${formatMessageTime(msg.created_at)}</div>
-          </div>
-        `;
-      }).join('') :
-      `<div class="messages-empty">
-        <i class="fas fa-comment-dots"></i>
-        <h3>Inizia la conversazione</h3>
-      </div>`;
-    
-    mainContent.innerHTML = `
-      <div class="messages-content-scroll" id="messagesContentScroll">
-        ${messagesHTML}
-      </div>
-    `;
-    
-    const scrollContainer = document.getElementById('messagesContentScroll');
-    if (scrollContainer) {
-      scrollContainer.scrollTop = scrollContainer.scrollHeight;
-    }
-    
-  } catch (error) {
-    console.error('❌ Errore:', error);
-  }
-}
+DROP TRIGGER IF EXISTS trigger_auto_follow ON "Messaggi";
+CREATE TRIGGER trigger_auto_follow
+    AFTER INSERT ON "Messaggi"
+    FOR EACH ROW
+    EXECUTE FUNCTION auto_follow_on_first_message();
 
-async function sendMessage() {
-  const currentUserId = getUserId();
-  if (!currentUserId || !currentChatUserId) return;
-  
-  const input = document.getElementById('messagesInput');
-  const sendBtn = document.getElementById('messagesSendBtn');
-  
-  if (!input || !sendBtn) return;
-  
-  const messaggio = input.value.trim();
-  if (!messaggio) return;
-  
-  try {
-    sendBtn.disabled = true;
-    
-    const { error } = await supabaseClient
-      .from('Messaggi')
-      .insert([{
-        mittente_id: currentUserId,
-        destinatario_id: currentChatUserId,
-        messaggio: messaggio,
-        letto: false
-      }]);
-    
-    if (error) throw error;
-    
-    input.value = '';
-    input.style.height = 'auto';
-    
-    await loadChatMessages();
-    await createNotification(currentChatUserId, 'new_message', 'Nuovo messaggio');
-    
-  } catch (error) {
-    console.error('❌ Errore:', error);
-  } finally {
-    sendBtn.disabled = false;
-    input.focus();
-  }
-}
+-- ===============================================
+-- ISTRUZIONI D'USO
+-- ===============================================
 
-async function markMessagesAsRead(senderId) {
-  const currentUserId = getUserId();
-  if (!currentUserId) return;
-  
-  try {
-    const { error } = await supabaseClient
-      .from('Messaggi')
-      .update({ letto: true })
-      .match({ 
-        destinatario_id: currentUserId,
-        mittente_id: senderId,
-        letto: false
-      });
-    
-    if (error) {
-      console.warn('⚠️ Update messaggi:', error.message);
-      return;
-    }
-    
-    console.log('✅ Messaggi segnati come letti');
-  } catch (error) {
-    console.warn('⚠️ Errore markMessagesAsRead:', error.message);
-  }
-}
+/*
+1. Esegui tutto questo SQL su Supabase (SQL Editor)
 
-async function deleteMessageNotifications() {
-  const currentUserId = getUserId();
-  if (!currentUserId) return;
-  
-  console.log('🗑️ Cancello notifiche messaggi...');
-  
-  try {
-    await supabaseClient
-      .from('Notifiche')
-      .delete()
-      .eq('utente_id', currentUserId)
-      .eq('tipo', 'new_message');
-    
-    console.log('✅ Notifiche cancellate!');
-  } catch (error) {
-    console.error('❌ Errore:', error);
-  }
-}
+2. La tabella Seguiti verrà creata con:
+   - id (UUID, primary key)
+   - utente_id (chi segue)
+   - seguito_id (chi viene seguito)
+   - created_at (timestamp)
 
-async function deleteAllMessageNotifications() {
-  await deleteMessageNotifications();
-}
+3. Funzionalità automatiche:
+   - ✅ Non puoi seguire te stesso
+   - ✅ Puoi seguire ogni utente solo una volta
+   - ✅ Quando invii primo messaggio → auto-follow
+   - ✅ RLS policies per sicurezza
 
-// 🔥 FUNZIONE AGGIORNAMENTO BADGE FORZATO
-async function forceUpdateNotificationBadge() {
-  console.log('🔄 Forzo aggiornamento badge...');
-  
-  try {
-    const currentUserId = getUserId();
-    if (!currentUserId) return;
-    
-    const { count, error } = await supabaseClient
-      .from('Notifiche')
-      .select('*', { count: 'exact', head: true })
-      .eq('utente_id', currentUserId)
-      .eq('letta', false);
-    
-    if (error) throw error;
-    
-    console.log('✅ Notifiche non lette:', count);
-    
-    // Cerca badge in tutti i modi possibili
-    const badge = document.querySelector('.notification-badge') || 
-                  document.querySelector('[id*="notification"][id*="badge" i]') ||
-                  document.querySelector('[class*="notification"][class*="badge" i]') ||
-                  document.getElementById('notificationBadge') ||
-                  document.getElementById('notifBadge');
-    
-    if (badge) {
-      console.log('✅ Badge trovato!', badge);
-      if (count > 0) {
-        badge.textContent = count;
-        badge.style.display = 'flex';
-      } else {
-        badge.style.display = 'none';
-      }
-    } else {
-      console.warn('⚠️ Badge non trovato nel DOM');
-    }
-  } catch (error) {
-    console.error('❌ Errore badge:', error);
-  }
-}
+4. Come usare dal frontend:
 
-async function updateNotificationsBadge() {
-  console.log('🔄 Aggiorno badge...');
-  
-  // Prova funzione originale
-  if (typeof window.loadNotificationsCount === 'function') {
-    await window.loadNotificationsCount();
-  }
-  
-  // Forza aggiornamento manuale
-  await forceUpdateNotificationBadge();
-}
+   // Seguire un utente
+   await supabaseClient
+     .from('Seguiti')
+     .insert({ utente_id: myUserId, seguito_id: targetUserId });
 
-async function createNotification(userId, tipo, messaggio) {
-  try {
-    await supabaseClient
-      .from('Notifiche')
-      .insert([{
-        utente_id: userId,
-        tipo: tipo,
-        messaggio: messaggio,
-        letta: false
-      }]);
-  } catch (error) {
-    console.error('❌ Errore:', error);
-  }
-}
+   // Smettere di seguire
+   await supabaseClient
+     .from('Seguiti')
+     .delete()
+     .eq('utente_id', myUserId)
+     .eq('seguito_id', targetUserId);
 
-async function openDirectChat(userId, username) {
-  openMessagesCenter();
-  setTimeout(() => openChat(userId, username), 500);
-}
+   // Verificare se segui qualcuno
+   const { data } = await supabaseClient
+     .from('Seguiti')
+     .select('*')
+     .eq('utente_id', myUserId)
+     .eq('seguito_id', targetUserId)
+     .single();
+   
+   const isFollowing = !!data;
 
-function formatMessageTime(timestamp) {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diff = now - date;
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  
-  if (hours < 1) {
-    const mins = Math.floor(diff / (1000 * 60));
-    return mins < 1 ? 'Ora' : `${mins}m`;
-  }
-  if (hours < 24) return `${hours}h`;
-  
-  const days = Math.floor(hours / 24);
-  if (days === 1) return 'Ieri';
-  if (days < 7) return `${days}g`;
-  
-  return date.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
-}
+5. Il sistema messaggi ora:
+   - ✅ Mostra stella gialla su avatar se segui l'utente
+   - ✅ Mostra icona verde nel nome se segui l'utente
+   - ✅ Swipe destra → elimina conversazione
+   - ✅ Se segui l'utente → chiede conferma per unfollow
 
-function truncateMessage(text, maxLength = 40) {
-  if (!text) return '';
-  return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
-}
-
-function escapeHtml(text) {
-  if (!text) return '';
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-window.openMessagesCenter = openMessagesCenter;
-window.closeMessages = closeMessages;
-window.showConversationsList = showConversationsList;
-window.backToConversationsList = backToConversationsList;
-window.openChat = openChat;
-window.sendMessage = sendMessage;
-window.openDirectChat = openDirectChat;
-window.forceUpdateNotificationBadge = forceUpdateNotificationBadge;
-
-// 🔥 FIX iOS - Previeni scroll body quando messaggi aperti
-document.addEventListener('DOMContentLoaded', () => {
-  const overlay = document.getElementById('messagesOverlay');
-  if (overlay) {
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) {
-        closeMessages();
-      }
-    });
-  }
-});
+FATTO! Il sistema follow/unfollow è pronto.
+*/
