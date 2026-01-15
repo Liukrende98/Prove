@@ -522,7 +522,7 @@
 .conversation-followed-badge {
   position: absolute;
   top: 12px;
-  left: 12px;
+  left: 48px;  /* 🔥 SOPRA l'avatar, non dentro */
   width: 28px;
   height: 28px;
   background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
@@ -532,7 +532,7 @@
   justify-content: center;
   border: 3px solid #1f1f1f;
   box-shadow: 0 4px 12px rgba(251, 191, 36, 0.8);
-  z-index: 2;
+  z-index: 12;
   animation: followedPulse 2s infinite;
 }
 
