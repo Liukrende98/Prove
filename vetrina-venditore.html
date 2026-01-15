@@ -133,8 +133,8 @@
 
     .vendor-stats-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
       margin-bottom: 16px;
     }
 
@@ -144,6 +144,14 @@
       border-radius: 16px;
       padding: 14px;
       text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .vendor-stat-box:active {
+      transform: scale(0.95);
+      border-color: #fbbf24;
+      background: #2a2a2a;
     }
 
     .vendor-stat-value {
@@ -900,6 +908,83 @@
       margin-bottom: 10px;
       opacity: 0.5;
     }
+
+    /* MODAL LISTE (FOLLOWER/FOLLOWING) */
+    .user-list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      background: #1a1a1a;
+      border-radius: 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+    }
+
+    .user-list-item:active {
+      transform: scale(0.97);
+      border-color: #fbbf24;
+      background: #2a2a2a;
+    }
+
+    .user-list-avatar {
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #fff;
+      font-weight: 900;
+    }
+
+    .user-list-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .user-list-username {
+      font-size: 16px;
+      font-weight: 900;
+      color: #fbbf24;
+      margin-bottom: 4px;
+    }
+
+    .user-list-meta {
+      font-size: 13px;
+      color: #6b7280;
+      font-weight: 700;
+    }
+
+    .user-list-action {
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 900;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .user-list-action.primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: #fff;
+    }
+
+    .user-list-action.secondary {
+      background: #1a1a1a;
+      border: 2px solid #fbbf24;
+      color: #fbbf24;
+    }
+
+    .user-list-action:active {
+      transform: scale(0.95);
+    }
   </style>
 </head>
 <body>
@@ -972,6 +1057,19 @@
           <i class="fas fa-paper-plane"></i> Invia
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL LISTE (FOLLOWER/FOLLOWING) -->
+  <div class="modal" id="listModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="listModalTitle"><i class="fas fa-users"></i> Lista</h3>
+        <button class="modal-close" onclick="closeListModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modalListContent"></div>
     </div>
   </div>
 
