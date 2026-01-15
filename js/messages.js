@@ -7,6 +7,58 @@ let currentChatUsername = null;
 let messagesPollingInterval = null;
 let lastMessageId = null;
 let isInConversationsList = true;
+let heartbeatInterval = null;
+
+// 🔥 SISTEMA HEARTBEAT - Aggiorna stato online
+function startHeartbeat() {
+  const userId = getUserId();
+  if (!userId) return;
+  
+  // Aggiorna subito
+  updateUserOnlineStatus(userId);
+  
+  // Poi ogni 30 secondi
+  if (heartbeatInterval) clearInterval(heartbeatInterval);
+  
+  heartbeatInterval = setInterval(() => {
+    updateUserOnlineStatus(userId);
+  }, 30000); // 30 secondi
+  
+  console.log('💓 Heartbeat avviato');
+}
+
+function stopHeartbeat() {
+  if (heartbeatInterval) {
+    clearInterval(heartbeatInterval);
+    heartbeatInterval = null;
+  }
+  
+  // Setta offline
+  const userId = getUserId();
+  if (userId) {
+    supabaseClient
+      .from('Utenti')
+      .update({ online: false, last_seen: new Date().toISOString() })
+      .eq('id', userId)
+      .then(() => console.log('👋 Utente offline'));
+  }
+}
+
+async function updateUserOnlineStatus(userId) {
+  try {
+    await supabaseClient
+      .from('Utenti')
+      .update({ 
+        online: true, 
+        last_seen: new Date().toISOString() 
+      })
+      .eq('id', userId);
+    
+    console.log('💚 Stato online aggiornato');
+  } catch (error) {
+    console.warn('⚠️ Errore update online:', error);
+  }
+}
 
 function getUserId() {
   if (typeof getCurrentUser === 'function') {
@@ -19,6 +71,9 @@ function getUserId() {
 function openMessagesCenter() {
   console.log('📨 Apertura centro messaggi GIALLI...');
   resetMessagesState();
+  
+  // 🔥 Avvia heartbeat
+  startHeartbeat();
   
   if (!document.getElementById('messagesOverlay')) {
     createMessagesUI();
@@ -58,6 +113,9 @@ function closeMessages() {
   }, 400);
   
   resetMessagesState();
+  
+  // 🔥 NON fermare heartbeat qui - continua in background
+  // L'utente è ancora sul sito anche se chiude i messaggi
 }
 
 function createMessagesUI() {
@@ -601,11 +659,38 @@ async function openChat(userId, username) {
   
   await loadChatMessages();
   
+  // 🔥 Polling messaggi + stato utente
   messagesPollingInterval = setInterval(async () => {
     if (currentChatUserId === userId && !isInConversationsList) {
       await loadChatMessages(true);
+      await updateChatUserStatus(userId);
     }
-  }, 3000);
+  }, 3000); // Ogni 3 secondi
+}
+
+// 🔥 Aggiorna stato utente nel header della chat
+async function updateChatUserStatus(userId) {
+  try {
+    const { data: userData } = await supabaseClient
+      .from('Utenti')
+      .select('online, last_seen')
+      .eq('id', userId)
+      .single();
+    
+    if (!userData) return;
+    
+    const statusEl = document.querySelector('.messages-user-status');
+    if (!statusEl) return;
+    
+    if (userData.online) {
+      statusEl.innerHTML = '<span class="user-status-online"><i class="fas fa-circle"></i> Online</span>';
+    } else if (userData.last_seen) {
+      const lastSeen = formatLastSeen(userData.last_seen);
+      statusEl.innerHTML = `<span class="user-status-offline">${lastSeen}</span>`;
+    }
+  } catch (error) {
+    // Ignora errori silenziosamente
+  }
 }
 
 function formatLastSeen(timestamp) {
@@ -922,7 +1007,7 @@ window.deleteConversation = deleteConversation;
 window.openDirectChat = openDirectChat;
 window.forceUpdateNotificationBadge = forceUpdateNotificationBadge;
 
-// 🔥 FIX iOS - Previeni scroll body quando messaggi aperti
+// 🔥 Avvia heartbeat automaticamente quando la pagina carica
 document.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('messagesOverlay');
   if (overlay) {
@@ -931,5 +1016,32 @@ document.addEventListener('DOMContentLoaded', () => {
         closeMessages();
       }
     });
+  }
+  
+  // Avvia heartbeat per tutti gli utenti loggati
+  const userId = getUserId();
+  if (userId) {
+    console.log('🚀 Avvio heartbeat automatico...');
+    startHeartbeat();
+  }
+});
+
+// 🔥 Ferma heartbeat quando chiudi la pagina/tab
+window.addEventListener('beforeunload', () => {
+  stopHeartbeat();
+});
+
+// 🔥 Gestisci visibilità pagina (tab nascosta/visibile)
+document.addEventListener('visibilitychange', () => {
+  const userId = getUserId();
+  if (!userId) return;
+  
+  if (document.hidden) {
+    // Tab nascosta - continua heartbeat ma meno frequente
+    console.log('😴 Tab nascosta');
+  } else {
+    // Tab visibile - aggiorna subito
+    console.log('👀 Tab visibile');
+    updateUserOnlineStatus(userId);
   }
 });
