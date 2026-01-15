@@ -1,8 +1,8 @@
 /* ========================================= */
-/* MESSAGGISTICA - CSS GIALLO ORO NODO */
+/* MESSAGGISTICA - CSS DEFINITIVO GIALLO */
 /* ========================================= */
 
-/* 🔧 Layout messaggi FISSO */
+/* Layout messaggi FISSO */
 .messages-box {
   position: fixed;
   bottom: 0;
@@ -27,6 +27,7 @@
   transform: translateY(0);
 }
 
+/* Header FISSO */
 .messages-header {
   padding: 20px;
   border-bottom: 2px solid #2a2a2a;
@@ -36,6 +37,7 @@
   background: linear-gradient(135deg, #1f1f1f 0%, #0f0f0f 100%);
   border-radius: 30px 30px 0 0;
   flex-shrink: 0;
+  min-height: 88px;
 }
 
 .messages-header-left {
@@ -46,16 +48,17 @@
   min-width: 0;
 }
 
-/* 🆕 BOTTONE BACK GIALLO */
+/* BOTTONE BACK GIALLO */
 .messages-back-btn {
   width: 40px;
   height: 40px;
   min-width: 40px;
   border-radius: 50%;
-  background: transparent;
-  border: 2px solid #fbbf24;
-  color: #fbbf24;
+  background: #fbbf24;
+  border: none;
+  color: #000;
   font-size: 18px;
+  font-weight: 900;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -63,14 +66,15 @@
   transition: all 0.2s ease;
   padding: 0;
   margin-right: 4px;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
 }
 
 .messages-back-btn:active {
   transform: scale(0.9);
-  background: #fbbf24;
-  color: #000;
+  background: #f59e0b;
 }
 
+/* AVATAR GIALLO */
 .messages-avatar {
   width: 48px;
   height: 48px;
@@ -124,8 +128,8 @@
   color: #000;
 }
 
-/* 🔧 Area messaggi con altezza corretta */
-#messagesMainContent {
+/* 🔥 AREA MESSAGGI CON SCROLL FISSO */
+.messages-main-content {
   flex: 1;
   overflow: hidden;
   display: flex;
@@ -133,7 +137,8 @@
   min-height: 0;
 }
 
-.messages-content {
+/* 🔥 SCROLL CONTAINER - QUI SCORRE TUTTO */
+.messages-content-scroll {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
@@ -154,6 +159,7 @@
   position: relative;
   animation: messageSlideIn 0.3s ease;
   word-wrap: break-word;
+  flex-shrink: 0;
 }
 
 @keyframes messageSlideIn {
@@ -196,17 +202,7 @@
   color: #6b7280;
 }
 
-/* 🆕 Foto nei messaggi */
-.message-photo {
-  width: 100%;
-  max-width: 250px;
-  border-radius: 12px;
-  cursor: pointer;
-  margin-bottom: 6px;
-  display: block;
-}
-
-/* 🔧 Input container SEMPRE FISSO IN BASSO */
+/* 🔥 INPUT CONTAINER SEMPRE FISSO IN BASSO */
 .messages-input-container {
   padding: 16px;
   background: #1a1a1a;
@@ -215,8 +211,10 @@
   gap: 12px;
   align-items: flex-end;
   flex-shrink: 0;
-  position: relative;
-  z-index: 10;
+  position: sticky;
+  bottom: 0;
+  z-index: 100;
+  min-height: 80px;
 }
 
 .messages-input {
@@ -226,7 +224,7 @@
   border-radius: 24px;
   padding: 12px 18px;
   color: #fff;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   outline: none;
   resize: none;
@@ -304,6 +302,7 @@
   text-align: center;
 }
 
+/* LISTA CONVERSAZIONI */
 .conversations-list {
   flex: 1;
   overflow-y: auto;
@@ -403,24 +402,24 @@
 }
 
 /* 🟡 SCROLLBAR GIALLA */
-.messages-content::-webkit-scrollbar,
+.messages-content-scroll::-webkit-scrollbar,
 .conversations-list::-webkit-scrollbar {
   width: 8px;
 }
 
-.messages-content::-webkit-scrollbar-track,
+.messages-content-scroll::-webkit-scrollbar-track,
 .conversations-list::-webkit-scrollbar-track {
   background: #0a0a0a;
   border-radius: 10px;
 }
 
-.messages-content::-webkit-scrollbar-thumb,
+.messages-content-scroll::-webkit-scrollbar-thumb,
 .conversations-list::-webkit-scrollbar-thumb {
   background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
   border-radius: 10px;
 }
 
-.messages-content::-webkit-scrollbar-thumb:hover,
+.messages-content-scroll::-webkit-scrollbar-thumb:hover,
 .conversations-list::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%);
 }
@@ -453,10 +452,12 @@
   
   .messages-header {
     padding: 16px;
+    min-height: 76px;
   }
   
   .messages-input-container {
     padding: 12px;
+    min-height: 72px;
   }
   
   .message-bubble {
@@ -481,23 +482,32 @@
     min-width: 44px;
     font-size: 18px;
   }
+  
+  .messages-back-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    font-size: 16px;
+  }
 }
 
-/* 🔧 FIX SAFARI iOS: Previene zoom automatico */
+/* 🔧 FIX SAFARI iOS */
 @supports (-webkit-touch-callout: none) {
   .messages-input {
     font-size: 16px !important;
   }
-}
-
-/* 🔧 Previene sovrapposizione con barra iOS */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  
   .messages-input-container {
-    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   }
 }
 
-/* 🎨 Animazione apertura smooth */
+/* 🔧 Previene scroll body quando messaggi aperti */
+body.messages-open {
+  overflow: hidden;
+}
+
+/* Animazione apertura smooth */
 @keyframes slideUp {
   from {
     transform: translateY(100%);
