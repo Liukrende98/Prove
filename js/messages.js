@@ -9,6 +9,10 @@ let lastMessageId = null;
 let isInConversationsList = true;
 let heartbeatInterval = null;
 
+// 🔥 REALTIME SUBSCRIPTIONS
+let messagesSubscription = null;
+let userStatusSubscription = null;
+
 // 🔥 SISTEMA HEARTBEAT - Aggiorna stato online
 function startHeartbeat() {
   const userId = getUserId();
@@ -25,6 +29,9 @@ function startHeartbeat() {
   }, 30000); // 30 secondi
   
   console.log('💓 Heartbeat avviato');
+  
+  // 🔥 REALTIME: Subscribe a cambiamenti stato TUTTI gli utenti
+  startUserStatusRealtime();
 }
 
 function stopHeartbeat() {
@@ -41,6 +48,57 @@ function stopHeartbeat() {
       .update({ online: false, last_seen: new Date().toISOString() })
       .eq('id', userId)
       .then(() => console.log('👋 Utente offline'));
+  }
+  
+  // 🔥 Disconnetti realtime
+  if (userStatusSubscription) {
+    supabaseClient.removeChannel(userStatusSubscription);
+    userStatusSubscription = null;
+    console.log('🔌 Disconnesso da realtime stato utenti');
+  }
+}
+
+// 🔥 REALTIME: Ascolta cambiamenti stato utenti in tempo reale
+function startUserStatusRealtime() {
+  if (userStatusSubscription) {
+    supabaseClient.removeChannel(userStatusSubscription);
+  }
+  
+  console.log('🔌 Connessione realtime stato utenti...');
+  
+  userStatusSubscription = supabaseClient
+    .channel('user-status-global')
+    .on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'Utenti'
+      },
+      (payload) => {
+        console.log('⚡ Stato utente cambiato:', payload.new.username, payload.new.online);
+        
+        // Aggiorna UI se siamo in chat con questo utente
+        if (currentChatUserId === payload.new.id && !isInConversationsList) {
+          updateChatUserStatusUI(payload.new);
+        }
+      }
+    )
+    .subscribe((status) => {
+      console.log('📡 Stato realtime utenti:', status);
+    });
+}
+
+// 🔥 Aggiorna UI stato utente istantaneamente
+function updateChatUserStatusUI(userData) {
+  const statusEl = document.querySelector('.messages-user-status');
+  if (!statusEl) return;
+  
+  if (userData.online) {
+    statusEl.innerHTML = '<span class="user-status-online"><i class="fas fa-circle"></i> Online</span>';
+  } else if (userData.last_seen) {
+    const lastSeen = formatLastSeen(userData.last_seen);
+    statusEl.innerHTML = `<span class="user-status-offline">${lastSeen}</span>`;
   }
 }
 
@@ -92,9 +150,17 @@ function openMessagesCenter() {
 function resetMessagesState() {
   console.log('🔄 Reset stato...');
   
+  // Ferma polling
   if (messagesPollingInterval) {
     clearInterval(messagesPollingInterval);
     messagesPollingInterval = null;
+  }
+  
+  // 🔥 Unsubscribe realtime
+  if (messagesSubscription) {
+    supabaseClient.removeChannel(messagesSubscription);
+    messagesSubscription = null;
+    console.log('🔌 Disconnesso da realtime messaggi');
   }
   
   currentChatUserId = null;
@@ -659,16 +725,72 @@ async function openChat(userId, username) {
   
   await loadChatMessages();
   
-  // 🔥 Polling messaggi + stato utente
+  // 🔥 REALTIME: Subscribe ai nuovi messaggi ISTANTANEI
+  if (messagesSubscription) {
+    supabaseClient.removeChannel(messagesSubscription);
+  }
+  
+  const currentUserId = getUserId();
+  console.log('🔌 Connessione realtime messaggi...');
+  
+  messagesSubscription = supabaseClient
+    .channel(`chat-${currentUserId}-${userId}`)
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'Messaggi'
+      },
+      (payload) => {
+        const msg = payload.new;
+        // Controlla se il messaggio riguarda questa chat
+        const isRelevant = 
+          (msg.mittente_id === currentUserId && msg.destinatario_id === userId) ||
+          (msg.mittente_id === userId && msg.destinatario_id === currentUserId);
+        
+        if (isRelevant && currentChatUserId === userId && !isInConversationsList) {
+          console.log('⚡ Nuovo messaggio ricevuto ISTANTANEO!');
+          loadChatMessages(true);
+        }
+      }
+    )
+    .on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'Messaggi'
+      },
+      (payload) => {
+        const msg = payload.new;
+        const isRelevant = 
+          (msg.mittente_id === currentUserId && msg.destinatario_id === userId) ||
+          (msg.mittente_id === userId && msg.destinatario_id === currentUserId);
+        
+        if (isRelevant && currentChatUserId === userId && !isInConversationsList) {
+          console.log('⚡ Messaggio aggiornato (letto)!');
+          loadChatMessages(true);
+        }
+      }
+    )
+    .subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        console.log('✅ Realtime messaggi CONNESSO!');
+      } else {
+        console.log('📡 Stato realtime messaggi:', status);
+      }
+    });
+  
+  // 🔥 Polling stato utente (ogni 10 secondi, meno frequente)
   messagesPollingInterval = setInterval(async () => {
     if (currentChatUserId === userId && !isInConversationsList) {
-      await loadChatMessages(true);
       await updateChatUserStatus(userId);
     }
-  }, 3000); // Ogni 3 secondi
+  }, 10000); // 10 secondi per stato utente
 }
 
-// 🔥 Aggiorna stato utente nel header della chat
+// 🔥 Aggiorna stato utente nel header della chat (polling backup)
 async function updateChatUserStatus(userId) {
   try {
     const { data: userData } = await supabaseClient
@@ -679,15 +801,7 @@ async function updateChatUserStatus(userId) {
     
     if (!userData) return;
     
-    const statusEl = document.querySelector('.messages-user-status');
-    if (!statusEl) return;
-    
-    if (userData.online) {
-      statusEl.innerHTML = '<span class="user-status-online"><i class="fas fa-circle"></i> Online</span>';
-    } else if (userData.last_seen) {
-      const lastSeen = formatLastSeen(userData.last_seen);
-      statusEl.innerHTML = `<span class="user-status-offline">${lastSeen}</span>`;
-    }
+    updateChatUserStatusUI(userData);
   } catch (error) {
     // Ignora errori silenziosamente
   }
