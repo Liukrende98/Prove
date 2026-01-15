@@ -346,6 +346,28 @@ async function openChat(userId, username) {
   isInConversationsList = false;
   lastMessageId = null;
   
+  // Carica info utente per stato online
+  let userStatus = '';
+  try {
+    const { data: userData } = await supabaseClient
+      .from('Utenti')
+      .select('online, last_seen')
+      .eq('id', userId)
+      .single();
+    
+    if (userData) {
+      if (userData.online) {
+        userStatus = '<span class="user-status-online"><i class="fas fa-circle"></i> Online</span>';
+      } else if (userData.last_seen) {
+        const lastSeen = formatLastSeen(userData.last_seen);
+        userStatus = `<span class="user-status-offline">${lastSeen}</span>`;
+      }
+    }
+  } catch (error) {
+    // Colonne non esistono o errore - continua senza stato
+    console.log('⚠️ Stato utente non disponibile');
+  }
+  
   const headerLeft = document.getElementById('messagesHeaderLeft');
   if (headerLeft) {
     headerLeft.innerHTML = `
@@ -357,6 +379,7 @@ async function openChat(userId, username) {
       </div>
       <div class="messages-user-info">
         <div class="messages-username">${escapeHtml(username)}</div>
+        ${userStatus ? `<div class="messages-user-status">${userStatus}</div>` : ''}
       </div>
     `;
   }
@@ -379,6 +402,23 @@ async function openChat(userId, username) {
       await loadChatMessages(true);
     }
   }, 3000);
+}
+
+function formatLastSeen(timestamp) {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diff = now - date;
+  const minutes = Math.floor(diff / (1000 * 60));
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  
+  if (minutes < 1) return 'Attivo ora';
+  if (minutes < 60) return `Attivo ${minutes}m fa`;
+  if (hours < 24) return `Attivo ${hours}h fa`;
+  if (days === 1) return 'Attivo ieri';
+  if (days < 7) return `Attivo ${days}g fa`;
+  
+  return `Attivo il ${date.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}`;
 }
 
 async function backToConversationsList() {
@@ -661,60 +701,14 @@ window.sendMessage = sendMessage;
 window.openDirectChat = openDirectChat;
 window.forceUpdateNotificationBadge = forceUpdateNotificationBadge;
 
-// 🔥 FIX VIEWPORT iOS - Gestione tastiera
-if (typeof visualViewport !== 'undefined') {
-  let resizeTimeout;
-  
-  visualViewport.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-      const messagesBox = document.getElementById('messagesBox');
-      if (!messagesBox || !messagesBox.classList.contains('active')) return;
-      
-      const viewportHeight = visualViewport.height;
-      const pageHeight = document.documentElement.clientHeight;
-      const keyboardHeight = pageHeight - viewportHeight;
-      
-      // Tastiera aperta
-      if (keyboardHeight > 150) {
-        messagesBox.style.height = `${viewportHeight}px`;
-        messagesBox.style.maxHeight = `${viewportHeight}px`;
-        messagesBox.classList.add('keyboard-open');
-      } 
-      // Tastiera chiusa
-      else {
-        messagesBox.style.height = '80vh';
-        messagesBox.style.maxHeight = '80vh';
-        messagesBox.classList.remove('keyboard-open');
+// 🔥 FIX iOS - Previeni scroll body quando messaggi aperti
+document.addEventListener('DOMContentLoaded', () => {
+  const overlay = document.getElementById('messagesOverlay');
+  if (overlay) {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        closeMessages();
       }
-    }, 100);
-  });
-}
-
-// 🔥 Previeni scroll body quando messaggi aperti
-function lockBodyScroll() {
-  document.body.style.overflow = 'hidden';
-  document.body.style.position = 'fixed';
-  document.body.style.width = '100%';
-  document.body.style.height = '100%';
-}
-
-function unlockBodyScroll() {
-  document.body.style.overflow = '';
-  document.body.style.position = '';
-  document.body.style.width = '';
-  document.body.style.height = '';
-}
-
-// Aggiungi lock/unlock quando apri/chiudi
-const originalOpenMessagesCenter = openMessagesCenter;
-window.openMessagesCenter = function() {
-  lockBodyScroll();
-  originalOpenMessagesCenter();
-};
-
-const originalCloseMessages = closeMessages;
-window.closeMessages = function() {
-  unlockBodyScroll();
-  originalCloseMessages();
-};
+    });
+  }
+});
