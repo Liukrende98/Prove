@@ -934,58 +934,11 @@ function setupGallerySwipe() {
 window.carouselIndices = {}; // userId -> currentIndex
 
 // MODIFICA createVetrinaCard per aggiungere recensioni e carousel
-function createVetrinaCardNew(userId, username, citta, disponibili, acquisti, mediaRecensioni, percentualeRecensioni, articoli) {
-  return `
-    <div class="vetrina-card-big" id="vetrina-${userId}">
-      <div class="vetrina-header">
-        <div class="vetrina-top">
-          <div class="vetrina-avatar">
-            <i class="fas fa-store"></i>
-          </div>
-          <div class="vetrina-info">
-            <h3>
-              <span class="vetrina-username">${username}</span>
-            </h3>
-            <p><i class="fas fa-map-marker-alt"></i> ${citta}</p>
-            <div class="vetrina-rating">
-              <i class="fas fa-box-open"></i> ${articoli.length} articol${articoli.length === 1 ? 'o' : 'i'}
-            </div>
-          </div>
-          <div class="vetrina-actions">
-            <button class="vetrina-action-btn" onclick="event.stopPropagation(); toggleVetrinaExpand('${userId}')" title="Espandi articoli">
-              <i class="fas fa-expand-alt"></i>
-            </button>
-            <button class="vetrina-action-btn" onclick="event.stopPropagation(); openVendorProfile('${userId}', '${username}')" title="Profilo venditore">
-              <i class="fas fa-user"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <div class="vetrina-stats-inline">
-        <div class="vetrina-stat-inline">
-          <i class="fas fa-check-circle"></i>
-          <span class="vetrina-stat-inline-value">${disponibili}</span> disponibili
-        </div>
-        <div class="vetrina-stat-inline">
-          <i class="fas fa-shopping-bag"></i>
-          <span class="vetrina-stat-inline-value">${acquisti}</span> acquisti
-        </div>
-        <div class="vetrina-stat-inline">
-          <i class="fas fa-star"></i>
-          <span class="vetrina-stat-inline-value">9.7/10</span> recensioni
-        </div>
-      </div>
-      
-      <div class="vetrina-products-scroll" data-user-id="${userId}">
-        <div class="vetrina-products-container">
-          ${articoli.map(art => createArticoloCard(art)).join('')}
-        </div>
-        ${articoli.length > 2 ? '<div class="scroll-indicator" id="scroll-indicator-' + userId + '">SCORRI <i class="fas fa-chevron-right"></i></div>' : ''}
-      </div>
-    </div>
-  `;
-}
+// ============================================
+// createVetrinaCardNew - RIMOSSA
+// ============================================
+// Questa funzione è stata rimossa e sostituita con createVetrinaCard
+// che include il nome cliccabile e il pulsante messaggi
 
 // TOGGLE ESPANSIONE - INGRANDISCE ARTICOLI NELLA SCROLL
 function toggleVetrinaExpand(userId) {
@@ -1305,7 +1258,7 @@ renderVetrine = function(articoli) {
   // Crea HTML vetrine
   let html = '';
   vetrinePaginate.forEach(v => {
-    html += createVetrinaCardNew(
+    html += createVetrinaCard(
       v.userId,
       v.username,
       v.citta,
