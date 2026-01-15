@@ -24,6 +24,8 @@
   display: flex;
   flex-direction: column;
   padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* 🔥 CRITICO: Mantiene altezza fissa */
+  min-height: 85vh;
 }
 
 .messages-box.active {
@@ -41,7 +43,8 @@
   border-radius: 30px 30px 0 0;
   flex-shrink: 0;
   min-height: 96px;
-  /* 🔥 SPAZIO EXTRA SOPRA */
+  height: 96px;  /* 🔥 Altezza fissa */
+  max-height: 96px;
   margin-top: 8px;
 }
 
@@ -169,6 +172,9 @@
   flex-direction: column;
   min-height: 0;
   position: relative;
+  /* 🔥 CALCOLO ESATTO: box 85vh - header 96px - input ~80px = ~calc() */
+  height: calc(85vh - 96px - 80px - 8px);  /* 8px margin-top header */
+  max-height: calc(85vh - 96px - 80px - 8px);
 }
 
 /* 🔥 SCROLL CONTAINER - SEMPRE VISIBILE */
@@ -181,10 +187,9 @@
   flex-direction: column;
   gap: 12px;
   min-height: 0;
-  max-height: 100%;
+  height: 100%;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  /* 🔥 CRITICO: Mantiene scroll anche con tastiera */
   position: relative;
   z-index: 1;
 }
@@ -255,7 +260,8 @@
   bottom: 0;
   z-index: 100;
   min-height: 80px;
-  /* 🔥 SAFE AREA iOS */
+  height: auto;
+  max-height: 180px;  /* Limite per textarea espansa */
   padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
 }
 
@@ -491,10 +497,10 @@
 .conversation-swipe-delete {
   position: absolute;
   top: 0;
-  right: 0;
+  left: 0;  /* SINISTRA! Non destra */
   bottom: 0;
   width: 100px;
-  background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(90deg, #dc2626 0%, #ef4444 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -502,9 +508,8 @@
   gap: 4px;
   color: #fff;
   font-weight: 700;
-  opacity: 0;
-  transition: opacity 0.2s ease;
   z-index: 0;
+  border-radius: 20px 0 0 20px;
 }
 
 .conversation-swipe-delete i {
@@ -515,14 +520,11 @@
   font-size: 12px;
 }
 
-.conversation-item-wrapper.swipe-active .conversation-swipe-delete {
-  opacity: 1;
-}
-
 .conversation-item-wrapper .conversation-item {
   position: relative;
   z-index: 1;
   background: linear-gradient(135deg, #1f1f1f 0%, #0f0f0f 100%);
+  transition: transform 0.3s ease;
 }
 
 /* ⭐ INDICATORE SEGUITO - BADGE STELLA */
