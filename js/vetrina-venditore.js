@@ -123,10 +123,17 @@ async function loadVendorData(utente) {
   allProducts = articoliVenditore;
   currentProducts = [...allProducts];
 
+  // Conta i FOLLOWER (chi segue questo utente)
   const { count: followersCount } = await supabaseClient
     .from('Followers')
     .select('*', { count: 'exact', head: true })
     .eq('utente_seguito_id', utente.id);
+
+  // Conta i FOLLOWING (quante persone segue questo utente)
+  const { count: followingCount } = await supabaseClient
+    .from('Followers')
+    .select('*', { count: 'exact', head: true })
+    .eq('follower_id', utente.id);
 
   const currentUserId = getCurrentUserId();
   let isFollowing = false;
@@ -150,6 +157,7 @@ async function loadVendorData(utente) {
     member_since: new Date(utente.created_at).toLocaleDateString('it-IT', { year: 'numeric', month: 'long' }),
     totale_articoli: allProducts.length,
     followersCount: followersCount || 0,
+    followingCount: followingCount || 0,
     isFollowing: isFollowing
   });
 
@@ -198,13 +206,17 @@ function renderVendorProfile(vendor) {
       </div>
 
       <div class="vendor-stats-grid">
-        <div class="vendor-stat-box">
+        <div class="vendor-stat-box" onclick="showArticoliList()">
           <div class="vendor-stat-value">${vendor.totale_articoli}</div>
           <div class="vendor-stat-label">Articoli</div>
         </div>
-        <div class="vendor-stat-box">
-          <div class="vendor-stat-value">${vendor.followersCount}</div>
+        <div class="vendor-stat-box" onclick="showFollowersList('${vendor.id}')">
+          <div class="vendor-stat-value" id="followersCounter">${vendor.followersCount}</div>
           <div class="vendor-stat-label">Follower</div>
+        </div>
+        <div class="vendor-stat-box" onclick="showFollowingList('${vendor.id}')">
+          <div class="vendor-stat-value">${vendor.followingCount}</div>
+          <div class="vendor-stat-label">Seguiti</div>
         </div>
       </div>
 
@@ -916,9 +928,8 @@ async function toggleFollowVendor(vendorUserId) {
       btn.innerHTML = '<i class="fas fa-user-plus"></i><span>Segui</span>';
       
       // ✅ DECREMENTA COUNTER FOLLOWER con animazione
-      const statBoxes = document.querySelectorAll('.vendor-stat-box .vendor-stat-value');
-      if (statBoxes.length >= 2) {
-        const followerCounter = statBoxes[1]; // Secondo = Follower
+      const followerCounter = document.getElementById('followersCounter');
+      if (followerCounter) {
         const currentCount = parseInt(followerCounter.textContent) || 0;
         const newCount = Math.max(0, currentCount - 1);
         
@@ -952,9 +963,8 @@ async function toggleFollowVendor(vendorUserId) {
       btn.innerHTML = '<i class="fas fa-user-check"></i><span>Seguito</span>';
       
       // ✅ INCREMENTA COUNTER FOLLOWER con animazione
-      const statBoxes = document.querySelectorAll('.vendor-stat-box .vendor-stat-value');
-      if (statBoxes.length >= 2) {
-        const followerCounter = statBoxes[1]; // Secondo = Follower
+      const followerCounter = document.getElementById('followersCounter');
+      if (followerCounter) {
         const currentCount = parseInt(followerCounter.textContent) || 0;
         const newCount = currentCount + 1;
         
@@ -1021,6 +1031,256 @@ function formatDate(date) {
 }
 
 // ========================================
+// MODAL LISTE (ARTICOLI, FOLLOWER, FOLLOWING)
+// ========================================
+function showArticoliList() {
+  console.log('📦 Mostra articoli - scroll alla vetrina');
+  
+  // Switch al tab vetrina se non è già attivo
+  if (activeTab !== 'vetrina') {
+    switchTab('vetrina');
+  }
+  
+  // Scroll alla sezione vetrina con animazione
+  const vetrinaTab = document.getElementById('vetrinaTab');
+  if (vetrinaTab) {
+    vetrinaTab.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+async function showFollowersList(userId) {
+  console.log('👥 Caricamento follower di:', userId);
+  
+  const modal = document.getElementById('listModal');
+  const title = document.getElementById('listModalTitle');
+  const content = document.getElementById('modalListContent');
+  
+  if (!modal || !title || !content) {
+    console.error('❌ Elementi modal non trovati!');
+    return;
+  }
+  
+  title.innerHTML = '<i class="fas fa-users"></i> Follower';
+  content.innerHTML = '<div class="empty-state-small"><i class="fas fa-spinner fa-spin"></i><p>Caricamento...</p></div>';
+  
+  modal.style.display = 'flex';
+  
+  try {
+    // Carica i follower con i dati degli utenti
+    const { data: followers, error } = await supabaseClient
+      .from('Followers')
+      .select(`
+        *,
+        follower:Utenti!Followers_follower_id_fkey (
+          id,
+          username,
+          nome_completo,
+          citta
+        )
+      `)
+      .eq('utente_seguito_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('❌ Errore caricamento follower:', error);
+      content.innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore caricamento</p></div>';
+      return;
+    }
+    
+    if (!followers || followers.length === 0) {
+      content.innerHTML = '<div class="empty-state-small"><i class="fas fa-user-slash"></i><p>Nessun follower ancora</p></div>';
+      return;
+    }
+    
+    const currentUserId = getCurrentUserId();
+    
+    // Controlla chi già segui
+    const { data: myFollowing } = await supabaseClient
+      .from('Followers')
+      .select('utente_seguito_id')
+      .eq('follower_id', currentUserId);
+    
+    const followingIds = myFollowing ? myFollowing.map(f => f.utente_seguito_id) : [];
+    
+    content.innerHTML = followers.map(f => {
+      const user = f.follower;
+      const avatarInitials = user.username.substring(0, 2).toUpperCase();
+      const isMe = user.id === currentUserId;
+      const isFollowing = followingIds.includes(user.id);
+      
+      return `
+        <div class="user-list-item" onclick="window.location.href='vetrina-venditore.html?id=${user.id}'">
+          <div class="user-list-avatar">${avatarInitials}</div>
+          <div class="user-list-info">
+            <div class="user-list-username">${user.username}</div>
+            <div class="user-list-meta">
+              ${user.citta ? `<i class="fas fa-map-marker-alt"></i> ${user.citta}` : 'Utente NODO'}
+            </div>
+          </div>
+          ${!isMe ? `
+            <button class="user-list-action ${isFollowing ? 'secondary' : 'primary'}" 
+                    onclick="event.stopPropagation(); quickToggleFollow('${user.id}', this)">
+              ${isFollowing ? 'Seguito' : 'Segui'}
+            </button>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+    
+    console.log('✅ Follower caricati:', followers.length);
+    
+  } catch (error) {
+    console.error('❌ Errore:', error);
+    content.innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore imprevisto</p></div>';
+  }
+}
+
+async function showFollowingList(userId) {
+  console.log('👥 Caricamento following di:', userId);
+  
+  const modal = document.getElementById('listModal');
+  const title = document.getElementById('listModalTitle');
+  const content = document.getElementById('modalListContent');
+  
+  if (!modal || !title || !content) {
+    console.error('❌ Elementi modal non trovati!');
+    return;
+  }
+  
+  title.innerHTML = '<i class="fas fa-user-friends"></i> Seguiti';
+  content.innerHTML = '<div class="empty-state-small"><i class="fas fa-spinner fa-spin"></i><p>Caricamento...</p></div>';
+  
+  modal.style.display = 'flex';
+  
+  try {
+    // Carica chi segue questo utente
+    const { data: following, error } = await supabaseClient
+      .from('Followers')
+      .select(`
+        *,
+        seguito:Utenti!Followers_utente_seguito_id_fkey (
+          id,
+          username,
+          nome_completo,
+          citta
+        )
+      `)
+      .eq('follower_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('❌ Errore caricamento following:', error);
+      content.innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore caricamento</p></div>';
+      return;
+    }
+    
+    if (!following || following.length === 0) {
+      content.innerHTML = '<div class="empty-state-small"><i class="fas fa-user-slash"></i><p>Non segue nessuno ancora</p></div>';
+      return;
+    }
+    
+    const currentUserId = getCurrentUserId();
+    
+    // Controlla chi già segui
+    const { data: myFollowing } = await supabaseClient
+      .from('Followers')
+      .select('utente_seguito_id')
+      .eq('follower_id', currentUserId);
+    
+    const followingIds = myFollowing ? myFollowing.map(f => f.utente_seguito_id) : [];
+    
+    content.innerHTML = following.map(f => {
+      const user = f.seguito;
+      const avatarInitials = user.username.substring(0, 2).toUpperCase();
+      const isMe = user.id === currentUserId;
+      const isFollowing = followingIds.includes(user.id);
+      
+      return `
+        <div class="user-list-item" onclick="window.location.href='vetrina-venditore.html?id=${user.id}'">
+          <div class="user-list-avatar">${avatarInitials}</div>
+          <div class="user-list-info">
+            <div class="user-list-username">${user.username}</div>
+            <div class="user-list-meta">
+              ${user.citta ? `<i class="fas fa-map-marker-alt"></i> ${user.citta}` : 'Utente NODO'}
+            </div>
+          </div>
+          ${!isMe ? `
+            <button class="user-list-action ${isFollowing ? 'secondary' : 'primary'}" 
+                    onclick="event.stopPropagation(); quickToggleFollow('${user.id}', this)">
+              ${isFollowing ? 'Seguito' : 'Segui'}
+            </button>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+    
+    console.log('✅ Following caricati:', following.length);
+    
+  } catch (error) {
+    console.error('❌ Errore:', error);
+    content.innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore imprevisto</p></div>';
+  }
+}
+
+function closeListModal() {
+  const modal = document.getElementById('listModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
+// Toggle follow veloce dal modal (senza ricaricare tutta la pagina)
+async function quickToggleFollow(targetUserId, buttonElement) {
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    alert('❌ Devi essere loggato!');
+    return;
+  }
+  
+  const isFollowing = buttonElement.classList.contains('secondary');
+  
+  try {
+    if (isFollowing) {
+      // Unfollow
+      const { error } = await supabaseClient
+        .from('Followers')
+        .delete()
+        .eq('utente_seguito_id', targetUserId)
+        .eq('follower_id', currentUserId);
+      
+      if (error) throw error;
+      
+      buttonElement.classList.remove('secondary');
+      buttonElement.classList.add('primary');
+      buttonElement.textContent = 'Segui';
+      
+      console.log('✅ Unfollow effettuato');
+      
+    } else {
+      // Follow
+      const { error } = await supabaseClient
+        .from('Followers')
+        .insert([{
+          utente_seguito_id: targetUserId,
+          follower_id: currentUserId
+        }]);
+      
+      if (error) throw error;
+      
+      buttonElement.classList.remove('primary');
+      buttonElement.classList.add('secondary');
+      buttonElement.textContent = 'Seguito';
+      
+      console.log('✅ Follow effettuato');
+    }
+    
+  } catch (error) {
+    console.error('❌ Errore toggle follow:', error);
+    alert('❌ Errore: ' + error.message);
+  }
+}
+
+// ========================================
 // EXPORTS
 // ========================================
 window.initVendorPage = initVendorPage;
@@ -1039,3 +1299,8 @@ window.toggleFollowVendor = toggleFollowVendor;
 window.contactVendor = contactVendor;
 window.openProduct = openProduct;
 window.getCurrentUserId = getCurrentUserId;
+window.showArticoliList = showArticoliList;
+window.showFollowersList = showFollowersList;
+window.showFollowingList = showFollowingList;
+window.closeListModal = closeListModal;
+window.quickToggleFollow = quickToggleFollow;
