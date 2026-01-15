@@ -95,7 +95,7 @@ function createMessagesUI() {
         placeholder="Scrivi un messaggio..."
         rows="1"
       ></textarea>
-      <button class="messages-send-btn" id="messagesSendBtn" onclick="sendMessage()">
+      <button class="messages-send-btn" id="messagesSendBtn">
         <i class="fas fa-arrow-up"></i>
       </button>
     </div>
@@ -105,6 +105,8 @@ function createMessagesUI() {
   document.body.appendChild(box);
   
   const input = document.getElementById('messagesInput');
+  const sendBtn = document.getElementById('messagesSendBtn');
+  
   if (input) {
     input.addEventListener('input', function() {
       this.style.height = 'auto';
@@ -117,6 +119,11 @@ function createMessagesUI() {
         sendMessage();
       }
     });
+  }
+  
+  // 🔥 FIX: Aggiungi listener al bottone send
+  if (sendBtn) {
+    sendBtn.addEventListener('click', sendMessage);
   }
 }
 
@@ -288,38 +295,35 @@ async function showConversationsList() {
         </div>
         <div class="conversations-list" id="conversationsList">
           ${conversazioniArray.map(conv => `
-            <div class="conversation-item-wrapper" data-user-id="${conv.userId}" data-username="${escapeHtml(conv.username)}" data-is-followed="${conv.isFollowed}">
-              <div class="conversation-swipe-delete">
+            <div class="conversation-item" 
+                 data-user-id="${conv.userId}" 
+                 data-username="${escapeHtml(conv.username).toLowerCase()}"
+                 data-is-followed="${conv.isFollowed}">
+              <div class="conversation-avatar">
+                <i class="fas fa-user"></i>
+                ${conv.isFollowed ? '<div class="conversation-followed-badge"><i class="fas fa-star"></i></div>' : ''}
+              </div>
+              <div class="conversation-info" onclick="openChat('${conv.userId}', '${escapeHtml(conv.username)}')">
+                <div class="conversation-name">
+                  ${escapeHtml(conv.username)}
+                  ${conv.isFollowed ? '<i class="fas fa-user-check conversation-following-icon"></i>' : ''}
+                </div>
+                <div class="conversation-last-message">
+                  ${conv.lastMessage ? truncateMessage(conv.lastMessage) : '<span style="color: #6b7280; font-style: italic;">Inizia la conversazione</span>'}
+                </div>
+              </div>
+              ${conv.lastMessageTime ? `<div class="conversation-time">${formatMessageTime(conv.lastMessageTime)}</div>` : ''}
+              ${conv.unreadCount > 0 ? `<div class="conversation-unread-badge">${conv.unreadCount}</div>` : ''}
+              <button class="conversation-delete-btn" onclick="event.stopPropagation(); deleteConversation('${conv.userId}', '${escapeHtml(conv.username)}', ${conv.isFollowed})">
                 <i class="fas fa-trash-alt"></i>
-                <span>Elimina</span>
-              </div>
-              <div class="conversation-item" data-username="${escapeHtml(conv.username).toLowerCase()}" onclick="openChat('${conv.userId}', '${escapeHtml(conv.username)}')">
-                <div class="conversation-avatar">
-                  <i class="fas fa-user"></i>
-                  ${conv.isFollowed ? '<div class="conversation-followed-badge"><i class="fas fa-star"></i></div>' : ''}
-                </div>
-                <div class="conversation-info">
-                  <div class="conversation-name">
-                    ${escapeHtml(conv.username)}
-                    ${conv.isFollowed ? '<i class="fas fa-user-check conversation-following-icon"></i>' : ''}
-                  </div>
-                  <div class="conversation-last-message">
-                    ${conv.lastMessage ? truncateMessage(conv.lastMessage) : '<span class="no-messages-yet">Inizia la conversazione</span>'}
-                  </div>
-                </div>
-                ${conv.lastMessageTime ? `<div class="conversation-time">${formatMessageTime(conv.lastMessageTime)}</div>` : ''}
-                ${conv.unreadCount > 0 ? `
-                  <div class="conversation-unread-badge">${conv.unreadCount}</div>
-                ` : ''}
-              </div>
+              </button>
             </div>
           `).join('')}
         </div>
       `;
       
-      // Setup search e swipe
+      // Setup search
       setupConversationsSearch();
-      setupSwipeToDelete();
     }
     
     console.log('🗑️ Cancello notifiche...');
@@ -362,13 +366,12 @@ function setupConversationsSearch() {
     
     items.forEach(item => {
       const username = item.getAttribute('data-username') || '';
-      const wrapper = item.closest('.conversation-item-wrapper');
       
       if (username.includes(searchTerm)) {
-        if (wrapper) wrapper.style.display = 'block';
+        item.style.display = 'flex';
         visibleCount++;
       } else {
-        if (wrapper) wrapper.style.display = 'none';
+        item.style.display = 'none';
       }
     });
     
@@ -401,129 +404,45 @@ function setupConversationsSearch() {
   }
 }
 
-function setupSwipeToDelete() {
-  const wrappers = document.querySelectorAll('.conversation-item-wrapper');
+// 🗑️ NUOVA FUNZIONE: Elimina conversazione con bottone
+async function deleteConversation(userId, username, isFollowed) {
+  let confirmMessage = `Vuoi eliminare la chat con ${username}?`;
   
-  wrappers.forEach(wrapper => {
-    let startX = 0;
-    let currentX = 0;
-    let isDragging = false;
-    const threshold = 100; // pixels per attivare delete
+  if (isFollowed) {
+    confirmMessage += `\n\n⚠️ Stai seguendo questo utente. Vuoi anche smettere di seguirlo?`;
+  }
+  
+  if (!confirm(confirmMessage)) return;
+  
+  try {
+    const currentUserId = getUserId();
     
-    const item = wrapper.querySelector('.conversation-item');
-    if (!item) return;
+    // Elimina messaggi
+    await supabaseClient
+      .from('Messaggi')
+      .delete()
+      .or(`and(mittente_id.eq.${currentUserId},destinatario_id.eq.${userId}),and(mittente_id.eq.${userId},destinatario_id.eq.${currentUserId})`);
     
-    // Touch start
-    wrapper.addEventListener('touchstart', (e) => {
-      startX = e.touches[0].clientX;
-      isDragging = true;
-      wrapper.style.transition = 'none';
-    });
+    // Se seguito, rimuovi da seguiti
+    if (isFollowed) {
+      await supabaseClient
+        .from('Seguiti')
+        .delete()
+        .eq('utente_id', currentUserId)
+        .eq('seguito_id', userId);
+      
+      console.log('✅ Smesso di seguire:', username);
+    }
     
-    // Touch move
-    wrapper.addEventListener('touchmove', (e) => {
-      if (!isDragging) return;
-      
-      currentX = e.touches[0].clientX;
-      const diffX = currentX - startX;
-      
-      // Solo swipe verso destra
-      if (diffX > 0) {
-        const translateX = Math.min(diffX, 150);
-        item.style.transform = `translateX(${translateX}px)`;
-        
-        // Mostra delete button progressivamente
-        if (translateX > threshold) {
-          wrapper.classList.add('swipe-active');
-        } else {
-          wrapper.classList.remove('swipe-active');
-        }
-      }
-    });
+    console.log('✅ Conversazione eliminata');
     
-    // Touch end
-    wrapper.addEventListener('touchend', async (e) => {
-      if (!isDragging) return;
-      
-      isDragging = false;
-      const diffX = currentX - startX;
-      
-      wrapper.style.transition = 'all 0.3s ease';
-      
-      // Se swipe abbastanza lungo, elimina
-      if (diffX > threshold) {
-        const userId = wrapper.getAttribute('data-user-id');
-        const username = wrapper.getAttribute('data-username');
-        const isFollowed = wrapper.getAttribute('data-is-followed') === 'true';
-        
-        // Conferma se l'utente è seguito
-        let confirmed = true;
-        if (isFollowed) {
-          confirmed = confirm(`Vuoi eliminare la chat con ${username}?\n\n⚠️ Stai seguendo questo utente. Vuoi anche smettere di seguirlo?`);
-        } else {
-          confirmed = confirm(`Vuoi eliminare la chat con ${username}?`);
-        }
-        
-        if (confirmed) {
-          // Animazione slide-out
-          item.style.transform = 'translateX(100%)';
-          item.style.opacity = '0';
-          
-          setTimeout(async () => {
-            try {
-              // Elimina conversazione (messaggi)
-              const currentUserId = getUserId();
-              await supabaseClient
-                .from('Messaggi')
-                .delete()
-                .or(`and(mittente_id.eq.${currentUserId},destinatario_id.eq.${userId}),and(mittente_id.eq.${userId},destinatario_id.eq.${currentUserId})`);
-              
-              // Se seguito, rimuovi da seguiti
-              if (isFollowed) {
-                await supabaseClient
-                  .from('Seguiti')
-                  .delete()
-                  .eq('utente_id', currentUserId)
-                  .eq('seguito_id', userId);
-                
-                console.log('✅ Smesso di seguire:', username);
-              }
-              
-              // Rimuovi elemento dal DOM
-              wrapper.remove();
-              
-              console.log('✅ Conversazione eliminata');
-              
-              // Se non ci sono più conversazioni, mostra empty state
-              const remainingItems = document.querySelectorAll('.conversation-item-wrapper');
-              if (remainingItems.length === 0) {
-                document.getElementById('conversationsList').innerHTML = `
-                  <div class="messages-empty">
-                    <i class="fas fa-inbox"></i>
-                    <h3>Nessun messaggio</h3>
-                    <p>Le tue conversazioni appariranno qui</p>
-                  </div>
-                `;
-              }
-            } catch (error) {
-              console.error('❌ Errore eliminazione:', error);
-              alert('Errore durante l\'eliminazione');
-              item.style.transform = 'translateX(0)';
-              item.style.opacity = '1';
-            }
-          }, 300);
-        } else {
-          // Annulla swipe
-          item.style.transform = 'translateX(0)';
-          wrapper.classList.remove('swipe-active');
-        }
-      } else {
-        // Reset posizione
-        item.style.transform = 'translateX(0)';
-        wrapper.classList.remove('swipe-active');
-      }
-    });
-  });
+    // Ricarica lista
+    await showConversationsList();
+    
+  } catch (error) {
+    console.error('❌ Errore eliminazione:', error);
+    alert('Errore durante l\'eliminazione');
+  }
 }
 
 async function openChat(userId, username) {
@@ -891,6 +810,7 @@ window.showConversationsList = showConversationsList;
 window.backToConversationsList = backToConversationsList;
 window.openChat = openChat;
 window.sendMessage = sendMessage;
+window.deleteConversation = deleteConversation;
 window.openDirectChat = openDirectChat;
 window.forceUpdateNotificationBadge = forceUpdateNotificationBadge;
 
