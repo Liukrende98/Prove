@@ -29,7 +29,7 @@ function startHeartbeat() {
   
   heartbeatInterval = setInterval(() => {
     updateUserOnlineStatus(userId);
-  }, 30000); // 30 secondi
+  }, 20000); // 20 secondi (prima era 30)
   
   console.log('💓 Heartbeat avviato');
   
@@ -1023,14 +1023,48 @@ window.addEventListener('beforeunload', () => {
   stopHeartbeat();
 });
 
+// 🔥 NUOVO: Event listener aggiuntivo per iOS/Safari
+window.addEventListener('pagehide', () => {
+  stopHeartbeat();
+});
+
+// 🔥 NUOVO: Quando app va in background (mobile)
+window.addEventListener('blur', () => {
+  const userId = getUserId();
+  if (userId) {
+    // Setta subito offline quando perdi focus
+    supabaseClient
+      .from('Utenti')
+      .update({ online: false, last_seen: new Date().toISOString() })
+      .eq('id', userId);
+  }
+});
+
+// 🔥 NUOVO: Quando app torna in foreground
+window.addEventListener('focus', () => {
+  const userId = getUserId();
+  if (userId) {
+    // Torna online immediatamente
+    updateUserOnlineStatus(userId);
+  }
+});
+
 // 🔥 Gestisci visibilità pagina (tab nascosta/visibile)
 document.addEventListener('visibilitychange', () => {
   const userId = getUserId();
   if (!userId) return;
   
   if (document.hidden) {
-    // Tab nascosta - continua heartbeat ma meno frequente
+    // Tab nascosta - setta offline dopo 30 secondi
     console.log('😴 Tab nascosta');
+    setTimeout(() => {
+      if (document.hidden) {
+        supabaseClient
+          .from('Utenti')
+          .update({ online: false, last_seen: new Date().toISOString() })
+          .eq('id', userId);
+      }
+    }, 30000);
   } else {
     // Tab visibile - aggiorna subito
     console.log('👀 Tab visibile');
