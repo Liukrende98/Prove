@@ -178,6 +178,8 @@ async function showConversationsList() {
   
   try {
     // 1. Carica TUTTI gli utenti seguiti
+    console.log('🔍 Cerco utenti seguiti per user:', currentUserId);
+    
     const { data: follows, error: followError } = await supabaseClient
       .from('Seguiti')
       .select(`
@@ -186,9 +188,13 @@ async function showConversationsList() {
       `)
       .eq('utente_id', currentUserId);
     
-    if (followError) throw followError;
+    if (followError) {
+      console.error('❌ Errore caricamento seguiti:', followError);
+      throw followError;
+    }
     
     console.log('✅ Utenti seguiti:', follows?.length || 0);
+    console.log('📊 Dati seguiti:', follows);
     
     // 2. Carica messaggi
     const { data: messaggi, error: msgError } = await supabaseClient
@@ -213,8 +219,11 @@ async function showConversationsList() {
     // 3. Crea mappa conversazioni
     const conversazioni = new Map();
     
+    console.log('🔧 Creo mappa conversazioni...');
+    
     // Aggiungi TUTTI gli utenti seguiti (anche senza messaggi)
     follows?.forEach(follow => {
+      console.log('👤 Processo seguito:', follow);
       if (follow.seguito) {
         conversazioni.set(follow.seguito_id, {
           userId: follow.seguito_id,
@@ -225,8 +234,13 @@ async function showConversationsList() {
           isFollowed: true,
           hasMessages: false
         });
+        console.log('✅ Aggiunto alla mappa:', follow.seguito.username);
+      } else {
+        console.warn('⚠️ Seguito senza dati utente:', follow);
       }
     });
+    
+    console.log('📊 Conversazioni dopo seguiti:', conversazioni.size);
     
     // Aggiungi/aggiorna con info messaggi
     messaggi?.forEach(msg => {
@@ -319,10 +333,10 @@ async function showConversationsList() {
               <div class="conversation-info" onclick="openChat('${conv.userId}', '${escapeHtml(conv.username)}')">
                 <div class="conversation-name">
                   ${escapeHtml(conv.username)}
-                  ${conv.isFollowed ? '<i class="fas fa-user-check conversation-following-icon"></i>' : ''}
+                  ${conv.isFollowed ? '<i class="fas fa-star conversation-following-icon" title="Stai seguendo"></i>' : ''}
                 </div>
                 <div class="conversation-last-message">
-                  ${conv.lastMessage ? truncateMessage(conv.lastMessage) : '<span style="color: #6b7280; font-style: italic;">Inizia la conversazione</span>'}
+                  ${conv.lastMessage ? truncateMessage(conv.lastMessage) : '<span style="color: #6b7280; font-style: italic;">👋 Inizia a chattare</span>'}
                 </div>
               </div>
               ${conv.lastMessageTime ? `<div class="conversation-time">${formatMessageTime(conv.lastMessageTime)}</div>` : ''}
