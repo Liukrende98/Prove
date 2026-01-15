@@ -359,7 +359,7 @@ async function showConversationsList() {
     // 🔥 Carica TUTTI gli utenti con stato online
     const { data: users, error: usersError } = await supabaseClient
       .from('Utenti')
-      .select('id, username, avatar_url, online, last_seen')
+      .select('id, username, online, last_seen')
       .neq('id', currentUserId)
       .order('username', { ascending: true });
     
