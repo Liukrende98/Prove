@@ -384,20 +384,20 @@ async function showConversationsList() {
     const userIdsFollowed = new Set();
     try {
       const { data: seguiti, error: seguitiError } = await supabaseClient
-        .from('Seguiti')
-        .select('followed_id')
+        .from('Followers')
+        .select('utente_seguito_id')
         .eq('follower_id', currentUserId);
       
       if (!seguitiError && seguiti) {
         seguiti.forEach(s => {
-          if (s.followed_id !== currentUserId) {
-            userIdsFollowed.add(s.followed_id);
+          if (s.utente_seguito_id !== currentUserId) {
+            userIdsFollowed.add(s.utente_seguito_id);
           }
         });
         console.log('⭐ Utenti seguiti:', userIdsFollowed.size);
       }
     } catch (err) {
-      console.log('⚠️ Tabella Seguiti non disponibile');
+      console.log('⚠️ Tabella Followers non disponibile:', err.message);
     }
     
     // 🔥 STEP 4: Unisci i due Set
