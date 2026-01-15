@@ -18,6 +18,18 @@ let currentPage = 1;
 const itemsPerPage = 10;
 let scrollIndicatorTimers = new Map();
 
+// 🔥 FUNZIONE: Ottieni ID utente corrente
+function getCurrentUserId() {
+  // Prova con getCurrentUser (da auth.js)
+  if (typeof getCurrentUser === 'function') {
+    const user = getCurrentUser();
+    return user?.id || null;
+  }
+  
+  // Fallback: leggi direttamente da localStorage
+  return localStorage.getItem('nodo_user_id') || null;
+}
+
 // 🔥 NUOVA FUNZIONE: Apri chat con venditore
 function openChatWithVendor(userId, username) {
   console.log(`💬 Apertura chat con ${username} (${userId})`);
@@ -66,7 +78,22 @@ async function loadVetrineContent() {
   const container = document.getElementById('vetrineContainer');
   
   try {
-    // Carica TUTTI gli articoli in vetrina (da tutti gli utenti) con JOIN su Utenti
+    // 🔥 Ottieni ID utente corrente
+    const currentUserId = getCurrentUserId();
+    
+    if (!currentUserId) {
+      console.error('❌ Utente non loggato!');
+      container.innerHTML = `
+        <div class="wip-container">
+          <div class="wip-icon"><i class="fas fa-user-slash"></i></div>
+          <div class="wip-text">DEVI ESSERE LOGGATO</div>
+          <div class="wip-subtext">Effettua il login per vedere le vetrine</div>
+        </div>
+      `;
+      return;
+    }
+    
+    // Carica articoli in vetrina ESCLUDENDO i propri
     const { data: articoli, error } = await supabaseClient
       .from('Articoli')
       .select(`
@@ -79,6 +106,7 @@ async function loadVetrineContent() {
         )
       `)
       .eq('in_vetrina', true)
+      .neq('user_id', currentUserId)  // 🔥 ESCLUDI I TUOI ARTICOLI
       .order('created_at', { ascending: false });
     
     if (error) {
@@ -86,14 +114,14 @@ async function loadVetrineContent() {
       throw error;
     }
     
-    console.log('📦 Articoli in vetrina caricati:', articoli?.length || 0);
+    console.log('📦 Articoli in vetrina caricati (escl. tuoi):', articoli?.length || 0);
     
     if (!articoli || articoli.length === 0) {
       container.innerHTML = `
         <div class="wip-container">
           <div class="wip-icon"><i class="fas fa-store-slash"></i></div>
           <div class="wip-text">NESSUN ARTICOLO IN VETRINA</div>
-          <div class="wip-subtext">Gli utenti non hanno ancora messo articoli in vendita</div>
+          <div class="wip-subtext">Gli altri utenti non hanno ancora messo articoli in vendita</div>
         </div>
       `;
       return;
