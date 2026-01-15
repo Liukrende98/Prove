@@ -4,7 +4,7 @@
 
 console.log('%c🟡 NODO MESSAGGI GIALLI CARICATO! v4.0', 'background: #fbbf24; color: #000; font-size: 20px; padding: 10px; font-weight: bold;');
 
-// 🔥 VERIFICA VISIVA - Se vedi questo banner, il file è giusto!
+// 🔥 VERIFICA VISIVA
 setTimeout(() => {
   const testDiv = document.createElement('div');
   testDiv.id = 'nodo-version-check';
@@ -273,7 +273,7 @@ async function showConversationsList() {
     setTimeout(async () => {
       await updateNotificationsBadge();
       console.log('✅ Badge aggiornato!');
-    }, 800);
+    }, 1000);
     
   } catch (error) {
     console.error('❌ Errore:', error);
@@ -324,7 +324,7 @@ async function openChat(userId, username) {
   setTimeout(async () => {
     await updateNotificationsBadge();
     console.log('✅ Badge aggiornato dopo apertura chat');
-  }, 800);
+  }, 1000);
   
   await loadChatMessages();
   
@@ -495,11 +495,57 @@ async function deleteAllMessageNotifications() {
   await deleteMessageNotifications();
 }
 
+// 🔥 FUNZIONE AGGIORNAMENTO BADGE FORZATO
+async function forceUpdateNotificationBadge() {
+  console.log('🔄 Forzo aggiornamento badge...');
+  
+  try {
+    const currentUserId = getUserId();
+    if (!currentUserId) return;
+    
+    const { count, error } = await supabaseClient
+      .from('Notifiche')
+      .select('*', { count: 'exact', head: true })
+      .eq('utente_id', currentUserId)
+      .eq('letta', false);
+    
+    if (error) throw error;
+    
+    console.log('✅ Notifiche non lette:', count);
+    
+    // Cerca badge in tutti i modi possibili
+    const badge = document.querySelector('.notification-badge') || 
+                  document.querySelector('[id*="notification"][id*="badge" i]') ||
+                  document.querySelector('[class*="notification"][class*="badge" i]') ||
+                  document.getElementById('notificationBadge') ||
+                  document.getElementById('notifBadge');
+    
+    if (badge) {
+      console.log('✅ Badge trovato!', badge);
+      if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    } else {
+      console.warn('⚠️ Badge non trovato nel DOM');
+    }
+  } catch (error) {
+    console.error('❌ Errore badge:', error);
+  }
+}
+
 async function updateNotificationsBadge() {
+  console.log('🔄 Aggiorno badge...');
+  
+  // Prova funzione originale
   if (typeof window.loadNotificationsCount === 'function') {
-    console.log('🔄 Aggiorno badge...');
     await window.loadNotificationsCount();
   }
+  
+  // Forza aggiornamento manuale
+  await forceUpdateNotificationBadge();
 }
 
 async function createNotification(userId, tipo, messaggio) {
@@ -560,5 +606,6 @@ window.backToConversationsList = backToConversationsList;
 window.openChat = openChat;
 window.sendMessage = sendMessage;
 window.openDirectChat = openDirectChat;
+window.forceUpdateNotificationBadge = forceUpdateNotificationBadge;
 
 console.log('%c✅ MESSAGGI GIALLI PRONTI!', 'background: #10b981; color: #fff; font-size: 16px; padding: 5px;');
