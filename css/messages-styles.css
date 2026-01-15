@@ -4,6 +4,7 @@
 
 /* 🔥 VERIFICA: Se vedi tutto GIALLO, il CSS è giusto! */
 
+/* 📱 VIEWPORT OTTIMIZZATO IPHONE */
 .messages-box {
   position: fixed;
   bottom: 0;
@@ -11,8 +12,8 @@
   right: 0;
   width: 100%;
   max-width: 100vw;
-  height: 85vh;
-  max-height: 85vh;
+  height: 80vh;
+  max-height: 80vh;
   background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
   border-radius: 30px 30px 0 0;
   border-top: 4px solid #fbbf24;
@@ -22,14 +23,17 @@
   z-index: 3001;
   display: flex;
   flex-direction: column;
+  /* 🔥 FIX KEYBOARD iOS */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .messages-box.active {
   transform: translateY(0);
 }
 
+/* ✅ PIÙ SPAZIO SOPRA */
 .messages-header {
-  padding: 20px;
+  padding: 24px 20px;
   border-bottom: 2px solid #2a2a2a;
   display: flex;
   align-items: center;
@@ -37,7 +41,9 @@
   background: linear-gradient(135deg, #1f1f1f 0%, #0f0f0f 100%);
   border-radius: 30px 30px 0 0;
   flex-shrink: 0;
-  min-height: 88px;
+  min-height: 96px;
+  /* 🔥 SPAZIO EXTRA SOPRA */
+  margin-top: 8px;
 }
 
 .messages-header-left {
@@ -128,13 +134,15 @@
   color: #000;
 }
 
-/* 🔥 AREA MESSAGGI CON SCROLL FISSO */
+/* 🔥 AREA MESSAGGI RESPONSIVE */
 .messages-main-content {
   flex: 1;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  /* 🔥 MANTIENE VISIBILE ANCHE CON TASTIERA */
+  position: relative;
 }
 
 /* 🔥 SCROLL CONTAINER */
@@ -147,6 +155,8 @@
   flex-direction: column;
   gap: 12px;
   min-height: 0;
+  /* 🔥 SMOOTH SCROLL iOS */
+  -webkit-overflow-scrolling: touch;
 }
 
 .message-bubble {
@@ -202,7 +212,7 @@
   color: #6b7280;
 }
 
-/* 🔥 INPUT CONTAINER SEMPRE FISSO */
+/* 🔥 INPUT SEMPRE VISIBILE - FIX KEYBOARD iOS */
 .messages-input-container {
   padding: 16px;
   background: #1a1a1a;
@@ -215,6 +225,8 @@
   bottom: 0;
   z-index: 100;
   min-height: 80px;
+  /* 🔥 SAFE AREA iOS */
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
 }
 
 .messages-input {
@@ -231,6 +243,8 @@
   max-height: 120px;
   min-height: 48px;
   font-family: inherit;
+  /* 🔥 DISABILITA ZOOM iOS */
+  font-size: 16px !important;
 }
 
 .messages-input::placeholder {
@@ -301,10 +315,12 @@
   text-align: center;
 }
 
+/* LISTA CONVERSAZIONI */
 .conversations-list {
   flex: 1;
   overflow-y: auto;
   padding: 12px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .conversation-item {
@@ -436,21 +452,21 @@
   pointer-events: all;
 }
 
-/* OTTIMIZZAZIONI MOBILE */
+/* 📱 OTTIMIZZAZIONI MOBILE */
 @media (max-width: 768px) {
   .messages-box {
-    height: 90vh;
-    max-height: 90vh;
+    height: 85vh;
+    max-height: 85vh;
   }
   
   .messages-header {
-    padding: 16px;
-    min-height: 76px;
+    padding: 20px 16px;
+    min-height: 88px;
   }
   
   .messages-input-container {
-    padding: 12px;
-    min-height: 72px;
+    padding: 14px;
+    min-height: 76px;
   }
   
   .message-bubble {
@@ -470,9 +486,87 @@
   }
 }
 
-/* FIX SAFARI iOS */
+/* 🔥 FIX SAFARI iOS - TASTIERA */
 @supports (-webkit-touch-callout: none) {
+  /* Previene zoom automatico */
   .messages-input {
     font-size: 16px !important;
+  }
+  
+  /* Gestisce safe area */
+  .messages-input-container {
+    padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  }
+  
+  /* Fix altezza quando appare tastiera */
+  .messages-box {
+    height: 85vh;
+    max-height: 85vh;
+  }
+  
+  /* Mantiene contenuto visibile */
+  .messages-main-content {
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
+/* 🔥 FIX VIEWPORT iOS - TASTIERA APERTA */
+@media (max-height: 500px) {
+  /* Quando tastiera è aperta, riduci header */
+  .messages-header {
+    padding: 16px;
+    min-height: 72px;
+  }
+  
+  /* Box più piccolo */
+  .messages-box {
+    height: 95vh;
+    max-height: 95vh;
+  }
+  
+  /* Input più compatto */
+  .messages-input-container {
+    padding: 12px;
+    min-height: 68px;
+  }
+}
+
+/* 🔧 PREVIENE SCROLL BODY */
+body.messages-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* ANIMAZIONE APERTURA SMOOTH */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.messages-box.active {
+  animation: slideUp 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* 🔥 FIX SPECIFICO IPHONE 14 PRO MAX */
+@media only screen 
+  and (device-width: 430px) 
+  and (device-height: 932px) 
+  and (-webkit-device-pixel-ratio: 3) {
+  
+  .messages-box {
+    height: 82vh;
+    border-radius: 30px 30px 0 0;
+  }
+  
+  .messages-input-container {
+    padding-bottom: 24px;
   }
 }
