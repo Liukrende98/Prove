@@ -429,7 +429,6 @@ async function markMessagesAsRead(senderId) {
   if (!currentUserId) return;
   
   try {
-    // 🔥 FIX: Usa .match() invece di .eq() multipli
     const { error } = await supabaseClient
       .from('Messaggi')
       .update({ letto: true })
@@ -440,11 +439,11 @@ async function markMessagesAsRead(senderId) {
       });
     
     if (error) {
-      console.warn('⚠️ Update messaggi non permesso (RLS):', error.message);
+      console.warn('⚠️ Update messaggi:', error.message);
       return;
     }
     
-    console.log('✅ Messaggi letti');
+    console.log('✅ Messaggi segnati come letti');
   } catch (error) {
     console.warn('⚠️ Errore markMessagesAsRead:', error.message);
   }
