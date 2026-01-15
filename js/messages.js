@@ -180,8 +180,9 @@ function getUserId() {
   return localStorage.getItem('nodo_user_id') || null;
 }
 
-function openMessagesCenter() {
-  console.log('📨 Apertura centro messaggi GIALLI...');
+// 🔥 MODIFICATO: Supporta apertura diretta chat + messaggio pre-compilato
+async function openMessagesCenter(targetUserId = null, prefillMessage = null) {
+  console.log('📨 Apertura centro messaggi GIALLI...', targetUserId ? `Target: ${targetUserId}` : 'Inbox generale');
   resetMessagesState();
   
   // 🔥 Avvia heartbeat
@@ -197,7 +198,53 @@ function openMessagesCenter() {
   if (overlay && box) {
     overlay.classList.add('active');
     setTimeout(() => box.classList.add('active'), 50);
-    showConversationsList();
+    
+    // Se c'è un target, apri quella chat
+    if (targetUserId) {
+      console.log('🎯 Apertura chat diretta con:', targetUserId);
+      
+      try {
+        // Prima recupera username
+        const { data: userData, error } = await supabaseClient
+          .from('Utenti')
+          .select('username')
+          .eq('id', targetUserId)
+          .single();
+        
+        if (error) throw error;
+        if (!userData) throw new Error('Utente non trovato');
+        
+        const targetUsername = userData.username;
+        
+        // Carica lista conversazioni
+        await showConversationsList();
+        
+        // Poi apri la chat specifica
+        setTimeout(() => {
+          openChat(targetUserId, targetUsername);
+          
+          // Se c'è un messaggio pre-compilato, inseriscilo nell'input
+          if (prefillMessage) {
+            setTimeout(() => {
+              const messageInput = document.getElementById('messagesInput');
+              if (messageInput) {
+                messageInput.value = prefillMessage;
+                messageInput.style.height = 'auto';
+                messageInput.style.height = messageInput.scrollHeight + 'px';
+                console.log('✅ Messaggio pre-compilato inserito');
+              }
+            }, 500);
+          }
+        }, 300);
+        
+      } catch (error) {
+        console.error('❌ Errore apertura chat:', error);
+        showConversationsList();
+      }
+    } else {
+      // Mostra inbox normale
+      showConversationsList();
+    }
   }
 }
 
