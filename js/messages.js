@@ -356,7 +356,7 @@ async function showConversationsList() {
   if (!mainContent) return;
   
   try {
-    // 🔥 STEP 1: Ottieni tutti i messaggi per trovare utenti con conversazioni
+    // 🔥 STEP 1: Ottieni tutti i messaggi
     const { data: messages, error: messagesError } = await supabaseClient
       .from('Messaggi')
       .select('*')
@@ -365,8 +365,23 @@ async function showConversationsList() {
     
     if (messagesError) throw messagesError;
     
-    // 🔥 STEP 2: Ottieni lista utenti seguiti (con gestione errori)
-    let seguitiIds = [];
+    console.log('📨 Messaggi totali:', messages?.length || 0);
+    
+    // 🔥 STEP 2: Estrai ID utenti con cui hai messaggi
+    const userIdsWithMessages = new Set();
+    if (messages) {
+      messages.forEach(msg => {
+        const otherUserId = msg.mittente_id === currentUserId ? msg.destinatario_id : msg.mittente_id;
+        if (otherUserId !== currentUserId) {
+          userIdsWithMessages.add(otherUserId);
+        }
+      });
+    }
+    
+    console.log('👥 Utenti con messaggi:', userIdsWithMessages.size);
+    
+    // 🔥 STEP 3: Ottieni utenti seguiti (con gestione errori)
+    const userIdsFollowed = new Set();
     try {
       const { data: seguiti, error: seguitiError } = await supabaseClient
         .from('Seguiti')
@@ -374,28 +389,25 @@ async function showConversationsList() {
         .eq('follower_id', currentUserId);
       
       if (!seguitiError && seguiti) {
-        seguitiIds = seguiti.map(s => s.followed_id);
+        seguiti.forEach(s => {
+          if (s.followed_id !== currentUserId) {
+            userIdsFollowed.add(s.followed_id);
+          }
+        });
+        console.log('⭐ Utenti seguiti:', userIdsFollowed.size);
       }
     } catch (err) {
-      // Tabella Seguiti non esiste o altro errore - ignora e continua
-      console.log('⚠️ Tabella Seguiti non disponibile, carico solo messaggi');
+      console.log('⚠️ Tabella Seguiti non disponibile');
     }
     
-    // 🔥 STEP 3: Trova tutti gli ID utenti rilevanti (con messaggi + seguiti)
-    const relevantUserIds = new Set();
+    // 🔥 STEP 4: Unisci i due Set
+    const relevantUserIds = new Set([...userIdsWithMessages, ...userIdsFollowed]);
     
-    // Aggiungi utenti con messaggi
-    messages.forEach(msg => {
-      const otherUserId = msg.mittente_id === currentUserId ? msg.destinatario_id : msg.mittente_id;
-      relevantUserIds.add(otherUserId);
-    });
+    console.log('✅ TOTALE utenti rilevanti:', relevantUserIds.size);
+    console.log('📋 ID utenti:', Array.from(relevantUserIds));
     
-    // Aggiungi utenti seguiti
-    seguitiIds.forEach(id => relevantUserIds.add(id));
-    
-    // 🔥 STEP 4: Carica dati utenti SOLO per ID rilevanti
+    // 🔥 STEP 5: Se nessun utente rilevante, mostra messaggio vuoto
     if (relevantUserIds.size === 0) {
-      // Nessun utente rilevante
       mainContent.innerHTML = `
         <div class="messages-empty">
           <i class="fas fa-user-friends"></i>
@@ -406,13 +418,33 @@ async function showConversationsList() {
       return;
     }
     
+    // 🔥 STEP 6: Carica SOLO utenti rilevanti
+    const userIdsArray = Array.from(relevantUserIds);
+    
+    console.log('🔍 Carico utenti con IDs:', userIdsArray);
+    
     const { data: users, error: usersError } = await supabaseClient
       .from('Utenti')
       .select('id, username, online, last_seen')
-      .in('id', Array.from(relevantUserIds))
-      .order('username', { ascending: true });
+      .in('id', userIdsArray);
     
-    if (usersError) throw usersError;
+    if (usersError) {
+      console.error('❌ Errore caricamento utenti:', usersError);
+      throw usersError;
+    }
+    
+    console.log('👥 Utenti caricati dal DB:', users?.length || 0);
+    
+    if (!users || users.length === 0) {
+      mainContent.innerHTML = `
+        <div class="messages-empty">
+          <i class="fas fa-user-friends"></i>
+          <h3>Nessun utente trovato</h3>
+          <p>Gli utenti potrebbero essere stati eliminati</p>
+        </div>
+      `;
+      return;
+    }
     
     // 🔥 Popola cache stato utenti
     users.forEach(user => {
