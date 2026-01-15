@@ -282,20 +282,32 @@ function loadSubmenu(parentKey, submenu) {
       <div class="menu-label">${item.label}</div>
     `;
     
-menuItem.onclick = () => {
-  console.log('🔍 Click su:', key, item);
-  
-  if (item.isLogout) {
-    console.log('🚪 Tentativo logout...');
-    if (confirm('🚪 Sei sicuro di voler uscire?')) {
-      console.log('✅ Logout confermato');
-      localStorage.removeItem('nodo_user_id');
-      localStorage.removeItem('nodo_username');
-      localStorage.removeItem('nodo_email');
-      window.location.href = 'login.html';
-    }
-    return;
-  }
+    menuItem.onclick = () => {
+      console.log('🔍 Click su:', key, item);
+      
+      if (item.isLogout) {
+        console.log('🚪 Tentativo logout...');
+        
+        // CHIUDI IL MENU PRIMA DEL CONFIRM
+        toggleMenu();
+        
+        // Aspetta che il menu si chiuda
+        setTimeout(() => {
+          if (confirm('🚪 Sei sicuro di voler uscire?')) {
+            console.log('✅ Logout confermato');
+            localStorage.removeItem('nodo_user_id');
+            localStorage.removeItem('nodo_username');
+            localStorage.removeItem('nodo_email');
+            window.location.href = 'login.html';
+          } else {
+            console.log('❌ Logout annullato');
+            // Se annulla, riapri il menu
+            toggleMenu();
+          }
+        }, 300);
+        
+        return;
+      }
       
       if (key === 'mio-profilo' && currentUsername) {
         window.location.href = `vetrina-venditore.html?vendor=${currentUsername}`;
