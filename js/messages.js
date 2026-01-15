@@ -386,7 +386,7 @@ async function showConversationsList() {
         <div class="conversations-list" id="conversationsList">
           ${conversazioniArray.map((conv, idx) => {
             console.log(`🔨 Rendering item ${idx + 1}/${conversazioniArray.length}:`, conv.username, 'seguito:', conv.isFollowed);
-            const html = `
+            return `
             <div class="conversation-item" 
                  data-user-id="${conv.userId}" 
                  data-username="${escapeHtml(conv.username).toLowerCase()}"
@@ -405,11 +405,12 @@ async function showConversationsList() {
               </div>
               ${conv.lastMessageTime ? `<div class="conversation-time">${formatMessageTime(conv.lastMessageTime)}</div>` : ''}
               ${conv.unreadCount > 0 ? `<div class="conversation-unread-badge">${conv.unreadCount}</div>` : ''}
-              <button class="conversation-delete-btn" onclick="event.stopPropagation(); deleteConversation('${conv.userId}', '${escapeHtml(conv.username)}', ${conv.isFollowed})">
+              <button class="conversation-delete-btn" onclick="event.stopPropagation(); deleteConversation('${conv.userId}', '${escapeHtml(conv.username)}', ${conv.isFollowed})" title="Elimina chat">
                 <i class="fas fa-trash-alt"></i>
               </button>
             </div>
-          `).join('')}
+          `;
+          }).join('')}
         </div>
       `;
       
