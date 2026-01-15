@@ -2,36 +2,6 @@
 // 🟡 NODO MESSAGGISTICA - VERSIONE GIALLA
 // ========================================
 
-console.log('%c🟡 NODO MESSAGGI GIALLI CARICATO! v4.0', 'background: #fbbf24; color: #000; font-size: 20px; padding: 10px; font-weight: bold;');
-
-// 🔥 VERIFICA VISIVA
-setTimeout(() => {
-  const testDiv = document.createElement('div');
-  testDiv.id = 'nodo-version-check';
-  testDiv.style.cssText = `
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-    color: #000;
-    padding: 15px 30px;
-    border-radius: 15px;
-    font-weight: 900;
-    font-size: 16px;
-    z-index: 99999;
-    box-shadow: 0 4px 20px rgba(251, 191, 36, 0.6);
-  `;
-  testDiv.innerHTML = '✅ MESSAGGI GIALLI v4.0 CARICATO!';
-  document.body.appendChild(testDiv);
-  
-  setTimeout(() => {
-    testDiv.style.opacity = '0';
-    testDiv.style.transition = 'opacity 1s';
-    setTimeout(() => testDiv.remove(), 1000);
-  }, 3000);
-}, 1000);
-
 let currentChatUserId = null;
 let currentChatUsername = null;
 let messagesPollingInterval = null;
@@ -459,16 +429,24 @@ async function markMessagesAsRead(senderId) {
   if (!currentUserId) return;
   
   try {
-    await supabaseClient
+    // 🔥 FIX: Usa .match() invece di .eq() multipli
+    const { error } = await supabaseClient
       .from('Messaggi')
       .update({ letto: true })
-      .eq('destinatario_id', currentUserId)
-      .eq('mittente_id', senderId)
-      .eq('letto', false);
+      .match({ 
+        destinatario_id: currentUserId,
+        mittente_id: senderId,
+        letto: false
+      });
+    
+    if (error) {
+      console.warn('⚠️ Update messaggi non permesso (RLS):', error.message);
+      return;
+    }
     
     console.log('✅ Messaggi letti');
   } catch (error) {
-    console.error('❌ Errore:', error);
+    console.warn('⚠️ Errore markMessagesAsRead:', error.message);
   }
 }
 
@@ -607,5 +585,3 @@ window.openChat = openChat;
 window.sendMessage = sendMessage;
 window.openDirectChat = openDirectChat;
 window.forceUpdateNotificationBadge = forceUpdateNotificationBadge;
-
-console.log('%c✅ MESSAGGI GIALLI PRONTI!', 'background: #10b981; color: #fff; font-size: 16px; padding: 5px;');
