@@ -217,9 +217,24 @@ async function showConversationsList() {
       `;
     } else {
       mainContent.innerHTML = `
-        <div class="conversations-list">
+        <div class="conversations-search-container">
+          <div class="conversations-search-wrapper">
+            <i class="fas fa-search"></i>
+            <input 
+              type="text" 
+              class="conversations-search-input" 
+              id="conversationsSearchInput"
+              placeholder="Cerca contatto..."
+              autocomplete="off"
+            >
+            <button class="conversations-search-clear" id="searchClearBtn" style="display: none;">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <div class="conversations-list" id="conversationsList">
           ${conversazioniArray.map(conv => `
-            <div class="conversation-item" onclick="openChat('${conv.userId}', '${escapeHtml(conv.username)}')">
+            <div class="conversation-item" data-username="${escapeHtml(conv.username).toLowerCase()}" onclick="openChat('${conv.userId}', '${escapeHtml(conv.username)}')">
               <div class="conversation-avatar">
                 <i class="fas fa-user"></i>
               </div>
@@ -235,6 +250,9 @@ async function showConversationsList() {
           `).join('')}
         </div>
       `;
+      
+      // Setup search functionality
+      setupConversationsSearch();
     }
     
     console.log('🗑️ Cancello notifiche...');
@@ -254,6 +272,64 @@ async function showConversationsList() {
         <p>${error.message}</p>
       </div>
     `;
+  }
+}
+
+function setupConversationsSearch() {
+  const searchInput = document.getElementById('conversationsSearchInput');
+  const searchClearBtn = document.getElementById('searchClearBtn');
+  const conversationsList = document.getElementById('conversationsList');
+  
+  if (!searchInput || !conversationsList) return;
+  
+  searchInput.addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase().trim();
+    const items = conversationsList.querySelectorAll('.conversation-item');
+    
+    // Show/hide clear button
+    if (searchClearBtn) {
+      searchClearBtn.style.display = searchTerm ? 'flex' : 'none';
+    }
+    
+    let visibleCount = 0;
+    
+    items.forEach(item => {
+      const username = item.getAttribute('data-username') || '';
+      
+      if (username.includes(searchTerm)) {
+        item.style.display = 'flex';
+        visibleCount++;
+      } else {
+        item.style.display = 'none';
+      }
+    });
+    
+    // Show empty state if no results
+    let emptyState = conversationsList.querySelector('.search-no-results');
+    
+    if (visibleCount === 0 && searchTerm) {
+      if (!emptyState) {
+        emptyState = document.createElement('div');
+        emptyState.className = 'search-no-results';
+        emptyState.innerHTML = `
+          <i class="fas fa-search"></i>
+          <h3>Nessun risultato</h3>
+          <p>Nessun contatto trovato per "${escapeHtml(searchTerm)}"</p>
+        `;
+        conversationsList.appendChild(emptyState);
+      }
+    } else if (emptyState) {
+      emptyState.remove();
+    }
+  });
+  
+  // Clear search
+  if (searchClearBtn) {
+    searchClearBtn.addEventListener('click', function() {
+      searchInput.value = '';
+      searchInput.dispatchEvent(new Event('input'));
+      searchInput.focus();
+    });
   }
 }
 
@@ -584,3 +660,61 @@ window.openChat = openChat;
 window.sendMessage = sendMessage;
 window.openDirectChat = openDirectChat;
 window.forceUpdateNotificationBadge = forceUpdateNotificationBadge;
+
+// 🔥 FIX VIEWPORT iOS - Gestione tastiera
+if (typeof visualViewport !== 'undefined') {
+  let resizeTimeout;
+  
+  visualViewport.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      const messagesBox = document.getElementById('messagesBox');
+      if (!messagesBox || !messagesBox.classList.contains('active')) return;
+      
+      const viewportHeight = visualViewport.height;
+      const pageHeight = document.documentElement.clientHeight;
+      const keyboardHeight = pageHeight - viewportHeight;
+      
+      // Tastiera aperta
+      if (keyboardHeight > 150) {
+        messagesBox.style.height = `${viewportHeight}px`;
+        messagesBox.style.maxHeight = `${viewportHeight}px`;
+        messagesBox.classList.add('keyboard-open');
+      } 
+      // Tastiera chiusa
+      else {
+        messagesBox.style.height = '80vh';
+        messagesBox.style.maxHeight = '80vh';
+        messagesBox.classList.remove('keyboard-open');
+      }
+    }, 100);
+  });
+}
+
+// 🔥 Previeni scroll body quando messaggi aperti
+function lockBodyScroll() {
+  document.body.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.width = '100%';
+  document.body.style.height = '100%';
+}
+
+function unlockBodyScroll() {
+  document.body.style.overflow = '';
+  document.body.style.position = '';
+  document.body.style.width = '';
+  document.body.style.height = '';
+}
+
+// Aggiungi lock/unlock quando apri/chiudi
+const originalOpenMessagesCenter = openMessagesCenter;
+window.openMessagesCenter = function() {
+  lockBodyScroll();
+  originalOpenMessagesCenter();
+};
+
+const originalCloseMessages = closeMessages;
+window.closeMessages = function() {
+  unlockBodyScroll();
+  originalCloseMessages();
+};
