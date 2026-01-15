@@ -164,7 +164,7 @@
   color: #000;
 }
 
-/* 🔥 AREA MESSAGGI RESPONSIVE */
+/* 🔥 AREA MESSAGGI FISSA - NON CAMBIA ALTEZZA */
 .messages-main-content {
   flex: 1 1 0;
   overflow: hidden;
@@ -172,8 +172,8 @@
   flex-direction: column;
   min-height: 0;
   position: relative;
-  /* 🔥 CALCOLO ESATTO: box 85vh - header 96px - input ~80px = ~calc() */
-  height: calc(85vh - 96px - 80px - 8px);  /* 8px margin-top header */
+  /* 🔥 ALTEZZA FISSA CHE NON CAMBIA */
+  height: calc(85vh - 96px - 80px - 8px);
   max-height: calc(85vh - 96px - 80px - 8px);
 }
 
@@ -247,21 +247,22 @@
   color: #6b7280;
 }
 
-/* 🔥 INPUT SEMPRE VISIBILE - FIX KEYBOARD iOS */
+/* 🔥 INPUT POSITION FIXED - NON INFLUISCE SU AREA MESSAGGI */
 .messages-input-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   padding: 16px;
   background: #1a1a1a;
   border-top: 2px solid #2a2a2a;
   display: flex;
   gap: 12px;
   align-items: flex-end;
-  flex-shrink: 0;
-  position: sticky;
-  bottom: 0;
-  z-index: 100;
+  z-index: 3002;
   min-height: 80px;
   height: auto;
-  max-height: 180px;  /* Limite per textarea espansa */
+  max-height: 180px;
   padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
 }
 
@@ -466,6 +467,7 @@
   font-weight: 600;
 }
 
+/* 🔥 CONVERSAZIONE - SENZA SWIPE */
 .conversation-item {
   background: linear-gradient(135deg, #1f1f1f 0%, #0f0f0f 100%);
   border: 2px solid #2a2a2a;
@@ -486,52 +488,39 @@
   background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
 }
 
-/* 🔥 SWIPE TO DELETE WRAPPER */
-.conversation-item-wrapper {
-  position: relative;
-  overflow: hidden;
-  border-radius: 20px;
-  flex-shrink: 0;
-}
-
-.conversation-swipe-delete {
+/* 🗑️ BOTTONE ELIMINA CONVERSAZIONE */
+.conversation-delete-btn {
   position: absolute;
-  top: 0;
-  left: 0;  /* SINISTRA! Non destra */
-  bottom: 0;
-  width: 100px;
-  background: linear-gradient(90deg, #dc2626 0%, #ef4444 100%);
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  color: #fff;
-  font-weight: 700;
-  z-index: 0;
-  border-radius: 20px 0 0 20px;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.6);
+  transition: all 0.2s ease;
+  z-index: 10;
 }
 
-.conversation-swipe-delete i {
-  font-size: 24px;
-}
-
-.conversation-swipe-delete span {
-  font-size: 12px;
-}
-
-.conversation-item-wrapper .conversation-item {
-  position: relative;
-  z-index: 1;
-  background: linear-gradient(135deg, #1f1f1f 0%, #0f0f0f 100%);
-  transition: transform 0.3s ease;
+.conversation-delete-btn:active {
+  transform: scale(0.9);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.8);
 }
 
 /* ⭐ INDICATORE SEGUITO - BADGE STELLA */
 .conversation-followed-badge {
   position: absolute;
   top: -4px;
-  right: -4px;
+  right: 40px;  /* Spostato per far spazio al bottone elimina */
   width: 20px;
   height: 20px;
   background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
@@ -577,6 +566,7 @@
 .conversation-info {
   flex: 1;
   min-width: 0;
+  padding-right: 40px;  /* Spazio per bottone elimina */
 }
 
 .conversation-name {
@@ -603,14 +593,14 @@
   color: #6b7280;
   font-weight: 700;
   position: absolute;
-  top: 16px;
+  bottom: 16px;
   right: 16px;
 }
 
 .conversation-unread-badge {
   position: absolute;
   bottom: 16px;
-  right: 16px;
+  right: 56px;  /* Spostato per evitare overlap con bottone elimina */
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: #fff;
   min-width: 24px;
