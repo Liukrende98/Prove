@@ -356,11 +356,60 @@ async function showConversationsList() {
   if (!mainContent) return;
   
   try {
-    // 🔥 Carica TUTTI gli utenti con stato online
+    // 🔥 STEP 1: Ottieni tutti i messaggi per trovare utenti con conversazioni
+    const { data: messages, error: messagesError } = await supabaseClient
+      .from('Messaggi')
+      .select('*')
+      .or(`mittente_id.eq.${currentUserId},destinatario_id.eq.${currentUserId}`)
+      .order('created_at', { ascending: false });
+    
+    if (messagesError) throw messagesError;
+    
+    // 🔥 STEP 2: Ottieni lista utenti seguiti (con gestione errori)
+    let seguitiIds = [];
+    try {
+      const { data: seguiti, error: seguitiError } = await supabaseClient
+        .from('Seguiti')
+        .select('followed_id')
+        .eq('follower_id', currentUserId);
+      
+      if (!seguitiError && seguiti) {
+        seguitiIds = seguiti.map(s => s.followed_id);
+      }
+    } catch (err) {
+      // Tabella Seguiti non esiste o altro errore - ignora e continua
+      console.log('⚠️ Tabella Seguiti non disponibile, carico solo messaggi');
+    }
+    
+    // 🔥 STEP 3: Trova tutti gli ID utenti rilevanti (con messaggi + seguiti)
+    const relevantUserIds = new Set();
+    
+    // Aggiungi utenti con messaggi
+    messages.forEach(msg => {
+      const otherUserId = msg.mittente_id === currentUserId ? msg.destinatario_id : msg.mittente_id;
+      relevantUserIds.add(otherUserId);
+    });
+    
+    // Aggiungi utenti seguiti
+    seguitiIds.forEach(id => relevantUserIds.add(id));
+    
+    // 🔥 STEP 4: Carica dati utenti SOLO per ID rilevanti
+    if (relevantUserIds.size === 0) {
+      // Nessun utente rilevante
+      mainContent.innerHTML = `
+        <div class="messages-empty">
+          <i class="fas fa-user-friends"></i>
+          <h3>Nessuna conversazione</h3>
+          <p>Inizia a seguire qualcuno o manda un messaggio!</p>
+        </div>
+      `;
+      return;
+    }
+    
     const { data: users, error: usersError } = await supabaseClient
       .from('Utenti')
       .select('id, username, online, last_seen')
-      .neq('id', currentUserId)
+      .in('id', Array.from(relevantUserIds))
       .order('username', { ascending: true });
     
     if (usersError) throw usersError;
@@ -372,15 +421,6 @@ async function showConversationsList() {
         last_seen: user.last_seen
       });
     });
-    
-    // Ottieni ultimo messaggio per ogni utente
-    const { data: messages, error: messagesError } = await supabaseClient
-      .from('Messaggi')
-      .select('*')
-      .or(`mittente_id.eq.${currentUserId},destinatario_id.eq.${currentUserId}`)
-      .order('created_at', { ascending: false });
-    
-    if (messagesError) throw messagesError;
     
     // Raggruppa messaggi per utente
     const userMessages = new Map();
