@@ -355,6 +355,9 @@ async function showConversationsList() {
         return a.username.localeCompare(b.username);
       });
     
+    console.log('🎯 ARRAY FINALE conversazioni:', conversazioniArray.length);
+    console.log('🎯 DATI FINALI:', JSON.stringify(conversazioniArray, null, 2));
+    
     if (conversazioniArray.length === 0) {
       mainContent.innerHTML = `
         <div class="messages-empty">
@@ -393,7 +396,6 @@ async function showConversationsList() {
               <div class="conversation-info" onclick="openChat('${conv.userId}', '${escapeHtml(conv.username)}')">
                 <div class="conversation-name">
                   ${escapeHtml(conv.username)}
-                  ${conv.isFollowed ? '<i class="fas fa-star conversation-following-icon" title="Stai seguendo"></i>' : ''}
                 </div>
                 <div class="conversation-last-message">
                   ${conv.lastMessage ? truncateMessage(conv.lastMessage) : '<span style="color: #6b7280; font-style: italic;">👋 Inizia a chattare</span>'}
