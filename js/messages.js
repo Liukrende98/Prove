@@ -1,5 +1,5 @@
 // ========================================
-// 🟡 NODO MESSAGGISTICA - VERSIONE GIALLA
+// 🟡 NODO MESSAGGISTICA - VERSIONE GIALLA FIXED
 // ========================================
 
 let currentChatUserId = null;
@@ -12,6 +12,9 @@ let heartbeatInterval = null;
 // 🔥 REALTIME SUBSCRIPTIONS
 let messagesSubscription = null;
 let userStatusSubscription = null;
+
+// 🔥 CACHE STATO UTENTI - per aggiornamenti istantanei
+let usersStatusCache = new Map();
 
 // 🔥 SISTEMA HEARTBEAT - Aggiorna stato online
 function startHeartbeat() {
@@ -78,6 +81,17 @@ function startUserStatusRealtime() {
       (payload) => {
         console.log('⚡ Stato utente cambiato:', payload.new.username, payload.new.online);
         
+        // 🔥 NUOVO: Aggiorna cache
+        usersStatusCache.set(payload.new.id, {
+          online: payload.new.online,
+          last_seen: payload.new.last_seen
+        });
+        
+        // 🔥 NUOVO: Aggiorna lista conversazioni se visibile
+        if (isInConversationsList) {
+          updateConversationUserStatus(payload.new.id, payload.new.online, payload.new.last_seen);
+        }
+        
         // Aggiorna UI se siamo in chat con questo utente
         if (currentChatUserId === payload.new.id && !isInConversationsList) {
           updateChatUserStatusUI(payload.new);
@@ -89,7 +103,27 @@ function startUserStatusRealtime() {
     });
 }
 
-// 🔥 Aggiorna UI stato utente istantaneamente
+// 🔥 NUOVO: Aggiorna stato utente nella lista conversazioni
+function updateConversationUserStatus(userId, online, lastSeen) {
+  const userCard = document.querySelector(`[data-user-id="${userId}"]`);
+  if (!userCard) return;
+  
+  const statusEl = userCard.querySelector('.user-status-indicator');
+  if (!statusEl) return;
+  
+  if (online) {
+    statusEl.className = 'user-status-indicator online';
+    statusEl.title = 'Online';
+  } else {
+    statusEl.className = 'user-status-indicator offline';
+    const lastSeenText = formatLastSeen(lastSeen);
+    statusEl.title = lastSeenText;
+  }
+  
+  console.log(`🔄 Aggiornato stato ${userId}: ${online ? 'ONLINE' : 'OFFLINE'}`);
+}
+
+// 🔥 Aggiorna UI stato utente istantaneamente (nella chat singola)
 function updateChatUserStatusUI(userData) {
   const statusEl = document.querySelector('.messages-user-status');
   if (!statusEl) return;
@@ -100,6 +134,26 @@ function updateChatUserStatusUI(userData) {
     const lastSeen = formatLastSeen(userData.last_seen);
     statusEl.innerHTML = `<span class="user-status-offline">${lastSeen}</span>`;
   }
+}
+
+// 🔥 NUOVO: Formatta "ultimo accesso"
+function formatLastSeen(timestamp) {
+  if (!timestamp) return 'Offline';
+  
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diff = now - date;
+  const minutes = Math.floor(diff / (1000 * 60));
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const days = Math.floor(hours / 24);
+  
+  if (minutes < 1) return 'Ora';
+  if (minutes < 60) return `${minutes} min fa`;
+  if (hours < 24) return `${hours} ore fa`;
+  if (days === 1) return 'Ieri';
+  if (days < 7) return `${days} giorni fa`;
+  
+  return date.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
 }
 
 async function updateUserOnlineStatus(userId) {
@@ -295,406 +349,252 @@ async function showConversationsList() {
     `;
   }
   
-  const mainContent = document.getElementById('messagesMainContent');
   const inputContainer = document.getElementById('messagesInputContainer');
-  
   if (inputContainer) inputContainer.style.display = 'none';
   
+  const mainContent = document.getElementById('messagesMainContent');
+  if (!mainContent) return;
+  
   try {
-    // 1. Carica TUTTI gli utenti seguiti
-    console.log('🔍 Cerco utenti seguiti per user:', currentUserId);
-    console.log('📊 Query FOLLOWERS (follower_id = currentUserId)...');
+    // 🔥 Carica TUTTI gli utenti con stato online
+    const { data: users, error: usersError } = await supabaseClient
+      .from('Utenti')
+      .select('id, username, avatar_url, online, last_seen')
+      .neq('id', currentUserId)
+      .order('username', { ascending: true });
     
-    const { data: follows, error: followError } = await supabaseClient
-      .from('Followers')
-      .select(`
-        utente_seguito_id,
-        seguito:Utenti!Followers_utente_seguito_id_fkey(id, username)
-      `)
-      .eq('follower_id', currentUserId);
+    if (usersError) throw usersError;
     
-    if (followError) {
-      console.error('❌ Errore caricamento seguiti:', followError);
-      console.error('❌ Dettagli errore:', JSON.stringify(followError, null, 2));
-      throw followError;
-    }
+    // 🔥 Popola cache stato utenti
+    users.forEach(user => {
+      usersStatusCache.set(user.id, {
+        online: user.online,
+        last_seen: user.last_seen
+      });
+    });
     
-    console.log('✅ Query seguiti completata!');
-    console.log('📊 Numero seguiti:', follows?.length || 0);
-    console.log('📊 Dati seguiti RAW:', JSON.stringify(follows, null, 2));
-    
-    if (!follows || follows.length === 0) {
-      console.warn('⚠️ ATTENZIONE: Nessun seguito trovato!');
-      console.warn('⚠️ Verifica su Supabase Dashboard:');
-      console.warn('   1. Tabella "Followers" ha righe?');
-      console.warn('   2. Campo "follower_id" = ' + currentUserId + '?');
-      console.warn('   3. Foreign key "Followers_utente_seguito_id_fkey" esiste?');
-      
-      // Query semplice per debug
-      console.log('🔍 Provo query semplice senza foreign key...');
-      const { data: segutiSemplice, error: errSemplice } = await supabaseClient
-        .from('Followers')
-        .select('*')
-        .eq('follower_id', currentUserId);
-      
-      console.log('📊 Risultato query semplice:', segutiSemplice);
-      
-      if (segutiSemplice && segutiSemplice.length > 0) {
-        console.error('🔥 PROBLEMA: Seguiti esistono ma foreign key NON funziona!');
-        console.error('🔥 Colonne nella tabella Followers:', Object.keys(segutiSemplice[0]));
-      }
-    }
-    
-    // 2. Carica messaggi
-    const { data: messaggi, error: msgError } = await supabaseClient
+    // Ottieni ultimo messaggio per ogni utente
+    const { data: messages, error: messagesError } = await supabaseClient
       .from('Messaggi')
-      .select(`
-        id,
-        mittente_id,
-        destinatario_id,
-        messaggio,
-        created_at,
-        letto,
-        mittente:Utenti!Messaggi_mittente_id_fkey(id, username),
-        destinatario:Utenti!Messaggi_destinatario_id_fkey(id, username)
-      `)
+      .select('*')
       .or(`mittente_id.eq.${currentUserId},destinatario_id.eq.${currentUserId}`)
       .order('created_at', { ascending: false });
     
-    if (msgError) throw msgError;
+    if (messagesError) throw messagesError;
     
-    console.log('✅ Messaggi:', messaggi?.length || 0);
-    
-    // 3. Crea mappa conversazioni
-    const conversazioni = new Map();
-    
-    console.log('🔧 Creo mappa conversazioni...');
-    
-    // Aggiungi TUTTI gli utenti seguiti (anche senza messaggi)
-    if (follows && follows.length > 0) {
-      follows.forEach(follow => {
-        console.log('👤 Processo seguito:', follow);
-        if (follow.seguito) {
-          conversazioni.set(follow.utente_seguito_id, {
-            userId: follow.utente_seguito_id,
-            username: follow.seguito.username || 'Utente',
-            lastMessage: null,
-            lastMessageTime: null,
-            unreadCount: 0,
-            isFollowed: true,
-            hasMessages: false
-          });
-          console.log('✅ Aggiunto alla mappa:', follow.seguito.username);
-        } else {
-          console.warn('⚠️ Seguito senza dati utente:', follow);
-        }
-      });
-    } else {
-      console.warn('⚠️ Nessun seguito da processare, provo metodo alternativo...');
-      
-      // FALLBACK: Carica seguiti manualmente
-      const { data: segutiManuale } = await supabaseClient
-        .from('Followers')
-        .select('utente_seguito_id')
-        .eq('follower_id', currentUserId);
-      
-      if (segutiManuale && segutiManuale.length > 0) {
-        console.log('🔄 Carico utenti seguiti uno per uno...');
-        
-        for (const seg of segutiManuale) {
-          const { data: utente } = await supabaseClient
-            .from('Utenti')
-            .select('id, username')
-            .eq('id', seg.utente_seguito_id)
-            .single();
-          
-          if (utente) {
-            conversazioni.set(utente.id, {
-              userId: utente.id,
-              username: utente.username || 'Utente',
-              lastMessage: null,
-              lastMessageTime: null,
-              unreadCount: 0,
-              isFollowed: true,
-              hasMessages: false
-            });
-            console.log('✅ Aggiunto manualmente:', utente.username);
-          }
-        }
+    // Raggruppa messaggi per utente
+    const userMessages = new Map();
+    messages.forEach(msg => {
+      const otherUserId = msg.mittente_id === currentUserId ? msg.destinatario_id : msg.mittente_id;
+      if (!userMessages.has(otherUserId)) {
+        userMessages.set(otherUserId, []);
       }
-    }
+      userMessages.get(otherUserId).push(msg);
+    });
     
-    console.log('📊 Conversazioni dopo seguiti:', conversazioni.size);
-    
-    // Aggiungi/aggiorna con info messaggi
-    messaggi?.forEach(msg => {
-      const otherUserId = msg.mittente_id === currentUserId 
-        ? msg.destinatario_id 
-        : msg.mittente_id;
-      
-      const otherUser = msg.mittente_id === currentUserId 
-        ? msg.destinatario 
-        : msg.mittente;
-      
-      if (!conversazioni.has(otherUserId)) {
-        // Utente con messaggi ma non seguito
-        conversazioni.set(otherUserId, {
-          userId: otherUserId,
-          username: otherUser?.username || 'Utente',
-          lastMessage: msg.messaggio,
-          lastMessageTime: msg.created_at,
-          unreadCount: 0,
-          isFollowed: false,
-          hasMessages: true
-        });
-      } else {
-        // Aggiorna utente seguito con info messaggio
-        const conv = conversazioni.get(otherUserId);
-        if (!conv.lastMessage) {  // Solo se non ha già messaggio più recente
-          conv.lastMessage = msg.messaggio;
-          conv.lastMessageTime = msg.created_at;
-          conv.hasMessages = true;
-        }
-      }
-      
-      // Conta messaggi non letti
+    // Conta messaggi non letti
+    const unreadCounts = new Map();
+    messages.forEach(msg => {
       if (msg.destinatario_id === currentUserId && !msg.letto) {
-        const conv = conversazioni.get(otherUserId);
-        if (conv) conv.unreadCount++;
+        const count = unreadCounts.get(msg.mittente_id) || 0;
+        unreadCounts.set(msg.mittente_id, count + 1);
       }
     });
     
-    // 4. Ordina: prima con messaggi (per data), poi seguiti senza messaggi (per nome)
-    const conversazioniArray = Array.from(conversazioni.values())
-      .sort((a, b) => {
-        // Entrambi hanno messaggi → ordina per data
-        if (a.hasMessages && b.hasMessages) {
-          return new Date(b.lastMessageTime) - new Date(a.lastMessageTime);
-        }
-        // Solo a ha messaggi → a prima
-        if (a.hasMessages) return -1;
-        // Solo b ha messaggi → b prima
-        if (b.hasMessages) return 1;
-        // Nessuno ha messaggi → ordina alfabetico
-        return a.username.localeCompare(b.username);
-      });
-    
-    console.log('🎯 ARRAY FINALE conversazioni:', conversazioniArray.length);
-    console.log('🎯 DATI FINALI:', JSON.stringify(conversazioniArray, null, 2));
-    
-    if (conversazioniArray.length === 0) {
-      mainContent.innerHTML = `
-        <div class="messages-empty">
-          <i class="fas fa-inbox"></i>
-          <h3>Nessun contatto</h3>
-          <p>Inizia a seguire qualcuno per chattare</p>
-        </div>
-      `;
-    } else {
-      mainContent.innerHTML = `
-        <div class="conversations-search-container">
-          <div class="conversations-search-wrapper">
-            <i class="fas fa-search"></i>
-            <input 
-              type="text" 
-              class="conversations-search-input" 
-              id="conversationsSearchInput"
-              placeholder="Cerca contatto..."
-              autocomplete="off"
-            >
-            <button class="conversations-search-clear" id="searchClearBtn" style="display: none;">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-        </div>
-        <div class="conversations-list" id="conversationsList">
-          ${conversazioniArray.map((conv, idx) => {
-            console.log(`🔨 Rendering item ${idx + 1}/${conversazioniArray.length}:`, conv.username, 'seguito:', conv.isFollowed);
-            return `
-            <div class="conversation-item" 
-                 data-user-id="${conv.userId}" 
-                 data-username="${escapeHtml(conv.username).toLowerCase()}"
-                 data-is-followed="${conv.isFollowed}">
-              <div class="conversation-avatar">
-                <i class="fas fa-user"></i>
-              </div>
-              ${conv.isFollowed ? '<div class="conversation-followed-badge"><i class="fas fa-star"></i></div>' : ''}
-              <div class="conversation-info" onclick="openChat('${conv.userId}', '${escapeHtml(conv.username)}')">
-                <div class="conversation-name">
-                  ${escapeHtml(conv.username)}
-                </div>
-                <div class="conversation-last-message">
-                  ${conv.lastMessage ? truncateMessage(conv.lastMessage) : '<span style="color: #6b7280; font-style: italic;">👋 Inizia a chattare</span>'}
-                </div>
-              </div>
-              ${conv.lastMessageTime ? `<div class="conversation-time">${formatMessageTime(conv.lastMessageTime)}</div>` : ''}
-              ${conv.unreadCount > 0 ? `<div class="conversation-unread-badge">${conv.unreadCount}</div>` : ''}
-              <button class="conversation-delete-btn" onclick="event.stopPropagation(); deleteConversation('${conv.userId}', '${escapeHtml(conv.username)}', ${conv.isFollowed})" title="Elimina chat">
-                <i class="fas fa-trash-alt"></i>
-              </button>
-            </div>
-          `;
-          }).join('')}
-        </div>
-      `;
+    // 🔥 Genera HTML con stato online/offline
+    let conversationsHTML = users.map(user => {
+      const userMsg = userMessages.get(user.id);
+      const lastMsg = userMsg ? userMsg[0] : null;
+      const unreadCount = unreadCounts.get(user.id) || 0;
       
-      // Setup search
-      setupConversationsSearch();
+      // 🔥 NUOVO: Indicatore online/offline
+      const statusIndicator = user.online 
+        ? '<div class="user-status-indicator online" title="Online"></div>'
+        : `<div class="user-status-indicator offline" title="${formatLastSeen(user.last_seen)}"></div>`;
+      
+      const lastMsgText = lastMsg 
+        ? truncateMessage(lastMsg.messaggio)
+        : 'Nessun messaggio';
+      
+      const lastMsgTime = lastMsg 
+        ? formatMessageTime(lastMsg.created_at)
+        : '';
+      
+      return `
+        <div class="conversation-item" data-user-id="${user.id}" onclick="openChat('${user.id}', '${escapeHtml(user.username)}')">
+          <div class="conversation-avatar">
+            ${user.username.charAt(0).toUpperCase()}
+            ${statusIndicator}
+          </div>
+          <div class="conversation-info">
+            <div class="conversation-name">${escapeHtml(user.username)}</div>
+            <div class="conversation-last-message">${lastMsgText}</div>
+          </div>
+          ${lastMsgTime ? `<div class="conversation-time">${lastMsgTime}</div>` : ''}
+          ${unreadCount > 0 ? `<div class="conversation-unread-badge">${unreadCount}</div>` : ''}
+          <button class="conversation-delete-btn" onclick="event.stopPropagation(); deleteConversation('${user.id}')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      `;
+    }).join('');
+    
+    if (users.length === 0) {
+      conversationsHTML = `
+        <div class="messages-empty">
+          <i class="fas fa-user-friends"></i>
+          <h3>Nessun utente disponibile</h3>
+        </div>
+      `;
     }
     
-    console.log('🗑️ Cancello notifiche...');
-    await deleteAllMessageNotifications();
-    
-    setTimeout(async () => {
-      await updateNotificationsBadge();
-      console.log('✅ Badge aggiornato!');
-    }, 1000);
+    mainContent.innerHTML = `
+      <div class="conversations-search-container">
+        <div class="conversations-search-wrapper">
+          <i class="fas fa-search"></i>
+          <input 
+            type="text" 
+            class="conversations-search-input" 
+            placeholder="Cerca utente..."
+            id="conversationsSearchInput"
+            oninput="filterConversations()"
+          >
+          <button class="conversations-search-clear" id="conversationsSearchClear" onclick="clearConversationsSearch()" style="display: none;">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <div class="conversations-list">
+        ${conversationsHTML}
+      </div>
+    `;
     
   } catch (error) {
-    console.error('❌ Errore:', error);
+    console.error('❌ Errore caricamento:', error);
     mainContent.innerHTML = `
       <div class="messages-empty">
         <i class="fas fa-exclamation-triangle"></i>
-        <h3>Errore</h3>
+        <h3>Errore di caricamento</h3>
         <p>${error.message}</p>
       </div>
     `;
   }
 }
 
-function setupConversationsSearch() {
-  const searchInput = document.getElementById('conversationsSearchInput');
-  const searchClearBtn = document.getElementById('searchClearBtn');
-  const conversationsList = document.getElementById('conversationsList');
+function filterConversations() {
+  const input = document.getElementById('conversationsSearchInput');
+  const clearBtn = document.getElementById('conversationsSearchClear');
+  const filter = input.value.toLowerCase().trim();
+  const items = document.querySelectorAll('.conversation-item');
   
-  if (!searchInput || !conversationsList) return;
+  clearBtn.style.display = filter ? 'flex' : 'none';
   
-  searchInput.addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase().trim();
-    const items = conversationsList.querySelectorAll('.conversation-item');
-    
-    // Show/hide clear button
-    if (searchClearBtn) {
-      searchClearBtn.style.display = searchTerm ? 'flex' : 'none';
-    }
-    
-    let visibleCount = 0;
-    
-    items.forEach(item => {
-      const username = item.getAttribute('data-username') || '';
-      
-      if (username.includes(searchTerm)) {
-        item.style.display = 'flex';
-        visibleCount++;
-      } else {
-        item.style.display = 'none';
-      }
-    });
-    
-    // Show empty state if no results
-    let emptyState = conversationsList.querySelector('.search-no-results');
-    
-    if (visibleCount === 0 && searchTerm) {
-      if (!emptyState) {
-        emptyState = document.createElement('div');
-        emptyState.className = 'search-no-results';
-        emptyState.innerHTML = `
-          <i class="fas fa-search"></i>
-          <h3>Nessun risultato</h3>
-          <p>Nessun contatto trovato per "${escapeHtml(searchTerm)}"</p>
-        `;
-        conversationsList.appendChild(emptyState);
-      }
-    } else if (emptyState) {
-      emptyState.remove();
+  let visibleCount = 0;
+  items.forEach(item => {
+    const username = item.querySelector('.conversation-name').textContent.toLowerCase();
+    if (username.includes(filter)) {
+      item.style.display = 'flex';
+      visibleCount++;
+    } else {
+      item.style.display = 'none';
     }
   });
   
-  // Clear search
-  if (searchClearBtn) {
-    searchClearBtn.addEventListener('click', function() {
-      searchInput.value = '';
-      searchInput.dispatchEvent(new Event('input'));
-      searchInput.focus();
-    });
+  const list = document.querySelector('.conversations-list');
+  const existingNoResults = list.querySelector('.search-no-results');
+  
+  if (visibleCount === 0 && filter) {
+    if (!existingNoResults) {
+      const noResults = document.createElement('div');
+      noResults.className = 'search-no-results';
+      noResults.innerHTML = `
+        <i class="fas fa-search"></i>
+        <h3>Nessun risultato</h3>
+        <p>Nessun utente trovato per "${escapeHtml(filter)}"</p>
+      `;
+      list.appendChild(noResults);
+    }
+  } else if (existingNoResults) {
+    existingNoResults.remove();
   }
 }
 
-// 🗑️ NUOVA FUNZIONE: Elimina conversazione con bottone
-async function deleteConversation(userId, username, isFollowed) {
-  let confirmMessage = `Vuoi eliminare la chat con ${username}?`;
+function clearConversationsSearch() {
+  const input = document.getElementById('conversationsSearchInput');
+  const clearBtn = document.getElementById('conversationsSearchClear');
   
-  if (isFollowed) {
-    confirmMessage += `\n\n⚠️ Stai seguendo questo utente. Vuoi anche smettere di seguirlo?`;
-  }
+  input.value = '';
+  clearBtn.style.display = 'none';
   
-  if (!confirm(confirmMessage)) return;
+  const items = document.querySelectorAll('.conversation-item');
+  items.forEach(item => item.style.display = 'flex');
+  
+  const noResults = document.querySelector('.search-no-results');
+  if (noResults) noResults.remove();
+  
+  input.focus();
+}
+
+window.filterConversations = filterConversations;
+window.clearConversationsSearch = clearConversationsSearch;
+
+async function deleteConversation(userId) {
+  if (!confirm('Eliminare questa conversazione?')) return;
+  
+  const currentUserId = getUserId();
+  if (!currentUserId) return;
   
   try {
-    const currentUserId = getUserId();
-    
-    // Elimina messaggi
-    await supabaseClient
+    const { error } = await supabaseClient
       .from('Messaggi')
       .delete()
       .or(`and(mittente_id.eq.${currentUserId},destinatario_id.eq.${userId}),and(mittente_id.eq.${userId},destinatario_id.eq.${currentUserId})`);
     
-    // Se seguito, rimuovi da Followers
-    if (isFollowed) {
-      await supabaseClient
-        .from('Followers')
-        .delete()
-        .eq('follower_id', currentUserId)
-        .eq('utente_seguito_id', userId);
-      
-      console.log('✅ Smesso di seguire:', username);
-    }
+    if (error) throw error;
     
-    console.log('✅ Conversazione eliminata');
-    
-    // Ricarica lista
-    await showConversationsList();
-    
+    console.log('🗑️ Conversazione eliminata');
+    showConversationsList();
   } catch (error) {
-    console.error('❌ Errore eliminazione:', error);
+    console.error('❌ Errore:', error);
     alert('Errore durante l\'eliminazione');
   }
 }
 
+function backToConversationsList() {
+  showConversationsList();
+}
+
 async function openChat(userId, username) {
-  console.log('💬 Apertura chat:', username);
+  console.log(`💬 Apertura chat con ${username} (${userId})`);
+  
+  currentChatUserId = userId;
+  currentChatUsername = username;
+  isInConversationsList = false;
   
   if (messagesPollingInterval) {
     clearInterval(messagesPollingInterval);
     messagesPollingInterval = null;
   }
   
-  currentChatUserId = userId;
-  currentChatUsername = username;
-  isInConversationsList = false;
-  lastMessageId = null;
-  
-  // Carica info utente per stato online
-  let userStatus = '';
-  try {
-    const { data: userData } = await supabaseClient
+  // 🔥 Ottieni stato utente dalla cache o DB
+  let userStatus = usersStatusCache.get(userId);
+  if (!userStatus) {
+    const { data } = await supabaseClient
       .from('Utenti')
       .select('online, last_seen')
       .eq('id', userId)
       .single();
     
-    if (userData) {
-      if (userData.online) {
-        userStatus = '<span class="user-status-online"><i class="fas fa-circle"></i> Online</span>';
-      } else if (userData.last_seen) {
-        const lastSeen = formatLastSeen(userData.last_seen);
-        userStatus = `<span class="user-status-offline">${lastSeen}</span>`;
-      }
+    if (data) {
+      userStatus = { online: data.online, last_seen: data.last_seen };
+      usersStatusCache.set(userId, userStatus);
     }
-  } catch (error) {
-    // Colonne non esistono o errore - continua senza stato
-    console.log('⚠️ Stato utente non disponibile');
   }
+  
+  // 🔥 Mostra stato nella UI
+  const statusHTML = userStatus && userStatus.online
+    ? '<span class="user-status-online"><i class="fas fa-circle"></i> Online</span>'
+    : `<span class="user-status-offline">${formatLastSeen(userStatus?.last_seen)}</span>`;
   
   const headerLeft = document.getElementById('messagesHeaderLeft');
   if (headerLeft) {
@@ -703,11 +603,11 @@ async function openChat(userId, username) {
         <i class="fas fa-arrow-left"></i>
       </button>
       <div class="messages-avatar">
-        <i class="fas fa-user"></i>
+        ${username.charAt(0).toUpperCase()}
       </div>
       <div class="messages-user-info">
         <div class="messages-username">${escapeHtml(username)}</div>
-        ${userStatus ? `<div class="messages-user-status">${userStatus}</div>` : ''}
+        <div class="messages-user-status">${statusHTML}</div>
       </div>
     `;
   }
@@ -715,149 +615,55 @@ async function openChat(userId, username) {
   const inputContainer = document.getElementById('messagesInputContainer');
   if (inputContainer) inputContainer.style.display = 'flex';
   
-  await markMessagesAsRead(userId);
-  await deleteMessageNotifications(userId);
-  
-  setTimeout(async () => {
-    await updateNotificationsBadge();
-    console.log('✅ Badge aggiornato dopo apertura chat');
-  }, 1000);
-  
   await loadChatMessages();
+  await markMessagesAsRead(userId);
   
-  // 🔥 REALTIME: Subscribe ai nuovi messaggi ISTANTANEI
+  // 🔥 REALTIME MESSAGGI
+  startMessagesRealtime();
+}
+
+// 🔥 REALTIME: Ascolta nuovi messaggi
+function startMessagesRealtime() {
   if (messagesSubscription) {
     supabaseClient.removeChannel(messagesSubscription);
   }
   
-  const currentUserId = getUserId();
-  console.log('🔌 Connessione realtime messaggi...');
+  console.log('🔥 Connessione realtime messaggi...');
   
   messagesSubscription = supabaseClient
-    .channel(`chat-${currentUserId}-${userId}`)
+    .channel(`chat-${currentChatUserId}`)
     .on(
       'postgres_changes',
       {
         event: 'INSERT',
         schema: 'public',
-        table: 'Messaggi'
+        table: 'Messaggi',
+        filter: `destinatario_id=eq.${getUserId()}`
       },
       (payload) => {
-        const msg = payload.new;
-        // Controlla se il messaggio riguarda questa chat
-        const isRelevant = 
-          (msg.mittente_id === currentUserId && msg.destinatario_id === userId) ||
-          (msg.mittente_id === userId && msg.destinatario_id === currentUserId);
-        
-        if (isRelevant && currentChatUserId === userId && !isInConversationsList) {
+        if (payload.new.mittente_id === currentChatUserId) {
           console.log('⚡ Nuovo messaggio ricevuto ISTANTANEO!');
           loadChatMessages(true);
-        }
-      }
-    )
-    .on(
-      'postgres_changes',
-      {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'Messaggi'
-      },
-      (payload) => {
-        const msg = payload.new;
-        const isRelevant = 
-          (msg.mittente_id === currentUserId && msg.destinatario_id === userId) ||
-          (msg.mittente_id === userId && msg.destinatario_id === currentUserId);
-        
-        if (isRelevant && currentChatUserId === userId && !isInConversationsList) {
-          console.log('⚡ Messaggio aggiornato (letto)!');
-          loadChatMessages(true);
+          markMessagesAsRead(currentChatUserId);
         }
       }
     )
     .subscribe((status) => {
+      console.log('📡 Stato realtime messaggi:', status);
       if (status === 'SUBSCRIBED') {
         console.log('✅ Realtime messaggi CONNESSO!');
-      } else {
-        console.log('📡 Stato realtime messaggi:', status);
       }
     });
-  
-  // 🔥 Polling stato utente (ogni 10 secondi, meno frequente)
-  messagesPollingInterval = setInterval(async () => {
-    if (currentChatUserId === userId && !isInConversationsList) {
-      await updateChatUserStatus(userId);
-    }
-  }, 10000); // 10 secondi per stato utente
-}
-
-// 🔥 Aggiorna stato utente nel header della chat (polling backup)
-async function updateChatUserStatus(userId) {
-  try {
-    const { data: userData } = await supabaseClient
-      .from('Utenti')
-      .select('online, last_seen')
-      .eq('id', userId)
-      .single();
-    
-    if (!userData) return;
-    
-    updateChatUserStatusUI(userData);
-  } catch (error) {
-    // Ignora errori silenziosamente
-  }
-}
-
-function formatLastSeen(timestamp) {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diff = now - date;
-  const minutes = Math.floor(diff / (1000 * 60));
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  
-  if (minutes < 1) return 'Attivo ora';
-  if (minutes < 60) return `Attivo ${minutes}m fa`;
-  if (hours < 24) return `Attivo ${hours}h fa`;
-  if (days === 1) return 'Attivo ieri';
-  if (days < 7) return `Attivo ${days}g fa`;
-  
-  return `Attivo il ${date.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}`;
-}
-
-async function backToConversationsList() {
-  console.log('⬅️ Indietro');
-  
-  if (messagesPollingInterval) {
-    clearInterval(messagesPollingInterval);
-    messagesPollingInterval = null;
-  }
-  
-  currentChatUserId = null;
-  currentChatUsername = null;
-  lastMessageId = null;
-  isInConversationsList = true;
-  
-  await showConversationsList();
 }
 
 async function loadChatMessages(silent = false) {
   const currentUserId = getUserId();
-  if (!currentUserId || !currentChatUserId || isInConversationsList) return;
+  if (!currentUserId || !currentChatUserId) return;
   
   const mainContent = document.getElementById('messagesMainContent');
+  if (!mainContent) return;
   
   try {
-    if (!silent) {
-      mainContent.innerHTML = `
-        <div class="messages-content-scroll">
-          <div class="messages-empty">
-            <i class="fas fa-spinner fa-spin"></i>
-            <h3>Caricamento...</h3>
-          </div>
-        </div>
-      `;
-    }
-    
     const { data: messaggi, error } = await supabaseClient
       .from('Messaggi')
       .select('*')
