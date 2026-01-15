@@ -71,15 +71,7 @@ function renderArticolo(articolo) {
   
   renderPhotoGallery();
   
-  // DISPONIBILITÀ - RIMUOVI IL BANNER
-  // const disponibile = articolo.Presente === true;
-  // const availabilityBanner = document.getElementById('availabilityBanner');
-  // availabilityBanner.className = `availability-banner ${disponibile ? 'availability-disponibile' : 'availability-non-disponibile'}`;
-  // availabilityBanner.innerHTML = disponibile
-  //   ? '<i class="fas fa-check-circle"></i> Disponibile in Magazzino'
-  //   : '<i class="fas fa-times-circle"></i> Non Disponibile';
-  
-  // Nascondi il banner
+  // DISPONIBILITÀ - NASCONDI IL BANNER
   const availabilityBanner = document.getElementById('availabilityBanner');
   if (availabilityBanner) {
     availabilityBanner.style.display = 'none';
@@ -176,7 +168,7 @@ function renderArticolo(articolo) {
     `).join('');
   }
   
-  // BOTTONE CONTATTO - USA LA STESSA LOGICA DI contactVendor
+  // BOTTONE CONTATTO
   const contactBtn = document.getElementById('contactBtn');
   contactBtn.onclick = () => contattaVenditore();
 }
@@ -276,23 +268,35 @@ function closeLightbox() {
   document.body.style.overflow = '';
 }
 
-// Contatta venditore - USA LA STESSA LOGICA DI contactVendor
+// Contatta venditore - CON MESSAGGIO PRE-COMPILATO
 function contattaVenditore() {
   if (!currentArticolo) return;
   
   const vendorId = currentArticolo.Utenti?.id;
   const vendorUsername = currentArticolo.Utenti?.username;
+  const nomeArticolo = currentArticolo.Nome || 'Articolo';
+  const prezzoArticolo = parseFloat(currentArticolo.prezzo_vendita || 0).toFixed(2);
+  const articoloId = currentArticolo.id;
   
   if (!vendorId) {
     alert('❌ Errore: dati venditore non disponibili');
     return;
   }
   
+  // Messaggio pre-compilato con riferimenti articolo
+  const messaggioPrefillato = `Ciao! Sono interessato a questo articolo:
+
+📦 ${nomeArticolo}
+💰 Prezzo: ${prezzoArticolo}€
+🔗 ID: ${articoloId}
+
+Vorrei avere più informazioni. È ancora disponibile?`;
+  
   console.log('💬 Apertura chat con venditore:', vendorUsername, vendorId);
   
-  // Usa la stessa funzione di vetrina-venditore
+  // Passa anche il messaggio pre-compilato
   if (window.openMessagesCenter && typeof window.openMessagesCenter === 'function') {
-    window.openMessagesCenter(vendorId);
+    window.openMessagesCenter(vendorId, messaggioPrefillato);
   } else {
     console.error('❌ openMessagesCenter non disponibile');
     alert('❌ Errore: sistema messaggi non disponibile.\n\nVerifica che messages.js sia caricato correttamente.');
