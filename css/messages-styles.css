@@ -473,6 +473,7 @@
   border: 2px solid #2a2a2a;
   border-radius: 20px;
   padding: 16px;
+  padding-right: 56px;  /* 🔥 SPAZIO per bottone elimina */
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -480,6 +481,7 @@
   align-items: center;
   position: relative;
   flex-shrink: 0;
+  min-height: 80px;  /* 🔥 Altezza minima per evitare sovrapposizioni */
 }
 
 .conversation-item:active {
@@ -491,7 +493,7 @@
 /* 🗑️ BOTTONE ELIMINA CONVERSAZIONE */
 .conversation-delete-btn {
   position: absolute;
-  bottom: 16px;  /* 🔥 SPOSTATO IN BASSO */
+  bottom: 16px;
   right: 16px;
   width: 32px;
   height: 32px;
@@ -516,35 +518,51 @@
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.8);
 }
 
-/* ⭐ INDICATORE SEGUITO - BADGE STELLA */
+/* ⭐ INDICATORE SEGUITO - BADGE STELLA PIÙ GRANDE E VISIBILE */
 .conversation-followed-badge {
   position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 20px;
-  height: 20px;
+  top: 12px;
+  left: 12px;
+  width: 28px;
+  height: 28px;
   background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #1f1f1f;
-  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.6);
+  border: 3px solid #1f1f1f;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.8);
   z-index: 2;
+  animation: followedPulse 2s infinite;
+}
+
+@keyframes followedPulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.8);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(251, 191, 36, 1);
+  }
 }
 
 .conversation-followed-badge i {
-  font-size: 10px;
+  font-size: 14px;
   color: #000;
   font-weight: 900;
 }
 
-/* ✅ INDICATORE SEGUITO - ICONA NEL NOME */
+/* ✅ INDICATORE SEGUITO - ICONA NEL NOME PIÙ VISIBILE */
 .conversation-following-icon {
-  font-size: 13px;
-  color: #10b981;
-  margin-left: 6px;
+  font-size: 16px;
+  color: #fbbf24;
+  margin-left: 8px;
   vertical-align: middle;
+  animation: followingPulse 2s infinite;
+}
+
+@keyframes followingPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
 /* 🟡 AVATAR CONVERSAZIONE GIALLO */
@@ -561,12 +579,12 @@
   color: #000;
   font-weight: 900;
   border: 3px solid #fbbf24;
+  position: relative;
 }
 
 .conversation-info {
   flex: 1;
   min-width: 0;
-  padding-right: 40px;  /* Spazio per bottone elimina */
 }
 
 .conversation-name {
@@ -597,22 +615,36 @@
   right: 16px;
 }
 
+/* 🔥 BADGE UNREAD - SOPRA IL BOTTONE ELIMINA, NON COPERTO */
 .conversation-unread-badge {
   position: absolute;
-  top: 50px;  /* 🔥 SPOSTATO PIÙ IN BASSO per non sovrapporre bottone */
-  right: 16px;
+  top: 16px;
+  right: 56px;  /* 🔥 A SINISTRA del bottone elimina */
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: #fff;
-  min-width: 24px;
-  height: 24px;
-  padding: 0 8px;
-  border-radius: 12px;
-  font-size: 12px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 14px;
+  font-size: 13px;
   font-weight: 900;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.8);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 1);
+  z-index: 11;
+  animation: unreadPulse 1.5s infinite;
+}
+
+@keyframes unreadPulse {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 1);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 6px 25px rgba(239, 68, 68, 1);
+    transform: scale(1.05);
+  }
 }
 
 /* 🟡 SCROLLBAR GIALLA */
