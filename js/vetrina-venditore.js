@@ -350,20 +350,23 @@ function applyFilters() {
 
   currentProducts = allProducts.filter(p => {
     const matchSearch = !search || 
-      (p.NomeCarta && p.NomeCarta.toLowerCase().includes(search)) ||
+      (p.Nome && p.Nome.toLowerCase().includes(search)) ||
       (p.Categoria && p.Categoria.toLowerCase().includes(search)) ||
       (p.Set && p.Set.toLowerCase().includes(search)) ||
       (p.Espansione && p.Espansione.toLowerCase().includes(search));
     
     const matchCategoria = categoria === 'all' || p.Categoria === categoria;
     const matchSet = set === 'all' || p.Set === set || p.Espansione === set;
-    const matchPrezzo = (p.Prezzo || 0) >= prezzoMin && (p.Prezzo || 0) <= prezzoMax;
-    const matchRating = !currentFilters.ratingMin || (p.RatingQualita || 0) >= currentFilters.ratingMin;
-    const matchDisponibilita = !disponibili || p.disponibile === true;
+    const prezzo = parseFloat(p.prezzo_vendita || 0);
+    const matchPrezzo = prezzo >= prezzoMin && prezzo <= prezzoMax;
+    const rating = p.ValutazioneStato || 0;
+    const matchRating = !currentFilters.ratingMin || rating >= currentFilters.ratingMin;
+    const matchDisponibilita = !disponibili || p.Presente === true;
 
     return matchSearch && matchCategoria && matchSet && matchPrezzo && matchRating && matchDisponibilita;
   });
 
+  console.log('✅ Filtrati:', currentProducts.length, '/', allProducts.length);
   renderProducts(currentProducts);
 }
 
@@ -414,34 +417,38 @@ function renderProducts(products) {
     return;
   }
 
-  container.innerHTML = products.map(product => `
-    <div class="vendor-product-card" onclick="openProduct('${product.id}')">
-      <div class="vendor-product-image">
-        ${product.disponibile === false ? `
-          <div class="product-availability-badge badge-non-disponibile">
-            <i class="fas fa-times-circle"></i> Non disponibile
-          </div>
-        ` : `
-          <div class="product-availability-badge badge-disponibile">
-            <i class="fas fa-check-circle"></i> Disponibile
-          </div>
-        `}
-        ${product.RatingQualita ? `
-          <div class="vetrina-product-rating">
-            <i class="fas fa-star"></i> ${product.RatingQualita.toFixed(1)}
-          </div>
-        ` : ''}
-        <img src="${product.immagine_url || 'img/placeholder.png'}" alt="${product.NomeCarta}" onerror="this.src='img/placeholder.png'">
-        <div class="product-price-badge">€ ${(product.Prezzo || 0).toFixed(2)}</div>
-      </div>
-      <div class="vendor-product-info">
-        <div class="vendor-product-name">${product.NomeCarta || 'Carta Sconosciuta'}</div>
-        <div class="vendor-product-category">
-          ${product.Categoria || ''} ${product.Set || product.Espansione ? `• ${product.Set || product.Espansione}` : ''}
+  container.innerHTML = products.map(p => {
+    // ✅ PROVA TUTTI I CAMPI POSSIBILI PER LA FOTO
+    const mainPhoto = p.Foto1 || p.foto_principale || p.image_url || p.Foto2 || p.Foto3 || '';
+    
+    // Se NON c'è foto, usa placeholder SVG
+    const photoUrl = mainPhoto || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="420"%3E%3Crect fill="%231a1a1a" width="300" height="420"/%3E%3Ctext fill="%23fbbf24" font-family="Arial" font-size="24" font-weight="bold" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
+    
+    const disponibile = p.Presente === true;
+    const rating = p.ValutazioneStato || 0;
+
+    return `
+      <div class="vendor-product-card" onclick="openProduct('${p.id}')">
+        <div class="vendor-product-image">
+          <img src="${photoUrl}" alt="${p.Nome}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'300\\' height=\\'420\\'%3E%3Crect fill=\\'%231a1a1a\\' width=\\'300\\' height=\\'420\\'/%3E%3Ctext fill=\\'%23fbbf24\\' font-family=\\'Arial\\' font-size=\\'24\\' font-weight=\\'bold\\' x=\\'50%25\\' y=\\'50%25\\' text-anchor=\\'middle\\' dy=\\'.3em\\'%3ENo Image%3C/text%3E%3C/svg%3E'">
+          ${disponibile 
+            ? '<div class="product-availability-badge badge-disponibile"><i class="fas fa-check"></i> DISPONIBILE</div>'
+            : '<div class="product-availability-badge badge-non-disponibile"><i class="fas fa-times"></i> ESAURITO</div>'
+          }
+          ${rating > 0 ? `
+            <div class="vetrina-product-rating">
+              <i class="fas fa-star"></i> ${rating}/10
+            </div>
+          ` : ''}
+          <div class="product-price-badge">€${parseFloat(p.prezzo_vendita || 0).toFixed(2)}</div>
+        </div>
+        <div class="vendor-product-info">
+          <div class="vendor-product-name">${p.Nome || 'Prodotto'}</div>
+          <div class="vendor-product-category">${p.Categoria || 'Carte'}</div>
         </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 // ========================================
