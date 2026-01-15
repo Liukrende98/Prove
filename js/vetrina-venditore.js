@@ -261,52 +261,51 @@ function renderFilters() {
           <div class="filter-group">
             <div class="filter-label"><i class="fas fa-tags"></i> Categoria</div>
             <select class="filter-select" id="filterCategoria" onchange="applyFilters()">
-              <option value="all">Tutte</option>
+              <option value="all">Tutte le categorie</option>
               ${categorie.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
             </select>
           </div>
           
           <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-layer-group"></i> Set</div>
+            <div class="filter-label"><i class="fas fa-layer-group"></i> Set/Espansione</div>
             <select class="filter-select" id="filterSet" onchange="applyFilters()">
-              <option value="all">Tutti</option>
+              <option value="all">Tutti i set</option>
               ${sets.map(set => `<option value="${set}">${set}</option>`).join('')}
             </select>
           </div>
           
           <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-euro-sign"></i> Prezzo</div>
+            <div class="filter-label"><i class="fas fa-euro-sign"></i> Prezzo (€)</div>
             <div class="filter-price-inputs">
-              <input type="number" class="filter-input" id="filterPrezzoMin" placeholder="Min €" oninput="applyFilters()">
-              <input type="number" class="filter-input" id="filterPrezzoMax" placeholder="Max €" oninput="applyFilters()">
+              <input type="number" class="filter-input" id="filterPrezzoMin" placeholder="Min" min="0" oninput="applyFilters()">
+              <input type="number" class="filter-input" id="filterPrezzoMax" placeholder="Max" min="0" oninput="applyFilters()">
             </div>
           </div>
           
           <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-star"></i> Rating</div>
-            <select class="filter-select" id="filterRating" onchange="applyFilters()">
-              <option value="0">Tutti</option>
-              <option value="5">5+ ⭐</option>
-              <option value="6">6+ ⭐</option>
-              <option value="7">7+ ⭐</option>
-              <option value="8">8+ ⭐</option>
-              <option value="9">9+ ⭐</option>
-              <option value="10">10 ⭐</option>
-            </select>
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-box"></i> Disponibilità</div>
-            <div class="filter-checkboxes">
-              <label class="filter-checkbox-item">
-                <input type="checkbox" class="filter-checkbox" id="filterDisponibili" onchange="applyFilters()">
-                <span class="filter-checkbox-label">Solo disponibili</span>
-              </label>
+            <div class="filter-label"><i class="fas fa-star"></i> Rating Minimo</div>
+            <div class="filter-rating">
+              <button class="rating-btn" data-rating="0" onclick="setRatingFilter(0)">Tutti</button>
+              <button class="rating-btn" data-rating="7" onclick="setRatingFilter(7)">7+</button>
+              <button class="rating-btn" data-rating="8" onclick="setRatingFilter(8)">8+</button>
+              <button class="rating-btn" data-rating="9" onclick="setRatingFilter(9)">9+</button>
             </div>
           </div>
           
+          <div class="filter-group">
+            <label class="filter-checkbox-wrapper">
+              <input type="checkbox" class="filter-checkbox" id="filterDisponibili" onchange="applyFilters()">
+              <span class="filter-checkbox-label">
+                <i class="fas fa-check-circle" style="color: #10b981;"></i> Solo disponibili
+              </span>
+            </label>
+          </div>
+
           <div class="filter-actions">
-            <button class="filter-btn filter-btn-reset" onclick="resetFilters()">
+            <button class="filter-btn filter-btn-primary" onclick="applyFilters()">
+              <i class="fas fa-check"></i> Applica
+            </button>
+            <button class="filter-btn filter-btn-secondary" onclick="resetFilters()">
               <i class="fas fa-redo"></i> Reset
             </button>
           </div>
@@ -316,49 +315,89 @@ function renderFilters() {
   `;
 }
 
+// ========================================
+// FILTRI
+// ========================================
 function toggleFilter() {
-  document.getElementById('vendorFilter')?.classList.toggle('expanded');
+  const filter = document.getElementById('vendorFilter');
+  if (filter) {
+    filter.classList.toggle('expanded');
+  }
+}
+
+function setRatingFilter(rating) {
+  currentFilters.ratingMin = rating;
+  
+  document.querySelectorAll('.rating-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (parseInt(btn.dataset.rating) === rating) {
+      btn.classList.add('active');
+    }
+  });
+  
+  applyFilters();
 }
 
 function applyFilters() {
-  currentFilters.search = document.getElementById('filterSearch')?.value.toLowerCase() || '';
-  currentFilters.categoria = document.getElementById('filterCategoria')?.value || 'all';
-  currentFilters.set = document.getElementById('filterSet')?.value || 'all';
-  currentFilters.prezzoMin = parseFloat(document.getElementById('filterPrezzoMin')?.value) || 0;
-  currentFilters.prezzoMax = parseFloat(document.getElementById('filterPrezzoMax')?.value) || Infinity;
-  currentFilters.ratingMin = parseInt(document.getElementById('filterRating')?.value) || 0;
-  currentFilters.disponibili = document.getElementById('filterDisponibili')?.checked || false;
+  const search = document.getElementById('filterSearch')?.value.toLowerCase() || '';
+  const categoria = document.getElementById('filterCategoria')?.value || 'all';
+  const set = document.getElementById('filterSet')?.value || 'all';
+  const prezzoMin = parseFloat(document.getElementById('filterPrezzoMin')?.value) || 0;
+  const prezzoMax = parseFloat(document.getElementById('filterPrezzoMax')?.value) || Infinity;
+  const disponibili = document.getElementById('filterDisponibili')?.checked || false;
+
+  currentFilters = { search, categoria, set, prezzoMin, prezzoMax, ratingMin: currentFilters.ratingMin, disponibili };
 
   currentProducts = allProducts.filter(p => {
-    const matchesSearch = p.Nome.toLowerCase().includes(currentFilters.search);
-    const matchesCategoria = currentFilters.categoria === 'all' || p.Categoria === currentFilters.categoria;
-    const matchesSet = currentFilters.set === 'all' || p.Set === currentFilters.set || p.Espansione === currentFilters.set;
-    const prezzo = parseFloat(p.prezzo_vendita) || 0;
-    const matchesPrezzo = prezzo >= currentFilters.prezzoMin && prezzo <= currentFilters.prezzoMax;
-    const rating = p.ValutazioneStato || 0;
-    const matchesRating = rating >= currentFilters.ratingMin;
-    const matchesDisp = !currentFilters.disponibili || p.Presente === true;
+    const matchSearch = !search || 
+      (p.NomeCarta && p.NomeCarta.toLowerCase().includes(search)) ||
+      (p.Categoria && p.Categoria.toLowerCase().includes(search)) ||
+      (p.Set && p.Set.toLowerCase().includes(search)) ||
+      (p.Espansione && p.Espansione.toLowerCase().includes(search));
     
-    return matchesSearch && matchesCategoria && matchesSet && matchesPrezzo && matchesRating && matchesDisp;
+    const matchCategoria = categoria === 'all' || p.Categoria === categoria;
+    const matchSet = set === 'all' || p.Set === set || p.Espansione === set;
+    const matchPrezzo = (p.Prezzo || 0) >= prezzoMin && (p.Prezzo || 0) <= prezzoMax;
+    const matchRating = !currentFilters.ratingMin || (p.RatingQualita || 0) >= currentFilters.ratingMin;
+    const matchDisponibilita = !disponibili || p.disponibile === true;
+
+    return matchSearch && matchCategoria && matchSet && matchPrezzo && matchRating && matchDisponibilita;
   });
 
-  console.log('✅ Filtrati:', currentProducts.length, '/', allProducts.length);
   renderProducts(currentProducts);
 }
 
 function resetFilters() {
+  currentFilters = {
+    search: '',
+    categoria: 'all',
+    set: 'all',
+    prezzoMin: 0,
+    prezzoMax: Infinity,
+    ratingMin: 0,
+    disponibili: false
+  };
+
   document.getElementById('filterSearch').value = '';
   document.getElementById('filterCategoria').value = 'all';
   document.getElementById('filterSet').value = 'all';
   document.getElementById('filterPrezzoMin').value = '';
   document.getElementById('filterPrezzoMax').value = '';
-  document.getElementById('filterRating').value = '0';
   document.getElementById('filterDisponibili').checked = false;
-  applyFilters();
+
+  document.querySelectorAll('.rating-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.rating === '0') {
+      btn.classList.add('active');
+    }
+  });
+
+  currentProducts = [...allProducts];
+  renderProducts(currentProducts);
 }
 
 // ========================================
-// RENDER PRODOTTI - IMMAGINI SVG + RATING SOPRA PREZZO + DEBUG
+// RENDER PRODOTTI
 // ========================================
 function renderProducts(products) {
   const container = document.getElementById('productsGrid');
@@ -368,65 +407,61 @@ function renderProducts(products) {
     container.innerHTML = `
       <div class="empty-state" style="grid-column: 1 / -1;">
         <i class="fas fa-box-open"></i>
-        <h3>Nessun articolo</h3>
+        <h3>Nessun articolo trovato</h3>
+        <p>Prova a modificare i filtri</p>
       </div>
     `;
     return;
   }
 
-  console.log('🎨 DEBUG - Primo prodotto:', products[0]);
-  console.log('🖼️ DEBUG - Foto1:', products[0].Foto1);
-  console.log('🖼️ DEBUG - foto_principale:', products[0].foto_principale);
-  console.log('🖼️ DEBUG - image_url:', products[0].image_url);
-
-  container.innerHTML = products.map(p => {
-    // ✅ PROVA TUTTI I CAMPI POSSIBILI
-    const mainPhoto = p.Foto1 || p.foto_principale || p.image_url || p.Foto2 || p.Foto3 || '';
-    
-    console.log(`📦 Prodotto ${p.id} - Nome: ${p.Nome}, Foto1: ${p.Foto1}, mainPhoto: ${mainPhoto}`);
-    
-    // Se NON c'è foto, usa placeholder SVG
-    const photoUrl = mainPhoto || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="420"%3E%3Crect fill="%231a1a1a" width="300" height="420"/%3E%3Ctext fill="%23fbbf24" font-family="Arial" font-size="24" font-weight="bold" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
-    
-    const disponibile = p.Presente === true;
-    const rating = p.ValutazioneStato || 0;
-
-    return `
-      <div class="vendor-product-card" onclick="openProduct('${p.id}')">
-        <div class="vendor-product-image">
-          <img src="${photoUrl}" alt="${p.Nome}" onerror="console.error('❌ Errore caricamento immagine:', '${photoUrl}'); this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'300\\' height=\\'420\\'%3E%3Crect fill=\\'%231a1a1a\\' width=\\'300\\' height=\\'420\\'/%3E%3Ctext fill=\\'%23fbbf24\\' font-family=\\'Arial\\' font-size=\\'24\\' font-weight=\\'bold\\' x=\\'50%25\\' y=\\'50%25\\' text-anchor=\\'middle\\' dy=\\'.3em\\'%3ENo Image%3C/text%3E%3C/svg%3E'">
-          ${disponibile 
-            ? '<div class="product-availability-badge badge-disponibile"><i class="fas fa-check"></i> DISPONIBILE</div>'
-            : '<div class="product-availability-badge badge-non-disponibile"><i class="fas fa-times"></i> ESAURITO</div>'
-          }
-          ${rating > 0 ? `
-            <div class="vetrina-product-rating">
-              <i class="fas fa-star"></i> ${rating}/10
-            </div>
-          ` : ''}
-          <div class="product-price-badge">€${parseFloat(p.prezzo_vendita || 0).toFixed(2)}</div>
-        </div>
-        <div class="vendor-product-info">
-          <div class="vendor-product-name">${p.Nome || 'Prodotto'}</div>
-          <div class="vendor-product-category">${p.Categoria || 'Carte'}</div>
+  container.innerHTML = products.map(product => `
+    <div class="vendor-product-card" onclick="openProduct('${product.id}')">
+      <div class="vendor-product-image">
+        ${product.disponibile === false ? `
+          <div class="product-availability-badge badge-non-disponibile">
+            <i class="fas fa-times-circle"></i> Non disponibile
+          </div>
+        ` : `
+          <div class="product-availability-badge badge-disponibile">
+            <i class="fas fa-check-circle"></i> Disponibile
+          </div>
+        `}
+        ${product.RatingQualita ? `
+          <div class="vetrina-product-rating">
+            <i class="fas fa-star"></i> ${product.RatingQualita.toFixed(1)}
+          </div>
+        ` : ''}
+        <img src="${product.immagine_url || 'img/placeholder.png'}" alt="${product.NomeCarta}" onerror="this.src='img/placeholder.png'">
+        <div class="product-price-badge">€ ${(product.Prezzo || 0).toFixed(2)}</div>
+      </div>
+      <div class="vendor-product-info">
+        <div class="vendor-product-name">${product.NomeCarta || 'Carta Sconosciuta'}</div>
+        <div class="vendor-product-category">
+          ${product.Categoria || ''} ${product.Set || product.Espansione ? `• ${product.Set || product.Espansione}` : ''}
         </div>
       </div>
-    `;
-  }).join('');
+    </div>
+  `).join('');
 }
 
 // ========================================
-// POST
+// LOAD POSTS
 // ========================================
-async function loadVendorPosts(utenteId) {
+async function loadVendorPosts(vendorUserId) {
+  console.log('📰 Caricamento post di:', vendorUserId);
+
   const { data, error } = await supabaseClient
     .from('PostSocial')
-    .select('*, utente:Utenti!PostSocial_utente_id_fkey(username)')
-    .eq('utente_id', utenteId)
+    .select(`
+      *,
+      utente:Utenti!PostSocial_utente_id_fkey (id, username)
+    `)
+    .eq('utente_id', vendorUserId)
     .order('created_at', { ascending: false });
 
   if (error) {
-    currentPosts = [];
+    console.error('❌ Errore caricamento post:', error);
+    renderPosts([]);
   } else {
     const currentUserId = getCurrentUserId();
     
@@ -475,6 +510,15 @@ function renderPosts(posts) {
   container.innerHTML = posts.map(post => {
     const isMyPost = currentUserId && post.utente_id === currentUserId;
     
+    // Determina se è video
+    const mediaUrl = post.image;
+    const isVideo = mediaUrl && (
+      mediaUrl.endsWith('.mp4') || 
+      mediaUrl.endsWith('.webm') || 
+      mediaUrl.endsWith('.ogg') ||
+      mediaUrl.startsWith('data:video/')
+    );
+    
     return `
     <div class="vendor-post-card" id="post-${post.id}">
       <div class="vendor-post-header">
@@ -490,20 +534,26 @@ function renderPosts(posts) {
         ` : ''}
       </div>
       <div class="vendor-post-content">${post.content}</div>
-      ${post.image ? `
-        <div class="vendor-post-image">
-          <img src="${post.image}" alt="Post" onerror="this.style.display='none'">
+      ${mediaUrl ? (isVideo ? `
+        <div class="vendor-post-video">
+          <video controls>
+            <source src="${mediaUrl}" type="video/mp4">
+          </video>
         </div>
-      ` : ''}
+      ` : `
+        <div class="vendor-post-image">
+          <img src="${mediaUrl}" alt="Post" onerror="this.style.display='none'">
+        </div>
+      `) : ''}
       <div class="vendor-post-actions">
         <button class="vendor-post-action-btn ${post.liked ? 'liked' : ''} ${isMyPost ? 'disabled' : ''}" 
                 onclick="togglePostLike(event, '${post.id}', '${post.utente_id}')">
           <i class="fas fa-heart"></i>
           <span id="likes-${post.id}">${post.likes}</span>
         </button>
-        <button class="vendor-post-action-btn" onclick="viewComments('${post.id}')">
+        <button class="vendor-post-action-btn" onclick="showCommentsModal('${post.id}')">
           <i class="fas fa-comment"></i>
-          <span>${post.comments}</span>
+          <span id="comments-${post.id}">${post.comments}</span>
         </button>
       </div>
     </div>
@@ -537,14 +587,14 @@ function switchTab(tabName) {
 }
 
 // ========================================
-// AZIONI
+// AZIONI LIKE POST
 // ========================================
-async function togglePostLike(postId, postOwnerId) {
+async function togglePostLike(event, postId, postOwnerId) {
   console.log('💖 Toggle like:', postId);
   
   const currentUserId = getCurrentUserId();
   if (!currentUserId) {
-    alert('❌ Errore: Non sei loggato!');
+    alert('❌ Non sei loggato!');
     return;
   }
 
@@ -587,28 +637,173 @@ async function togglePostLike(postId, postOwnerId) {
       post.likes++;
     }
 
-    // Aggiorna UI con animazione
+    // Aggiorna UI
     const likesSpan = document.getElementById(`likes-${postId}`);
-    if (likesSpan) {
-      likesSpan.style.transform = 'scale(1.3)';
-      likesSpan.style.color = '#fbbf24';
-      setTimeout(() => {
-        likesSpan.textContent = post.likes;
-        setTimeout(() => {
-          likesSpan.style.transform = 'scale(1)';
-          likesSpan.style.color = '';
-        }, 150);
-      }, 100);
+    if (likesSpan) likesSpan.textContent = post.likes;
+
+    const postCard = document.getElementById(`post-${postId}`);
+    if (postCard) {
+      const likeButton = postCard.querySelector('.vendor-post-action-btn');
+      if (likeButton) {
+        if (post.liked) {
+          likeButton.classList.add('liked');
+        } else {
+          likeButton.classList.remove('liked');
+        }
+      }
     }
 
-    const btn = event.currentTarget;
-    if (post.liked) {
-      btn.classList.add('liked');
-    } else {
-      btn.classList.remove('liked');
-    }
   } catch (error) {
     console.error('❌ Errore:', error);
+    alert('❌ Errore: ' + error.message);
+  }
+}
+
+// ========================================
+// MODAL COMMENTI - IDENTICA LOGICA COMMUNITY
+// ========================================
+async function showCommentsModal(postId) {
+  console.log('💬 Apertura modal commenti:', postId);
+  
+  const modal = document.getElementById('commentsModal');
+  const modalPostId = document.getElementById('modalPostId');
+  
+  if (!modal || !modalPostId) {
+    console.error('❌ Modal elementi non trovati!');
+    return;
+  }
+  
+  modalPostId.value = postId;
+  modal.style.display = 'flex';
+  
+  await loadComments(postId);
+}
+
+function closeCommentsModal() {
+  const modal = document.getElementById('commentsModal');
+  const commentInput = document.getElementById('commentInput');
+  
+  if (modal) modal.style.display = 'none';
+  if (commentInput) commentInput.value = '';
+}
+
+async function loadComments(postId) {
+  console.log('📥 Caricamento commenti per post:', postId);
+  
+  const container = document.getElementById('modalCommentsList');
+  if (!container) {
+    console.error('❌ Container commenti non trovato!');
+    return;
+  }
+  
+  container.innerHTML = '<div class="empty-state-small"><i class="fas fa-spinner fa-spin"></i><p>Caricamento...</p></div>';
+  
+  try {
+    const { data: comments, error } = await supabaseClient
+      .from('PostCommenti')
+      .select(`
+        *,
+        utente:Utenti!PostCommenti_utente_id_fkey (id, username)
+      `)
+      .eq('post_id', postId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('❌ Errore caricamento commenti:', error);
+      container.innerHTML = '<div class="empty-state-small">❌ Errore caricamento</div>';
+      return;
+    }
+
+    if (!comments || comments.length === 0) {
+      container.innerHTML = '<div class="empty-state-small"><i class="fas fa-comment-slash"></i><p>Nessun commento.<br>Sii il primo!</p></div>';
+      return;
+    }
+
+    const currentUserId = getCurrentUserId();
+    
+    container.innerHTML = comments.map(c => {
+      const isMyComment = c.utente_id === currentUserId;
+      const avatarInitials = c.utente?.username?.substring(0, 2).toUpperCase() || 'U';
+      
+      return `
+        <div class="comment-item">
+          <div class="comment-avatar">${avatarInitials}</div>
+          <div class="comment-content">
+            <a href="vetrina-venditore.html?id=${c.utente.id}" class="comment-username">
+              ${c.utente.username}
+            </a>
+            ${isMyComment ? '<span class="badge-small">TU</span>' : ''}
+            <p>${c.contenuto}</p>
+            <span class="comment-time">${formatDate(new Date(c.created_at))}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    console.log('✅ Commenti caricati:', comments.length);
+
+  } catch (error) {
+    console.error('❌ Errore catturato:', error);
+    container.innerHTML = '<div class="empty-state-small">❌ Errore</div>';
+  }
+}
+
+async function addComment() {
+  const postId = document.getElementById('modalPostId')?.value;
+  const input = document.getElementById('commentInput');
+  const contenuto = input?.value.trim();
+  
+  if (!postId) {
+    alert('❌ Errore: ID post mancante!');
+    return;
+  }
+  
+  if (!contenuto) {
+    alert('❌ Scrivi un commento!');
+    return;
+  }
+  
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    alert('❌ Devi essere loggato!');
+    return;
+  }
+  
+  console.log('💬 Aggiunta commento a post:', postId);
+  
+  try {
+    const { error } = await supabaseClient
+      .from('PostCommenti')
+      .insert([{
+        post_id: postId,
+        utente_id: currentUserId,
+        contenuto: contenuto
+      }]);
+    
+    if (error) {
+      console.error('❌ Errore inserimento commento:', error);
+      alert('❌ Errore: ' + error.message);
+      return;
+    }
+    
+    console.log('✅ Commento aggiunto');
+    
+    // Pulisci input
+    if (input) input.value = '';
+    
+    // Aggiorna contatore commenti
+    const post = currentPosts.find(p => p.id === postId);
+    if (post) {
+      post.comments++;
+      const commentsSpan = document.getElementById(`comments-${postId}`);
+      if (commentsSpan) commentsSpan.textContent = post.comments;
+    }
+    
+    // Ricarica commenti
+    await loadComments(postId);
+    
+  } catch (error) {
+    console.error('❌ Errore catturato:', error);
     alert('❌ Errore: ' + error.message);
   }
 }
@@ -676,6 +871,9 @@ async function deleteVendorPost(postId) {
   }
 }
 
+// ========================================
+// FOLLOW/UNFOLLOW
+// ========================================
 async function toggleFollowVendor(vendorUserId) {
   const currentUserId = getCurrentUserId();
   if (!currentUserId) {
@@ -773,6 +971,9 @@ async function toggleFollowVendor(vendorUserId) {
   }
 }
 
+// ========================================
+// ALTRE FUNZIONI
+// ========================================
 async function contactVendor(vendorUserId) {
   const currentUserId = getCurrentUserId();
   if (!currentUserId) {
@@ -797,32 +998,37 @@ function openProduct(productId) {
   window.location.href = `dettaglio-articolo.html?id=${productId}`;
 }
 
-function viewComments(postId) {
-  alert('💬 Commenti in arrivo!');
-}
-
 function formatDate(date) {
   const now = new Date();
   const diff = now - date;
+  const minutes = Math.floor(diff / (1000 * 60));
   const hours = Math.floor(diff / (1000 * 60 * 60));
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-  if (hours < 1) return 'Pochi minuti fa';
+  if (minutes < 1) return 'Pochi secondi fa';
+  if (minutes < 60) return `${minutes} min fa`;
   if (hours < 24) return `${hours} ore fa`;
   if (days === 1) return '1 giorno fa';
   if (days < 7) return `${days} giorni fa`;
   return date.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
 }
 
+// ========================================
+// EXPORTS
+// ========================================
 window.initVendorPage = initVendorPage;
 window.switchTab = switchTab;
 window.applyFilters = applyFilters;
 window.resetFilters = resetFilters;
 window.toggleFilter = toggleFilter;
+window.setRatingFilter = setRatingFilter;
 window.togglePostLike = togglePostLike;
+window.showCommentsModal = showCommentsModal;
+window.closeCommentsModal = closeCommentsModal;
+window.loadComments = loadComments;
+window.addComment = addComment;
 window.deleteVendorPost = deleteVendorPost;
 window.toggleFollowVendor = toggleFollowVendor;
 window.contactVendor = contactVendor;
 window.openProduct = openProduct;
-window.viewComments = viewComments;
 window.getCurrentUserId = getCurrentUserId;
