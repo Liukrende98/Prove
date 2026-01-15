@@ -12,8 +12,8 @@
   right: 0;
   width: 100%;
   max-width: 100vw;
-  height: 80vh;
-  max-height: 80vh;
+  height: 85vh;
+  max-height: 85vh;
   background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
   border-radius: 30px 30px 0 0;
   border-top: 4px solid #fbbf24;
@@ -24,8 +24,6 @@
   display: flex;
   flex-direction: column;
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  /* 🔥 FIX TASTIERA iOS - Usa visual viewport */
-  contain: layout size style;
 }
 
 .messages-box.active {
@@ -111,6 +109,34 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* 🟢 STATO UTENTE - ONLINE/OFFLINE */
+.messages-user-status {
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.user-status-online {
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.user-status-online i {
+  font-size: 8px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.user-status-offline {
+  color: #9ca3af;
 }
 
 .messages-close-btn {
@@ -323,8 +349,13 @@
 .conversations-list {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 12px;
   -webkit-overflow-scrolling: touch;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 /* 🔍 BARRA RICERCA CONVERSAZIONI */
@@ -434,13 +465,13 @@
   border: 2px solid #2a2a2a;
   border-radius: 20px;
   padding: 16px;
-  margin-bottom: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   gap: 14px;
   align-items: center;
   position: relative;
+  flex-shrink: 0;
 }
 
 .conversation-item:active {
@@ -607,74 +638,31 @@
   .messages-input-container {
     padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
   }
-  
-  /* Fix altezza quando appare tastiera */
-  .messages-box {
-    height: 85vh;
-    max-height: 85vh;
-  }
-  
-  /* Mantiene contenuto visibile */
-  .messages-main-content {
-    min-height: 0;
-    overflow: hidden;
-  }
-  
-  /* 🔥 STATO TASTIERA APERTA */
-  .messages-box.keyboard-open {
-    border-radius: 0;
-  }
-  
-  .messages-box.keyboard-open .messages-header {
-    padding: 16px;
-    min-height: 72px;
-  }
-  
-  .messages-box.keyboard-open .messages-avatar {
-    width: 40px;
-    height: 40px;
-    font-size: 16px;
-  }
-  
-  .messages-box.keyboard-open .messages-username {
-    font-size: 16px;
-  }
 }
 
-/* 🔥 FIX VIEWPORT iOS - TASTIERA APERTA */
-@media (max-height: 500px) {
-  /* Quando tastiera è aperta, riduci header */
+/* 🔥 MEDIA QUERY VIEWPORT BASSO (tastiera aperta) */
+@media (max-height: 600px) {
+  /* Header più compatto */
   .messages-header {
-    padding: 14px;
-    min-height: 68px;
+    padding: 16px;
+    min-height: 76px;
   }
   
   .messages-avatar {
-    width: 38px;
-    height: 38px;
-    font-size: 16px;
+    width: 42px;
+    height: 42px;
+    font-size: 18px;
   }
   
   .messages-back-btn {
-    width: 34px;
-    height: 34px;
-  }
-  
-  .messages-username {
-    font-size: 15px;
-  }
-  
-  /* Box occupa tutto */
-  .messages-box {
-    height: 100vh;
-    max-height: 100vh;
-    border-radius: 0;
+    width: 36px;
+    height: 36px;
   }
   
   /* Input più compatto */
   .messages-input-container {
-    padding: 10px;
-    min-height: 64px;
+    padding: 12px;
+    min-height: 72px;
   }
   
   .messages-input {
