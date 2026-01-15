@@ -179,15 +179,15 @@ async function showConversationsList() {
   try {
     // 1. Carica TUTTI gli utenti seguiti
     console.log('🔍 Cerco utenti seguiti per user:', currentUserId);
-    console.log('📊 Query Seguiti con foreign key...');
+    console.log('📊 Query FOLLOWERS (follower_id = currentUserId)...');
     
     const { data: follows, error: followError } = await supabaseClient
-      .from('Seguiti')
+      .from('Followers')
       .select(`
-        seguito_id,
-        seguito:Utenti!Seguiti_seguito_id_fkey(id, username)
+        utente_seguito_id,
+        seguito:Utenti!Followers_utente_seguito_id_fkey(id, username)
       `)
-      .eq('utente_id', currentUserId);
+      .eq('follower_id', currentUserId);
     
     if (followError) {
       console.error('❌ Errore caricamento seguiti:', followError);
@@ -202,22 +202,22 @@ async function showConversationsList() {
     if (!follows || follows.length === 0) {
       console.warn('⚠️ ATTENZIONE: Nessun seguito trovato!');
       console.warn('⚠️ Verifica su Supabase Dashboard:');
-      console.warn('   1. Tabella "Seguiti" ha righe?');
-      console.warn('   2. Campo "utente_id" = ' + currentUserId + '?');
-      console.warn('   3. Foreign key "Seguiti_seguito_id_fkey" esiste?');
+      console.warn('   1. Tabella "Followers" ha righe?');
+      console.warn('   2. Campo "follower_id" = ' + currentUserId + '?');
+      console.warn('   3. Foreign key "Followers_utente_seguito_id_fkey" esiste?');
       
       // Query semplice per debug
       console.log('🔍 Provo query semplice senza foreign key...');
       const { data: segutiSemplice, error: errSemplice } = await supabaseClient
-        .from('Seguiti')
+        .from('Followers')
         .select('*')
-        .eq('utente_id', currentUserId);
+        .eq('follower_id', currentUserId);
       
       console.log('📊 Risultato query semplice:', segutiSemplice);
       
       if (segutiSemplice && segutiSemplice.length > 0) {
         console.error('🔥 PROBLEMA: Seguiti esistono ma foreign key NON funziona!');
-        console.error('🔥 Colonne nella tabella Seguiti:', Object.keys(segutiSemplice[0]));
+        console.error('🔥 Colonne nella tabella Followers:', Object.keys(segutiSemplice[0]));
       }
     }
     
@@ -251,8 +251,8 @@ async function showConversationsList() {
       follows.forEach(follow => {
         console.log('👤 Processo seguito:', follow);
         if (follow.seguito) {
-          conversazioni.set(follow.seguito_id, {
-            userId: follow.seguito_id,
+          conversazioni.set(follow.utente_seguito_id, {
+            userId: follow.utente_seguito_id,
             username: follow.seguito.username || 'Utente',
             lastMessage: null,
             lastMessageTime: null,
@@ -270,9 +270,9 @@ async function showConversationsList() {
       
       // FALLBACK: Carica seguiti manualmente
       const { data: segutiManuale } = await supabaseClient
-        .from('Seguiti')
-        .select('seguito_id')
-        .eq('utente_id', currentUserId);
+        .from('Followers')
+        .select('utente_seguito_id')
+        .eq('follower_id', currentUserId);
       
       if (segutiManuale && segutiManuale.length > 0) {
         console.log('🔄 Carico utenti seguiti uno per uno...');
@@ -281,7 +281,7 @@ async function showConversationsList() {
           const { data: utente } = await supabaseClient
             .from('Utenti')
             .select('id, username')
-            .eq('id', seg.seguito_id)
+            .eq('id', seg.utente_seguito_id)
             .single();
           
           if (utente) {
@@ -384,7 +384,9 @@ async function showConversationsList() {
           </div>
         </div>
         <div class="conversations-list" id="conversationsList">
-          ${conversazioniArray.map(conv => `
+          ${conversazioniArray.map((conv, idx) => {
+            console.log(`🔨 Rendering item ${idx + 1}/${conversazioniArray.length}:`, conv.username, 'seguito:', conv.isFollowed);
+            const html = `
             <div class="conversation-item" 
                  data-user-id="${conv.userId}" 
                  data-username="${escapeHtml(conv.username).toLowerCase()}"
@@ -512,13 +514,13 @@ async function deleteConversation(userId, username, isFollowed) {
       .delete()
       .or(`and(mittente_id.eq.${currentUserId},destinatario_id.eq.${userId}),and(mittente_id.eq.${userId},destinatario_id.eq.${currentUserId})`);
     
-    // Se seguito, rimuovi da seguiti
+    // Se seguito, rimuovi da Followers
     if (isFollowed) {
       await supabaseClient
-        .from('Seguiti')
+        .from('Followers')
         .delete()
-        .eq('utente_id', currentUserId)
-        .eq('seguito_id', userId);
+        .eq('follower_id', currentUserId)
+        .eq('utente_seguito_id', userId);
       
       console.log('✅ Smesso di seguire:', username);
     }
