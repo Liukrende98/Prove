@@ -121,9 +121,22 @@ function createMessagesUI() {
     });
   }
   
-  // 🔥 FIX: Aggiungi listener al bottone send
+  // 🔥 FIX SEND: listener diretto + preventDefault
   if (sendBtn) {
-    sendBtn.addEventListener('click', sendMessage);
+    sendBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('🔥 Bottone send cliccato!');
+      sendMessage();
+    });
+    
+    // Backup con touch per mobile
+    sendBtn.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('🔥 Bottone send toccato!');
+      sendMessage();
+    });
   }
 }
 
@@ -613,16 +626,29 @@ async function loadChatMessages(silent = false) {
 }
 
 async function sendMessage() {
+  console.log('📤 sendMessage() chiamata');
+  
   const currentUserId = getUserId();
-  if (!currentUserId || !currentChatUserId) return;
+  if (!currentUserId || !currentChatUserId) {
+    console.error('❌ Mancano userId o chatUserId');
+    return;
+  }
   
   const input = document.getElementById('messagesInput');
   const sendBtn = document.getElementById('messagesSendBtn');
   
-  if (!input || !sendBtn) return;
+  if (!input || !sendBtn) {
+    console.error('❌ Input o sendBtn non trovati');
+    return;
+  }
   
   const messaggio = input.value.trim();
-  if (!messaggio) return;
+  if (!messaggio) {
+    console.log('⚠️ Messaggio vuoto');
+    return;
+  }
+  
+  console.log('📨 Invio messaggio:', messaggio);
   
   try {
     sendBtn.disabled = true;
@@ -638,6 +664,8 @@ async function sendMessage() {
     
     if (error) throw error;
     
+    console.log('✅ Messaggio inviato!');
+    
     input.value = '';
     input.style.height = 'auto';
     
@@ -645,7 +673,8 @@ async function sendMessage() {
     await createNotification(currentChatUserId, 'new_message', 'Nuovo messaggio');
     
   } catch (error) {
-    console.error('❌ Errore:', error);
+    console.error('❌ Errore invio:', error);
+    alert('Errore durante l\'invio del messaggio');
   } finally {
     sendBtn.disabled = false;
     input.focus();
