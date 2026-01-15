@@ -1,8 +1,9 @@
 /* ========================================= */
-/* MESSAGGISTICA - CSS DEFINITIVO GIALLO */
+/* 🟡 NODO MESSAGGISTICA - STILE GIALLO */
 /* ========================================= */
 
-/* Layout messaggi FISSO */
+/* 🔥 VERIFICA: Se vedi tutto GIALLO, il CSS è giusto! */
+
 .messages-box {
   position: fixed;
   bottom: 0;
@@ -27,7 +28,6 @@
   transform: translateY(0);
 }
 
-/* Header FISSO */
 .messages-header {
   padding: 20px;
   border-bottom: 2px solid #2a2a2a;
@@ -48,15 +48,15 @@
   min-width: 0;
 }
 
-/* BOTTONE BACK GIALLO */
+/* 🟡 BOTTONE BACK GIALLO PIENO */
 .messages-back-btn {
   width: 40px;
   height: 40px;
   min-width: 40px;
   border-radius: 50%;
-  background: #fbbf24;
+  background: #fbbf24 !important;
   border: none;
-  color: #000;
+  color: #000 !important;
   font-size: 18px;
   font-weight: 900;
   cursor: pointer;
@@ -71,10 +71,10 @@
 
 .messages-back-btn:active {
   transform: scale(0.9);
-  background: #f59e0b;
+  background: #f59e0b !important;
 }
 
-/* AVATAR GIALLO */
+/* 🟡 AVATAR GIALLO */
 .messages-avatar {
   width: 48px;
   height: 48px;
@@ -137,7 +137,7 @@
   min-height: 0;
 }
 
-/* 🔥 SCROLL CONTAINER - QUI SCORRE TUTTO */
+/* 🔥 SCROLL CONTAINER */
 .messages-content-scroll {
   flex: 1;
   overflow-y: auto;
@@ -202,7 +202,7 @@
   color: #6b7280;
 }
 
-/* 🔥 INPUT CONTAINER SEMPRE FISSO IN BASSO */
+/* 🔥 INPUT CONTAINER SEMPRE FISSO */
 .messages-input-container {
   padding: 16px;
   background: #1a1a1a;
@@ -242,7 +242,7 @@
   box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
 }
 
-/* 🟡 BOTTONE SEND GIALLO CON FRECCIA SU */
+/* 🟡 BOTTONE SEND GIALLO */
 .messages-send-btn {
   width: 48px;
   height: 48px;
@@ -269,7 +269,6 @@
 .messages-send-btn:disabled {
   opacity: 0.3;
   cursor: not-allowed;
-  transform: none;
 }
 
 .messages-empty {
@@ -302,7 +301,6 @@
   text-align: center;
 }
 
-/* LISTA CONVERSAZIONI */
 .conversations-list {
   flex: 1;
   overflow-y: auto;
@@ -321,7 +319,6 @@
   gap: 14px;
   align-items: center;
   position: relative;
-  overflow: hidden;
 }
 
 .conversation-item:active {
@@ -330,7 +327,7 @@
   background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
 }
 
-/* 🟡 Avatar conversazione GIALLO */
+/* 🟡 AVATAR CONVERSAZIONE GIALLO */
 .conversation-avatar {
   width: 56px;
   height: 56px;
@@ -344,13 +341,11 @@
   color: #000;
   font-weight: 900;
   border: 3px solid #fbbf24;
-  z-index: 1;
 }
 
 .conversation-info {
   flex: 1;
   min-width: 0;
-  z-index: 1;
 }
 
 .conversation-name {
@@ -379,7 +374,6 @@
   position: absolute;
   top: 16px;
   right: 16px;
-  z-index: 1;
 }
 
 .conversation-unread-badge {
@@ -398,7 +392,6 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 10px rgba(239, 68, 68, 0.8);
-  z-index: 1;
 }
 
 /* 🟡 SCROLLBAR GIALLA */
@@ -443,7 +436,7 @@
   pointer-events: all;
 }
 
-/* 🔧 OTTIMIZZAZIONI MOBILE */
+/* OTTIMIZZAZIONI MOBILE */
 @media (max-width: 768px) {
   .messages-box {
     height: 90vh;
@@ -462,63 +455,24 @@
   
   .message-bubble {
     max-width: 85%;
-    font-size: 14px;
-  }
-  
-  .conversation-item {
-    padding: 14px;
-  }
-  
-  .conversation-avatar {
-    width: 50px;
-    height: 50px;
-    min-width: 50px;
-    font-size: 20px;
   }
   
   .messages-avatar {
     width: 44px;
     height: 44px;
-    min-width: 44px;
     font-size: 18px;
   }
   
   .messages-back-btn {
     width: 36px;
     height: 36px;
-    min-width: 36px;
     font-size: 16px;
   }
 }
 
-/* 🔧 FIX SAFARI iOS */
+/* FIX SAFARI iOS */
 @supports (-webkit-touch-callout: none) {
   .messages-input {
     font-size: 16px !important;
   }
-  
-  .messages-input-container {
-    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-  }
-}
-
-/* 🔧 Previene scroll body quando messaggi aperti */
-body.messages-open {
-  overflow: hidden;
-}
-
-/* Animazione apertura smooth */
-@keyframes slideUp {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.messages-box.active {
-  animation: slideUp 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
