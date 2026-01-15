@@ -1,8 +1,36 @@
 // ========================================
-// SISTEMA MESSAGGISTICA - VERSIONE DEFINITIVA
+// 🟡 NODO MESSAGGISTICA - VERSIONE GIALLA
 // ========================================
 
-console.log('📨 messages.js DEFINITIVO caricato!');
+console.log('%c🟡 NODO MESSAGGI GIALLI CARICATO! v4.0', 'background: #fbbf24; color: #000; font-size: 20px; padding: 10px; font-weight: bold;');
+
+// 🔥 VERIFICA VISIVA - Se vedi questo banner, il file è giusto!
+setTimeout(() => {
+  const testDiv = document.createElement('div');
+  testDiv.id = 'nodo-version-check';
+  testDiv.style.cssText = `
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #000;
+    padding: 15px 30px;
+    border-radius: 15px;
+    font-weight: 900;
+    font-size: 16px;
+    z-index: 99999;
+    box-shadow: 0 4px 20px rgba(251, 191, 36, 0.6);
+  `;
+  testDiv.innerHTML = '✅ MESSAGGI GIALLI v4.0 CARICATO!';
+  document.body.appendChild(testDiv);
+  
+  setTimeout(() => {
+    testDiv.style.opacity = '0';
+    testDiv.style.transition = 'opacity 1s';
+    setTimeout(() => testDiv.remove(), 1000);
+  }, 3000);
+}, 1000);
 
 let currentChatUserId = null;
 let currentChatUsername = null;
@@ -10,9 +38,6 @@ let messagesPollingInterval = null;
 let lastMessageId = null;
 let isInConversationsList = true;
 
-// ========================================
-// GET USER ID
-// ========================================
 function getUserId() {
   if (typeof getCurrentUser === 'function') {
     const user = getCurrentUser();
@@ -21,12 +46,8 @@ function getUserId() {
   return localStorage.getItem('nodo_user_id') || null;
 }
 
-// ========================================
-// APRI CENTRO MESSAGGI
-// ========================================
 function openMessagesCenter() {
-  console.log('📨 Apertura centro messaggi...');
-  
+  console.log('📨 Apertura centro messaggi GIALLI...');
   resetMessagesState();
   
   if (!document.getElementById('messagesOverlay')) {
@@ -43,11 +64,8 @@ function openMessagesCenter() {
   }
 }
 
-// ========================================
-// RESET COMPLETO STATO
-// ========================================
 function resetMessagesState() {
-  console.log('🔄 Reset stato messaggistica...');
+  console.log('🔄 Reset stato...');
   
   if (messagesPollingInterval) {
     clearInterval(messagesPollingInterval);
@@ -60,15 +78,11 @@ function resetMessagesState() {
   isInConversationsList = true;
 }
 
-// ========================================
-// CHIUDI MESSAGGI
-// ========================================
 function closeMessages() {
   const overlay = document.getElementById('messagesOverlay');
   const box = document.getElementById('messagesBox');
   
   if (box) box.classList.remove('active');
-  
   setTimeout(() => {
     if (overlay) overlay.classList.remove('active');
   }, 400);
@@ -76,9 +90,6 @@ function closeMessages() {
   resetMessagesState();
 }
 
-// ========================================
-// CREA UI MESSAGGI
-// ========================================
 function createMessagesUI() {
   const overlay = document.createElement('div');
   overlay.id = 'messagesOverlay';
@@ -139,9 +150,6 @@ function createMessagesUI() {
   }
 }
 
-// ========================================
-// MOSTRA LISTA CONVERSAZIONI
-// ========================================
 async function showConversationsList() {
   const currentUserId = getUserId();
   if (!currentUserId) {
@@ -149,7 +157,7 @@ async function showConversationsList() {
     return;
   }
   
-  console.log('📋 Caricamento lista conversazioni...');
+  console.log('📋 Caricamento lista...');
   
   if (messagesPollingInterval) {
     clearInterval(messagesPollingInterval);
@@ -196,7 +204,7 @@ async function showConversationsList() {
     
     if (error) throw error;
     
-    console.log('✅ Messaggi caricati:', messaggi?.length || 0);
+    console.log('✅ Messaggi:', messaggi?.length || 0);
     
     const conversazioni = new Map();
     
@@ -215,13 +223,11 @@ async function showConversationsList() {
           username: otherUser?.username || 'Utente',
           lastMessage: msg.messaggio,
           lastMessageTime: msg.created_at,
-          unreadCount: 0,
-          messages: []
+          unreadCount: 0
         });
       }
       
       const conv = conversazioni.get(otherUserId);
-      conv.messages.push(msg);
       
       if (msg.destinatario_id === currentUserId && !msg.letto) {
         conv.unreadCount++;
@@ -261,17 +267,16 @@ async function showConversationsList() {
       `;
     }
     
-    // 🔥 CANCELLA NOTIFICHE AGGRESSIVO
+    console.log('🗑️ Cancello notifiche...');
     await deleteAllMessageNotifications();
     
-    // 🔥 FORZA AGGIORNAMENTO BADGE
     setTimeout(async () => {
       await updateNotificationsBadge();
-      console.log('✅ Badge aggiornato dopo visualizzazione lista');
-    }, 500);
+      console.log('✅ Badge aggiornato!');
+    }, 800);
     
   } catch (error) {
-    console.error('❌ Errore caricamento conversazioni:', error);
+    console.error('❌ Errore:', error);
     mainContent.innerHTML = `
       <div class="messages-empty">
         <i class="fas fa-exclamation-triangle"></i>
@@ -282,11 +287,8 @@ async function showConversationsList() {
   }
 }
 
-// ========================================
-// APRI CHAT
-// ========================================
 async function openChat(userId, username) {
-  console.log('💬 Apertura chat con:', username, 'ID:', userId);
+  console.log('💬 Apertura chat:', username);
   
   if (messagesPollingInterval) {
     clearInterval(messagesPollingInterval);
@@ -316,15 +318,13 @@ async function openChat(userId, username) {
   const inputContainer = document.getElementById('messagesInputContainer');
   if (inputContainer) inputContainer.style.display = 'flex';
   
-  // 🔥 SEGNA COME LETTI E CANCELLA NOTIFICHE
   await markMessagesAsRead(userId);
   await deleteMessageNotifications(userId);
   
-  // 🔥 FORZA AGGIORNAMENTO BADGE
   setTimeout(async () => {
     await updateNotificationsBadge();
     console.log('✅ Badge aggiornato dopo apertura chat');
-  }, 500);
+  }, 800);
   
   await loadChatMessages();
   
@@ -335,11 +335,8 @@ async function openChat(userId, username) {
   }, 3000);
 }
 
-// ========================================
-// TORNA ALLA LISTA
-// ========================================
 async function backToConversationsList() {
-  console.log('⬅️ Torna alla lista conversazioni');
+  console.log('⬅️ Indietro');
   
   if (messagesPollingInterval) {
     clearInterval(messagesPollingInterval);
@@ -354,17 +351,9 @@ async function backToConversationsList() {
   await showConversationsList();
 }
 
-// ========================================
-// CARICA MESSAGGI CHAT
-// ========================================
 async function loadChatMessages(silent = false) {
   const currentUserId = getUserId();
-  if (!currentUserId || !currentChatUserId) return;
-  
-  if (isInConversationsList) {
-    console.log('⚠️ Non più in chat, skip update');
-    return;
-  }
+  if (!currentUserId || !currentChatUserId || isInConversationsList) return;
   
   const mainContent = document.getElementById('messagesMainContent');
   
@@ -407,7 +396,6 @@ async function loadChatMessages(silent = false) {
       `<div class="messages-empty">
         <i class="fas fa-comment-dots"></i>
         <h3>Inizia la conversazione</h3>
-        <p>Scrivi il primo messaggio!</p>
       </div>`;
     
     mainContent.innerHTML = `
@@ -416,37 +404,19 @@ async function loadChatMessages(silent = false) {
       </div>
     `;
     
-    // Scroll to bottom
     const scrollContainer = document.getElementById('messagesContentScroll');
     if (scrollContainer) {
       scrollContainer.scrollTop = scrollContainer.scrollHeight;
     }
     
   } catch (error) {
-    console.error('❌ Errore caricamento messaggi:', error);
-    if (!silent) {
-      mainContent.innerHTML = `
-        <div class="messages-content-scroll">
-          <div class="messages-empty">
-            <i class="fas fa-exclamation-triangle"></i>
-            <h3>Errore</h3>
-            <p>${error.message}</p>
-          </div>
-        </div>
-      `;
-    }
+    console.error('❌ Errore:', error);
   }
 }
 
-// ========================================
-// INVIA MESSAGGIO
-// ========================================
 async function sendMessage() {
   const currentUserId = getUserId();
-  if (!currentUserId || !currentChatUserId) {
-    alert('❌ Errore: chat non inizializzata!');
-    return;
-  }
+  if (!currentUserId || !currentChatUserId) return;
   
   const input = document.getElementById('messagesInput');
   const sendBtn = document.getElementById('messagesSendBtn');
@@ -458,7 +428,6 @@ async function sendMessage() {
   
   try {
     sendBtn.disabled = true;
-    console.log('📤 Invio messaggio...');
     
     const { error } = await supabaseClient
       .from('Messaggi')
@@ -471,8 +440,6 @@ async function sendMessage() {
     
     if (error) throw error;
     
-    console.log('✅ Messaggio inviato!');
-    
     input.value = '';
     input.style.height = 'auto';
     
@@ -480,119 +447,61 @@ async function sendMessage() {
     await createNotification(currentChatUserId, 'new_message', 'Nuovo messaggio');
     
   } catch (error) {
-    console.error('❌ Errore invio messaggio:', error);
-    alert('❌ Errore: ' + error.message);
+    console.error('❌ Errore:', error);
   } finally {
     sendBtn.disabled = false;
     input.focus();
   }
 }
 
-// ========================================
-// SEGNA MESSAGGI COME LETTI
-// ========================================
 async function markMessagesAsRead(senderId) {
   const currentUserId = getUserId();
   if (!currentUserId) return;
   
-  console.log('📖 markMessagesAsRead - Da:', senderId);
-  
   try {
-    const { count } = await supabaseClient
-      .from('Messaggi')
-      .select('*', { count: 'exact', head: true })
-      .eq('destinatario_id', currentUserId)
-      .eq('mittente_id', senderId)
-      .eq('letto', false);
-    
-    if (count === 0) {
-      console.log('✅ Nessun messaggio da segnare');
-      return;
-    }
-    
-    const { error } = await supabaseClient
+    await supabaseClient
       .from('Messaggi')
       .update({ letto: true })
       .eq('destinatario_id', currentUserId)
       .eq('mittente_id', senderId)
       .eq('letto', false);
     
-    if (error) throw error;
-    
-    console.log('✅ Messaggi segnati come letti:', count);
-    
+    console.log('✅ Messaggi letti');
   } catch (error) {
-    console.error('❌ Errore markMessagesAsRead:', error);
+    console.error('❌ Errore:', error);
   }
 }
 
-// ========================================
-// CANCELLA NOTIFICHE SPECIFICHE
-// ========================================
-async function deleteMessageNotifications(senderId) {
+async function deleteMessageNotifications() {
   const currentUserId = getUserId();
   if (!currentUserId) return;
   
-  console.log('🗑️ Cancello notifiche da:', senderId);
+  console.log('🗑️ Cancello notifiche messaggi...');
   
   try {
-    const { error } = await supabaseClient
+    await supabaseClient
       .from('Notifiche')
       .delete()
       .eq('utente_id', currentUserId)
       .eq('tipo', 'new_message');
     
-    if (error) throw error;
-    
-    console.log('✅ Notifiche cancellate');
-    await updateNotificationsBadge();
-    
+    console.log('✅ Notifiche cancellate!');
   } catch (error) {
-    console.error('❌ Errore deleteMessageNotifications:', error);
+    console.error('❌ Errore:', error);
   }
 }
 
-// ========================================
-// CANCELLA TUTTE LE NOTIFICHE MESSAGGI
-// ========================================
 async function deleteAllMessageNotifications() {
-  const currentUserId = getUserId();
-  if (!currentUserId) return;
-  
-  console.log('🗑️ Cancello TUTTE le notifiche messaggi');
-  
-  try {
-    const { error } = await supabaseClient
-      .from('Notifiche')
-      .delete()
-      .eq('utente_id', currentUserId)
-      .eq('tipo', 'new_message');
-    
-    if (error) throw error;
-    
-    console.log('✅ Tutte le notifiche messaggi cancellate');
-    await updateNotificationsBadge();
-    
-  } catch (error) {
-    console.error('❌ Errore deleteAllMessageNotifications:', error);
-  }
+  await deleteMessageNotifications();
 }
 
-// ========================================
-// AGGIORNA BADGE NOTIFICHE
-// ========================================
 async function updateNotificationsBadge() {
   if (typeof window.loadNotificationsCount === 'function') {
-    console.log('🔄 Aggiornamento badge notifiche...');
+    console.log('🔄 Aggiorno badge...');
     await window.loadNotificationsCount();
-  } else {
-    console.warn('⚠️ loadNotificationsCount non disponibile');
   }
 }
 
-// ========================================
-// CREA NOTIFICA
-// ========================================
 async function createNotification(userId, tipo, messaggio) {
   try {
     await supabaseClient
@@ -604,22 +513,15 @@ async function createNotification(userId, tipo, messaggio) {
         letta: false
       }]);
   } catch (error) {
-    console.error('❌ Errore creazione notifica:', error);
+    console.error('❌ Errore:', error);
   }
 }
 
-// ========================================
-// APRI CHAT DIRETTA
-// ========================================
 async function openDirectChat(userId, username) {
-  console.log('💬 Apertura chat diretta con:', username);
   openMessagesCenter();
   setTimeout(() => openChat(userId, username), 500);
 }
 
-// ========================================
-// UTILITY
-// ========================================
 function formatMessageTime(timestamp) {
   const date = new Date(timestamp);
   const now = new Date();
@@ -651,7 +553,6 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-// Export functions
 window.openMessagesCenter = openMessagesCenter;
 window.closeMessages = closeMessages;
 window.showConversationsList = showConversationsList;
@@ -660,4 +561,4 @@ window.openChat = openChat;
 window.sendMessage = sendMessage;
 window.openDirectChat = openDirectChat;
 
-console.log('✅ Messaggistica DEFINITIVA pronta!');
+console.log('%c✅ MESSAGGI GIALLI PRONTI!', 'background: #10b981; color: #fff; font-size: 16px; padding: 5px;');
