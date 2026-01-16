@@ -335,6 +335,49 @@
     body.menu-active {
       overflow: hidden;
     }
+    
+    /* 🔥 PULSANTE RIMOZIONE FOTO */
+    .image-preview-wrapper {
+      position: relative;
+      display: inline-block;
+      margin-top: 10px;
+    }
+    
+    .image-preview-wrapper .image-preview {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 12px;
+      border: 2px solid rgba(251, 191, 36, 0.3);
+    }
+    
+    .remove-image-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      border: 2px solid #0a0a0a;
+      border-radius: 50%;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+      z-index: 10;
+    }
+    
+    .remove-image-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.6);
+    }
+    
+    .remove-image-btn:active {
+      transform: scale(0.95);
+    }
   </style>
 </head>
 
