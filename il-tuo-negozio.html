@@ -536,16 +536,39 @@
 
           <div class="form-group">
             <label><i class="fas fa-layer-group"></i> CATEGORIA</label>
-            <select name="Categoria">
+            <select id="categoriaAdd" name="Categoria" onchange="gestisciCarteGradate(this.value, 'Add')">
               <option value="">Seleziona...</option>
               <option value="ETB">ETB</option>
               <option value="Carte Singole">Carte Singole</option>
+              <option value="Carte gradate">Carte gradate</option>
               <option value="Booster Box">Booster Box</option>
               <option value="Collection Box">Collection Box</option>
+              <option value="Box mini tin">Box mini tin</option>
               <option value="Bustine">Bustine</option>
               <option value="Accessori">Accessori</option>
               <option value="Altro">Altro</option>
             </select>
+          </div>
+
+          <!-- CAMPI CARTE GRADATE (nascosti di default) -->
+          <div class="form-group" id="casaGradazioneGroupAdd" style="display:none;">
+            <label><i class="fas fa-certificate"></i> CASA DI GRADAZIONE *</label>
+            <select id="casaGradazioneAdd" name="CasaGradazione" onchange="gestisciAltraCasa(this.value, 'Add')">
+              <option value="">Seleziona casa...</option>
+              <option value="PSA">PSA</option>
+              <option value="GRAAD">GRAAD</option>
+              <option value="Altra casa">Altra casa</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="altraCasaGradazioneGroupAdd" style="display:none;">
+            <label><i class="fas fa-edit"></i> SPECIFICA CASA DI GRADAZIONE *</label>
+            <input type="text" id="altraCasaGradazioneAdd" name="AltraCasaGradazione" placeholder="es. BGS, CGC, etc.">
+          </div>
+
+          <div class="form-group" id="votoGradazioneGroupAdd" style="display:none;">
+            <label><i class="fas fa-star"></i> VOTO GRADAZIONE *</label>
+            <input type="number" id="votoGradazioneAdd" name="VotoGradazione" min="1" max="10" step="0.5" placeholder="es. 9.5">
           </div>
 
           <div class="form-group">
@@ -659,16 +682,39 @@
 
           <div class="form-group">
             <label><i class="fas fa-layer-group"></i> CATEGORIA</label>
-            <select id="editCategoria" name="Categoria">
+            <select id="editCategoria" name="Categoria" onchange="gestisciCarteGradate(this.value, 'Edit')">
               <option value="">Seleziona...</option>
               <option value="ETB">ETB</option>
               <option value="Carte Singole">Carte Singole</option>
+              <option value="Carte gradate">Carte gradate</option>
               <option value="Booster Box">Booster Box</option>
               <option value="Collection Box">Collection Box</option>
+              <option value="Box mini tin">Box mini tin</option>
               <option value="Bustine">Bustine</option>
               <option value="Accessori">Accessori</option>
               <option value="Altro">Altro</option>
             </select>
+          </div>
+
+          <!-- CAMPI CARTE GRADATE (nascosti di default) -->
+          <div class="form-group" id="casaGradazioneGroupEdit" style="display:none;">
+            <label><i class="fas fa-certificate"></i> CASA DI GRADAZIONE *</label>
+            <select id="casaGradazioneEdit" name="CasaGradazione" onchange="gestisciAltraCasa(this.value, 'Edit')">
+              <option value="">Seleziona casa...</option>
+              <option value="PSA">PSA</option>
+              <option value="GRAAD">GRAAD</option>
+              <option value="Altra casa">Altra casa</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="altraCasaGradazioneGroupEdit" style="display:none;">
+            <label><i class="fas fa-edit"></i> SPECIFICA CASA DI GRADAZIONE *</label>
+            <input type="text" id="altraCasaGradazioneEdit" name="AltraCasaGradazione" placeholder="es. BGS, CGC, etc.">
+          </div>
+
+          <div class="form-group" id="votoGradazioneGroupEdit" style="display:none;">
+            <label><i class="fas fa-star"></i> VOTO GRADAZIONE *</label>
+            <input type="number" id="votoGradazioneEdit" name="VotoGradazione" min="1" max="10" step="0.5" placeholder="es. 9.5">
           </div>
 
           <div class="form-group">
