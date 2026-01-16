@@ -1162,7 +1162,7 @@ async function aggiungiArticolo(event) {
     msg.textContent = '❌ ERRORE: ' + error.message;
     console.error('❌ Errore salvataggio:', error);
     
-    // 🔥 Nascondi loader
+    // 🔥 Nascondi loader su errore
     if (window.NodoLoader) NodoLoader.hideOperation();
   } else {
     msg.className = 'msg success';
@@ -1171,11 +1171,10 @@ async function aggiungiArticolo(event) {
     // Reset array immagini
     addImages = [];
     
-    // 🔥 Nascondi loader
-    if (window.NodoLoader) NodoLoader.hideOperation();
-    
     setTimeout(() => {
       closeAddModal();
+      // 🔥 Nascondi loader DOPO chiusura modal
+      if (window.NodoLoader) NodoLoader.hideOperation();
       caricaArticoli();
     }, 1500);
   }
@@ -1351,18 +1350,17 @@ async function salvaModifica(event) {
     msg.textContent = '❌ ERRORE: ' + error.message;
     msg.style.display = 'block';
     
-    // 🔥 Nascondi loader
+    // 🔥 Nascondi loader su errore
     if (window.NodoLoader) NodoLoader.hideOperation();
   } else {
     msg.className = 'msg success';
     msg.textContent = '✅ SALVATO!';
     msg.style.display = 'block';
     
-    // 🔥 Nascondi loader
-    if (window.NodoLoader) NodoLoader.hideOperation();
-    
     setTimeout(() => {
       closeEditModal();
+      // 🔥 Nascondi loader DOPO chiusura modal
+      if (window.NodoLoader) NodoLoader.hideOperation();
       caricaArticoli();
     }, 1500);
   }
@@ -1373,6 +1371,9 @@ async function eliminaArticolo() {
   const nome = document.getElementById('editNome').value;
   if (!confirm(`⚠️ ELIMINARE "${nome}"?`)) return;
 
+  // 🔥 Mostra loader
+  if (window.NodoLoader) NodoLoader.showOperation('Eliminazione...');
+
   const { error } = await supabaseClient.from('Articoli').delete().eq('id', id);
   const msg = document.getElementById('editMsg');
 
@@ -1380,12 +1381,16 @@ async function eliminaArticolo() {
     msg.className = 'msg error';
     msg.textContent = '❌ ERRORE: ' + error.message;
     msg.style.display = 'block';
+    // 🔥 Nascondi loader su errore
+    if (window.NodoLoader) NodoLoader.hideOperation();
   } else {
     msg.className = 'msg success';
     msg.textContent = '✅ ELIMINATO!';
     msg.style.display = 'block';
     setTimeout(() => {
       closeEditModal();
+      // 🔥 Nascondi loader DOPO chiusura modal
+      if (window.NodoLoader) NodoLoader.hideOperation();
       caricaArticoli();
     }, 1500);
   }
