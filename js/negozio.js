@@ -1,5 +1,6 @@
 // ========================================
 // LOGICA IL TUO NEGOZIO - CON AUTENTICAZIONE E FOTO MULTIPLE
+// NODO Italia - v2.0 Modulare
 // ========================================
 
 let currentPage = 1;
@@ -9,6 +10,21 @@ let filteredArticles = [];
 let currentChart = null;
 let currentChartColor = 'yellow';
 let stream = null;
+let viewMode = 'grid'; // 'grid' o 'list'
+
+// ========== TOGGLE VISTA GRID/LIST ==========
+function toggleViewMode() {
+  viewMode = viewMode === 'grid' ? 'list' : 'grid';
+  
+  const toggleBtn = document.getElementById('viewToggleBtn');
+  if (toggleBtn) {
+    toggleBtn.innerHTML = viewMode === 'grid' 
+      ? '<i class="fas fa-list"></i>' 
+      : '<i class="fas fa-th-large"></i>';
+  }
+  
+  renderArticles();
+}
 
 // ========== GESTIONE CARTE GRADATE ==========
 function gestisciCarteGradate(categoriaValue, prefix) {
@@ -175,8 +191,59 @@ function renderArticles() {
     return;
   }
   
-  grid.innerHTML = pageArticles.map(article => createArticleCard(article)).join('');
+  // Render in base alla modalità
+  if (viewMode === 'list') {
+    grid.className = 'articles-list';
+    grid.innerHTML = pageArticles.map(article => createArticleListItem(article)).join('');
+  } else {
+    grid.className = 'articles-grid';
+    grid.innerHTML = pageArticles.map(article => createArticleCard(article)).join('');
+  }
 }
+
+// ========== VISTA LISTA - iPhone Optimized ==========
+function createArticleListItem(article) {
+  const delta = (Number(article.ValoreAttuale) || 0) - (Number(article.PrezzoPagato) || 0);
+  const deltaClass = delta >= 0 ? 'profit' : 'loss';
+  const foto = article.foto_principale || article.image_url || '';
+  
+  // Info gradazione
+  let gradedInfo = '';
+  if (article.Categoria === 'Carte gradate' && article.casa_gradazione && article.voto_gradazione) {
+    gradedInfo = `<span class="list-graded">${article.casa_gradazione} ${article.voto_gradazione}</span>`;
+  }
+  
+  return `
+    <div class="list-item" onclick="toggleArticleCard(${article.id})">
+      <div class="list-image">
+        <img src="${foto || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%231a1a1a%22 width=%22100%22 height=%22100%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23fbbf24%22 font-size=%2230%22>📷</text></svg>'}" alt="">
+        ${article.Presente 
+          ? '<span class="list-status presente"><i class="fas fa-check"></i></span>' 
+          : '<span class="list-status assente"><i class="fas fa-times"></i></span>'}
+      </div>
+      
+      <div class="list-info">
+        <div class="list-name">${article.Nome || 'Senza nome'}</div>
+        <div class="list-meta">
+          <span class="list-category">${article.Categoria || 'N/D'}</span>
+          ${gradedInfo}
+          ${article.in_vetrina ? '<span class="list-vetrina"><i class="fas fa-store"></i></span>' : ''}
+        </div>
+      </div>
+      
+      <div class="list-values">
+        <div class="list-price">${Number(article.ValoreAttuale || 0).toFixed(0)}€</div>
+        <div class="list-delta ${deltaClass}">${delta >= 0 ? '+' : ''}${delta.toFixed(0)}€</div>
+      </div>
+      
+      <div class="list-arrow">
+        <i class="fas fa-chevron-right"></i>
+      </div>
+    </div>
+  `;
+}
+
+// ========== VISTA GRIGLIA ==========
 
 function createArticleCard(article) {
   const delta = (Number(article.ValoreAttuale) || 0) - (Number(article.PrezzoPagato) || 0);
@@ -383,9 +450,10 @@ function createArticleCard(article) {
         <div class="expanded-box">
           <div class="expanded-box-title"><i class="fas fa-images"></i> GALLERIA</div>
           <div class="gallery-grid">
-            ${foto2 ? `<img src="${foto2}" onclick="openFullscreen('${foto2}')" class="gallery-thumb">` : ''}
-            ${foto3 ? `<img src="${foto3}" onclick="openFullscreen('${foto3}')" class="gallery-thumb">` : ''}
-            ${foto4 ? `<img src="${foto4}" onclick="openFullscreen('${foto4}')" class="gallery-thumb">` : ''}
+            <img src="${foto}" onclick="openArticleGallery(${article.id}, 0)" class="gallery-thumb">
+            ${foto2 ? `<img src="${foto2}" onclick="openArticleGallery(${article.id}, 1)" class="gallery-thumb">` : ''}
+            ${foto3 ? `<img src="${foto3}" onclick="openArticleGallery(${article.id}, 2)" class="gallery-thumb">` : ''}
+            ${foto4 ? `<img src="${foto4}" onclick="openArticleGallery(${article.id}, 3)" class="gallery-thumb">` : ''}
           </div>
         </div>
         ` : ''}
@@ -422,7 +490,38 @@ function toggleArticleCard(articleId) {
   }
 }
 
+// ========== GALLERIA IMMAGINI CON NAVIGAZIONE ==========
+function openArticleGallery(articleId, startIndex = 0) {
+  const article = allArticles.find(a => a.id === articleId);
+  if (!article) return;
+  
+  // Raccogli tutte le foto
+  const images = [
+    article.foto_principale || article.image_url,
+    article.foto_2,
+    article.foto_3,
+    article.foto_4,
+    article.foto_5,
+    article.foto_6
+  ].filter(img => img && img.trim());
+  
+  if (images.length === 0) return;
+  
+  // Usa NodoGalleria se disponibile, altrimenti fallback
+  if (window.NodoGalleria) {
+    NodoGalleria.open(images, startIndex);
+  } else {
+    openFullscreen(images[startIndex]);
+  }
+}
+
 function openFullscreen(imageUrl) {
+  // Fallback se NodoGalleria non è disponibile
+  if (window.NodoGalleria) {
+    NodoGalleria.open([imageUrl], 0);
+    return;
+  }
+  
   const overlay = document.createElement('div');
   overlay.className = 'fullscreen-overlay';
   overlay.innerHTML = `
@@ -463,6 +562,12 @@ function updatePagination() {
   const paginationBottom = document.getElementById('paginationBottom');
   if (paginationBottom) {
     paginationBottom.style.display = totalPages > 1 ? 'flex' : 'none';
+  }
+  
+  // Aggiorna contatore vista
+  const viewCount = document.getElementById('viewCount');
+  if (viewCount) {
+    viewCount.textContent = filteredArticles.length;
   }
   
   // Pagination classica (se esiste)
@@ -966,6 +1071,11 @@ async function aggiungiArticolo(event) {
     return;
   }
   
+  // 🔥 Mostra loader operazione
+  if (window.NodoLoader) {
+    NodoLoader.showOperation('Salvataggio articolo...');
+  }
+  
   const form = event.target;
   const formData = new FormData(form);
   
@@ -1051,12 +1161,18 @@ async function aggiungiArticolo(event) {
     msg.className = 'msg error';
     msg.textContent = '❌ ERRORE: ' + error.message;
     console.error('❌ Errore salvataggio:', error);
+    
+    // 🔥 Nascondi loader
+    if (window.NodoLoader) NodoLoader.hideOperation();
   } else {
     msg.className = 'msg success';
     msg.textContent = '✅ ARTICOLO AGGIUNTO!';
     
     // Reset array immagini
     addImages = [];
+    
+    // 🔥 Nascondi loader
+    if (window.NodoLoader) NodoLoader.hideOperation();
     
     setTimeout(() => {
       closeAddModal();
@@ -1154,6 +1270,11 @@ function calcolaDeltaEdit() {
 async function salvaModifica(event) {
   event.preventDefault();
   
+  // 🔥 Mostra loader operazione
+  if (window.NodoLoader) {
+    NodoLoader.showOperation('Salvataggio modifiche...');
+  }
+  
   const id = document.getElementById('editId').value;
   const formData = new FormData(event.target);
   
@@ -1229,10 +1350,17 @@ async function salvaModifica(event) {
     msg.className = 'msg error';
     msg.textContent = '❌ ERRORE: ' + error.message;
     msg.style.display = 'block';
+    
+    // 🔥 Nascondi loader
+    if (window.NodoLoader) NodoLoader.hideOperation();
   } else {
     msg.className = 'msg success';
     msg.textContent = '✅ SALVATO!';
     msg.style.display = 'block';
+    
+    // 🔥 Nascondi loader
+    if (window.NodoLoader) NodoLoader.hideOperation();
+    
     setTimeout(() => {
       closeEditModal();
       caricaArticoli();
