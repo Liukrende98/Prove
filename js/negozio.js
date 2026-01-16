@@ -510,53 +510,84 @@ function previousPage() {
   }
 }
 
-// ========== FILTRI E RICERCA ==========
+// ========== FILTRI - MOBILE OPTIMIZED ==========
 
-// Aggiorna visualizzazione slider doppio
-function updateRangeSlider() {
-  const minInput = document.getElementById('fValoreMin');
-  const maxInput = document.getElementById('fValoreMax');
-  const display = document.getElementById('rangeValoreDisplay');
-  const progress = document.getElementById('rangeProgress');
+let currentRatingFilter = 0;
+
+// Toggle apertura/chiusura filtri
+function toggleFilters() {
+  const body = document.getElementById('filterBody');
+  const arrow = document.getElementById('filterArrow');
   
-  if (!minInput || !maxInput) return;
+  if (body && arrow) {
+    body.classList.toggle('open');
+    arrow.classList.toggle('open');
+  }
+}
+
+// Gestisce mostra/nascondi filtri carte gradate
+function gestisciFiltroCategoria() {
+  const categoria = document.getElementById('fCategoria')?.value || '';
+  const gradedSection = document.getElementById('filterGradedSection');
   
-  let minVal = parseInt(minInput.value);
-  let maxVal = parseInt(maxInput.value);
-  
-  // Evita che si incrocino
-  if (minVal > maxVal) {
-    [minVal, maxVal] = [maxVal, minVal];
-    minInput.value = minVal;
-    maxInput.value = maxVal;
+  if (gradedSection) {
+    gradedSection.style.display = categoria === 'Carte gradate' ? 'block' : 'none';
   }
   
-  // Aggiorna display
+  applicaFiltri();
+}
+
+// Toggle chip (presenti, assenti, vetrina, profit, loss)
+function toggleChip(chipId) {
+  const chip = document.getElementById(chipId);
+  if (chip) {
+    chip.classList.toggle('active');
+    applicaFiltri();
+  }
+}
+
+// Set rating filter
+function setRatingFilter(val) {
+  currentRatingFilter = val;
+  
+  // Update UI
+  document.querySelectorAll('.rating-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (parseInt(btn.dataset.val) === val) {
+      btn.classList.add('active');
+    }
+  });
+  
+  applicaFiltri();
+}
+
+// Aggiorna display range
+function updateRangeDisplay() {
+  const min = document.getElementById('fValoreMin')?.value || 0;
+  const max = document.getElementById('fValoreMax')?.value || 10000;
+  const display = document.getElementById('rangeDisplay');
+  
   if (display) {
-    display.textContent = `${minVal}€ - ${maxVal}€`;
-  }
-  
-  // Aggiorna barra di progresso
-  if (progress) {
-    const range = 1000; // max - min del range
-    const left = (minVal / range) * 100;
-    const right = 100 - (maxVal / range) * 100;
-    progress.style.left = left + '%';
-    progress.style.right = right + '%';
+    display.textContent = `${min}€ - ${max}€`;
   }
 }
 
 // Applica tutti i filtri
 function applicaFiltri() {
+  updateRangeDisplay();
+  
   const nome = document.getElementById('fNome')?.value?.toLowerCase() || '';
   const categoria = document.getElementById('fCategoria')?.value || '';
+  const casaGradazione = document.getElementById('fCasaGradazione')?.value || '';
+  const votoGradazione = parseFloat(document.getElementById('fVotoGradazione')?.value) || 0;
   const valoreMin = parseInt(document.getElementById('fValoreMin')?.value) || 0;
-  const valoreMax = parseInt(document.getElementById('fValoreMax')?.value) || 1000;
-  const statoMin = parseInt(document.getElementById('fStato')?.value) || 0;
-  const mostraPresenti = document.getElementById('fPresenti')?.checked ?? true;
-  const mostraAssenti = document.getElementById('fAssenti')?.checked ?? true;
-  const mostraGuadagno = document.getElementById('fProfit')?.checked ?? true;
-  const mostraPerdita = document.getElementById('fLoss')?.checked ?? true;
+  const valoreMax = parseInt(document.getElementById('fValoreMax')?.value) || 999999;
+  
+  const mostraPresenti = document.getElementById('chipPresenti')?.classList.contains('active') ?? true;
+  const mostraAssenti = document.getElementById('chipAssenti')?.classList.contains('active') ?? true;
+  const soloVetrina = document.getElementById('chipVetrina')?.classList.contains('active') ?? false;
+  const mostraGuadagno = document.getElementById('chipProfit')?.classList.contains('active') ?? true;
+  const mostraPerdita = document.getElementById('chipLoss')?.classList.contains('active') ?? true;
   
   filteredArticles = allArticles.filter(article => {
     // Filtro nome
@@ -567,32 +598,69 @@ function applicaFiltri() {
     // Filtro categoria
     const matchCategoria = !categoria || article.Categoria === categoria;
     
+    // Filtro carte gradate
+    let matchGraded = true;
+    if (categoria === 'Carte gradate') {
+      if (casaGradazione) {
+        matchGraded = article.casa_gradazione === casaGradazione;
+      }
+      if (matchGraded && votoGradazione > 0) {
+        matchGraded = (article.voto_gradazione || 0) >= votoGradazione;
+      }
+    }
+    
     // Filtro valore
     const valore = Number(article.ValoreAttuale) || 0;
     const matchValore = valore >= valoreMin && valore <= valoreMax;
     
     // Filtro stato/valutazione
     const stato = Number(article.ValutazioneStato) || 0;
-    const matchStato = !statoMin || stato >= statoMin;
+    const matchStato = currentRatingFilter === 0 || stato >= currentRatingFilter;
     
     // Filtro presenza
     const isPresente = article.Presente === true;
     const matchPresenza = (mostraPresenti && isPresente) || (mostraAssenti && !isPresente);
+    
+    // Filtro vetrina
+    const matchVetrina = !soloVetrina || article.in_vetrina === true;
     
     // Filtro guadagno/perdita
     const delta = (Number(article.ValoreAttuale) || 0) - (Number(article.PrezzoPagato) || 0);
     const isGuadagno = delta >= 0;
     const matchDelta = (mostraGuadagno && isGuadagno) || (mostraPerdita && !isGuadagno);
     
-    return matchNome && matchCategoria && matchValore && matchStato && matchPresenza && matchDelta;
+    return matchNome && matchCategoria && matchGraded && matchValore && matchStato && matchPresenza && matchVetrina && matchDelta;
   });
+  
+  // Aggiorna contatore filtri attivi
+  updateFilterCount();
   
   currentPage = 1;
   renderArticles();
   updatePagination();
+}
+
+// Conta filtri attivi
+function updateFilterCount() {
+  let count = 0;
   
-  // Chiudi filtri dopo applicazione (opzionale su mobile)
-  // toggleFilters();
+  if (document.getElementById('fNome')?.value) count++;
+  if (document.getElementById('fCategoria')?.value) count++;
+  if (document.getElementById('fCasaGradazione')?.value) count++;
+  if (document.getElementById('fVotoGradazione')?.value) count++;
+  if (parseInt(document.getElementById('fValoreMin')?.value) > 0) count++;
+  if (parseInt(document.getElementById('fValoreMax')?.value) < 10000) count++;
+  if (currentRatingFilter > 0) count++;
+  if (!document.getElementById('chipPresenti')?.classList.contains('active')) count++;
+  if (!document.getElementById('chipAssenti')?.classList.contains('active')) count++;
+  if (document.getElementById('chipVetrina')?.classList.contains('active')) count++;
+  if (!document.getElementById('chipProfit')?.classList.contains('active')) count++;
+  if (!document.getElementById('chipLoss')?.classList.contains('active')) count++;
+  
+  const countEl = document.getElementById('filterCount');
+  if (countEl) {
+    countEl.textContent = count > 0 ? count : '';
+  }
 }
 
 // Reset tutti i filtri
@@ -600,37 +668,56 @@ function resetFiltri() {
   // Reset campi
   const fNome = document.getElementById('fNome');
   const fCategoria = document.getElementById('fCategoria');
+  const fCasaGradazione = document.getElementById('fCasaGradazione');
+  const fVotoGradazione = document.getElementById('fVotoGradazione');
   const fValoreMin = document.getElementById('fValoreMin');
   const fValoreMax = document.getElementById('fValoreMax');
-  const fStato = document.getElementById('fStato');
-  const fPresenti = document.getElementById('fPresenti');
-  const fAssenti = document.getElementById('fAssenti');
-  const fProfit = document.getElementById('fProfit');
-  const fLoss = document.getElementById('fLoss');
+  const filterGradedSection = document.getElementById('filterGradedSection');
   
   if (fNome) fNome.value = '';
   if (fCategoria) fCategoria.value = '';
+  if (fCasaGradazione) fCasaGradazione.value = '';
+  if (fVotoGradazione) fVotoGradazione.value = '';
   if (fValoreMin) fValoreMin.value = 0;
-  if (fValoreMax) fValoreMax.value = 1000;
-  if (fStato) fStato.value = '';
-  if (fPresenti) fPresenti.checked = true;
-  if (fAssenti) fAssenti.checked = true;
-  if (fProfit) fProfit.checked = true;
-  if (fLoss) fLoss.checked = true;
+  if (fValoreMax) fValoreMax.value = 10000;
+  if (filterGradedSection) filterGradedSection.style.display = 'none';
   
-  // Aggiorna slider
-  updateRangeSlider();
+  // Reset rating
+  currentRatingFilter = 0;
+  document.querySelectorAll('.rating-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.val === '0') btn.classList.add('active');
+  });
+  
+  // Reset chips
+  ['chipPresenti', 'chipAssenti', 'chipProfit', 'chipLoss'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('active');
+  });
+  
+  const chipVetrina = document.getElementById('chipVetrina');
+  if (chipVetrina) chipVetrina.classList.remove('active');
+  
+  // Aggiorna display
+  updateRangeDisplay();
   
   // Reset articoli
   filteredArticles = [...allArticles];
   currentPage = 1;
   renderArticles();
   updatePagination();
+  updateFilterCount();
 }
 
 // Funzione legacy per compatibilità
 function cercaArticoli() {
   applicaFiltri();
+}
+
+// Inizializza rating filter al caricamento
+function initRatingFilter() {
+  const firstBtn = document.querySelector('.rating-btn[data-val="0"]');
+  if (firstBtn) firstBtn.classList.add('active');
 }
 
 // ========== MODAL AGGIUNGI ==========
@@ -664,25 +751,40 @@ function closeAddModal() {
 let addImages = []; // Array per form Aggiungi
 let editImages = []; // Array per form Modifica
 let editExistingUrls = []; // URL esistenti in modifica
+let initAddDone = false;
+let initEditDone = false;
 
 const MAX_IMAGES = 6;
 
 // Inizializza il sistema di upload
 function initImageUpload(containerId, inputId, isEdit = false) {
+  // Evita inizializzazioni multiple
+  if (!isEdit && initAddDone) return;
+  if (isEdit && initEditDone) return;
+  
   const container = document.getElementById(containerId);
   const input = document.getElementById(inputId);
   
-  if (!container || !input) return;
+  console.log(`🔧 initImageUpload: container=${containerId}, input=${inputId}, found=${!!container && !!input}`);
   
-  input.addEventListener('change', (e) => {
+  if (!container || !input) {
+    console.warn(`⚠️ Elemento non trovato: container=${!!container}, input=${!!input}`);
+    return;
+  }
+  
+  input.addEventListener('change', function(e) {
+    console.log('📸 File selezionati:', e.target.files.length);
+    
     const files = Array.from(e.target.files);
     const currentImages = isEdit ? editImages : addImages;
     const currentUrls = isEdit ? editExistingUrls : [];
     const totalCurrent = currentImages.length + currentUrls.filter(u => u).length;
     
+    console.log(`📊 Immagini attuali: ${totalCurrent}, nuove: ${files.length}`);
+    
     if (totalCurrent + files.length > MAX_IMAGES) {
       alert(`⚠️ Puoi caricare massimo ${MAX_IMAGES} foto. Ne hai già ${totalCurrent}.`);
-      input.value = '';
+      e.target.value = '';
       return;
     }
     
@@ -690,15 +792,26 @@ function initImageUpload(containerId, inputId, isEdit = false) {
       if (file.type.startsWith('image/')) {
         if (isEdit) {
           editImages.push(file);
+          console.log('✅ Aggiunta a editImages:', file.name);
         } else {
           addImages.push(file);
+          console.log('✅ Aggiunta a addImages:', file.name, 'Totale:', addImages.length);
         }
       }
     });
     
-    input.value = ''; // Reset input per permettere stesso file
+    e.target.value = ''; // Reset input per permettere stesso file
     renderImageGrid(containerId, isEdit);
   });
+  
+  // Segna come inizializzato
+  if (isEdit) {
+    initEditDone = true;
+  } else {
+    initAddDone = true;
+  }
+  
+  console.log(`✅ initImageUpload completato per ${inputId}`);
 }
 
 // Renderizza la griglia immagini
@@ -814,21 +927,28 @@ async function uploadImage(file) {
   const user = getCurrentUser();
   if (!user) return null;
   
+  // Nome bucket - assicurati che esista su Supabase!
+  const BUCKET_NAME = 'images';
+  
   const fileName = `${user.id}/${Date.now()}_${file.name}`;
   
+  console.log(`📤 Uploading to bucket '${BUCKET_NAME}':`, fileName);
+  
   const { data, error } = await supabaseClient.storage
-    .from('articoli-images')
+    .from(BUCKET_NAME)
     .upload(fileName, file);
   
   if (error) {
-    console.error('Errore upload:', error);
+    console.error('❌ Errore upload:', error);
+    alert(`Errore upload: ${error.message}. Verifica che il bucket "${BUCKET_NAME}" esista su Supabase.`);
     return null;
   }
   
   const { data: urlData } = supabaseClient.storage
-    .from('articoli-images')
+    .from(BUCKET_NAME)
     .getPublicUrl(fileName);
   
+  console.log('✅ Upload completato:', urlData?.publicUrl);
   return urlData?.publicUrl || null;
 }
 
@@ -849,13 +969,27 @@ async function aggiungiArticolo(event) {
   msg.textContent = '⏳ Caricamento...';
   msg.style.display = 'block';
   
+  // 🔥 DEBUG: Verifica array immagini
+  console.log('🖼️ addImages al momento del salvataggio:', addImages.length, addImages);
+  
   // 🔥 NUOVO SISTEMA: Upload immagini dall'array addImages
   const uploadedUrls = [];
+  
+  if (addImages.length === 0) {
+    console.log('⚠️ Nessuna immagine da caricare');
+  }
+  
   for (let i = 0; i < addImages.length; i++) {
     msg.textContent = `⏳ Caricamento foto ${i + 1}/${addImages.length}...`;
+    console.log(`📤 Upload foto ${i + 1}:`, addImages[i].name);
     const url = await uploadImage(addImages[i]);
-    uploadedUrls.push(url);
+    console.log(`📥 URL ottenuto:`, url);
+    if (url) {
+      uploadedUrls.push(url);
+    }
   }
+  
+  console.log('✅ URL caricati:', uploadedUrls);
   
   const valore = parseFloat(formData.get('ValoreAttuale')) || 0;
   const prezzo = parseFloat(formData.get('PrezzoPagato')) || 0;
@@ -904,14 +1038,21 @@ async function aggiungiArticolo(event) {
     voto_gradazione: votoGradazione
   };
   
+  console.log('📝 Articolo da salvare:', articolo);
+  
   const { error } = await supabaseClient.from('Articoli').insert([articolo]);
   
   if (error) {
     msg.className = 'msg error';
     msg.textContent = '❌ ERRORE: ' + error.message;
+    console.error('❌ Errore salvataggio:', error);
   } else {
     msg.className = 'msg success';
     msg.textContent = '✅ ARTICOLO AGGIUNTO!';
+    
+    // Reset array immagini
+    addImages = [];
+    
     setTimeout(() => {
       closeAddModal();
       caricaArticoli();
@@ -1289,20 +1430,6 @@ function closeGraphModal() {
   document.querySelectorAll('.stat-card').forEach(card => {
     card.classList.remove('expanded');
   });
-}
-
-// ========== FILTRI ==========
-function toggleFilters() {
-  const filterContent = document.getElementById('filterContent');
-  const filterToggle = document.getElementById('filterToggle');
-  
-  if (filterContent) {
-    filterContent.classList.toggle('active');
-  }
-  
-  if (filterToggle) {
-    filterToggle.classList.toggle('active');
-  }
 }
 
 // Chiusura modals al click esterno
