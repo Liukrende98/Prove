@@ -515,27 +515,21 @@ function setupScrollIndicators() {
     scrollContainers.forEach((scrollContainer, index) => {
       const indicator = scrollContainer.querySelector('.scroll-indicator');
       if (indicator) {
-        let hideTimer = null;
+        let hasScrolled = false; // 🔥 Flag per tracciare se ha scrollato
         
         scrollContainer.addEventListener('scroll', () => {
-          // Nascondi quando scrolla
-          if (scrollContainer.scrollLeft > 10) {
+          // 🔥 Se scrolla per la prima volta, nascondi DEFINITIVAMENTE
+          if (scrollContainer.scrollLeft > 10 && !hasScrolled) {
+            hasScrolled = true;
             indicator.style.opacity = '0';
             indicator.style.pointerEvents = 'none';
             
-            // Clear timer esistente
-            if (hideTimer) clearTimeout(hideTimer);
-            
-            // Riapparirà dopo 3 secondi di inattività
-            hideTimer = setTimeout(() => {
-              if (scrollContainer.scrollLeft > 10) {
-                indicator.style.opacity = '0';
-              } else {
-                indicator.style.opacity = '1';
+            // 🔥 RIMUOVI completamente dopo animazione
+            setTimeout(() => {
+              if (indicator.parentNode) {
+                indicator.remove();
               }
-            }, 3000);
-          } else {
-            indicator.style.opacity = '1';
+            }, 300);
           }
         });
       }
