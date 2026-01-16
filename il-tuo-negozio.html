@@ -683,6 +683,19 @@
       gap: 12px;
     }
     
+    .grading-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(251, 191, 36, 0.1) 100%);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fbbf24;
+      font-size: 20px;
+    }
+    
     .grading-logo {
       width: 40px;
       height: 40px;
@@ -774,6 +787,120 @@
       color: white;
       font-size: 24px;
       cursor: pointer;
+    }
+    
+    /* ========================================
+       🔥 NUOVO SISTEMA UPLOAD IMMAGINI
+       ======================================== */
+    
+    .image-upload-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+    
+    .upload-image-item {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #1a1a1a;
+      border: 2px solid rgba(251, 191, 36, 0.2);
+    }
+    
+    .upload-image-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .upload-remove-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      border: 2px solid #0a0a0a;
+      border-radius: 50%;
+      color: white;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      z-index: 5;
+      transition: transform 0.2s ease;
+    }
+    
+    .upload-remove-btn:active {
+      transform: scale(0.9);
+    }
+    
+    .upload-image-number {
+      position: absolute;
+      bottom: 6px;
+      left: 6px;
+      width: 24px;
+      height: 24px;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 50%;
+      color: #fbbf24;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .upload-add-btn {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      border: 2px dashed rgba(251, 191, 36, 0.4);
+      background: rgba(251, 191, 36, 0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #fbbf24;
+    }
+    
+    .upload-add-btn:active {
+      transform: scale(0.95);
+      background: rgba(251, 191, 36, 0.15);
+      border-color: #fbbf24;
+    }
+    
+    .upload-add-btn i {
+      font-size: 24px;
+    }
+    
+    .upload-add-btn span {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .upload-add-btn small {
+      font-size: 10px;
+      color: #888;
+    }
+    
+    .upload-hint {
+      text-align: center;
+      font-size: 11px;
+      color: #666;
+      margin-top: 10px;
+    }
+    
+    .upload-hint i {
+      margin-right: 4px;
+      color: #fbbf24;
     }
   </style>
 </head>
@@ -1036,40 +1163,11 @@
             <input type="number" name="ValutazioneStato" min="1" max="10" placeholder="es. 8">
           </div>
 
+          <!-- 🔥 NUOVO SISTEMA UPLOAD FOTO -->
           <div class="form-group">
-            <label><i class="fas fa-images"></i> FOTO PRINCIPALE</label>
-            <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd')">
-            <img id="imagePreviewAdd" class="image-preview" style="display:none;">
-          </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-images"></i> FOTO 2 (opzionale)</label>
-            <input type="file" id="imageInput2" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd2')">
-            <img id="imagePreviewAdd2" class="image-preview" style="display:none;">
-          </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-images"></i> FOTO 3 (opzionale)</label>
-            <input type="file" id="imageInput3" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd3')">
-            <img id="imagePreviewAdd3" class="image-preview" style="display:none;">
-          </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-images"></i> FOTO 4 (opzionale)</label>
-            <input type="file" id="imageInput4" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd4')">
-            <img id="imagePreviewAdd4" class="image-preview" style="display:none;">
-          </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-images"></i> FOTO 5 (opzionale)</label>
-            <input type="file" id="imageInput5" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd5')">
-            <img id="imagePreviewAdd5" class="image-preview" style="display:none;">
-          </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-images"></i> FOTO 6 (opzionale)</label>
-            <input type="file" id="imageInput6" accept="image/*" onchange="previewImage(this, 'imagePreviewAdd6')">
-            <img id="imagePreviewAdd6" class="image-preview" style="display:none;">
+            <label><i class="fas fa-camera"></i> FOTO ARTICOLO</label>
+            <input type="file" id="addImageInput" accept="image/*" multiple style="display:none;">
+            <div id="addImagesContainer"></div>
           </div>
 
           <div class="form-group" style="border-top: 2px solid #2a2a2a; padding-top: 20px; margin-top: 20px;">
@@ -1182,46 +1280,11 @@
             <input type="number" id="editStato" name="ValutazioneStato" min="1" max="10">
           </div>
 
+          <!-- 🔥 NUOVO SISTEMA UPLOAD FOTO -->
           <div class="form-group">
-            <label><i class="fas fa-images"></i> FOTO PRINCIPALE</label>
-            <input type="file" id="editImageInput" accept="image/*" onchange="previewImage(this, 'imagePreviewEdit')">
-            <img id="imagePreviewEdit" class="image-preview" style="display:none;">
-            <input type="hidden" id="editCurrentImageUrl">
-          </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-images"></i> FOTO 2</label>
-            <input type="file" id="editImageInput2" accept="image/*" onchange="previewImage(this, 'imagePreviewEdit2')">
-            <img id="imagePreviewEdit2" class="image-preview" style="display:none;">
-            <input type="hidden" id="editCurrentImageUrl2">
-          </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-images"></i> FOTO 3</label>
-            <input type="file" id="editImageInput3" accept="image/*" onchange="previewImage(this, 'imagePreviewEdit3')">
-            <img id="imagePreviewEdit3" class="image-preview" style="display:none;">
-            <input type="hidden" id="editCurrentImageUrl3">
-          </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-images"></i> FOTO 4</label>
-            <input type="file" id="editImageInput4" accept="image/*" onchange="previewImage(this, 'imagePreviewEdit4')">
-            <img id="imagePreviewEdit4" class="image-preview" style="display:none;">
-            <input type="hidden" id="editCurrentImageUrl4">
-          </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-images"></i> FOTO 5</label>
-            <input type="file" id="editImageInput5" accept="image/*" onchange="previewImage(this, 'imagePreviewEdit5')">
-            <img id="imagePreviewEdit5" class="image-preview" style="display:none;">
-            <input type="hidden" id="editCurrentImageUrl5">
-          </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-images"></i> FOTO 6</label>
-            <input type="file" id="editImageInput6" accept="image/*" onchange="previewImage(this, 'imagePreviewEdit6')">
-            <img id="imagePreviewEdit6" class="image-preview" style="display:none;">
-            <input type="hidden" id="editCurrentImageUrl6">
+            <label><i class="fas fa-camera"></i> FOTO ARTICOLO</label>
+            <input type="file" id="editImageInput" accept="image/*" multiple style="display:none;">
+            <div id="editImagesContainer"></div>
           </div>
 
           <div class="form-group" style="border-top: 2px solid #2a2a2a; padding-top: 20px; margin-top: 20px;">
@@ -1284,6 +1347,13 @@
     window.addEventListener('DOMContentLoaded', () => {
       updateRangeSlider();
       caricaArticoli();
+      
+      // 🔥 INIZIALIZZA NUOVO SISTEMA UPLOAD IMMAGINI
+      initImageUpload('addImagesContainer', 'addImageInput', false);
+      initImageUpload('editImagesContainer', 'editImageInput', true);
+      
+      // Render griglia iniziale (vuota)
+      renderImageGrid('addImagesContainer', false);
       
       // Mostra/nascondi campo prezzo vendita in base a checkbox vetrina
       document.getElementById('inVetrinaAdd').addEventListener('change', function() {
