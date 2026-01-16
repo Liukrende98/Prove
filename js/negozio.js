@@ -214,7 +214,7 @@ function createArticleListItem(article) {
   }
   
   return `
-    <div class="list-item" onclick="toggleArticleCard(${article.id})">
+    <div class="list-item" onclick="apriModifica(${article.id})">
       <div class="list-image">
         <img src="${foto || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%231a1a1a%22 width=%22100%22 height=%22100%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23fbbf24%22 font-size=%2230%22>📷</text></svg>'}" alt="">
         ${article.Presente 
