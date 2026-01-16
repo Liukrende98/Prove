@@ -28,36 +28,15 @@
   <link rel="stylesheet" href="css/messages-styles.css">
   
   <style>
-    /* 🔥 FIX MOBILE - MODAL SCROLLABILE */
+    /* 🔥 FIX MOBILE - Spazio per keyboard */
     @media (max-width: 768px) {
-      .modal-add,
-      .modal-edit {
-        height: 100vh;
-        height: 100dvh; /* iOS fix */
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch;
-      }
-      
       .modal-add-content,
       .modal-edit-content {
-        min-height: 100vh;
-        min-height: 100dvh;
-        max-height: none !important;
-        overflow-y: visible !important;
-        padding-bottom: 150px !important; /* 🔥 Spazio per keyboard */
+        padding-bottom: 200px; /* Spazio extra per keyboard mobile */
       }
       
-      /* Bottone submit sempre visibile */
       .btn-submit {
-        margin-top: 30px;
-        margin-bottom: 30px;
-        position: relative;
-        z-index: 10;
-      }
-      
-      /* Form grid responsive */
-      .form-grid {
-        padding-bottom: 20px;
+        margin-bottom: 40px;
       }
     }
     
