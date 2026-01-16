@@ -652,9 +652,9 @@ function createArticoloCard(articolo) {
     </div>
   ` : '';
   
-  // Fullscreen button
+  // Fullscreen button - apre galleria con tutte le foto
   const fullscreenHtml = mainPhoto ? `
-    <button class="article-fullscreen-btn" onclick="event.stopPropagation(); openFullscreen('${mainPhoto.replace(/'/g, "\\'")}')">
+    <button class="article-fullscreen-btn" onclick="event.stopPropagation(); openArticleGalleryVetrine('${articolo.id}')">
       <i class="fas fa-expand"></i>
     </button>
   ` : '';
@@ -1508,12 +1508,6 @@ function changeArticlePhoto(articleId, direction) {
   const img = card.querySelector(`#article-img-${articleId}`);
   if (img) {
     img.src = photos[currentIndex];
-    
-    // Aggiorna anche bottone fullscreen
-    const fullscreenBtn = card.querySelector('.article-fullscreen-btn');
-    if (fullscreenBtn) {
-      fullscreenBtn.setAttribute('onclick', `event.stopPropagation(); openFullscreen('${photos[currentIndex].replace(/'/g, "\\'")}')` );
-    }
   }
   
   // Aggiorna dots
@@ -1534,68 +1528,25 @@ function changeArticlePhoto(articleId, direction) {
 }
 
 function openFullscreen(imageUrl) {
-  // Apri immagine in nuova tab/finestra
-  const fullscreenWindow = window.open('', '_blank');
+  // Usa NodoGalleria se disponibile
+  if (window.NodoGalleria) {
+    NodoGalleria.open([imageUrl], 0);
+  }
+}
+
+// Apre galleria con tutte le foto dell'articolo
+function openArticleGalleryVetrine(articleId) {
+  const card = document.querySelector(`[data-article-id="${articleId}"]`);
+  if (!card) return;
   
-  if (fullscreenWindow) {
-    fullscreenWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Immagine Full Screen</title>
-        <style>
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-          }
-          body {
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            overflow: hidden;
-          }
-          img {
-            max-width: 100%;
-            max-height: 100vh;
-            object-fit: contain;
-          }
-          .close-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(251, 191, 36, 0.95);
-            color: #000;
-            border: none;
-            font-size: 24px;
-            font-weight: 900;
-            cursor: pointer;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 20px rgba(251, 191, 36, 0.6);
-            transition: all 0.2s;
-          }
-          .close-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 25px rgba(251, 191, 36, 0.8);
-          }
-        </style>
-      </head>
-      <body>
-        <button class="close-btn" onclick="window.close()">✕</button>
-        <img src="${imageUrl}" alt="Full Screen">
-      </body>
-      </html>
-    `);
-    fullscreenWindow.document.close();
+  const photos = JSON.parse(card.getAttribute('data-photos') || '[]');
+  const currentIndex = parseInt(card.getAttribute('data-current-photo') || '0');
+  
+  if (photos.length === 0) return;
+  
+  // Usa NodoGalleria
+  if (window.NodoGalleria) {
+    NodoGalleria.open(photos, currentIndex);
   }
 }
 
