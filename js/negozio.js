@@ -63,7 +63,13 @@ function gestisciAltraCasa(casaValue, prefix) {
 // ========== CARICAMENTO ARTICOLI (SOLO DELL'UTENTE LOGGATO) ==========
 async function caricaArticoli() {
   try {
+    // 🔥 FIX: Controlla se l'utente è loggato PRIMA di usare user.id
     const user = getCurrentUser();
+    
+    if (!user || !user.id) {
+      console.warn('⚠️ Utente non loggato, impossibile caricare articoli');
+      return; // Esce senza errore - requireAuth() gestirà il redirect
+    }
     
     const { data, error } = await supabaseClient
       .from("Articoli")
@@ -235,66 +241,70 @@ function createArticleCard(article) {
       <div class="article-expanded-section">
         <!-- Sezione Statistiche -->
         <div class="expanded-box">
-          <div class="expanded-box-title">
-            <i class="fas fa-chart-bar"></i> STATISTICHE
-          </div>
-          <div class="expanded-box-content">
-            <div class="stat-row">
-              <span class="stat-row-label"><i class="fas fa-gem"></i> Valore Attuale</span>
-              <span class="stat-row-value">${Number(article.ValoreAttuale || 0).toFixed(2)} €</span>
+          <div class="expanded-box-title"><i class="fas fa-chart-bar"></i> STATISTICHE</div>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-item-label">Prezzo Pagato</div>
+              <div class="stat-item-value">${Number(article.PrezzoPagato || 0).toFixed(2)} €</div>
             </div>
-            <div class="stat-row">
-              <span class="stat-row-label"><i class="fas fa-receipt"></i> Prezzo Pagato</span>
-              <span class="stat-row-value">${Number(article.PrezzoPagato || 0).toFixed(2)} €</span>
+            <div class="stat-item">
+              <div class="stat-item-label">Valore Attuale</div>
+              <div class="stat-item-value">${Number(article.ValoreAttuale || 0).toFixed(2)} €</div>
             </div>
-            <div class="stat-row">
-              <span class="stat-row-label"><i class="fas fa-chart-line"></i> Guadagno/Perdita</span>
-              <span class="stat-row-value ${deltaClass}">${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €</span>
+            <div class="stat-item">
+              <div class="stat-item-label">Variazione</div>
+              <div class="stat-item-value ${deltaClass}">${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €</div>
             </div>
-            ${article.in_vetrina ? `
-            <div class="stat-row">
-              <span class="stat-row-label"><i class="fas fa-tag"></i> Prezzo Vendita</span>
-              <span class="stat-row-value" style="color: #10b981;">${Number(article.prezzo_vendita || 0).toFixed(2)} €</span>
+            ${article.prezzo_vendita ? `
+            <div class="stat-item">
+              <div class="stat-item-label">Prezzo Vendita</div>
+              <div class="stat-item-value">${Number(article.prezzo_vendita).toFixed(2)} €</div>
             </div>
             ` : ''}
           </div>
         </div>
         
-        <!-- Sezione Descrizione -->
-        ${article.Descrizione ? `
+        ${article.casa_gradazione ? `
+        <!-- Sezione Gradazione -->
         <div class="expanded-box">
-          <div class="expanded-box-title">
-            <i class="fas fa-info-circle"></i> DESCRIZIONE
-          </div>
-          <div class="expanded-box-content">
-            <p class="article-description">${article.Descrizione}</p>
-          </div>
-        </div>
-        ` : ''}
-        
-        <!-- Galleria Foto -->
-        ${hasGallery ? `
-        <div class="expanded-box">
-          <div class="expanded-box-title">
-            <i class="fas fa-images"></i> GALLERIA
-          </div>
-          <div class="expanded-box-content">
-            <div class="article-gallery">
-              ${foto2 ? `<div class="gallery-item"><img src="${foto2}" alt="Foto 2"></div>` : ''}
-              ${foto3 ? `<div class="gallery-item"><img src="${foto3}" alt="Foto 3"></div>` : ''}
-              ${foto4 ? `<div class="gallery-item"><img src="${foto4}" alt="Foto 4"></div>` : ''}
+          <div class="expanded-box-title"><i class="fas fa-certificate"></i> GRADAZIONE</div>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-item-label">Casa</div>
+              <div class="stat-item-value">${article.casa_gradazione === 'Altra casa' ? article.altra_casa_gradazione : article.casa_gradazione}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-item-label">Voto</div>
+              <div class="stat-item-value">${article.voto_gradazione || '-'}</div>
             </div>
           </div>
         </div>
         ` : ''}
         
+        ${article.Descrizione ? `
+        <!-- Sezione Descrizione -->
+        <div class="expanded-box">
+          <div class="expanded-box-title"><i class="fas fa-align-left"></i> DESCRIZIONE</div>
+          <div class="expanded-box-content">${article.Descrizione}</div>
+        </div>
+        ` : ''}
+        
+        ${hasGallery ? `
+        <!-- Galleria Foto -->
+        <div class="expanded-box">
+          <div class="expanded-box-title"><i class="fas fa-images"></i> GALLERIA</div>
+          <div class="gallery-grid">
+            ${foto2 ? `<img src="${foto2}" onclick="openFullscreen('${foto2}')" class="gallery-thumb">` : ''}
+            ${foto3 ? `<img src="${foto3}" onclick="openFullscreen('${foto3}')" class="gallery-thumb">` : ''}
+            ${foto4 ? `<img src="${foto4}" onclick="openFullscreen('${foto4}')" class="gallery-thumb">` : ''}
+          </div>
+        </div>
+        ` : ''}
+        
         <!-- Azioni -->
-        <div class="article-actions-expanded">
-          <button class="action-btn action-btn-primary" onclick="apriModifica(${article.id})">
+        <div class="expanded-actions">
+          <button class="action-btn btn-edit" onclick="apriModifica(${article.id})">
             <i class="fas fa-edit"></i> MODIFICA
-          </button>
-          <button class="action-btn action-btn-secondary" onclick="alert('Condividi - da implementare')">
-            <i class="fas fa-share-alt"></i> CONDIVIDI
           </button>
         </div>
       </div>
@@ -302,359 +312,170 @@ function createArticleCard(article) {
   `;
 }
 
-function toggleArticleCard(id) {
-  const card = document.getElementById(`card-${id}`);
-  if (card) {
-    // Chiudi tutti gli altri
-    document.querySelectorAll('.article-card').forEach(c => {
-      if (c !== card) {
-        c.classList.remove('expanded');
-      }
-    });
-    
-    // Toggle questo
-    card.classList.toggle('expanded');
-  }
-}
-
-// ========== FILTRI ==========
-function toggleFilters() {
-  const content = document.getElementById('filterContent');
-  const toggle = document.getElementById('filterToggle');
-  const isExpanded = content.classList.contains('active');
+function toggleArticleCard(articleId) {
+  const card = document.getElementById(`card-${articleId}`);
+  if (!card) return;
   
-  if (isExpanded) {
-    content.classList.remove('active');
-    toggle.classList.remove('expanded');
-    toggle.querySelector('i').className = 'fas fa-chevron-down';
-  } else {
-    content.classList.add('active');
-    toggle.classList.add('expanded');
-    toggle.querySelector('i').className = 'fas fa-chevron-up';
-  }
-}
-
-function updateRangeSlider() {
-  const minInput = document.getElementById('fValoreMin');
-  const maxInput = document.getElementById('fValoreMax');
-  const display = document.getElementById('rangeValoreDisplay');
-  const progress = document.getElementById('rangeProgress');
+  const wasExpanded = card.classList.contains('expanded');
   
-  if (!minInput || !maxInput) return;
-  
-  let min = parseInt(minInput.value);
-  let max = parseInt(maxInput.value);
-  
-  if (min > max - 10) {
-    min = max - 10;
-    minInput.value = min;
-  }
-  if (max < min + 10) {
-    max = min + 10;
-    maxInput.value = max;
-  }
-  
-  display.textContent = `${min}€ - ${max}€`;
-  
-  const minPercent = (min / 1000) * 100;
-  const maxPercent = (max / 1000) * 100;
-  
-  progress.style.left = minPercent + '%';
-  progress.style.width = (maxPercent - minPercent) + '%';
-}
-
-function updateStatoDisplay() {
-  const stato = document.getElementById('fStato').value;
-  const display = document.getElementById('rangeStatoDisplay');
-  if (stato) {
-    display.textContent = stato + '⭐+';
-  } else {
-    display.textContent = 'Tutte';
-  }
-}
-
-function applicaFiltri() {
-  currentPage = 1;
-  filteredArticles = filterArticles();
-  renderArticles();
-  updatePagination();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function resetFiltri() {
-  document.getElementById('fNome').value = '';
-  document.getElementById('fCategoria').value = '';
-  document.getElementById('fValoreMin').value = '0';
-  document.getElementById('fValoreMax').value = '1000';
-  document.getElementById('fStato').value = '';
-  document.getElementById('fPresenti').checked = true;
-  document.getElementById('fAssenti').checked = true;
-  document.getElementById('fProfit').checked = true;
-  document.getElementById('fLoss').checked = true;
-  
-  updateRangeSlider();
-  updateStatoDisplay();
-  applicaFiltri();
-}
-
-function filterArticles() {
-  const nome = document.getElementById('fNome').value.toLowerCase();
-  const categoria = document.getElementById('fCategoria').value;
-  const valoreMin = parseFloat(document.getElementById('fValoreMin').value) || 0;
-  const valoreMax = parseFloat(document.getElementById('fValoreMax').value) || 999999;
-  const statoMin = parseInt(document.getElementById('fStato').value) || 0;
-  const presenti = document.getElementById('fPresenti').checked;
-  const assenti = document.getElementById('fAssenti').checked;
-  const profit = document.getElementById('fProfit').checked;
-  const loss = document.getElementById('fLoss').checked;
-  
-  return allArticles.filter(article => {
-    if (nome && !article.Nome.toLowerCase().includes(nome)) return false;
-    if (categoria && article.Categoria !== categoria) return false;
-    
-    const valore = Number(article.ValoreAttuale) || 0;
-    if (valore < valoreMin || valore > valoreMax) return false;
-    
-    const stato = Number(article.ValutazioneStato) || 0;
-    if (statoMin > 0 && stato < statoMin) return false;
-    
-    if (!presenti && article.Presente) return false;
-    if (!assenti && !article.Presente) return false;
-    
-    const delta = valore - (Number(article.PrezzoPagato) || 0);
-    if (!profit && !loss) return true;
-    if (profit && !loss && delta <= 0) return false;
-    if (!profit && loss && delta >= 0) return false;
-    
-    return true;
+  // Chiudi tutte le altre card
+  document.querySelectorAll('.article-card.expanded').forEach(c => {
+    c.classList.remove('expanded');
   });
+  
+  // Toggle questa card
+  if (!wasExpanded) {
+    card.classList.add('expanded');
+    // Scroll to card
+    setTimeout(() => {
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+}
+
+function openFullscreen(imageUrl) {
+  const overlay = document.createElement('div');
+  overlay.className = 'fullscreen-overlay';
+  overlay.innerHTML = `
+    <img src="${imageUrl}" class="fullscreen-image">
+    <button class="fullscreen-close" onclick="this.parentElement.remove()">✕</button>
+  `;
+  overlay.onclick = (e) => {
+    if (e.target === overlay) overlay.remove();
+  };
+  document.body.appendChild(overlay);
 }
 
 // ========== PAGINAZIONE ==========
-function previousPage() {
-  if (currentPage > 1) {
-    currentPage--;
-    renderArticles();
-    updatePagination();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-}
-
-function nextPage() {
-  const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
-  if (currentPage < totalPages) {
-    currentPage++;
-    renderArticles();
-    updatePagination();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-}
-
 function updatePagination() {
-  const totalItems = filteredArticles.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const start = (currentPage - 1) * itemsPerPage + 1;
-  const end = Math.min(currentPage * itemsPerPage, totalItems);
+  const pagination = document.getElementById('pagination');
+  if (!pagination) return;
   
-  document.getElementById('pageStart').textContent = totalItems > 0 ? start : 0;
-  document.getElementById('pageEnd').textContent = end;
-  document.getElementById('totalItems').textContent = totalItems;
+  const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
   
-  document.getElementById('prevBtn').disabled = currentPage === 1;
-  document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+  if (totalPages <= 1) {
+    pagination.innerHTML = '';
+    return;
+  }
+  
+  let html = '';
+  
+  // Prev
+  html += `<button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+    <i class="fas fa-chevron-left"></i>
+  </button>`;
+  
+  // Pages
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+      html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+    } else if (i === currentPage - 2 || i === currentPage + 2) {
+      html += `<span class="page-dots">...</span>`;
+    }
+  }
+  
+  // Next
+  html += `<button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+    <i class="fas fa-chevron-right"></i>
+  </button>`;
+  
+  pagination.innerHTML = html;
 }
 
-// ========== MODALS ==========
+function goToPage(page) {
+  const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
+  if (page < 1 || page > totalPages) return;
+  
+  currentPage = page;
+  renderArticles();
+  updatePagination();
+  
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ========== FILTRI E RICERCA ==========
+function cercaArticoli() {
+  const searchText = document.getElementById('searchInput')?.value?.toLowerCase() || '';
+  const categoria = document.getElementById('filterCategoria')?.value || '';
+  
+  filteredArticles = allArticles.filter(article => {
+    const matchSearch = !searchText || 
+      (article.Nome && article.Nome.toLowerCase().includes(searchText)) ||
+      (article.Descrizione && article.Descrizione.toLowerCase().includes(searchText));
+    
+    const matchCategoria = !categoria || article.Categoria === categoria;
+    
+    return matchSearch && matchCategoria;
+  });
+  
+  currentPage = 1;
+  renderArticles();
+  updatePagination();
+}
+
+function resetFiltri() {
+  const searchInput = document.getElementById('searchInput');
+  const filterCategoria = document.getElementById('filterCategoria');
+  
+  if (searchInput) searchInput.value = '';
+  if (filterCategoria) filterCategoria.value = '';
+  
+  filteredArticles = [...allArticles];
+  currentPage = 1;
+  renderArticles();
+  updatePagination();
+}
+
+// ========== MODAL AGGIUNGI ==========
 function openAddModal() {
   const modal = document.getElementById('modalAdd');
-  const modalContent = modal.querySelector('.modal-add-content');
-  
-  window.scrollTo({ top: 0, behavior: 'instant' });
-  modal.scrollTop = 0;
-  if (modalContent) modalContent.scrollTop = 0;
-  
-  document.body.style.overflow = 'hidden';
-  
-  modal.style.display = 'none';
-  modal.offsetHeight;
-  
-  modal.classList.remove('closing');
-  modal.classList.add('active');
-  modal.style.display = '';
+  if (modal) {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
 }
 
 function closeAddModal() {
   const modal = document.getElementById('modalAdd');
-  modal.classList.add('closing');
-  
-  document.body.style.overflow = '';
-  
-  setTimeout(() => {
-    modal.classList.remove('active', 'closing');
-  }, 400);
-  
-  if (stream) {
-    stream.getTracks().forEach(track => track.stop());
-    document.getElementById('cameraContainer').classList.remove('active');
+  if (modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    
+    // Reset form
+    const form = document.getElementById('formAdd');
+    if (form) form.reset();
+    
+    // Reset previews
+    document.querySelectorAll('.image-preview').forEach(img => {
+      img.style.display = 'none';
+      img.src = '';
+    });
+    
+    // Reset campi gradazione
+    gestisciCarteGradate('', 'Add');
   }
 }
 
-function closeEditModal() {
-  const modal = document.getElementById('modalEdit');
-  modal.classList.add('closing');
+function updateRangeSlider() {
+  const slider = document.getElementById('valutazioneSlider');
+  const value = document.getElementById('valutazioneValue');
   
-  document.body.style.overflow = '';
-  
-  setTimeout(() => {
-    modal.classList.remove('active', 'closing');
-  }, 400);
-}
-
-function closeGraphModal() {
-  const modal = document.getElementById('modalGraph');
-  modal.classList.add('closing');
-  
-  document.body.style.overflow = '';
-  
-  // RIMUOVI EXPANDED DAI CRUSCOTTI
-  document.querySelectorAll('.stat-card.expanded').forEach(card => {
-    card.classList.remove('expanded');
-  });
-  
-  setTimeout(() => {
-    modal.classList.remove('active', 'closing');
-    if (currentChart) {
-      currentChart.destroy();
-      currentChart = null;
-    }
-  }, 400);
-}
-
-function apriModifica(id) {
-  const article = allArticles.find(a => a.id === id);
-  if (!article) return;
-  
-  window.scrollTo({ top: 0, behavior: 'instant' });
-  document.body.style.overflow = 'hidden';
-  
-  document.getElementById('editId').value = article.id;
-  document.getElementById('editNome').value = article.Nome || '';
-  document.getElementById('editCategoria').value = article.Categoria || '';
-  document.getElementById('editDescrizione').value = article.Descrizione || '';
-  document.getElementById('editValoreAttuale').value = article.ValoreAttuale || '';
-  document.getElementById('editPrezzoPagato').value = article.PrezzoPagato || '';
-  document.getElementById('editStato').value = article.ValutazioneStato || '';
-  document.getElementById('editPresente').checked = article.Presente || false;
-  
-  // Foto principale
-  document.getElementById('editCurrentImageUrl').value = article.foto_principale || article.image_url || '';
-  const editPreview = document.getElementById('imagePreviewEdit');
-  if (article.foto_principale || article.image_url) {
-    editPreview.src = article.foto_principale || article.image_url;
-    editPreview.style.display = 'block';
-  } else {
-    editPreview.style.display = 'none';
+  if (slider && value) {
+    value.textContent = slider.value;
+    slider.addEventListener('input', () => {
+      value.textContent = slider.value;
+    });
   }
-  
-  // Foto 2
-  document.getElementById('editCurrentImageUrl2').value = article.foto_2 || '';
-  if (article.foto_2) {
-    document.getElementById('imagePreviewEdit2').src = article.foto_2;
-    document.getElementById('imagePreviewEdit2').style.display = 'block';
-  } else {
-    document.getElementById('imagePreviewEdit2').style.display = 'none';
-  }
-  
-  // Foto 3
-  document.getElementById('editCurrentImageUrl3').value = article.foto_3 || '';
-  if (article.foto_3) {
-    document.getElementById('imagePreviewEdit3').src = article.foto_3;
-    document.getElementById('imagePreviewEdit3').style.display = 'block';
-  } else {
-    document.getElementById('imagePreviewEdit3').style.display = 'none';
-  }
-  
-  // Foto 4
-  document.getElementById('editCurrentImageUrl4').value = article.foto_4 || '';
-  if (article.foto_4) {
-    document.getElementById('imagePreviewEdit4').src = article.foto_4;
-    document.getElementById('imagePreviewEdit4').style.display = 'block';
-  } else {
-    document.getElementById('imagePreviewEdit4').style.display = 'none';
-  }
-  
-  // Foto 5
-  document.getElementById('editCurrentImageUrl5').value = article.foto_5 || '';
-  if (article.foto_5) {
-    document.getElementById('imagePreviewEdit5').src = article.foto_5;
-    document.getElementById('imagePreviewEdit5').style.display = 'block';
-  } else {
-    document.getElementById('imagePreviewEdit5').style.display = 'none';
-  }
-  
-  // Foto 6
-  document.getElementById('editCurrentImageUrl6').value = article.foto_6 || '';
-  if (article.foto_6) {
-    document.getElementById('imagePreviewEdit6').src = article.foto_6;
-    document.getElementById('imagePreviewEdit6').style.display = 'block';
-  } else {
-    document.getElementById('imagePreviewEdit6').style.display = 'none';
-  }
-  
-  // Vetrina
-  document.getElementById('editInVetrina').checked = article.in_vetrina || false;
-  document.getElementById('editPrezzoVendita').value = article.prezzo_vendita || '';
-  document.getElementById('prezzoVenditaGroupEdit').style.display = article.in_vetrina ? 'block' : 'none';
-  
-  // Carte gradate
-  const casaGroupEdit = document.getElementById('casaGradazioneGroupEdit');
-  const votoGroupEdit = document.getElementById('votoGradazioneGroupEdit');
-  const altraCasaGroupEdit = document.getElementById('altraCasaGradazioneGroupEdit');
-  if (article.Categoria === 'Carte gradate' && casaGroupEdit && votoGroupEdit) {
-    casaGroupEdit.style.display = 'block';
-    votoGroupEdit.style.display = 'block';
-    const casaEdit = document.getElementById('casaGradazioneEdit');
-    const votoEdit = document.getElementById('votoGradazioneEdit');
-    const altraCasaEdit = document.getElementById('altraCasaGradazioneEdit');
-    if (casaEdit) casaEdit.value = article.casa_gradazione || '';
-    if (votoEdit) votoEdit.value = article.voto_gradazione || '';
-    if (article.casa_gradazione === 'Altra casa' && altraCasaGroupEdit && altraCasaEdit) {
-      altraCasaGroupEdit.style.display = 'block';
-      altraCasaEdit.value = article.altra_casa_gradazione || '';
-    } else if (altraCasaGroupEdit) {
-      altraCasaGroupEdit.style.display = 'none';
-    }
-  } else {
-    if (casaGroupEdit) casaGroupEdit.style.display = 'none';
-    if (votoGroupEdit) votoGroupEdit.style.display = 'none';
-    if (altraCasaGroupEdit) altraCasaGroupEdit.style.display = 'none';
-  }
-  
-  calcolaDeltaEdit();
-  
-  const modal = document.getElementById('modalEdit');
-  modal.scrollTop = 0;
-  modal.classList.add('active');
-}
-
-// ========== FORM FUNCTIONS ==========
-function calcolaDeltaAdd() {
-  const valore = parseFloat(document.getElementById('valoreAttualeAdd').value) || 0;
-  const prezzo = parseFloat(document.getElementById('prezzoPagatoAdd').value) || 0;
-  document.getElementById('deltaAdd').value = (valore - prezzo).toFixed(2);
-}
-
-function calcolaDeltaEdit() {
-  const valore = parseFloat(document.getElementById('editValoreAttuale').value) || 0;
-  const prezzo = parseFloat(document.getElementById('editPrezzoPagato').value) || 0;
-  document.getElementById('editDelta').value = (valore - prezzo).toFixed(2);
 }
 
 function previewImage(input, previewId) {
   const preview = document.getElementById(previewId);
+  if (!preview) return;
+  
   if (input.files && input.files[0]) {
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = (e) => {
       preview.src = e.target.result;
       preview.style.display = 'block';
     };
@@ -662,120 +483,85 @@ function previewImage(input, previewId) {
   }
 }
 
-async function compressImage(file) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        
-        let width = img.width;
-        let height = img.height;
-        const maxSize = 1920;
-        
-        if (width > maxSize || height > maxSize) {
-          if (width > height) {
-            height = (height / width) * maxSize;
-            width = maxSize;
-          } else {
-            width = (width / height) * maxSize;
-            height = maxSize;
-          }
-        }
-        
-        canvas.width = width;
-        canvas.height = height;
-        
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        
-        canvas.toBlob((blob) => {
-          resolve(blob);
-        }, 'image/jpeg', 0.8);
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
 async function uploadImage(file) {
-  try {
-    const compressed = await compressImage(file);
-    const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.jpg`;
-    
-    const { data, error } = await supabaseClient.storage
-      .from('product-images')
-      .upload(fileName, compressed);
-    
-    if (error) {
-      console.error('Errore upload:', error);
-      return null;
-    }
-    
-    const { data: { publicUrl } } = supabaseClient.storage
-      .from('product-images')
-      .getPublicUrl(fileName);
-    
-    return publicUrl;
-  } catch (err) {
-    console.error('Errore compressione/upload:', err);
+  if (!file) return null;
+  
+  const user = getCurrentUser();
+  if (!user) return null;
+  
+  const fileName = `${user.id}/${Date.now()}_${file.name}`;
+  
+  const { data, error } = await supabaseClient.storage
+    .from('articoli-images')
+    .upload(fileName, file);
+  
+  if (error) {
+    console.error('Errore upload:', error);
     return null;
   }
+  
+  const { data: urlData } = supabaseClient.storage
+    .from('articoli-images')
+    .getPublicUrl(fileName);
+  
+  return urlData?.publicUrl || null;
 }
 
-async function aggiungiArticolo(e) {
-  e.preventDefault();
-  const form = e.target;
-  const formData = new FormData(form);
-  const valore = parseFloat(formData.get('ValoreAttuale'));
-  const prezzo = parseFloat(formData.get('PrezzoPagato'));
+async function aggiungiArticolo(event) {
+  event.preventDefault();
+  
   const user = getCurrentUser();
-
-  // Upload foto principale
-  let fotoPrincipale = null;
-  const imageFile = document.getElementById('imageInput').files[0];
-  if (imageFile) {
-    fotoPrincipale = await uploadImage(imageFile);
+  if (!user || !user.id) {
+    alert('❌ Devi essere loggato per aggiungere articoli');
+    return;
   }
-
-  // Upload foto aggiuntive
-  let foto2 = null, foto3 = null, foto4 = null, foto5 = null, foto6 = null;
   
-  const imageFile2 = document.getElementById('imageInput2').files[0];
-  if (imageFile2) foto2 = await uploadImage(imageFile2);
+  const form = event.target;
+  const formData = new FormData(form);
   
-  const imageFile3 = document.getElementById('imageInput3').files[0];
-  if (imageFile3) foto3 = await uploadImage(imageFile3);
+  const msg = document.getElementById('addMsg');
+  msg.className = 'msg';
+  msg.textContent = '⏳ Caricamento...';
+  msg.style.display = 'block';
   
-  const imageFile4 = document.getElementById('imageInput4').files[0];
-  if (imageFile4) foto4 = await uploadImage(imageFile4);
+  // Upload immagini
+  const imageInput = document.getElementById('imageInput');
+  const imageInput2 = document.getElementById('imageInput2');
+  const imageInput3 = document.getElementById('imageInput3');
+  const imageInput4 = document.getElementById('imageInput4');
+  const imageInput5 = document.getElementById('imageInput5');
+  const imageInput6 = document.getElementById('imageInput6');
   
-  const imageFile5 = document.getElementById('imageInput5').files[0];
-  if (imageFile5) foto5 = await uploadImage(imageFile5);
+  let fotoPrincipale = await uploadImage(imageInput?.files[0]);
+  let foto2 = await uploadImage(imageInput2?.files[0]);
+  let foto3 = await uploadImage(imageInput3?.files[0]);
+  let foto4 = await uploadImage(imageInput4?.files[0]);
+  let foto5 = await uploadImage(imageInput5?.files[0]);
+  let foto6 = await uploadImage(imageInput6?.files[0]);
   
-  const imageFile6 = document.getElementById('imageInput6').files[0];
-  if (imageFile6) foto6 = await uploadImage(imageFile6);
-
-  // Dati vetrina
-  const inVetrina = document.getElementById('inVetrinaAdd').checked;
-  const prezzoVendita = inVetrina ? parseFloat(document.getElementById('prezzoVenditaAdd').value) : null;
-
-  // Dati carte gradate
+  const valore = parseFloat(formData.get('ValoreAttuale')) || 0;
+  const prezzo = parseFloat(formData.get('PrezzoPagato')) || 0;
+  
+  const inVetrina = document.getElementById('inVetrinaAdd')?.checked || false;
+  const prezzoVendita = inVetrina ? parseFloat(document.getElementById('prezzoVenditaAdd')?.value) || null : null;
+  
   const categoria = formData.get('Categoria');
+  
+  // Campi gradazione
   let casaGradazione = null;
   let altraCasaGradazione = null;
   let votoGradazione = null;
+  
   if (categoria === 'Carte gradate') {
     const casaEl = document.getElementById('casaGradazioneAdd');
     const altraCasaEl = document.getElementById('altraCasaGradazioneAdd');
     const votoEl = document.getElementById('votoGradazioneAdd');
+    
     if (casaEl) casaGradazione = casaEl.value || null;
     if (casaGradazione === 'Altra casa' && altraCasaEl) altraCasaGradazione = altraCasaEl.value || null;
     if (votoEl) votoGradazione = parseFloat(votoEl.value) || null;
   }
-
+  
   const articolo = {
     user_id: user.id,
     Nome: formData.get('Nome'),
@@ -788,37 +574,26 @@ async function aggiungiArticolo(e) {
     Presente: formData.get('Presente') === 'on',
     image_url: fotoPrincipale,
     foto_principale: fotoPrincipale,
-    foto_2: foto2,
-    foto_3: foto3,
-    foto_4: foto4,
-    foto_5: foto5,
-    foto_6: foto6,
+    foto_2: foto2 || null,
+    foto_3: foto3 || null,
+    foto_4: foto4 || null,
+    foto_5: foto5 || null,
+    foto_6: foto6 || null,
     in_vetrina: inVetrina,
     prezzo_vendita: prezzoVendita,
     casa_gradazione: casaGradazione,
     altra_casa_gradazione: altraCasaGradazione,
     voto_gradazione: votoGradazione
   };
-
+  
   const { error } = await supabaseClient.from('Articoli').insert([articolo]);
-  const msg = document.getElementById('addMsg');
-
+  
   if (error) {
     msg.className = 'msg error';
     msg.textContent = '❌ ERRORE: ' + error.message;
-    msg.style.display = 'block';
   } else {
     msg.className = 'msg success';
-    msg.textContent = '✅ AGGIUNTO!';
-    msg.style.display = 'block';
-    form.reset();
-    document.getElementById('deltaAdd').value = '';
-    document.getElementById('imagePreviewAdd').style.display = 'none';
-    document.getElementById('imagePreviewAdd2').style.display = 'none';
-    document.getElementById('imagePreviewAdd3').style.display = 'none';
-    document.getElementById('imagePreviewAdd4').style.display = 'none';
-    document.getElementById('imagePreviewAdd5').style.display = 'none';
-    document.getElementById('imagePreviewAdd6').style.display = 'none';
+    msg.textContent = '✅ ARTICOLO AGGIUNTO!';
     setTimeout(() => {
       closeAddModal();
       caricaArticoli();
@@ -826,74 +601,136 @@ async function aggiungiArticolo(e) {
   }
 }
 
-async function salvaModifica(e) {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-  const valore = parseFloat(formData.get('ValoreAttuale'));
-  const prezzo = parseFloat(formData.get('PrezzoPagato'));
-  const id = document.getElementById('editId').value;
+// ========== MODAL MODIFICA ==========
+async function apriModifica(articleId) {
+  const article = allArticles.find(a => a.id === articleId);
+  if (!article) return;
   
-  // Foto principale
-  let fotoPrincipale = document.getElementById('editCurrentImageUrl').value;
-  const imageFile = document.getElementById('editImageInput').files[0];
-  if (imageFile) {
-    const newUrl = await uploadImage(imageFile);
-    if (newUrl) fotoPrincipale = newUrl;
+  const modal = document.getElementById('modalEdit');
+  if (!modal) return;
+  
+  // Popola i campi
+  document.getElementById('editId').value = article.id;
+  document.getElementById('editNome').value = article.Nome || '';
+  document.getElementById('editDescrizione').value = article.Descrizione || '';
+  document.getElementById('editCategoria').value = article.Categoria || '';
+  document.getElementById('editValoreAttuale').value = article.ValoreAttuale || '';
+  document.getElementById('editPrezzoPagato').value = article.PrezzoPagato || '';
+  document.getElementById('editDelta').value = ((article.ValoreAttuale || 0) - (article.PrezzoPagato || 0)).toFixed(2) + ' €';
+  document.getElementById('editStato').value = article.ValutazioneStato || '';
+  document.getElementById('editPresente').checked = article.Presente || false;
+  document.getElementById('editInVetrina').checked = article.in_vetrina || false;
+  document.getElementById('editPrezzoVendita').value = article.prezzo_vendita || '';
+  
+  // Mostra/nascondi prezzo vendita
+  const prezzoGroup = document.getElementById('prezzoVenditaGroupEdit');
+  if (prezzoGroup) {
+    prezzoGroup.style.display = article.in_vetrina ? 'block' : 'none';
   }
   
-  // Foto 2
-  let foto2 = document.getElementById('editCurrentImageUrl2').value;
-  const imageFile2 = document.getElementById('editImageInput2').files[0];
-  if (imageFile2) {
-    const newUrl = await uploadImage(imageFile2);
-    if (newUrl) foto2 = newUrl;
+  // Gestisci carte gradate
+  gestisciCarteGradate(article.Categoria || '', 'Edit');
+  
+  if (article.Categoria === 'Carte gradate') {
+    const casaSelect = document.getElementById('casaGradazioneEdit');
+    const altraCasaInput = document.getElementById('altraCasaGradazioneEdit');
+    const votoInput = document.getElementById('votoGradazioneEdit');
+    
+    if (casaSelect) casaSelect.value = article.casa_gradazione || '';
+    gestisciAltraCasa(article.casa_gradazione || '', 'Edit');
+    if (altraCasaInput) altraCasaInput.value = article.altra_casa_gradazione || '';
+    if (votoInput) votoInput.value = article.voto_gradazione || '';
   }
   
-  // Foto 3
-  let foto3 = document.getElementById('editCurrentImageUrl3').value;
-  const imageFile3 = document.getElementById('editImageInput3').files[0];
-  if (imageFile3) {
-    const newUrl = await uploadImage(imageFile3);
-    if (newUrl) foto3 = newUrl;
+  // Immagini
+  document.getElementById('editCurrentImageUrl').value = article.foto_principale || article.image_url || '';
+  document.getElementById('editCurrentImageUrl2').value = article.foto_2 || '';
+  document.getElementById('editCurrentImageUrl3').value = article.foto_3 || '';
+  document.getElementById('editCurrentImageUrl4').value = article.foto_4 || '';
+  document.getElementById('editCurrentImageUrl5').value = article.foto_5 || '';
+  document.getElementById('editCurrentImageUrl6').value = article.foto_6 || '';
+  
+  // Preview immagini esistenti
+  const preview = document.getElementById('imagePreviewEdit');
+  if (preview && (article.foto_principale || article.image_url)) {
+    preview.src = article.foto_principale || article.image_url;
+    preview.style.display = 'block';
   }
   
-  // Foto 4
-  let foto4 = document.getElementById('editCurrentImageUrl4').value;
-  const imageFile4 = document.getElementById('editImageInput4').files[0];
-  if (imageFile4) {
-    const newUrl = await uploadImage(imageFile4);
-    if (newUrl) foto4 = newUrl;
+  // Reset msg
+  const msg = document.getElementById('editMsg');
+  if (msg) {
+    msg.style.display = 'none';
+    msg.textContent = '';
   }
   
-  // Foto 5
-  let foto5 = document.getElementById('editCurrentImageUrl5').value;
-  const imageFile5 = document.getElementById('editImageInput5').files[0];
-  if (imageFile5) {
-    const newUrl = await uploadImage(imageFile5);
-    if (newUrl) foto5 = newUrl;
-  }
-  
-  // Foto 6
-  let foto6 = document.getElementById('editCurrentImageUrl6').value;
-  const imageFile6 = document.getElementById('editImageInput6').files[0];
-  if (imageFile6) {
-    const newUrl = await uploadImage(imageFile6);
-    if (newUrl) foto6 = newUrl;
-  }
-  
-  // Vetrina
-  const inVetrina = document.getElementById('editInVetrina').checked;
-  const prezzoVendita = inVetrina ? parseFloat(document.getElementById('editPrezzoVendita').value) : null;
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
 
-  // Dati carte gradate
-  const categoria = formData.get('Categoria');
+function closeEditModal() {
+  const modal = document.getElementById('modalEdit');
+  if (modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}
+
+function calcolaDeltaEdit() {
+  const valore = parseFloat(document.getElementById('editValoreAttuale')?.value) || 0;
+  const prezzo = parseFloat(document.getElementById('editPrezzoPagato')?.value) || 0;
+  const delta = valore - prezzo;
+  
+  const deltaInput = document.getElementById('editDelta');
+  if (deltaInput) {
+    deltaInput.value = delta.toFixed(2) + ' €';
+  }
+}
+
+async function salvaModifica(event) {
+  event.preventDefault();
+  
+  const id = document.getElementById('editId').value;
+  const formData = new FormData(event.target);
+  
+  const msg = document.getElementById('editMsg');
+  msg.className = 'msg';
+  msg.textContent = '⏳ Salvataggio...';
+  msg.style.display = 'block';
+  
+  // Upload nuove immagini se presenti
+  const editImageInput = document.getElementById('editImageInput');
+  const editImageInput2 = document.getElementById('editImageInput2');
+  const editImageInput3 = document.getElementById('editImageInput3');
+  const editImageInput4 = document.getElementById('editImageInput4');
+  const editImageInput5 = document.getElementById('editImageInput5');
+  const editImageInput6 = document.getElementById('editImageInput6');
+  
+  let fotoPrincipale = await uploadImage(editImageInput?.files[0]) || document.getElementById('editCurrentImageUrl').value;
+  let foto2 = await uploadImage(editImageInput2?.files[0]) || document.getElementById('editCurrentImageUrl2').value;
+  let foto3 = await uploadImage(editImageInput3?.files[0]) || document.getElementById('editCurrentImageUrl3').value;
+  let foto4 = await uploadImage(editImageInput4?.files[0]) || document.getElementById('editCurrentImageUrl4').value;
+  let foto5 = await uploadImage(editImageInput5?.files[0]) || document.getElementById('editCurrentImageUrl5').value;
+  let foto6 = await uploadImage(editImageInput6?.files[0]) || document.getElementById('editCurrentImageUrl6').value;
+  
+  const valore = parseFloat(document.getElementById('editValoreAttuale').value) || 0;
+  const prezzo = parseFloat(document.getElementById('editPrezzoPagato').value) || 0;
+  
+  const inVetrina = document.getElementById('editInVetrina')?.checked || false;
+  const prezzoVendita = inVetrina ? parseFloat(document.getElementById('editPrezzoVendita')?.value) || null : null;
+  
+  const categoria = document.getElementById('editCategoria').value;
+  
+  // Campi gradazione
   let casaGradazione = null;
   let altraCasaGradazione = null;
   let votoGradazione = null;
+  
   if (categoria === 'Carte gradate') {
     const casaEl = document.getElementById('casaGradazioneEdit');
     const altraCasaEl = document.getElementById('altraCasaGradazioneEdit');
     const votoEl = document.getElementById('votoGradazioneEdit');
+    
     if (casaEl) casaGradazione = casaEl.value || null;
     if (casaGradazione === 'Altra casa' && altraCasaEl) altraCasaGradazione = altraCasaEl.value || null;
     if (votoEl) votoGradazione = parseFloat(votoEl.value) || null;
@@ -923,7 +760,6 @@ async function salvaModifica(e) {
   };
 
   const { error } = await supabaseClient.from('Articoli').update(articolo).eq('id', id);
-  const msg = document.getElementById('editMsg');
 
   if (error) {
     msg.className = 'msg error';
@@ -966,6 +802,11 @@ async function eliminaArticolo() {
 // ========== GRAFICI ==========
 async function apriGrafico(tipo, colorTheme) {
   const user = getCurrentUser();
+  
+  if (!user || !user.id) {
+    alert('⚠️ Devi essere loggato per vedere i grafici');
+    return;
+  }
   
   const { data, error } = await supabaseClient
     .from("Articoli")
@@ -1123,6 +964,17 @@ async function apriGrafico(tipo, colorTheme) {
       } : {}
     }
   });
+}
+
+function closeGraphModal() {
+  const modal = document.getElementById('modalGraph');
+  if (modal) {
+    modal.classList.add('closing');
+    setTimeout(() => {
+      modal.classList.remove('active', 'closing');
+      document.body.style.overflow = '';
+    }, 300);
+  }
 }
 
 // Chiusura modals al click esterno
