@@ -446,10 +446,18 @@ function closeAddModal() {
     const form = document.getElementById('formAdd');
     if (form) form.reset();
     
-    // Reset previews
-    document.querySelectorAll('.image-preview').forEach(img => {
+    // Reset previews e wrapper
+    document.querySelectorAll('#formAdd .image-preview').forEach(img => {
       img.style.display = 'none';
       img.src = '';
+      
+      // Nascondi wrapper e rimuovi pulsante
+      const wrapper = img.parentElement;
+      if (wrapper && wrapper.classList.contains('image-preview-wrapper')) {
+        wrapper.style.display = 'none';
+        const btn = wrapper.querySelector('.remove-image-btn');
+        if (btn) btn.remove();
+      }
     });
     
     // Reset campi gradazione
@@ -473,13 +481,122 @@ function previewImage(input, previewId) {
   const preview = document.getElementById(previewId);
   if (!preview) return;
   
+  // Trova o crea il wrapper
+  let wrapper = preview.parentElement;
+  if (!wrapper.classList.contains('image-preview-wrapper')) {
+    wrapper = document.createElement('div');
+    wrapper.className = 'image-preview-wrapper';
+    preview.parentElement.insertBefore(wrapper, preview);
+    wrapper.appendChild(preview);
+  }
+  
+  // Rimuovi pulsante esistente se c'è
+  const existingBtn = wrapper.querySelector('.remove-image-btn');
+  if (existingBtn) existingBtn.remove();
+  
   if (input.files && input.files[0]) {
     const reader = new FileReader();
     reader.onload = (e) => {
       preview.src = e.target.result;
       preview.style.display = 'block';
+      wrapper.style.display = 'block';
+      
+      // Aggiungi pulsante rimozione
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'remove-image-btn';
+      removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+      removeBtn.onclick = () => removeImage(input.id, previewId);
+      wrapper.appendChild(removeBtn);
     };
     reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function removeImage(inputId, previewId) {
+  const input = document.getElementById(inputId);
+  const preview = document.getElementById(previewId);
+  
+  if (input) {
+    input.value = ''; // Reset input file
+  }
+  
+  if (preview) {
+    preview.src = '';
+    preview.style.display = 'none';
+    
+    // Nascondi wrapper e rimuovi pulsante
+    const wrapper = preview.parentElement;
+    if (wrapper && wrapper.classList.contains('image-preview-wrapper')) {
+      wrapper.style.display = 'none';
+      const btn = wrapper.querySelector('.remove-image-btn');
+      if (btn) btn.remove();
+    }
+  }
+}
+
+// 🔥 Versione per modal Edit (con gestione URL esistenti)
+function removeImageEdit(inputId, previewId, hiddenUrlId) {
+  const input = document.getElementById(inputId);
+  const preview = document.getElementById(previewId);
+  const hiddenUrl = document.getElementById(hiddenUrlId);
+  
+  if (input) {
+    input.value = ''; // Reset input file
+  }
+  
+  if (hiddenUrl) {
+    hiddenUrl.value = ''; // Rimuovi URL esistente
+  }
+  
+  if (preview) {
+    preview.src = '';
+    preview.style.display = 'none';
+    
+    // Nascondi wrapper e rimuovi pulsante
+    const wrapper = preview.parentElement;
+    if (wrapper && wrapper.classList.contains('image-preview-wrapper')) {
+      wrapper.style.display = 'none';
+      const btn = wrapper.querySelector('.remove-image-btn');
+      if (btn) btn.remove();
+    }
+  }
+}
+
+// 🔥 Setup preview per modal Edit con pulsante rimozione
+function setupEditPreview(previewId, imageUrl, inputId, hiddenUrlId) {
+  const preview = document.getElementById(previewId);
+  if (!preview) return;
+  
+  // Trova o crea il wrapper
+  let wrapper = preview.parentElement;
+  if (!wrapper.classList.contains('image-preview-wrapper')) {
+    wrapper = document.createElement('div');
+    wrapper.className = 'image-preview-wrapper';
+    preview.parentElement.insertBefore(wrapper, preview);
+    wrapper.appendChild(preview);
+  }
+  
+  // Rimuovi pulsante esistente se c'è
+  const existingBtn = wrapper.querySelector('.remove-image-btn');
+  if (existingBtn) existingBtn.remove();
+  
+  if (imageUrl) {
+    preview.src = imageUrl;
+    preview.style.display = 'block';
+    wrapper.style.display = 'block';
+    
+    // Aggiungi pulsante rimozione
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'remove-image-btn';
+    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+    removeBtn.onclick = () => removeImageEdit(inputId, previewId, hiddenUrlId);
+    wrapper.appendChild(removeBtn);
+  } else {
+    preview.src = '';
+    preview.style.display = 'none';
+    wrapper.style.display = 'none';
   }
 }
 
@@ -650,12 +767,13 @@ async function apriModifica(articleId) {
   document.getElementById('editCurrentImageUrl5').value = article.foto_5 || '';
   document.getElementById('editCurrentImageUrl6').value = article.foto_6 || '';
   
-  // Preview immagini esistenti
-  const preview = document.getElementById('imagePreviewEdit');
-  if (preview && (article.foto_principale || article.image_url)) {
-    preview.src = article.foto_principale || article.image_url;
-    preview.style.display = 'block';
-  }
+  // Preview immagini esistenti con pulsante rimozione
+  setupEditPreview('imagePreviewEdit', article.foto_principale || article.image_url, 'editImageInput', 'editCurrentImageUrl');
+  setupEditPreview('imagePreviewEdit2', article.foto_2, 'editImageInput2', 'editCurrentImageUrl2');
+  setupEditPreview('imagePreviewEdit3', article.foto_3, 'editImageInput3', 'editCurrentImageUrl3');
+  setupEditPreview('imagePreviewEdit4', article.foto_4, 'editImageInput4', 'editCurrentImageUrl4');
+  setupEditPreview('imagePreviewEdit5', article.foto_5, 'editImageInput5', 'editCurrentImageUrl5');
+  setupEditPreview('imagePreviewEdit6', article.foto_6, 'editImageInput6', 'editCurrentImageUrl6');
   
   // Reset msg
   const msg = document.getElementById('editMsg');
