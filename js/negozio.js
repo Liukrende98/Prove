@@ -206,13 +206,19 @@ function createArticleCard(article) {
       <div class="article-image-wrapper" onclick="toggleArticleCard(${article.id})">
         <img src="${foto || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 400%22><rect fill=%22%231a1a1a%22 width=%22400%22 height=%22400%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23fbbf24%22 font-size=%2240%22>📷</text></svg>'}" alt="${article.Nome}" class="article-main-image">
         
-        <!-- Badge -->
+        <!-- Badge Presenza -->
         ${article.Presente 
-          ? '<div class="article-badge badge-presente"><i class="fas fa-check"></i> PRESENTE NEL MAGAZZINO</div>' 
+          ? '<div class="article-badge badge-presente"><i class="fas fa-check"></i> PRESENTE</div>' 
           : '<div class="article-badge badge-assente"><i class="fas fa-times"></i> ASSENTE</div>'}
         
+        <!-- Badge Gradazione -->
+        ${article.Categoria === 'Carte gradate' && article.casa_gradazione && article.voto_gradazione
+          ? `<div class="article-badge badge-graded" style="top: 45px;"><i class="fas fa-award"></i> ${article.casa_gradazione} ${article.voto_gradazione}</div>`
+          : ''}
+        
+        <!-- Badge Vetrina -->
         ${article.in_vetrina 
-          ? '<div class="article-badge badge-vetrina" style="top: 45px;"><i class="fas fa-store"></i> IN VETRINA</div>' 
+          ? `<div class="article-badge badge-vetrina" style="top: ${article.Categoria === 'Carte gradate' && article.casa_gradazione ? '85px' : '45px'};"><i class="fas fa-store"></i> IN VETRINA</div>` 
           : ''}
       </div>
       
@@ -288,10 +294,10 @@ function createArticleCard(article) {
             <!-- Guadagno/Perdita -->
             <div class="metric-card">
               <div class="metric-icon ${deltaClass}">
-                <i class="fas ${delta >= 0 ? 'fa-chart-line' : 'fa-chart-line-down'}"></i>
+                ${delta >= 0 ? '<i class="fas fa-chart-line"></i>' : ''}
               </div>
               <div class="metric-info">
-                <span class="metric-label">Guadagno Potenziale</span>
+                <span class="metric-label">${delta >= 0 ? 'Guadagno Potenziale' : 'Perdita Potenziale'}</span>
                 <span class="metric-value ${deltaClass}">${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €</span>
               </div>
               <div class="metric-badge ${deltaClass}">
@@ -434,23 +440,30 @@ function updatePagination() {
   const pagination = document.getElementById('pagination');
   const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
   
-  // Aggiorna info paginazione
-  const pageStartEl = document.getElementById('pageStart');
-  const pageEndEl = document.getElementById('pageEnd');
-  const totalItemsEl = document.getElementById('totalItems');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  
   const start = (currentPage - 1) * itemsPerPage + 1;
   const end = Math.min(currentPage * itemsPerPage, filteredArticles.length);
   
-  if (pageStartEl) pageStartEl.textContent = filteredArticles.length > 0 ? start : 0;
-  if (pageEndEl) pageEndEl.textContent = end;
-  if (totalItemsEl) totalItemsEl.textContent = filteredArticles.length;
+  // Aggiorna ENTRAMBE le paginazioni (top e bottom)
+  ['', 'Bottom'].forEach(suffix => {
+    const pageStartEl = document.getElementById('pageStart' + suffix);
+    const pageEndEl = document.getElementById('pageEnd' + suffix);
+    const totalItemsEl = document.getElementById('totalItems' + suffix);
+    const prevBtn = document.getElementById('prevBtn' + suffix);
+    const nextBtn = document.getElementById('nextBtn' + suffix);
+    
+    if (pageStartEl) pageStartEl.textContent = filteredArticles.length > 0 ? start : 0;
+    if (pageEndEl) pageEndEl.textContent = end;
+    if (totalItemsEl) totalItemsEl.textContent = filteredArticles.length;
+    
+    if (prevBtn) prevBtn.disabled = currentPage <= 1;
+    if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+  });
   
-  // Abilita/disabilita pulsanti
-  if (prevBtn) prevBtn.disabled = currentPage <= 1;
-  if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+  // Mostra/nascondi paginazione bottom solo se più di una pagina
+  const paginationBottom = document.getElementById('paginationBottom');
+  if (paginationBottom) {
+    paginationBottom.style.display = totalPages > 1 ? 'flex' : 'none';
+  }
   
   // Pagination classica (se esiste)
   if (!pagination) return;
@@ -515,10 +528,32 @@ function previousPage() {
 // Toggle apertura/chiusura filtri
 function toggleFilters() {
   const body = document.getElementById('filterBody');
-  const header = document.querySelector('.filter-header');
+  const btn = document.querySelector('.filter-expand-btn');
   
   if (body) body.classList.toggle('open');
-  if (header) header.classList.toggle('open');
+  if (btn) btn.classList.toggle('active');
+}
+
+// Conta filtri attivi e mostra badge
+function updateFilterBadge() {
+  let count = 0;
+  
+  if (document.getElementById('fCategoria')?.value) count++;
+  if (document.getElementById('fCasaGradazione')?.value) count++;
+  if (document.getElementById('fVotoGradazione')?.value) count++;
+  if (parseInt(document.getElementById('fValoreMin')?.value) > 0) count++;
+  if (parseInt(document.getElementById('fValoreMax')?.value) < 10000) count++;
+  if (document.getElementById('fStato')?.value) count++;
+  if (!document.getElementById('btnPresenti')?.classList.contains('active')) count++;
+  if (!document.getElementById('btnAssenti')?.classList.contains('active')) count++;
+  if (document.getElementById('btnVetrina')?.classList.contains('active')) count++;
+  if (!document.getElementById('btnProfit')?.classList.contains('active')) count++;
+  if (!document.getElementById('btnLoss')?.classList.contains('active')) count++;
+  
+  const badge = document.getElementById('filterBadge');
+  if (badge) {
+    badge.textContent = count > 0 ? count : '';
+  }
 }
 
 // Slider doppio valore
@@ -643,6 +678,7 @@ function applicaFiltri() {
   currentPage = 1;
   renderArticles();
   updatePagination();
+  updateFilterBadge();
 }
 
 // Reset tutti i filtri
