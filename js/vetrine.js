@@ -1556,3 +1556,18 @@ function openArticleGalleryVetrine(articleId) {
 // La vecchia funzione openVendorProfile è stata rimossa
 // Ora il nome è cliccabile direttamente (link HTML)
 // Il pulsante usa openChatWithVendor per aprire i messaggi
+
+// ============================================
+// EXPORTS GLOBALI
+// ============================================
+window.openFullscreen = openFullscreen;
+window.openArticleGalleryVetrine = openArticleGalleryVetrine;
+window.changeArticlePhoto = changeArticlePhoto;
+window.loadVetrineContent = loadVetrineContent;
+window.applyFilters = applyFilters;
+window.resetFilters = resetFilters;
+window.toggleFilter = toggleFilter;
+window.changePage = changePage;
+window.mostraDettaglioArticolo = mostraDettaglioArticolo;
+window.contattaVenditore = contattaVenditore;
+window.openChatWithVendor = openChatWithVendor;
