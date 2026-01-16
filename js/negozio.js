@@ -432,43 +432,17 @@ function openAddModal() {
   modal.classList.add('active');
   modal.style.display = '';
   
-  // 🔥 NUOVO: Gestione focus input per mobile
-  setupModalInputFocus(modal);
-}
-
-// 🔥 NUOVO: Auto-scroll quando focus su input (mobile keyboard fix)
-function setupModalInputFocus(modal) {
-  if (!modal) return;
-  
-  const inputs = modal.querySelectorAll('input, textarea, select');
-  
-  inputs.forEach(input => {
-    input.addEventListener('focus', function() {
-      // Su mobile, aspetta che keyboard appaia
-      setTimeout(() => {
-        // Scrolla l'elemento in view
-        this.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center',
-          inline: 'nearest'
-        });
-        
-        // Extra scroll per sicurezza
+  // 🔥 FIX MOBILE: Auto-scroll input quando apre keyboard
+  setTimeout(() => {
+    const inputs = modal.querySelectorAll('input:not([type="checkbox"]), textarea, select');
+    inputs.forEach(input => {
+      input.addEventListener('focus', function() {
         setTimeout(() => {
-          const modal = this.closest('.modal-add, .modal-edit');
-          if (modal) {
-            const inputRect = this.getBoundingClientRect();
-            const modalRect = modal.getBoundingClientRect();
-            
-            // Se input è troppo basso, scrolla il modal
-            if (inputRect.bottom > window.innerHeight - 100) {
-              modal.scrollTop += (inputRect.bottom - (window.innerHeight - 150));
-            }
-          }
-        }, 100);
-      }, 300); // Aspetta apertura keyboard
+          this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      }, { once: true });
     });
-  });
+  }, 100);
 }
 
 function closeAddModal() {
