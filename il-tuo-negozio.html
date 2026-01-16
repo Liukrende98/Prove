@@ -163,6 +163,11 @@
       color: #0a0a0a;
     }
     
+    .badge-graded {
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      color: white;
+    }
+    
     /* Menu Espanso Articolo - Interfaccia Bella */
     .article-expanded-details {
       background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, transparent 100%);
@@ -915,23 +920,72 @@
       overflow: hidden;
     }
     
-    .filter-header {
+    /* Ricerca sempre visibile */
+    .filter-search-always {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 14px 16px;
-      cursor: pointer;
+      padding: 12px;
+      gap: 10px;
+      background: #1a1a1a;
+    }
+    
+    .filter-search-always i {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .filter-search-always input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+    
+    .filter-search-always input::placeholder {
+      color: #666;
+    }
+    
+    .filter-expand-btn {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      background: rgba(251, 191, 36, 0.15);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 10px;
       color: #fbbf24;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .filter-expand-btn.active {
+      background: #fbbf24;
+      color: #0a0a0a;
+    }
+    
+    #filterBadge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      min-width: 18px;
+      height: 18px;
+      background: #ef4444;
+      color: white;
+      font-size: 10px;
       font-weight: 700;
-      font-size: 13px;
+      border-radius: 9px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
     }
     
-    .filter-header i:last-child {
-      transition: transform 0.3s;
-    }
-    
-    .filter-header.open i:last-child {
-      transform: rotate(180deg);
+    #filterBadge:not(:empty) {
+      display: flex;
     }
     
     .filter-body {
@@ -971,17 +1025,6 @@
     .filter-group select:focus {
       outline: none;
       border-color: #fbbf24;
-    }
-    
-    .filter-row-inline {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    
-    .filter-group.half {
-      flex: 1;
-      margin-bottom: 0;
     }
     
     .filter-toggles {
@@ -1061,6 +1104,12 @@
     
     .btn-reset-filters:active {
       background: rgba(255,255,255,0.05);
+    }
+    
+    /* Paginazione Bottom */
+    .pagination-bottom {
+      margin-top: 20px;
+      margin-bottom: 20px;
     }
     
     /* Hidden file input */
@@ -1281,18 +1330,18 @@
 
     <!-- FILTRI -->
     <div class="filter-box">
-      <div class="filter-header" onclick="toggleFilters()">
-        <span><i class="fas fa-filter"></i> FILTRI</span>
-        <i class="fas fa-chevron-down" id="filterArrow"></i>
+      <!-- Ricerca SEMPRE visibile -->
+      <div class="filter-search-always">
+        <i class="fas fa-search"></i>
+        <input type="text" id="fNome" placeholder="Cerca articolo..." oninput="applicaFiltri()">
+        <button class="filter-expand-btn" onclick="toggleFilters()">
+          <i class="fas fa-sliders-h"></i>
+          <span id="filterBadge"></span>
+        </button>
       </div>
       
+      <!-- Resto filtri espandibile -->
       <div class="filter-body" id="filterBody">
-        <!-- Ricerca -->
-        <div class="filter-group">
-          <label>Cerca</label>
-          <input type="text" id="fNome" placeholder="Nome articolo..." oninput="applicaFiltri()">
-        </div>
-        
         <!-- Categoria -->
         <div class="filter-group">
           <label>Categoria</label>
@@ -1342,7 +1391,7 @@
           </div>
           <div class="range-slider-track">
             <div class="range-slider-bg"></div>
-            <div class="range-slider-progress" id="rangeProgress"></div>
+            <div class="range-slider-progress" id="rangeProgress" style="left:0%;width:100%"></div>
             <input type="range" class="range-slider-input" id="fValoreMin" min="0" max="10000" value="0" step="100" oninput="updateRangeSlider()">
             <input type="range" class="range-slider-input" id="fValoreMax" min="0" max="10000" value="10000" step="100" oninput="updateRangeSlider()">
           </div>
@@ -1412,6 +1461,21 @@
 
     <!-- GRIGLIA ARTICOLI -->
     <div class="articles-grid" id="articlesGrid"></div>
+    
+    <!-- PAGINAZIONE IN FONDO -->
+    <div class="pagination-container pagination-bottom" id="paginationBottom">
+      <div class="pagination-info">
+        <span id="pageStartBottom">1</span>-<span id="pageEndBottom">10</span> di <span id="totalItemsBottom">0</span>
+      </div>
+      <div class="pagination-controls">
+        <button class="pagination-btn" id="prevBtnBottom" onclick="previousPage()">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="pagination-btn" id="nextBtnBottom" onclick="nextPage()">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- FOOTER -->
@@ -1684,6 +1748,7 @@
   </div>
 
   <!-- SCRIPTS -->
+  <script src="js/loader.js"></script>
   <script src="js/config.js"></script>
   <script src="js/common.js"></script>
   <script src="js/menu.js"></script>
