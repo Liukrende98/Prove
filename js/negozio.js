@@ -181,6 +181,8 @@ function renderArticles() {
 function createArticleCard(article) {
   const delta = (Number(article.ValoreAttuale) || 0) - (Number(article.PrezzoPagato) || 0);
   const deltaClass = delta >= 0 ? 'profit' : 'loss';
+  const deltaIcon = delta >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+  const deltaPercent = article.PrezzoPagato > 0 ? ((delta / article.PrezzoPagato) * 100) : 0;
   const rating = article.ValutazioneStato || 0;
   const ratingPercent = (rating / 10) * 100;
   
@@ -190,6 +192,13 @@ function createArticleCard(article) {
   const foto4 = article.foto_4 || '';
   
   const hasGallery = foto2 || foto3 || foto4;
+  
+  // Calcolo ROI e margine potenziale
+  const roi = article.PrezzoPagato > 0 ? ((delta / article.PrezzoPagato) * 100).toFixed(1) : '0.0';
+  const marginePotenziale = article.prezzo_vendita ? (Number(article.prezzo_vendita) - Number(article.PrezzoPagato || 0)) : null;
+  const marginePercent = (article.prezzo_vendita && article.PrezzoPagato > 0) 
+    ? (((article.prezzo_vendita - article.PrezzoPagato) / article.PrezzoPagato) * 100).toFixed(1) 
+    : null;
   
   return `
     <div class="article-card" id="card-${article.id}">
@@ -239,43 +248,117 @@ function createArticleCard(article) {
       
       <!-- DETTAGLI ESPANSI -->
       <div class="article-expanded-section">
-        <!-- Sezione Statistiche -->
-        <div class="expanded-box">
-          <div class="expanded-box-title"><i class="fas fa-chart-bar"></i> STATISTICHE</div>
-          <div class="stats-grid">
-            <div class="stat-item">
-              <div class="stat-item-label">Prezzo Pagato</div>
-              <div class="stat-item-value">${Number(article.PrezzoPagato || 0).toFixed(2)} €</div>
+        
+        <!-- 🔥 SEZIONE FINTECH - PORTFOLIO OVERVIEW -->
+        <div class="fintech-portfolio">
+          
+          <!-- Header con Valore Totale -->
+          <div class="portfolio-header">
+            <div class="portfolio-main-value">
+              <span class="portfolio-label">VALORE DI MERCATO</span>
+              <span class="portfolio-amount">${Number(article.ValoreAttuale || 0).toFixed(2)} <small>EUR</small></span>
             </div>
-            <div class="stat-item">
-              <div class="stat-item-label">Valore Attuale</div>
-              <div class="stat-item-value">${Number(article.ValoreAttuale || 0).toFixed(2)} €</div>
+            <div class="portfolio-change ${deltaClass}">
+              <i class="fas ${deltaIcon}"></i>
+              <span>${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €</span>
+              <span class="change-percent">(${delta >= 0 ? '+' : ''}${roi}%)</span>
             </div>
-            <div class="stat-item">
-              <div class="stat-item-label">Variazione</div>
-              <div class="stat-item-value ${deltaClass}">${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €</div>
+          </div>
+          
+          <!-- Grafico Mini Simulato -->
+          <div class="portfolio-mini-chart">
+            <div class="mini-chart-line ${deltaClass}"></div>
+            <div class="mini-chart-dot ${deltaClass}"></div>
+          </div>
+          
+          <!-- Metriche Finanziarie -->
+          <div class="fintech-metrics">
+            
+            <!-- Costo Base -->
+            <div class="metric-card">
+              <div class="metric-icon cost">
+                <i class="fas fa-shopping-cart"></i>
+              </div>
+              <div class="metric-info">
+                <span class="metric-label">Costo Base</span>
+                <span class="metric-value">${Number(article.PrezzoPagato || 0).toFixed(2)} €</span>
+              </div>
             </div>
+            
+            <!-- P&L (Profit & Loss) -->
+            <div class="metric-card">
+              <div class="metric-icon ${deltaClass}">
+                <i class="fas ${delta >= 0 ? 'fa-chart-line' : 'fa-chart-line-down'}"></i>
+              </div>
+              <div class="metric-info">
+                <span class="metric-label">P&L Unrealized</span>
+                <span class="metric-value ${deltaClass}">${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €</span>
+              </div>
+              <div class="metric-badge ${deltaClass}">
+                <i class="fas ${deltaIcon}"></i> ${delta >= 0 ? '+' : ''}${roi}%
+              </div>
+            </div>
+            
+            <!-- ROI -->
+            <div class="metric-card">
+              <div class="metric-icon roi">
+                <i class="fas fa-percentage"></i>
+              </div>
+              <div class="metric-info">
+                <span class="metric-label">ROI</span>
+                <span class="metric-value ${deltaClass}">${delta >= 0 ? '+' : ''}${roi}%</span>
+              </div>
+            </div>
+            
             ${article.prezzo_vendita ? `
-            <div class="stat-item">
-              <div class="stat-item-label">Prezzo Vendita</div>
-              <div class="stat-item-value">${Number(article.prezzo_vendita).toFixed(2)} €</div>
+            <!-- Prezzo Target -->
+            <div class="metric-card highlight">
+              <div class="metric-icon target">
+                <i class="fas fa-bullseye"></i>
+              </div>
+              <div class="metric-info">
+                <span class="metric-label">Prezzo Target</span>
+                <span class="metric-value">${Number(article.prezzo_vendita).toFixed(2)} €</span>
+              </div>
+              <div class="metric-badge ${marginePotenziale >= 0 ? 'profit' : 'loss'}">
+                <i class="fas fa-coins"></i> +${marginePercent}%
+              </div>
+            </div>
+            
+            <!-- Margine Potenziale -->
+            <div class="metric-card">
+              <div class="metric-icon margin">
+                <i class="fas fa-hand-holding-usd"></i>
+              </div>
+              <div class="metric-info">
+                <span class="metric-label">Margine Atteso</span>
+                <span class="metric-value profit">+${marginePotenziale.toFixed(2)} €</span>
+              </div>
             </div>
             ` : ''}
+            
           </div>
+          
+          <!-- Timestamp -->
+          <div class="portfolio-timestamp">
+            <i class="fas fa-clock"></i> 
+            Aggiornato: ${new Date(article.updated_at || article.created_at).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+          </div>
+          
         </div>
         
         ${article.casa_gradazione ? `
         <!-- Sezione Gradazione -->
         <div class="expanded-box">
-          <div class="expanded-box-title"><i class="fas fa-certificate"></i> GRADAZIONE</div>
-          <div class="stats-grid">
-            <div class="stat-item">
-              <div class="stat-item-label">Casa</div>
-              <div class="stat-item-value">${article.casa_gradazione === 'Altra casa' ? article.altra_casa_gradazione : article.casa_gradazione}</div>
+          <div class="expanded-box-title"><i class="fas fa-certificate"></i> CERTIFICAZIONE</div>
+          <div class="grading-display">
+            <div class="grading-house">
+              <img src="https://via.placeholder.com/40" class="grading-logo" onerror="this.style.display='none'">
+              <span class="grading-name">${article.casa_gradazione === 'Altra casa' ? article.altra_casa_gradazione : article.casa_gradazione}</span>
             </div>
-            <div class="stat-item">
-              <div class="stat-item-label">Voto</div>
-              <div class="stat-item-value">${article.voto_gradazione || '-'}</div>
+            <div class="grading-score">
+              <span class="score-value">${article.voto_gradazione || '-'}</span>
+              <span class="score-label">GRADE</span>
             </div>
           </div>
         </div>
@@ -284,7 +367,7 @@ function createArticleCard(article) {
         ${article.Descrizione ? `
         <!-- Sezione Descrizione -->
         <div class="expanded-box">
-          <div class="expanded-box-title"><i class="fas fa-align-left"></i> DESCRIZIONE</div>
+          <div class="expanded-box-title"><i class="fas fa-align-left"></i> NOTE</div>
           <div class="expanded-box-content">${article.Descrizione}</div>
         </div>
         ` : ''}
