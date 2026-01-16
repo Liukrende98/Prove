@@ -204,7 +204,7 @@ function createArticleCard(article) {
     <div class="article-card" id="card-${article.id}">
       <!-- IMMAGINE CHE SI INGRANDISCE -->
       <div class="article-image-wrapper" onclick="toggleArticleCard(${article.id})">
-        <img src="${foto || 'https://via.placeholder.com/400'}" alt="${article.Nome}" class="article-main-image">
+        <img src="${foto || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 400%22><rect fill=%22%231a1a1a%22 width=%22400%22 height=%22400%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23fbbf24%22 font-size=%2240%22>📷</text></svg>'}" alt="${article.Nome}" class="article-main-image">
         
         <!-- Badge -->
         ${article.Presente 
@@ -249,7 +249,7 @@ function createArticleCard(article) {
       <!-- DETTAGLI ESPANSI -->
       <div class="article-expanded-section">
         
-        <!-- 🔥 SEZIONE FINTECH - PORTFOLIO OVERVIEW -->
+        <!-- 🔥 SEZIONE FINTECH - PANORAMICA INVESTIMENTO -->
         <div class="fintech-portfolio">
           
           <!-- Header con Valore Totale -->
@@ -274,24 +274,24 @@ function createArticleCard(article) {
           <!-- Metriche Finanziarie -->
           <div class="fintech-metrics">
             
-            <!-- Costo Base -->
+            <!-- Prezzo Acquisto -->
             <div class="metric-card">
               <div class="metric-icon cost">
                 <i class="fas fa-shopping-cart"></i>
               </div>
               <div class="metric-info">
-                <span class="metric-label">Costo Base</span>
+                <span class="metric-label">Prezzo Acquisto</span>
                 <span class="metric-value">${Number(article.PrezzoPagato || 0).toFixed(2)} €</span>
               </div>
             </div>
             
-            <!-- P&L (Profit & Loss) -->
+            <!-- Guadagno/Perdita -->
             <div class="metric-card">
               <div class="metric-icon ${deltaClass}">
                 <i class="fas ${delta >= 0 ? 'fa-chart-line' : 'fa-chart-line-down'}"></i>
               </div>
               <div class="metric-info">
-                <span class="metric-label">P&L Unrealized</span>
+                <span class="metric-label">Guadagno Potenziale</span>
                 <span class="metric-value ${deltaClass}">${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €</span>
               </div>
               <div class="metric-badge ${deltaClass}">
@@ -299,25 +299,25 @@ function createArticleCard(article) {
               </div>
             </div>
             
-            <!-- ROI -->
+            <!-- Rendimento -->
             <div class="metric-card">
               <div class="metric-icon roi">
                 <i class="fas fa-percentage"></i>
               </div>
               <div class="metric-info">
-                <span class="metric-label">ROI</span>
+                <span class="metric-label">Rendimento</span>
                 <span class="metric-value ${deltaClass}">${delta >= 0 ? '+' : ''}${roi}%</span>
               </div>
             </div>
             
             ${article.prezzo_vendita ? `
-            <!-- Prezzo Target -->
+            <!-- Prezzo Vendita -->
             <div class="metric-card highlight">
               <div class="metric-icon target">
                 <i class="fas fa-bullseye"></i>
               </div>
               <div class="metric-info">
-                <span class="metric-label">Prezzo Target</span>
+                <span class="metric-label">Prezzo Vendita</span>
                 <span class="metric-value">${Number(article.prezzo_vendita).toFixed(2)} €</span>
               </div>
               <div class="metric-badge ${marginePotenziale >= 0 ? 'profit' : 'loss'}">
@@ -325,13 +325,13 @@ function createArticleCard(article) {
               </div>
             </div>
             
-            <!-- Margine Potenziale -->
+            <!-- Margine Netto -->
             <div class="metric-card">
               <div class="metric-icon margin">
                 <i class="fas fa-hand-holding-usd"></i>
               </div>
               <div class="metric-info">
-                <span class="metric-label">Margine Atteso</span>
+                <span class="metric-label">Margine Netto</span>
                 <span class="metric-value profit">+${marginePotenziale.toFixed(2)} €</span>
               </div>
             </div>
@@ -353,12 +353,12 @@ function createArticleCard(article) {
           <div class="expanded-box-title"><i class="fas fa-certificate"></i> CERTIFICAZIONE</div>
           <div class="grading-display">
             <div class="grading-house">
-              <img src="https://via.placeholder.com/40" class="grading-logo" onerror="this.style.display='none'">
+              <div class="grading-icon"><i class="fas fa-award"></i></div>
               <span class="grading-name">${article.casa_gradazione === 'Altra casa' ? article.altra_casa_gradazione : article.casa_gradazione}</span>
             </div>
             <div class="grading-score">
               <span class="score-value">${article.voto_gradazione || '-'}</span>
-              <span class="score-label">GRADE</span>
+              <span class="score-label">VOTO</span>
             </div>
           </div>
         </div>
@@ -432,9 +432,28 @@ function openFullscreen(imageUrl) {
 // ========== PAGINAZIONE ==========
 function updatePagination() {
   const pagination = document.getElementById('pagination');
-  if (!pagination) return;
-  
   const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
+  
+  // Aggiorna info paginazione
+  const pageStartEl = document.getElementById('pageStart');
+  const pageEndEl = document.getElementById('pageEnd');
+  const totalItemsEl = document.getElementById('totalItems');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  
+  const start = (currentPage - 1) * itemsPerPage + 1;
+  const end = Math.min(currentPage * itemsPerPage, filteredArticles.length);
+  
+  if (pageStartEl) pageStartEl.textContent = filteredArticles.length > 0 ? start : 0;
+  if (pageEndEl) pageEndEl.textContent = end;
+  if (totalItemsEl) totalItemsEl.textContent = filteredArticles.length;
+  
+  // Abilita/disabilita pulsanti
+  if (prevBtn) prevBtn.disabled = currentPage <= 1;
+  if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+  
+  // Pagination classica (se esiste)
+  if (!pagination) return;
   
   if (totalPages <= 1) {
     pagination.innerHTML = '';
@@ -475,6 +494,20 @@ function goToPage(page) {
   
   // Scroll to top
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// 🔥 Funzioni paginazione
+function nextPage() {
+  const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
+  if (currentPage < totalPages) {
+    goToPage(currentPage + 1);
+  }
+}
+
+function previousPage() {
+  if (currentPage > 1) {
+    goToPage(currentPage - 1);
+  }
 }
 
 // ========== FILTRI E RICERCA ==========
@@ -529,19 +562,8 @@ function closeAddModal() {
     const form = document.getElementById('formAdd');
     if (form) form.reset();
     
-    // Reset previews e wrapper
-    document.querySelectorAll('#formAdd .image-preview').forEach(img => {
-      img.style.display = 'none';
-      img.src = '';
-      
-      // Nascondi wrapper e rimuovi pulsante
-      const wrapper = img.parentElement;
-      if (wrapper && wrapper.classList.contains('image-preview-wrapper')) {
-        wrapper.style.display = 'none';
-        const btn = wrapper.querySelector('.remove-image-btn');
-        if (btn) btn.remove();
-      }
-    });
+    // 🔥 Reset nuovo sistema immagini
+    resetAddImages();
     
     // Reset campi gradazione
     gestisciCarteGradate('', 'Add');
@@ -560,127 +582,152 @@ function updateRangeSlider() {
   }
 }
 
-function previewImage(input, previewId) {
-  const preview = document.getElementById(previewId);
-  if (!preview) return;
-  
-  // Trova o crea il wrapper
-  let wrapper = preview.parentElement;
-  if (!wrapper.classList.contains('image-preview-wrapper')) {
-    wrapper = document.createElement('div');
-    wrapper.className = 'image-preview-wrapper';
-    preview.parentElement.insertBefore(wrapper, preview);
-    wrapper.appendChild(preview);
-  }
-  
-  // Rimuovi pulsante esistente se c'è
-  const existingBtn = wrapper.querySelector('.remove-image-btn');
-  if (existingBtn) existingBtn.remove();
-  
-  if (input.files && input.files[0]) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      preview.src = e.target.result;
-      preview.style.display = 'block';
-      wrapper.style.display = 'block';
-      
-      // Aggiungi pulsante rimozione
-      const removeBtn = document.createElement('button');
-      removeBtn.type = 'button';
-      removeBtn.className = 'remove-image-btn';
-      removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-      removeBtn.onclick = () => removeImage(input.id, previewId);
-      wrapper.appendChild(removeBtn);
-    };
-    reader.readAsDataURL(input.files[0]);
-  }
-}
+// ========== NUOVO SISTEMA UPLOAD IMMAGINI MULTIPLO ==========
+let addImages = []; // Array per form Aggiungi
+let editImages = []; // Array per form Modifica
+let editExistingUrls = []; // URL esistenti in modifica
 
-function removeImage(inputId, previewId) {
+const MAX_IMAGES = 6;
+
+// Inizializza il sistema di upload
+function initImageUpload(containerId, inputId, isEdit = false) {
+  const container = document.getElementById(containerId);
   const input = document.getElementById(inputId);
-  const preview = document.getElementById(previewId);
   
-  if (input) {
-    input.value = ''; // Reset input file
-  }
+  if (!container || !input) return;
   
-  if (preview) {
-    preview.src = '';
-    preview.style.display = 'none';
+  input.addEventListener('change', (e) => {
+    const files = Array.from(e.target.files);
+    const currentImages = isEdit ? editImages : addImages;
+    const currentUrls = isEdit ? editExistingUrls : [];
+    const totalCurrent = currentImages.length + currentUrls.filter(u => u).length;
     
-    // Nascondi wrapper e rimuovi pulsante
-    const wrapper = preview.parentElement;
-    if (wrapper && wrapper.classList.contains('image-preview-wrapper')) {
-      wrapper.style.display = 'none';
-      const btn = wrapper.querySelector('.remove-image-btn');
-      if (btn) btn.remove();
+    if (totalCurrent + files.length > MAX_IMAGES) {
+      alert(`⚠️ Puoi caricare massimo ${MAX_IMAGES} foto. Ne hai già ${totalCurrent}.`);
+      input.value = '';
+      return;
     }
-  }
+    
+    files.forEach(file => {
+      if (file.type.startsWith('image/')) {
+        if (isEdit) {
+          editImages.push(file);
+        } else {
+          addImages.push(file);
+        }
+      }
+    });
+    
+    input.value = ''; // Reset input per permettere stesso file
+    renderImageGrid(containerId, isEdit);
+  });
 }
 
-// 🔥 Versione per modal Edit (con gestione URL esistenti)
-function removeImageEdit(inputId, previewId, hiddenUrlId) {
-  const input = document.getElementById(inputId);
-  const preview = document.getElementById(previewId);
-  const hiddenUrl = document.getElementById(hiddenUrlId);
+// Renderizza la griglia immagini
+function renderImageGrid(containerId, isEdit = false) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
   
-  if (input) {
-    input.value = ''; // Reset input file
+  const images = isEdit ? editImages : addImages;
+  const existingUrls = isEdit ? editExistingUrls : [];
+  const totalCount = images.length + existingUrls.filter(u => u).length;
+  
+  let html = '<div class="image-upload-grid">';
+  
+  // Mostra URL esistenti (solo in modifica)
+  if (isEdit) {
+    existingUrls.forEach((url, index) => {
+      if (url) {
+        html += `
+          <div class="upload-image-item">
+            <img src="${url}" alt="Foto ${index + 1}">
+            <button type="button" class="upload-remove-btn" onclick="removeExistingImage(${index}, '${containerId}')">
+              <i class="fas fa-times"></i>
+            </button>
+            <div class="upload-image-number">${index + 1}</div>
+          </div>
+        `;
+      }
+    });
   }
   
-  if (hiddenUrl) {
-    hiddenUrl.value = ''; // Rimuovi URL esistente
+  // Mostra nuove immagini
+  images.forEach((file, index) => {
+    const actualIndex = isEdit ? existingUrls.filter(u => u).length + index : index;
+    html += `
+      <div class="upload-image-item" id="img-${isEdit ? 'edit' : 'add'}-${index}">
+        <img src="${URL.createObjectURL(file)}" alt="Foto ${actualIndex + 1}">
+        <button type="button" class="upload-remove-btn" onclick="removeNewImage(${index}, '${containerId}', ${isEdit})">
+          <i class="fas fa-times"></i>
+        </button>
+        <div class="upload-image-number">${actualIndex + 1}</div>
+      </div>
+    `;
+  });
+  
+  // Pulsante aggiungi (se non al massimo)
+  if (totalCount < MAX_IMAGES) {
+    const inputId = isEdit ? 'editImageInput' : 'addImageInput';
+    html += `
+      <div class="upload-add-btn" onclick="document.getElementById('${inputId}').click()">
+        <i class="fas fa-plus"></i>
+        <span>Aggiungi</span>
+        <small>${totalCount}/${MAX_IMAGES}</small>
+      </div>
+    `;
   }
   
-  if (preview) {
-    preview.src = '';
-    preview.style.display = 'none';
-    
-    // Nascondi wrapper e rimuovi pulsante
-    const wrapper = preview.parentElement;
-    if (wrapper && wrapper.classList.contains('image-preview-wrapper')) {
-      wrapper.style.display = 'none';
-      const btn = wrapper.querySelector('.remove-image-btn');
-      if (btn) btn.remove();
-    }
+  html += '</div>';
+  
+  // Info
+  if (totalCount === 0) {
+    html += '<p class="upload-hint"><i class="fas fa-info-circle"></i> La prima foto sarà quella principale</p>';
   }
+  
+  container.innerHTML = html;
 }
 
-// 🔥 Setup preview per modal Edit con pulsante rimozione
-function setupEditPreview(previewId, imageUrl, inputId, hiddenUrlId) {
-  const preview = document.getElementById(previewId);
-  if (!preview) return;
-  
-  // Trova o crea il wrapper
-  let wrapper = preview.parentElement;
-  if (!wrapper.classList.contains('image-preview-wrapper')) {
-    wrapper = document.createElement('div');
-    wrapper.className = 'image-preview-wrapper';
-    preview.parentElement.insertBefore(wrapper, preview);
-    wrapper.appendChild(preview);
-  }
-  
-  // Rimuovi pulsante esistente se c'è
-  const existingBtn = wrapper.querySelector('.remove-image-btn');
-  if (existingBtn) existingBtn.remove();
-  
-  if (imageUrl) {
-    preview.src = imageUrl;
-    preview.style.display = 'block';
-    wrapper.style.display = 'block';
-    
-    // Aggiungi pulsante rimozione
-    const removeBtn = document.createElement('button');
-    removeBtn.type = 'button';
-    removeBtn.className = 'remove-image-btn';
-    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-    removeBtn.onclick = () => removeImageEdit(inputId, previewId, hiddenUrlId);
-    wrapper.appendChild(removeBtn);
+// Rimuovi immagine esistente (URL)
+function removeExistingImage(index, containerId) {
+  editExistingUrls[index] = null;
+  renderImageGrid(containerId, true);
+}
+
+// Rimuovi nuova immagine (File)
+function removeNewImage(index, containerId, isEdit) {
+  if (isEdit) {
+    editImages.splice(index, 1);
   } else {
-    preview.src = '';
-    preview.style.display = 'none';
-    wrapper.style.display = 'none';
+    addImages.splice(index, 1);
   }
+  renderImageGrid(containerId, isEdit);
+}
+
+// Reset immagini form Aggiungi
+function resetAddImages() {
+  addImages = [];
+  const container = document.getElementById('addImagesContainer');
+  if (container) renderImageGrid('addImagesContainer', false);
+}
+
+// Reset immagini form Modifica
+function resetEditImages() {
+  editImages = [];
+  editExistingUrls = [];
+}
+
+// Carica immagini esistenti per modifica
+function loadExistingImages(article) {
+  editImages = [];
+  editExistingUrls = [
+    article.foto_principale || article.image_url || null,
+    article.foto_2 || null,
+    article.foto_3 || null,
+    article.foto_4 || null,
+    article.foto_5 || null,
+    article.foto_6 || null
+  ];
+  renderImageGrid('editImagesContainer', true);
 }
 
 async function uploadImage(file) {
@@ -724,20 +771,13 @@ async function aggiungiArticolo(event) {
   msg.textContent = '⏳ Caricamento...';
   msg.style.display = 'block';
   
-  // Upload immagini
-  const imageInput = document.getElementById('imageInput');
-  const imageInput2 = document.getElementById('imageInput2');
-  const imageInput3 = document.getElementById('imageInput3');
-  const imageInput4 = document.getElementById('imageInput4');
-  const imageInput5 = document.getElementById('imageInput5');
-  const imageInput6 = document.getElementById('imageInput6');
-  
-  let fotoPrincipale = await uploadImage(imageInput?.files[0]);
-  let foto2 = await uploadImage(imageInput2?.files[0]);
-  let foto3 = await uploadImage(imageInput3?.files[0]);
-  let foto4 = await uploadImage(imageInput4?.files[0]);
-  let foto5 = await uploadImage(imageInput5?.files[0]);
-  let foto6 = await uploadImage(imageInput6?.files[0]);
+  // 🔥 NUOVO SISTEMA: Upload immagini dall'array addImages
+  const uploadedUrls = [];
+  for (let i = 0; i < addImages.length; i++) {
+    msg.textContent = `⏳ Caricamento foto ${i + 1}/${addImages.length}...`;
+    const url = await uploadImage(addImages[i]);
+    uploadedUrls.push(url);
+  }
   
   const valore = parseFloat(formData.get('ValoreAttuale')) || 0;
   const prezzo = parseFloat(formData.get('PrezzoPagato')) || 0;
@@ -772,13 +812,13 @@ async function aggiungiArticolo(event) {
     Delta: valore - prezzo,
     ValutazioneStato: formData.get('ValutazioneStato') ? parseInt(formData.get('ValutazioneStato')) : null,
     Presente: formData.get('Presente') === 'on',
-    image_url: fotoPrincipale,
-    foto_principale: fotoPrincipale,
-    foto_2: foto2 || null,
-    foto_3: foto3 || null,
-    foto_4: foto4 || null,
-    foto_5: foto5 || null,
-    foto_6: foto6 || null,
+    image_url: uploadedUrls[0] || null,
+    foto_principale: uploadedUrls[0] || null,
+    foto_2: uploadedUrls[1] || null,
+    foto_3: uploadedUrls[2] || null,
+    foto_4: uploadedUrls[3] || null,
+    foto_5: uploadedUrls[4] || null,
+    foto_6: uploadedUrls[5] || null,
     in_vetrina: inVetrina,
     prezzo_vendita: prezzoVendita,
     casa_gradazione: casaGradazione,
@@ -842,21 +882,8 @@ async function apriModifica(articleId) {
     if (votoInput) votoInput.value = article.voto_gradazione || '';
   }
   
-  // Immagini
-  document.getElementById('editCurrentImageUrl').value = article.foto_principale || article.image_url || '';
-  document.getElementById('editCurrentImageUrl2').value = article.foto_2 || '';
-  document.getElementById('editCurrentImageUrl3').value = article.foto_3 || '';
-  document.getElementById('editCurrentImageUrl4').value = article.foto_4 || '';
-  document.getElementById('editCurrentImageUrl5').value = article.foto_5 || '';
-  document.getElementById('editCurrentImageUrl6').value = article.foto_6 || '';
-  
-  // Preview immagini esistenti con pulsante rimozione
-  setupEditPreview('imagePreviewEdit', article.foto_principale || article.image_url, 'editImageInput', 'editCurrentImageUrl');
-  setupEditPreview('imagePreviewEdit2', article.foto_2, 'editImageInput2', 'editCurrentImageUrl2');
-  setupEditPreview('imagePreviewEdit3', article.foto_3, 'editImageInput3', 'editCurrentImageUrl3');
-  setupEditPreview('imagePreviewEdit4', article.foto_4, 'editImageInput4', 'editCurrentImageUrl4');
-  setupEditPreview('imagePreviewEdit5', article.foto_5, 'editImageInput5', 'editCurrentImageUrl5');
-  setupEditPreview('imagePreviewEdit6', article.foto_6, 'editImageInput6', 'editCurrentImageUrl6');
+  // 🔥 NUOVO SISTEMA: Carica immagini esistenti
+  loadExistingImages(article);
   
   // Reset msg
   const msg = document.getElementById('editMsg');
@@ -874,6 +901,9 @@ function closeEditModal() {
   if (modal) {
     modal.classList.remove('active');
     document.body.style.overflow = '';
+    
+    // 🔥 Reset immagini
+    resetEditImages();
   }
 }
 
@@ -899,20 +929,20 @@ async function salvaModifica(event) {
   msg.textContent = '⏳ Salvataggio...';
   msg.style.display = 'block';
   
-  // Upload nuove immagini se presenti
-  const editImageInput = document.getElementById('editImageInput');
-  const editImageInput2 = document.getElementById('editImageInput2');
-  const editImageInput3 = document.getElementById('editImageInput3');
-  const editImageInput4 = document.getElementById('editImageInput4');
-  const editImageInput5 = document.getElementById('editImageInput5');
-  const editImageInput6 = document.getElementById('editImageInput6');
+  // 🔥 NUOVO SISTEMA: Combina URL esistenti + nuove immagini
+  const finalUrls = [];
   
-  let fotoPrincipale = await uploadImage(editImageInput?.files[0]) || document.getElementById('editCurrentImageUrl').value;
-  let foto2 = await uploadImage(editImageInput2?.files[0]) || document.getElementById('editCurrentImageUrl2').value;
-  let foto3 = await uploadImage(editImageInput3?.files[0]) || document.getElementById('editCurrentImageUrl3').value;
-  let foto4 = await uploadImage(editImageInput4?.files[0]) || document.getElementById('editCurrentImageUrl4').value;
-  let foto5 = await uploadImage(editImageInput5?.files[0]) || document.getElementById('editCurrentImageUrl5').value;
-  let foto6 = await uploadImage(editImageInput6?.files[0]) || document.getElementById('editCurrentImageUrl6').value;
+  // Prima aggiungi gli URL esistenti (non null)
+  for (const url of editExistingUrls) {
+    if (url) finalUrls.push(url);
+  }
+  
+  // Poi carica e aggiungi le nuove immagini
+  for (let i = 0; i < editImages.length; i++) {
+    msg.textContent = `⏳ Caricamento foto ${i + 1}/${editImages.length}...`;
+    const url = await uploadImage(editImages[i]);
+    if (url) finalUrls.push(url);
+  }
   
   const valore = parseFloat(document.getElementById('editValoreAttuale').value) || 0;
   const prezzo = parseFloat(document.getElementById('editPrezzoPagato').value) || 0;
@@ -946,13 +976,13 @@ async function salvaModifica(event) {
     Delta: valore - prezzo,
     ValutazioneStato: formData.get('ValutazioneStato') ? parseInt(formData.get('ValutazioneStato')) : null,
     Presente: formData.get('Presente') === 'on',
-    image_url: fotoPrincipale,
-    foto_principale: fotoPrincipale,
-    foto_2: foto2 || null,
-    foto_3: foto3 || null,
-    foto_4: foto4 || null,
-    foto_5: foto5 || null,
-    foto_6: foto6 || null,
+    image_url: finalUrls[0] || null,
+    foto_principale: finalUrls[0] || null,
+    foto_2: finalUrls[1] || null,
+    foto_3: finalUrls[2] || null,
+    foto_4: finalUrls[3] || null,
+    foto_5: finalUrls[4] || null,
+    foto_6: finalUrls[5] || null,
     in_vetrina: inVetrina,
     prezzo_vendita: prezzoVendita,
     casa_gradazione: casaGradazione,
@@ -1175,6 +1205,22 @@ function closeGraphModal() {
       modal.classList.remove('active', 'closing');
       document.body.style.overflow = '';
     }, 300);
+  }
+  
+  // 🔥 FIX: Rimuovi expanded da tutti i cruscotti
+  document.querySelectorAll('.stat-card').forEach(card => {
+    card.classList.remove('expanded');
+  });
+}
+
+// ========== FILTRI ==========
+function toggleFilters() {
+  const filterContent = document.querySelector('.filter-content');
+  const filterHeader = document.querySelector('.filter-header');
+  
+  if (filterContent && filterHeader) {
+    filterContent.classList.toggle('active');
+    filterHeader.classList.toggle('active');
   }
 }
 
