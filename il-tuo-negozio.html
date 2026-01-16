@@ -28,18 +28,6 @@
   <link rel="stylesheet" href="css/messages-styles.css">
   
   <style>
-    /* 🔥 FIX MOBILE - Spazio per keyboard */
-    @media (max-width: 768px) {
-      .modal-add-content,
-      .modal-edit-content {
-        padding-bottom: 200px; /* Spazio extra per keyboard mobile */
-      }
-      
-      .btn-submit {
-        margin-bottom: 40px;
-      }
-    }
-    
     /* MODIFICHE OTTIMIZZATE IPHONE */
     
     /* Dashboard Cards - TUTTI NERI */
@@ -347,6 +335,13 @@
     body.menu-active {
       overflow: hidden;
     }
+    
+    /* FIX BOTTONE MOBILE - Spazio per keyboard */
+    @media (max-width: 768px) {
+      #formAdd, #formEdit {
+        padding-bottom: 200px;
+      }
+    }
   </style>
 </head>
 
@@ -408,8 +403,10 @@
               <option value="">Tutte le categorie</option>
               <option value="ETB">ETB</option>
               <option value="Carte Singole">Carte Singole</option>
+              <option value="Carte Singole">Carte Gradate</option>
               <option value="Booster Box">Booster Box</option>
               <option value="Collection Box">Collection Box</option>
+              <option value="Collection Box">Tin Box</option>
               <option value="Bustine">Bustine</option>
               <option value="Accessori">Accessori</option>
               <option value="Altro">Altro</option>
