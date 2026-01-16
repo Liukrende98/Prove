@@ -592,7 +592,7 @@ function createVetrinaCard(userId, username, citta, disponibili, acquisti, media
         <div class="vetrina-products-container" id="products-${userId}">
           ${articoli.map(art => createArticoloCard(art)).join('')}
         </div>
-        ${articoli.length > 2 ? '<div class="scroll-indicator">SCORRI <i class="fas fa-chevron-right"></i></div>' : ''}
+        ${articoli.length > 2 ? `<div class="scroll-indicator" id="scroll-indicator-${userId}">SCORRI <i class="fas fa-chevron-right"></i></div>` : ''}
       </div>
       
       ${articoli.length > 1 ? `<div class="vetrina-products-dots" id="dots-${userId}">${dotsHtml}</div>` : ''}
@@ -870,11 +870,13 @@ function setupScrollIndicatorsOptimized() {
         let hasScrolled = false;
         
         scrollContainer.addEventListener('scroll', () => {
-          if (!hasScrolled && scrollContainer.scrollLeft > 20) {
+          // 🔥 Se scrolla per la prima volta, nascondi DEFINITIVAMENTE
+          if (!hasScrolled && scrollContainer.scrollLeft > 10) {
             hasScrolled = true;
-            indicator.classList.add('hidden');
+            indicator.style.opacity = '0';
+            indicator.style.pointerEvents = 'none';
             
-            // Rimuovi dopo animazione
+            // 🔥 RIMUOVI completamente dopo animazione
             setTimeout(() => {
               if (indicator && indicator.parentNode) {
                 indicator.remove();
