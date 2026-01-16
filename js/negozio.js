@@ -510,19 +510,15 @@ function previousPage() {
   }
 }
 
-// ========== FILTRI - MOBILE OPTIMIZED ==========
-
-let currentRatingFilter = 0;
+// ========== FILTRI ==========
 
 // Toggle apertura/chiusura filtri
 function toggleFilters() {
   const body = document.getElementById('filterBody');
-  const arrow = document.getElementById('filterArrow');
+  const header = document.querySelector('.filter-header');
   
-  if (body && arrow) {
-    body.classList.toggle('open');
-    arrow.classList.toggle('open');
-  }
+  if (body) body.classList.toggle('open');
+  if (header) header.classList.toggle('open');
 }
 
 // Gestisce mostra/nascondi filtri carte gradate
@@ -537,57 +533,30 @@ function gestisciFiltroCategoria() {
   applicaFiltri();
 }
 
-// Toggle chip (presenti, assenti, vetrina, profit, loss)
-function toggleChip(chipId) {
-  const chip = document.getElementById(chipId);
-  if (chip) {
-    chip.classList.toggle('active');
+// Toggle pulsante filtro
+function toggleFilterBtn(btnId) {
+  const btn = document.getElementById(btnId);
+  if (btn) {
+    btn.classList.toggle('active');
     applicaFiltri();
-  }
-}
-
-// Set rating filter
-function setRatingFilter(val) {
-  currentRatingFilter = val;
-  
-  // Update UI
-  document.querySelectorAll('.rating-btn').forEach(btn => {
-    btn.classList.remove('active');
-    if (parseInt(btn.dataset.val) === val) {
-      btn.classList.add('active');
-    }
-  });
-  
-  applicaFiltri();
-}
-
-// Aggiorna display range
-function updateRangeDisplay() {
-  const min = document.getElementById('fValoreMin')?.value || 0;
-  const max = document.getElementById('fValoreMax')?.value || 10000;
-  const display = document.getElementById('rangeDisplay');
-  
-  if (display) {
-    display.textContent = `${min}€ - ${max}€`;
   }
 }
 
 // Applica tutti i filtri
 function applicaFiltri() {
-  updateRangeDisplay();
-  
   const nome = document.getElementById('fNome')?.value?.toLowerCase() || '';
   const categoria = document.getElementById('fCategoria')?.value || '';
   const casaGradazione = document.getElementById('fCasaGradazione')?.value || '';
   const votoGradazione = parseFloat(document.getElementById('fVotoGradazione')?.value) || 0;
-  const valoreMin = parseInt(document.getElementById('fValoreMin')?.value) || 0;
-  const valoreMax = parseInt(document.getElementById('fValoreMax')?.value) || 999999;
+  const valoreMin = parseFloat(document.getElementById('fValoreMin')?.value) || 0;
+  const valoreMax = parseFloat(document.getElementById('fValoreMax')?.value) || 999999;
+  const statoMin = parseInt(document.getElementById('fStato')?.value) || 0;
   
-  const mostraPresenti = document.getElementById('chipPresenti')?.classList.contains('active') ?? true;
-  const mostraAssenti = document.getElementById('chipAssenti')?.classList.contains('active') ?? true;
-  const soloVetrina = document.getElementById('chipVetrina')?.classList.contains('active') ?? false;
-  const mostraGuadagno = document.getElementById('chipProfit')?.classList.contains('active') ?? true;
-  const mostraPerdita = document.getElementById('chipLoss')?.classList.contains('active') ?? true;
+  const mostraPresenti = document.getElementById('btnPresenti')?.classList.contains('active') ?? true;
+  const mostraAssenti = document.getElementById('btnAssenti')?.classList.contains('active') ?? true;
+  const soloVetrina = document.getElementById('btnVetrina')?.classList.contains('active') ?? false;
+  const mostraGuadagno = document.getElementById('btnProfit')?.classList.contains('active') ?? true;
+  const mostraPerdita = document.getElementById('btnLoss')?.classList.contains('active') ?? true;
   
   filteredArticles = allArticles.filter(article => {
     // Filtro nome
@@ -615,7 +584,7 @@ function applicaFiltri() {
     
     // Filtro stato/valutazione
     const stato = Number(article.ValutazioneStato) || 0;
-    const matchStato = currentRatingFilter === 0 || stato >= currentRatingFilter;
+    const matchStato = !statoMin || stato >= statoMin;
     
     // Filtro presenza
     const isPresente = article.Presente === true;
@@ -632,35 +601,9 @@ function applicaFiltri() {
     return matchNome && matchCategoria && matchGraded && matchValore && matchStato && matchPresenza && matchVetrina && matchDelta;
   });
   
-  // Aggiorna contatore filtri attivi
-  updateFilterCount();
-  
   currentPage = 1;
   renderArticles();
   updatePagination();
-}
-
-// Conta filtri attivi
-function updateFilterCount() {
-  let count = 0;
-  
-  if (document.getElementById('fNome')?.value) count++;
-  if (document.getElementById('fCategoria')?.value) count++;
-  if (document.getElementById('fCasaGradazione')?.value) count++;
-  if (document.getElementById('fVotoGradazione')?.value) count++;
-  if (parseInt(document.getElementById('fValoreMin')?.value) > 0) count++;
-  if (parseInt(document.getElementById('fValoreMax')?.value) < 10000) count++;
-  if (currentRatingFilter > 0) count++;
-  if (!document.getElementById('chipPresenti')?.classList.contains('active')) count++;
-  if (!document.getElementById('chipAssenti')?.classList.contains('active')) count++;
-  if (document.getElementById('chipVetrina')?.classList.contains('active')) count++;
-  if (!document.getElementById('chipProfit')?.classList.contains('active')) count++;
-  if (!document.getElementById('chipLoss')?.classList.contains('active')) count++;
-  
-  const countEl = document.getElementById('filterCount');
-  if (countEl) {
-    countEl.textContent = count > 0 ? count : '';
-  }
 }
 
 // Reset tutti i filtri
@@ -672,6 +615,7 @@ function resetFiltri() {
   const fVotoGradazione = document.getElementById('fVotoGradazione');
   const fValoreMin = document.getElementById('fValoreMin');
   const fValoreMax = document.getElementById('fValoreMax');
+  const fStato = document.getElementById('fStato');
   const filterGradedSection = document.getElementById('filterGradedSection');
   
   if (fNome) fNome.value = '';
@@ -679,45 +623,29 @@ function resetFiltri() {
   if (fCasaGradazione) fCasaGradazione.value = '';
   if (fVotoGradazione) fVotoGradazione.value = '';
   if (fValoreMin) fValoreMin.value = 0;
-  if (fValoreMax) fValoreMax.value = 10000;
+  if (fValoreMax) fValoreMax.value = 99999;
+  if (fStato) fStato.value = '';
   if (filterGradedSection) filterGradedSection.style.display = 'none';
   
-  // Reset rating
-  currentRatingFilter = 0;
-  document.querySelectorAll('.rating-btn').forEach(btn => {
-    btn.classList.remove('active');
-    if (btn.dataset.val === '0') btn.classList.add('active');
-  });
-  
-  // Reset chips
-  ['chipPresenti', 'chipAssenti', 'chipProfit', 'chipLoss'].forEach(id => {
+  // Reset toggle buttons
+  ['btnPresenti', 'btnAssenti', 'btnProfit', 'btnLoss'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.add('active');
   });
   
-  const chipVetrina = document.getElementById('chipVetrina');
-  if (chipVetrina) chipVetrina.classList.remove('active');
-  
-  // Aggiorna display
-  updateRangeDisplay();
+  const btnVetrina = document.getElementById('btnVetrina');
+  if (btnVetrina) btnVetrina.classList.remove('active');
   
   // Reset articoli
   filteredArticles = [...allArticles];
   currentPage = 1;
   renderArticles();
   updatePagination();
-  updateFilterCount();
 }
 
-// Funzione legacy per compatibilità
+// Funzione legacy
 function cercaArticoli() {
   applicaFiltri();
-}
-
-// Inizializza rating filter al caricamento
-function initRatingFilter() {
-  const firstBtn = document.querySelector('.rating-btn[data-val="0"]');
-  if (firstBtn) firstBtn.classList.add('active');
 }
 
 // ========== MODAL AGGIUNGI ==========
@@ -927,28 +855,21 @@ async function uploadImage(file) {
   const user = getCurrentUser();
   if (!user) return null;
   
-  // Nome bucket - assicurati che esista su Supabase!
-  const BUCKET_NAME = 'images';
-  
   const fileName = `${user.id}/${Date.now()}_${file.name}`;
   
-  console.log(`📤 Uploading to bucket '${BUCKET_NAME}':`, fileName);
-  
   const { data, error } = await supabaseClient.storage
-    .from(BUCKET_NAME)
+    .from('product-images')
     .upload(fileName, file);
   
   if (error) {
     console.error('❌ Errore upload:', error);
-    alert(`Errore upload: ${error.message}. Verifica che il bucket "${BUCKET_NAME}" esista su Supabase.`);
     return null;
   }
   
   const { data: urlData } = supabaseClient.storage
-    .from(BUCKET_NAME)
+    .from('product-images')
     .getPublicUrl(fileName);
   
-  console.log('✅ Upload completato:', urlData?.publicUrl);
   return urlData?.publicUrl || null;
 }
 
@@ -1065,6 +986,8 @@ async function apriModifica(articleId) {
   const article = allArticles.find(a => a.id === articleId);
   if (!article) return;
   
+  console.log('📝 Apertura modifica articolo:', article);
+  
   const modal = document.getElementById('modalEdit');
   if (!modal) return;
   
@@ -1073,13 +996,15 @@ async function apriModifica(articleId) {
   document.getElementById('editNome').value = article.Nome || '';
   document.getElementById('editDescrizione').value = article.Descrizione || '';
   document.getElementById('editCategoria').value = article.Categoria || '';
-  document.getElementById('editValoreAttuale').value = article.ValoreAttuale || '';
-  document.getElementById('editPrezzoPagato').value = article.PrezzoPagato || '';
+  document.getElementById('editValoreAttuale').value = article.ValoreAttuale || 0;
+  document.getElementById('editPrezzoPagato').value = article.PrezzoPagato || 0;
   document.getElementById('editDelta').value = ((article.ValoreAttuale || 0) - (article.PrezzoPagato || 0)).toFixed(2) + ' €';
   document.getElementById('editStato').value = article.ValutazioneStato || '';
   document.getElementById('editPresente').checked = article.Presente || false;
   document.getElementById('editInVetrina').checked = article.in_vetrina || false;
   document.getElementById('editPrezzoVendita').value = article.prezzo_vendita || '';
+  
+  console.log('💰 Prezzi caricati - Valore:', article.ValoreAttuale, 'Pagato:', article.PrezzoPagato, 'Vendita:', article.prezzo_vendita);
   
   // Mostra/nascondi prezzo vendita
   const prezzoGroup = document.getElementById('prezzoVenditaGroupEdit');
@@ -1091,14 +1016,19 @@ async function apriModifica(articleId) {
   gestisciCarteGradate(article.Categoria || '', 'Edit');
   
   if (article.Categoria === 'Carte gradate') {
-    const casaSelect = document.getElementById('casaGradazioneEdit');
-    const altraCasaInput = document.getElementById('altraCasaGradazioneEdit');
-    const votoInput = document.getElementById('votoGradazioneEdit');
+    console.log('🏆 Carte gradate - Casa:', article.casa_gradazione, 'Voto:', article.voto_gradazione);
     
-    if (casaSelect) casaSelect.value = article.casa_gradazione || '';
-    gestisciAltraCasa(article.casa_gradazione || '', 'Edit');
-    if (altraCasaInput) altraCasaInput.value = article.altra_casa_gradazione || '';
-    if (votoInput) votoInput.value = article.voto_gradazione || '';
+    // Aspetta un attimo che i campi siano visibili
+    setTimeout(() => {
+      const casaSelect = document.getElementById('casaGradazioneEdit');
+      const altraCasaInput = document.getElementById('altraCasaGradazioneEdit');
+      const votoInput = document.getElementById('votoGradazioneEdit');
+      
+      if (casaSelect) casaSelect.value = article.casa_gradazione || '';
+      gestisciAltraCasa(article.casa_gradazione || '', 'Edit');
+      if (altraCasaInput) altraCasaInput.value = article.altra_casa_gradazione || '';
+      if (votoInput) votoInput.value = article.voto_gradazione || '';
+    }, 50);
   }
   
   // 🔥 NUOVO SISTEMA: Carica immagini esistenti
