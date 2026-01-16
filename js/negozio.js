@@ -431,6 +431,44 @@ function openAddModal() {
   modal.classList.remove('closing');
   modal.classList.add('active');
   modal.style.display = '';
+  
+  // 🔥 NUOVO: Gestione focus input per mobile
+  setupModalInputFocus(modal);
+}
+
+// 🔥 NUOVO: Auto-scroll quando focus su input (mobile keyboard fix)
+function setupModalInputFocus(modal) {
+  if (!modal) return;
+  
+  const inputs = modal.querySelectorAll('input, textarea, select');
+  
+  inputs.forEach(input => {
+    input.addEventListener('focus', function() {
+      // Su mobile, aspetta che keyboard appaia
+      setTimeout(() => {
+        // Scrolla l'elemento in view
+        this.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+        
+        // Extra scroll per sicurezza
+        setTimeout(() => {
+          const modal = this.closest('.modal-add, .modal-edit');
+          if (modal) {
+            const inputRect = this.getBoundingClientRect();
+            const modalRect = modal.getBoundingClientRect();
+            
+            // Se input è troppo basso, scrolla il modal
+            if (inputRect.bottom > window.innerHeight - 100) {
+              modal.scrollTop += (inputRect.bottom - (window.innerHeight - 150));
+            }
+          }
+        }, 100);
+      }, 300); // Aspetta apertura keyboard
+    });
+  });
 }
 
 function closeAddModal() {
