@@ -22,9 +22,13 @@ function getCurrentUserId() {
 async function initCommunityPage() {
   console.log('🚀 INIT Community Page');
   
+  // Mostra loader
+  if (window.NodoLoader) NodoLoader.show('Caricamento community...');
+  
   const userId = getCurrentUserId();
   if (!userId) {
     console.error('❌ Errore: userId null');
+    if (window.NodoLoader) NodoLoader.hide();
     return;
   }
   
@@ -39,15 +43,12 @@ async function loadCommunityContentFromDB() {
   const container = document.getElementById('communityContainer');
   if (!container) {
     console.error('❌ Container non trovato!');
+    if (window.NodoLoader) NodoLoader.hide();
     return;
   }
 
-  container.innerHTML = `
-    <div class="empty-state">
-      <i class="fas fa-spinner fa-spin"></i>
-      <h3>Caricamento...</h3>
-    </div>
-  `;
+  // Svuota container (il loader è già visibile)
+  container.innerHTML = '';
 
   try {
     const currentUserId = getCurrentUserId();
@@ -70,11 +71,13 @@ async function loadCommunityContentFromDB() {
     if (error) {
       console.error('❌ Errore query:', error);
       container.innerHTML = `<div class="empty-state"><h3>Errore caricamento</h3><p>${error.message}</p></div>`;
+      if (window.NodoLoader) NodoLoader.hide();
       return;
     }
 
     if (!posts || posts.length === 0) {
       container.innerHTML = `<div class="empty-state"><i class="fas fa-users"></i><h3>Nessun post della community</h3><p>Aspetta che qualcuno pubblichi qualcosa!</p></div>`;
+      if (window.NodoLoader) NodoLoader.hide();
       return;
     }
     
@@ -101,10 +104,14 @@ async function loadCommunityContentFromDB() {
     }));
 
     renderCommunityFeed();
+    
+    // Nascondi loader
+    if (window.NodoLoader) NodoLoader.hide();
 
   } catch (error) {
     console.error('❌ Errore catturato:', error);
     container.innerHTML = `<div class="empty-state"><h3>Errore imprevisto</h3><p>${error.message}</p></div>`;
+    if (window.NodoLoader) NodoLoader.hide();
   }
 }
 
@@ -326,6 +333,9 @@ async function addComment() {
     return;
   }
   
+  // Mostra loader operazione
+  if (window.NodoLoader) NodoLoader.showOperation('Invio commento...');
+  
   try {
     const { error } = await supabaseClient
       .from('PostCommenti')
@@ -337,6 +347,7 @@ async function addComment() {
     
     if (error) {
       alert('❌ Errore: ' + error.message);
+      if (window.NodoLoader) NodoLoader.hideOperation();
       return;
     }
     
@@ -350,10 +361,14 @@ async function addComment() {
       if (commentsSpan) commentsSpan.textContent = post.comments;
     }
     
+    // Nascondi loader
+    if (window.NodoLoader) NodoLoader.hideOperation();
+    
     await loadComments(postId);
     
   } catch (error) {
     alert('❌ Errore: ' + error.message);
+    if (window.NodoLoader) NodoLoader.hideOperation();
   }
 }
 
@@ -439,10 +454,8 @@ async function createNewPost() {
     return;
   }
   
-  const btn = event.currentTarget;
-  const originalHTML = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Caricamento...';
+  // Mostra loader operazione
+  if (window.NodoLoader) NodoLoader.showOperation('Pubblicazione post...');
   
   try {
     let immagine_url = null;
@@ -476,8 +489,7 @@ async function createNewPost() {
     if (error) {
       console.error('❌ Errore:', error);
       alert('❌ Errore: ' + error.message);
-      btn.disabled = false;
-      btn.innerHTML = originalHTML;
+      if (window.NodoLoader) NodoLoader.hideOperation();
       return;
     }
     
@@ -486,14 +498,16 @@ async function createNewPost() {
     // IMPORTANTE: Reset completo del form PRIMA di ricaricare
     document.getElementById('newPostContent').value = '';
     removeFile();
-    btn.disabled = false;
-    btn.innerHTML = originalHTML;
     
     // Chiudi il form
     const form = document.getElementById('createPostForm');
     form.classList.remove('active');
     
-    // Ricarica feed
+    // Nascondi loader operazione
+    if (window.NodoLoader) NodoLoader.hideOperation();
+    
+    // Ricarica feed (mostrerà il loader pagina)
+    if (window.NodoLoader) NodoLoader.show('Aggiornamento feed...');
     await loadCommunityContentFromDB();
     
     // Scroll al top
@@ -502,8 +516,7 @@ async function createNewPost() {
   } catch (error) {
     console.error('❌ Errore:', error);
     alert('❌ Errore: ' + error.message);
-    btn.disabled = false;
-    btn.innerHTML = originalHTML;
+    if (window.NodoLoader) NodoLoader.hideOperation();
   }
 }
 
