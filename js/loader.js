@@ -1,6 +1,6 @@
 // ========================================
 // LOADER.JS - Sistema di caricamento animato
-// NODO Italia
+// NODO Italia - v2.0
 // ========================================
 
 (function() {
@@ -14,13 +14,25 @@
           <div class="spinner-ring"></div>
           <div class="spinner-ring"></div>
         </div>
-        <div class="loader-text">Caricamento...</div>
+        <div class="loader-text" id="loaderText">Caricamento...</div>
+      </div>
+    </div>
+    
+    <!-- Mini loader per operazioni -->
+    <div id="operationLoader" class="operation-loader">
+      <div class="operation-content">
+        <div class="operation-spinner"></div>
+        <div class="operation-text" id="operationText">Salvataggio...</div>
       </div>
     </div>
   `;
   
   // Crea stili loader
   const loaderCSS = `
+    /* ========================================
+       PAGE LOADER - Caricamento iniziale
+       ======================================== */
+    
     .page-loader {
       position: fixed;
       top: 0;
@@ -31,7 +43,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 99999;
+      z-index: 999999;
       transition: opacity 0.5s ease, visibility 0.5s ease;
     }
     
@@ -119,36 +131,63 @@
       50% { opacity: 0.5; }
     }
     
-    /* Mini Loader per operazioni */
-    .mini-loader {
-      display: inline-flex;
+    /* ========================================
+       OPERATION LOADER - Per salvataggio/modifica
+       ======================================== */
+    
+    .operation-loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      z-index: 999998;
+      backdrop-filter: blur(4px);
     }
     
-    .mini-loader-dots {
+    .operation-loader.active {
       display: flex;
-      gap: 4px;
+      animation: fadeIn 0.2s ease;
     }
     
-    .mini-loader-dot {
-      width: 8px;
-      height: 8px;
-      background: #fbbf24;
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .operation-content {
+      background: #1a1a1a;
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 16px;
+      padding: 30px 50px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+    
+    .operation-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(251, 191, 36, 0.2);
+      border-top-color: #fbbf24;
       border-radius: 50%;
-      animation: bounce 1.4s infinite ease-in-out both;
+      margin: 0 auto 20px;
+      animation: spin 0.8s linear infinite;
     }
     
-    .mini-loader-dot:nth-child(1) { animation-delay: -0.32s; }
-    .mini-loader-dot:nth-child(2) { animation-delay: -0.16s; }
-    .mini-loader-dot:nth-child(3) { animation-delay: 0s; }
-    
-    @keyframes bounce {
-      0%, 80%, 100% { transform: scale(0); }
-      40% { transform: scale(1); }
+    .operation-text {
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
     }
     
-    /* Skeleton loader per card */
+    /* ========================================
+       SKELETON LOADER
+       ======================================== */
+    
     .skeleton {
       background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
       background-size: 200% 100%;
@@ -166,13 +205,9 @@
       margin-bottom: 15px;
     }
     
-    .skeleton-text {
-      height: 20px;
+    .skeleton-list {
+      height: 80px;
       margin-bottom: 10px;
-    }
-    
-    .skeleton-text.short {
-      width: 60%;
     }
   `;
   
@@ -185,60 +220,82 @@
   document.body.insertAdjacentHTML('afterbegin', loaderHTML);
   
   // Funzioni globali
-  window.showLoader = function(text) {
-    const loader = document.getElementById('pageLoader');
-    const loaderText = loader?.querySelector('.loader-text');
-    
-    if (loader) {
-      loader.classList.remove('hidden');
-      if (loaderText && text) loaderText.textContent = text;
-    }
-  };
-  
-  window.hideLoader = function() {
-    const loader = document.getElementById('pageLoader');
-    if (loader) {
-      loader.classList.add('hidden');
-    }
-  };
-  
-  window.showMiniLoader = function(container, text = 'Caricamento...') {
-    if (typeof container === 'string') {
-      container = document.getElementById(container);
-    }
-    if (container) {
-      container.innerHTML = `
-        <div class="mini-loader">
-          <div class="mini-loader-dots">
-            <div class="mini-loader-dot"></div>
-            <div class="mini-loader-dot"></div>
-            <div class="mini-loader-dot"></div>
-          </div>
-          <span>${text}</span>
-        </div>
-      `;
-    }
-  };
-  
-  window.showSkeletonCards = function(container, count = 3) {
-    if (typeof container === 'string') {
-      container = document.getElementById(container);
-    }
-    if (container) {
-      let html = '';
-      for (let i = 0; i < count; i++) {
-        html += '<div class="skeleton skeleton-card"></div>';
+  window.NodoLoader = {
+    // Mostra loader pagina
+    show: function(text) {
+      const loader = document.getElementById('pageLoader');
+      const loaderText = document.getElementById('loaderText');
+      
+      if (loader) {
+        loader.classList.remove('hidden');
+        if (loaderText && text) loaderText.textContent = text;
       }
-      container.innerHTML = html;
+    },
+    
+    // Nascondi loader pagina
+    hide: function() {
+      const loader = document.getElementById('pageLoader');
+      if (loader) {
+        loader.classList.add('hidden');
+      }
+    },
+    
+    // Mostra loader operazione (salvataggio, modifica, ecc)
+    showOperation: function(text = 'Salvataggio in corso...') {
+      const loader = document.getElementById('operationLoader');
+      const loaderText = document.getElementById('operationText');
+      
+      if (loader) {
+        loader.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        if (loaderText) loaderText.textContent = text;
+      }
+    },
+    
+    // Nascondi loader operazione
+    hideOperation: function() {
+      const loader = document.getElementById('operationLoader');
+      if (loader) {
+        loader.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    },
+    
+    // Mostra skeleton cards
+    showSkeletonCards: function(containerId, count = 3) {
+      const container = document.getElementById(containerId);
+      if (container) {
+        let html = '';
+        for (let i = 0; i < count; i++) {
+          html += '<div class="skeleton skeleton-card"></div>';
+        }
+        container.innerHTML = html;
+      }
+    },
+    
+    // Mostra skeleton list
+    showSkeletonList: function(containerId, count = 5) {
+      const container = document.getElementById(containerId);
+      if (container) {
+        let html = '';
+        for (let i = 0; i < count; i++) {
+          html += '<div class="skeleton skeleton-list"></div>';
+        }
+        container.innerHTML = html;
+      }
     }
   };
+  
+  // Alias per retrocompatibilità
+  window.showLoader = NodoLoader.show;
+  window.hideLoader = NodoLoader.hide;
   
   // Nascondi loader quando pagina caricata
   if (document.readyState === 'complete') {
-    setTimeout(hideLoader, 500);
+    setTimeout(NodoLoader.hide, 500);
   } else {
     window.addEventListener('load', function() {
-      setTimeout(hideLoader, 500);
+      setTimeout(NodoLoader.hide, 500);
     });
   }
   
