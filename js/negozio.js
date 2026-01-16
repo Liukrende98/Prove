@@ -521,6 +521,45 @@ function toggleFilters() {
   if (header) header.classList.toggle('open');
 }
 
+// Slider doppio valore
+function updateRangeSlider() {
+  const minInput = document.getElementById('fValoreMin');
+  const maxInput = document.getElementById('fValoreMax');
+  const valueDisplay = document.getElementById('rangeValue');
+  const progress = document.getElementById('rangeProgress');
+  
+  if (!minInput || !maxInput) return;
+  
+  let minVal = parseInt(minInput.value);
+  let maxVal = parseInt(maxInput.value);
+  
+  // Non permettere che si incrocino
+  if (minVal > maxVal - 100) {
+    if (this === minInput) {
+      minInput.value = maxVal - 100;
+      minVal = maxVal - 100;
+    } else {
+      maxInput.value = minVal + 100;
+      maxVal = minVal + 100;
+    }
+  }
+  
+  // Aggiorna display
+  if (valueDisplay) {
+    valueDisplay.textContent = `${minVal}€ - ${maxVal}€`;
+  }
+  
+  // Aggiorna barra progresso
+  if (progress) {
+    const percent1 = (minVal / 10000) * 100;
+    const percent2 = (maxVal / 10000) * 100;
+    progress.style.left = percent1 + '%';
+    progress.style.width = (percent2 - percent1) + '%';
+  }
+  
+  applicaFiltri();
+}
+
 // Gestisce mostra/nascondi filtri carte gradate
 function gestisciFiltroCategoria() {
   const categoria = document.getElementById('fCategoria')?.value || '';
@@ -549,7 +588,7 @@ function applicaFiltri() {
   const casaGradazione = document.getElementById('fCasaGradazione')?.value || '';
   const votoGradazione = parseFloat(document.getElementById('fVotoGradazione')?.value) || 0;
   const valoreMin = parseFloat(document.getElementById('fValoreMin')?.value) || 0;
-  const valoreMax = parseFloat(document.getElementById('fValoreMax')?.value) || 999999;
+  const valoreMax = parseFloat(document.getElementById('fValoreMax')?.value) || 10000;
   const statoMin = parseInt(document.getElementById('fStato')?.value) || 0;
   
   const mostraPresenti = document.getElementById('btnPresenti')?.classList.contains('active') ?? true;
@@ -623,9 +662,18 @@ function resetFiltri() {
   if (fCasaGradazione) fCasaGradazione.value = '';
   if (fVotoGradazione) fVotoGradazione.value = '';
   if (fValoreMin) fValoreMin.value = 0;
-  if (fValoreMax) fValoreMax.value = 99999;
+  if (fValoreMax) fValoreMax.value = 10000;
   if (fStato) fStato.value = '';
   if (filterGradedSection) filterGradedSection.style.display = 'none';
+  
+  // Reset slider display
+  const valueDisplay = document.getElementById('rangeValue');
+  const progress = document.getElementById('rangeProgress');
+  if (valueDisplay) valueDisplay.textContent = '0€ - 10000€';
+  if (progress) {
+    progress.style.left = '0%';
+    progress.style.width = '100%';
+  }
   
   // Reset toggle buttons
   ['btnPresenti', 'btnAssenti', 'btnProfit', 'btnLoss'].forEach(id => {
@@ -675,164 +723,164 @@ function closeAddModal() {
   }
 }
 
-// ========== NUOVO SISTEMA UPLOAD IMMAGINI MULTIPLO ==========
-let addImages = []; // Array per form Aggiungi
-let editImages = []; // Array per form Modifica
-let editExistingUrls = []; // URL esistenti in modifica
-let initAddDone = false;
-let initEditDone = false;
-
+// ========== SISTEMA UPLOAD IMMAGINI ==========
+let addImages = [];
+let editImages = [];
+let editExistingUrls = [];
 const MAX_IMAGES = 6;
 
-// Inizializza il sistema di upload
-function initImageUpload(containerId, inputId, isEdit = false) {
-  // Evita inizializzazioni multiple
-  if (!isEdit && initAddDone) return;
-  if (isEdit && initEditDone) return;
+// Funzione chiamata quando si selezionano file - FORM AGGIUNGI
+function onAddImageSelect(input) {
+  const files = Array.from(input.files);
+  console.log('📸 ADD - File selezionati:', files.length);
   
-  const container = document.getElementById(containerId);
-  const input = document.getElementById(inputId);
-  
-  console.log(`🔧 initImageUpload: container=${containerId}, input=${inputId}, found=${!!container && !!input}`);
-  
-  if (!container || !input) {
-    console.warn(`⚠️ Elemento non trovato: container=${!!container}, input=${!!input}`);
+  if (addImages.length + files.length > MAX_IMAGES) {
+    alert(`Massimo ${MAX_IMAGES} foto! Ne hai già ${addImages.length}`);
+    input.value = '';
     return;
   }
   
-  input.addEventListener('change', function(e) {
-    console.log('📸 File selezionati:', e.target.files.length);
-    
-    const files = Array.from(e.target.files);
-    const currentImages = isEdit ? editImages : addImages;
-    const currentUrls = isEdit ? editExistingUrls : [];
-    const totalCurrent = currentImages.length + currentUrls.filter(u => u).length;
-    
-    console.log(`📊 Immagini attuali: ${totalCurrent}, nuove: ${files.length}`);
-    
-    if (totalCurrent + files.length > MAX_IMAGES) {
-      alert(`⚠️ Puoi caricare massimo ${MAX_IMAGES} foto. Ne hai già ${totalCurrent}.`);
-      e.target.value = '';
-      return;
+  files.forEach(file => {
+    if (file.type.startsWith('image/')) {
+      addImages.push(file);
+      console.log('✅ Aggiunta:', file.name, 'Totale:', addImages.length);
     }
-    
-    files.forEach(file => {
-      if (file.type.startsWith('image/')) {
-        if (isEdit) {
-          editImages.push(file);
-          console.log('✅ Aggiunta a editImages:', file.name);
-        } else {
-          addImages.push(file);
-          console.log('✅ Aggiunta a addImages:', file.name, 'Totale:', addImages.length);
-        }
-      }
-    });
-    
-    e.target.value = ''; // Reset input per permettere stesso file
-    renderImageGrid(containerId, isEdit);
   });
   
-  // Segna come inizializzato
-  if (isEdit) {
-    initEditDone = true;
-  } else {
-    initAddDone = true;
-  }
-  
-  console.log(`✅ initImageUpload completato per ${inputId}`);
+  input.value = '';
+  renderAddImages();
 }
 
-// Renderizza la griglia immagini
-function renderImageGrid(containerId, isEdit = false) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
+// Funzione chiamata quando si selezionano file - FORM MODIFICA
+function onEditImageSelect(input) {
+  const files = Array.from(input.files);
+  const existingCount = editExistingUrls.filter(u => u).length;
+  console.log('📸 EDIT - File selezionati:', files.length, 'Esistenti:', existingCount);
   
-  const images = isEdit ? editImages : addImages;
-  const existingUrls = isEdit ? editExistingUrls : [];
-  const totalCount = images.length + existingUrls.filter(u => u).length;
-  
-  let html = '<div class="image-upload-grid">';
-  
-  // Mostra URL esistenti (solo in modifica)
-  if (isEdit) {
-    existingUrls.forEach((url, index) => {
-      if (url) {
-        html += `
-          <div class="upload-image-item">
-            <img src="${url}" alt="Foto ${index + 1}">
-            <button type="button" class="upload-remove-btn" onclick="removeExistingImage(${index}, '${containerId}')">
-              <i class="fas fa-times"></i>
-            </button>
-            <div class="upload-image-number">${index + 1}</div>
-          </div>
-        `;
-      }
-    });
+  if (existingCount + editImages.length + files.length > MAX_IMAGES) {
+    alert(`Massimo ${MAX_IMAGES} foto!`);
+    input.value = '';
+    return;
   }
   
-  // Mostra nuove immagini
-  images.forEach((file, index) => {
-    const actualIndex = isEdit ? existingUrls.filter(u => u).length + index : index;
+  files.forEach(file => {
+    if (file.type.startsWith('image/')) {
+      editImages.push(file);
+    }
+  });
+  
+  input.value = '';
+  renderEditImages();
+}
+
+// Render griglia ADD
+function renderAddImages() {
+  const container = document.getElementById('addImagesContainer');
+  if (!container) return;
+  
+  let html = '<div class="img-grid">';
+  
+  addImages.forEach((file, i) => {
     html += `
-      <div class="upload-image-item" id="img-${isEdit ? 'edit' : 'add'}-${index}">
-        <img src="${URL.createObjectURL(file)}" alt="Foto ${actualIndex + 1}">
-        <button type="button" class="upload-remove-btn" onclick="removeNewImage(${index}, '${containerId}', ${isEdit})">
-          <i class="fas fa-times"></i>
-        </button>
-        <div class="upload-image-number">${actualIndex + 1}</div>
+      <div class="img-item">
+        <img src="${URL.createObjectURL(file)}">
+        <button type="button" class="img-remove" onclick="removeAddImage(${i})">×</button>
+        <span class="img-num">${i + 1}</span>
       </div>
     `;
   });
   
-  // Pulsante aggiungi (se non al massimo)
-  if (totalCount < MAX_IMAGES) {
-    const inputId = isEdit ? 'editImageInput' : 'addImageInput';
+  if (addImages.length < MAX_IMAGES) {
     html += `
-      <div class="upload-add-btn" onclick="document.getElementById('${inputId}').click()">
+      <label class="img-add" for="addImageInput">
         <i class="fas fa-plus"></i>
-        <span>Aggiungi</span>
-        <small>${totalCount}/${MAX_IMAGES}</small>
-      </div>
+        <span>${addImages.length}/${MAX_IMAGES}</span>
+      </label>
     `;
   }
   
   html += '</div>';
-  
-  // Info
-  if (totalCount === 0) {
-    html += '<p class="upload-hint"><i class="fas fa-info-circle"></i> La prima foto sarà quella principale</p>';
+  if (addImages.length === 0) {
+    html += '<p class="img-hint">📷 La prima foto sarà quella principale</p>';
   }
   
   container.innerHTML = html;
 }
 
-// Rimuovi immagine esistente (URL)
-function removeExistingImage(index, containerId) {
-  editExistingUrls[index] = null;
-  renderImageGrid(containerId, true);
-}
-
-// Rimuovi nuova immagine (File)
-function removeNewImage(index, containerId, isEdit) {
-  if (isEdit) {
-    editImages.splice(index, 1);
-  } else {
-    addImages.splice(index, 1);
+// Render griglia EDIT
+function renderEditImages() {
+  const container = document.getElementById('editImagesContainer');
+  if (!container) return;
+  
+  const existingCount = editExistingUrls.filter(u => u).length;
+  const totalCount = existingCount + editImages.length;
+  
+  let html = '<div class="img-grid">';
+  let num = 1;
+  
+  // URL esistenti
+  editExistingUrls.forEach((url, i) => {
+    if (url) {
+      html += `
+        <div class="img-item">
+          <img src="${url}">
+          <button type="button" class="img-remove" onclick="removeExistingImage(${i})">×</button>
+          <span class="img-num">${num++}</span>
+        </div>
+      `;
+    }
+  });
+  
+  // Nuovi file
+  editImages.forEach((file, i) => {
+    html += `
+      <div class="img-item">
+        <img src="${URL.createObjectURL(file)}">
+        <button type="button" class="img-remove" onclick="removeEditImage(${i})">×</button>
+        <span class="img-num">${num++}</span>
+      </div>
+    `;
+  });
+  
+  if (totalCount < MAX_IMAGES) {
+    html += `
+      <label class="img-add" for="editImageInput">
+        <i class="fas fa-plus"></i>
+        <span>${totalCount}/${MAX_IMAGES}</span>
+      </label>
+    `;
   }
-  renderImageGrid(containerId, isEdit);
+  
+  html += '</div>';
+  container.innerHTML = html;
 }
 
-// Reset immagini form Aggiungi
+// Rimuovi immagini
+function removeAddImage(index) {
+  addImages.splice(index, 1);
+  renderAddImages();
+}
+
+function removeEditImage(index) {
+  editImages.splice(index, 1);
+  renderEditImages();
+}
+
+function removeExistingImage(index) {
+  editExistingUrls[index] = null;
+  renderEditImages();
+}
+
+// Reset
 function resetAddImages() {
   addImages = [];
-  const container = document.getElementById('addImagesContainer');
-  if (container) renderImageGrid('addImagesContainer', false);
+  renderAddImages();
 }
 
-// Reset immagini form Modifica
 function resetEditImages() {
   editImages = [];
   editExistingUrls = [];
+  renderEditImages();
 }
 
 // Carica immagini esistenti per modifica
@@ -846,7 +894,7 @@ function loadExistingImages(article) {
     article.foto_5 || null,
     article.foto_6 || null
   ];
-  renderImageGrid('editImagesContainer', true);
+  renderEditImages();
 }
 
 async function uploadImage(file) {
