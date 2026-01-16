@@ -2547,3 +2547,119 @@ body.menu-active {
 .conversations-list::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
 }
+
+/* ========================================= */
+/* FIX OTTIMIZZAZIONE MODAL PER IPHONE */
+/* ========================================= */
+
+/* Fix modal per gestire correttamente la barra degli indirizzi e tastiera su iPhone */
+@supports (-webkit-touch-callout: none) {
+  /* Regole specifiche per iOS Safari */
+  .modal-add, .modal-edit, .modal-graph {
+    height: 100dvh !important; /* Dynamic viewport height */
+    align-items: flex-start !important;
+    padding: 8px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  .modal-add-content, .modal-edit-content {
+    max-height: none !important;
+    min-height: auto !important;
+    overflow-y: visible !important;
+    margin: 10px auto 10px auto !important;
+    padding: 16px !important;
+  }
+  
+  /* Ottimizzazione form per iPhone */
+  .form-grid {
+    gap: 16px !important;
+  }
+  
+  .modal-header {
+    margin-bottom: 16px !important;
+    position: sticky;
+    top: 0;
+    background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+    z-index: 10;
+    padding: 4px 0;
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* Media query aggiuntiva per schermi piccoli (iPhone) */
+@media only screen and (max-width: 768px) {
+  .modal-add, .modal-edit, .modal-graph {
+    height: 100dvh !important;
+    height: -webkit-fill-available !important; /* Fallback per vecchi browser */
+    align-items: flex-start !important;
+    padding: 8px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  .modal-add-content, .modal-edit-content {
+    max-height: none !important;
+    min-height: auto !important;
+    overflow-y: visible !important;
+    margin: 10px auto 10px auto !important;
+    padding: 16px !important;
+    border-radius: 20px !important;
+  }
+  
+  .modal-title {
+    font-size: 18px !important;
+  }
+  
+  .modal-close {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 18px !important;
+  }
+  
+  .form-group label {
+    font-size: 12px !important;
+  }
+  
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 16px !important; /* Previene lo zoom automatico su iOS */
+  }
+  
+  /* Header fisso per mantenere visibili titolo e bottone chiudi */
+  .modal-header {
+    position: sticky;
+    top: 0;
+    background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+    z-index: 10;
+    padding-top: 4px;
+    padding-bottom: 12px;
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    margin-bottom: 16px !important;
+  }
+  
+  /* Bottone submit sempre visibile */
+  .btn-submit, .btn-delete {
+    position: sticky;
+    bottom: -16px;
+    z-index: 10;
+    margin-left: -16px;
+    margin-right: -16px;
+    border-radius: 0 0 20px 20px !important;
+  }
+}
+
+/* Fix specifico per iPhone X e successivi (con notch) */
+@media only screen and (max-width: 768px) and (orientation: portrait) {
+  .modal-add, .modal-edit {
+    padding-top: max(8px, env(safe-area-inset-top)) !important;
+    padding-bottom: max(8px, env(safe-area-inset-bottom)) !important;
+  }
+}
