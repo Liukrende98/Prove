@@ -1144,19 +1144,9 @@
     .view-controls {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-end;
       margin-bottom: 15px;
       padding: 0 5px;
-    }
-    
-    .view-count {
-      font-size: 13px;
-      color: #888;
-    }
-    
-    .view-count span {
-      color: #fbbf24;
-      font-weight: 600;
     }
     
     .view-toggle-btn {
@@ -1697,9 +1687,6 @@
 
     <!-- CONTROLLI VISTA -->
     <div class="view-controls">
-      <div class="view-count">
-        <span id="viewCount">0</span> articoli
-      </div>
       <button class="view-toggle-btn" id="viewToggleBtn" onclick="toggleViewMode()">
         <i class="fas fa-list"></i>
       </button>
