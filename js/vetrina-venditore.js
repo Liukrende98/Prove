@@ -50,6 +50,9 @@ async function initVendorPage() {
     return;
   }
 
+  // Mostra loader
+  if (window.NodoLoader) NodoLoader.show('Caricamento profilo...');
+
   if (vendorId) {
     // Carica tramite ID
     await loadVendorProfileById(vendorId);
@@ -74,6 +77,7 @@ async function loadVendorProfile(username) {
 
   if (error || !utente) {
     console.error('❌ Errore:', error);
+    if (window.NodoLoader) NodoLoader.hide();
     alert('Venditore non trovato!');
     window.location.href = 'vetrine.html';
     return;
@@ -95,6 +99,7 @@ async function loadVendorProfileById(userId) {
 
   if (error || !utente) {
     console.error('❌ Errore:', error);
+    if (window.NodoLoader) NodoLoader.hide();
     alert('Venditore non trovato!');
     window.location.href = 'vetrine.html';
     return;
@@ -164,6 +169,9 @@ async function loadVendorData(utente) {
   renderFilters();
   renderProducts(currentProducts);
   await loadVendorPosts(utente.id);
+  
+  // Nascondi loader
+  if (window.NodoLoader) NodoLoader.hide();
 }
 
 // ========================================
@@ -790,6 +798,9 @@ async function addComment() {
   
   console.log('💬 Aggiunta commento a post:', postId);
   
+  // Mostra loader operazione
+  if (window.NodoLoader) NodoLoader.showOperation('Invio commento...');
+  
   try {
     const { error } = await supabaseClient
       .from('PostCommenti')
@@ -802,6 +813,7 @@ async function addComment() {
     if (error) {
       console.error('❌ Errore inserimento commento:', error);
       alert('❌ Errore: ' + error.message);
+      if (window.NodoLoader) NodoLoader.hideOperation();
       return;
     }
     
@@ -818,12 +830,16 @@ async function addComment() {
       if (commentsSpan) commentsSpan.textContent = post.comments;
     }
     
+    // Nascondi loader
+    if (window.NodoLoader) NodoLoader.hideOperation();
+    
     // Ricarica commenti
     await loadComments(postId);
     
   } catch (error) {
     console.error('❌ Errore catturato:', error);
     alert('❌ Errore: ' + error.message);
+    if (window.NodoLoader) NodoLoader.hideOperation();
   }
 }
 
