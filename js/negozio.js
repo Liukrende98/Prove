@@ -317,6 +317,11 @@ function createArticleCard(article) {
             <div class="value-box-amount ${deltaClass}">${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €</div>
           </div>
         </div>
+        
+        <!-- Tasto Modifica Rapido -->
+        <button class="quick-edit-btn" onclick="event.stopPropagation(); apriModifica(${article.id})">
+          <i class="fas fa-pen"></i> Modifica
+        </button>
       </div>
       
       <!-- DETTAGLI ESPANSI -->
@@ -649,6 +654,9 @@ function updateFilterBadge() {
   if (parseInt(document.getElementById('fValoreMin')?.value) > 0) count++;
   if (parseInt(document.getElementById('fValoreMax')?.value) < 10000) count++;
   if (document.getElementById('fStato')?.value) count++;
+  if (document.getElementById('fCondizione')?.value) count++;
+  if (document.getElementById('fEspansione')?.value) count++;
+  if (document.getElementById('fLingua')?.value) count++;
   if (!document.getElementById('btnPresenti')?.classList.contains('active')) count++;
   if (!document.getElementById('btnAssenti')?.classList.contains('active')) count++;
   if (document.getElementById('btnVetrina')?.classList.contains('active')) count++;
@@ -730,6 +738,9 @@ function applicaFiltri() {
   const valoreMin = parseFloat(document.getElementById('fValoreMin')?.value) || 0;
   const valoreMax = parseFloat(document.getElementById('fValoreMax')?.value) || 10000;
   const statoMin = parseInt(document.getElementById('fStato')?.value) || 0;
+  const condizione = document.getElementById('fCondizione')?.value || '';
+  const espansione = document.getElementById('fEspansione')?.value?.toLowerCase() || '';
+  const lingua = document.getElementById('fLingua')?.value || '';
   
   const mostraPresenti = document.getElementById('btnPresenti')?.classList.contains('active') ?? true;
   const mostraAssenti = document.getElementById('btnAssenti')?.classList.contains('active') ?? true;
@@ -765,6 +776,16 @@ function applicaFiltri() {
     const stato = Number(article.ValutazioneStato) || 0;
     const matchStato = !statoMin || stato >= statoMin;
     
+    // Filtro condizione
+    const matchCondizione = !condizione || article.condizione === condizione;
+    
+    // Filtro espansione
+    const matchEspansione = !espansione || 
+      (article.espansione && article.espansione.toLowerCase().includes(espansione));
+    
+    // Filtro lingua
+    const matchLingua = !lingua || article.lingua === lingua;
+    
     // Filtro presenza
     const isPresente = article.Presente === true;
     const matchPresenza = (mostraPresenti && isPresente) || (mostraAssenti && !isPresente);
@@ -777,7 +798,7 @@ function applicaFiltri() {
     const isGuadagno = delta >= 0;
     const matchDelta = (mostraGuadagno && isGuadagno) || (mostraPerdita && !isGuadagno);
     
-    return matchNome && matchCategoria && matchGraded && matchValore && matchStato && matchPresenza && matchVetrina && matchDelta;
+    return matchNome && matchCategoria && matchGraded && matchValore && matchStato && matchCondizione && matchEspansione && matchLingua && matchPresenza && matchVetrina && matchDelta;
   });
   
   currentPage = 1;
@@ -796,6 +817,9 @@ function resetFiltri() {
   const fValoreMin = document.getElementById('fValoreMin');
   const fValoreMax = document.getElementById('fValoreMax');
   const fStato = document.getElementById('fStato');
+  const fCondizione = document.getElementById('fCondizione');
+  const fEspansione = document.getElementById('fEspansione');
+  const fLingua = document.getElementById('fLingua');
   const filterGradedSection = document.getElementById('filterGradedSection');
   
   if (fNome) fNome.value = '';
@@ -805,6 +829,9 @@ function resetFiltri() {
   if (fValoreMin) fValoreMin.value = 0;
   if (fValoreMax) fValoreMax.value = 10000;
   if (fStato) fStato.value = '';
+  if (fCondizione) fCondizione.value = '';
+  if (fEspansione) fEspansione.value = '';
+  if (fLingua) fLingua.value = '';
   if (filterGradedSection) filterGradedSection.style.display = 'none';
   
   // Reset slider display
@@ -830,6 +857,7 @@ function resetFiltri() {
   currentPage = 1;
   renderArticles();
   updatePagination();
+  updateFilterBadge();
 }
 
 // Funzione legacy
@@ -1134,6 +1162,9 @@ async function aggiungiArticolo(event) {
     Nome: formData.get('Nome'),
     Descrizione: formData.get('Descrizione') || null,
     Categoria: categoria || null,
+    espansione: document.getElementById('espansioneAdd')?.value || null,
+    lingua: document.getElementById('linguaAdd')?.value || null,
+    condizione: document.getElementById('condizioneAdd')?.value || null,
     ValoreAttuale: valore,
     PrezzoPagato: prezzo,
     Delta: valore - prezzo,
@@ -1195,6 +1226,9 @@ async function apriModifica(articleId) {
   document.getElementById('editNome').value = article.Nome || '';
   document.getElementById('editDescrizione').value = article.Descrizione || '';
   document.getElementById('editCategoria').value = article.Categoria || '';
+  document.getElementById('editEspansione').value = article.espansione || '';
+  document.getElementById('editLingua').value = article.lingua || '';
+  document.getElementById('editCondizione').value = article.condizione || '';
   document.getElementById('editValoreAttuale').value = article.ValoreAttuale || 0;
   document.getElementById('editPrezzoPagato').value = article.PrezzoPagato || 0;
   document.getElementById('editDelta').value = ((article.ValoreAttuale || 0) - (article.PrezzoPagato || 0)).toFixed(2) + ' €';
@@ -1324,6 +1358,9 @@ async function salvaModifica(event) {
     Nome: formData.get('Nome'),
     Descrizione: formData.get('Descrizione') || null,
     Categoria: categoria || null,
+    espansione: document.getElementById('editEspansione')?.value || null,
+    lingua: document.getElementById('editLingua')?.value || null,
+    condizione: document.getElementById('editCondizione')?.value || null,
     ValoreAttuale: valore,
     PrezzoPagato: prezzo,
     Delta: valore - prezzo,
