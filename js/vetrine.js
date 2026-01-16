@@ -77,6 +77,9 @@ function createPaginationHtml(currentPage, totalPages, position = 'bottom') {
 async function loadVetrineContent() {
   const container = document.getElementById('vetrineContainer');
   
+  // Mostra loader
+  if (window.NodoLoader) NodoLoader.show('Caricamento vetrine...');
+  
   try {
     // 🔥 Ottieni ID utente corrente
     const currentUserId = getCurrentUserId();
@@ -90,6 +93,7 @@ async function loadVetrineContent() {
           <div class="wip-subtext">Effettua il login per vedere le vetrine</div>
         </div>
       `;
+      if (window.NodoLoader) NodoLoader.hide();
       return;
     }
     
@@ -124,6 +128,7 @@ async function loadVetrineContent() {
           <div class="wip-subtext">Gli altri utenti non hanno ancora messo articoli in vendita</div>
         </div>
       `;
+      if (window.NodoLoader) NodoLoader.hide();
       return;
     }
     
@@ -137,6 +142,9 @@ async function loadVetrineContent() {
     container.innerHTML = filterHtml;
     renderVetrine(articoli);
     
+    // Nascondi loader
+    if (window.NodoLoader) NodoLoader.hide();
+    
   } catch (error) {
     console.error('❌ Errore caricamento vetrine:', error);
     container.innerHTML = `
@@ -144,6 +152,7 @@ async function loadVetrineContent() {
         ❌ Errore nel caricamento delle vetrine: ${error.message}
       </div>
     `;
+    if (window.NodoLoader) NodoLoader.hide();
   }
 }
 
