@@ -10,7 +10,7 @@ let currentChart = null;
 let currentChartColor = 'yellow';
 let stream = null;
 
-// ========== FUNZIONI PER CARTE GRADATE ==========
+// ========== GESTIONE CARTE GRADATE ==========
 function gestisciCarteGradate(categoriaValue, prefix) {
   const casaGroup = document.getElementById(`casaGradazioneGroup${prefix}`);
   const votoGroup = document.getElementById(`votoGradazioneGroup${prefix}`);
@@ -18,7 +18,7 @@ function gestisciCarteGradate(categoriaValue, prefix) {
   const votoInput = document.getElementById(`votoGradazione${prefix}`);
   const altraCasaGroup = document.getElementById(`altraCasaGradazioneGroup${prefix}`);
   
-  if (!casaGroup || !votoGroup) return; // Exit se elementi non esistono
+  if (!casaGroup || !votoGroup) return;
   
   if (categoriaValue === 'Carte gradate') {
     casaGroup.style.display = 'block';
@@ -46,7 +46,7 @@ function gestisciAltraCasa(casaValue, prefix) {
   const altraCasaGroup = document.getElementById(`altraCasaGradazioneGroup${prefix}`);
   const altraCasaInput = document.getElementById(`altraCasaGradazione${prefix}`);
   
-  if (!altraCasaGroup) return; // Exit se elemento non esiste
+  if (!altraCasaGroup) return;
   
   if (casaValue === 'Altra casa') {
     altraCasaGroup.style.display = 'block';
@@ -606,22 +606,18 @@ function apriModifica(id) {
   document.getElementById('editPrezzoVendita').value = article.prezzo_vendita || '';
   document.getElementById('prezzoVenditaGroupEdit').style.display = article.in_vetrina ? 'block' : 'none';
   
-  // Carte gradate (SAFE - controlla se elementi esistono)
+  // Carte gradate
   const casaGroupEdit = document.getElementById('casaGradazioneGroupEdit');
   const votoGroupEdit = document.getElementById('votoGradazioneGroupEdit');
   const altraCasaGroupEdit = document.getElementById('altraCasaGradazioneGroupEdit');
-  
   if (article.Categoria === 'Carte gradate' && casaGroupEdit && votoGroupEdit) {
     casaGroupEdit.style.display = 'block';
     votoGroupEdit.style.display = 'block';
-    
     const casaEdit = document.getElementById('casaGradazioneEdit');
     const votoEdit = document.getElementById('votoGradazioneEdit');
     const altraCasaEdit = document.getElementById('altraCasaGradazioneEdit');
-    
     if (casaEdit) casaEdit.value = article.casa_gradazione || '';
     if (votoEdit) votoEdit.value = article.voto_gradazione || '';
-    
     if (article.casa_gradazione === 'Altra casa' && altraCasaGroupEdit && altraCasaEdit) {
       altraCasaGroupEdit.style.display = 'block';
       altraCasaEdit.value = article.altra_casa_gradazione || '';
@@ -766,21 +762,17 @@ async function aggiungiArticolo(e) {
   const inVetrina = document.getElementById('inVetrinaAdd').checked;
   const prezzoVendita = inVetrina ? parseFloat(document.getElementById('prezzoVenditaAdd').value) : null;
 
-  // Dati carte gradate (SAFE - controlla se elementi esistono)
+  // Dati carte gradate
   const categoria = formData.get('Categoria');
   let casaGradazione = null;
   let altraCasaGradazione = null;
   let votoGradazione = null;
-  
   if (categoria === 'Carte gradate') {
     const casaEl = document.getElementById('casaGradazioneAdd');
     const altraCasaEl = document.getElementById('altraCasaGradazioneAdd');
     const votoEl = document.getElementById('votoGradazioneAdd');
-    
     if (casaEl) casaGradazione = casaEl.value || null;
-    if (casaGradazione === 'Altra casa' && altraCasaEl) {
-      altraCasaGradazione = altraCasaEl.value || null;
-    }
+    if (casaGradazione === 'Altra casa' && altraCasaEl) altraCasaGradazione = altraCasaEl.value || null;
     if (votoEl) votoGradazione = parseFloat(votoEl.value) || null;
   }
 
@@ -806,16 +798,6 @@ async function aggiungiArticolo(e) {
     casa_gradazione: casaGradazione,
     altra_casa_gradazione: altraCasaGradazione,
     voto_gradazione: votoGradazione
-  };
-    image_url: fotoPrincipale,
-    foto_principale: fotoPrincipale,
-    foto_2: foto2,
-    foto_3: foto3,
-    foto_4: foto4,
-    foto_5: foto5,
-    foto_6: foto6,
-    in_vetrina: inVetrina,
-    prezzo_vendita: prezzoVendita
   };
 
   const { error } = await supabaseClient.from('Articoli').insert([articolo]);
@@ -903,21 +885,17 @@ async function salvaModifica(e) {
   const inVetrina = document.getElementById('editInVetrina').checked;
   const prezzoVendita = inVetrina ? parseFloat(document.getElementById('editPrezzoVendita').value) : null;
 
-  // Dati carte gradate (SAFE - controlla se elementi esistono)
+  // Dati carte gradate
   const categoria = formData.get('Categoria');
   let casaGradazione = null;
   let altraCasaGradazione = null;
   let votoGradazione = null;
-  
   if (categoria === 'Carte gradate') {
     const casaEl = document.getElementById('casaGradazioneEdit');
     const altraCasaEl = document.getElementById('altraCasaGradazioneEdit');
     const votoEl = document.getElementById('votoGradazioneEdit');
-    
     if (casaEl) casaGradazione = casaEl.value || null;
-    if (casaGradazione === 'Altra casa' && altraCasaEl) {
-      altraCasaGradazione = altraCasaEl.value || null;
-    }
+    if (casaGradazione === 'Altra casa' && altraCasaEl) altraCasaGradazione = altraCasaEl.value || null;
     if (votoEl) votoGradazione = parseFloat(votoEl.value) || null;
   }
 
