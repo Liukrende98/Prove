@@ -2552,108 +2552,20 @@ body.menu-active {
 /* FIX OTTIMIZZAZIONE MODAL PER IPHONE */
 /* ========================================= */
 
-/* Media query per schermi piccoli (iPhone) */
+/* Semplice fix per iPhone - più margine bottom per barra Safari */
 @media only screen and (max-width: 768px) {
-  /* Modal container - usa tutto lo schermo disponibile */
-  .modal-add, .modal-edit, .modal-graph {
-    padding: 0 !important;
-    align-items: stretch !important;
-    justify-content: flex-start !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
-  
-  /* Modal content - rimuove limiti di altezza */
   .modal-add-content, .modal-edit-content {
-    max-height: none !important;
-    min-height: 100% !important;
-    overflow-y: visible !important;
-    margin: 0 !important;
-    padding: 16px !important;
-    border-radius: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    display: flex;
-    flex-direction: column;
+    /* Mantiene dimensione fissa e scrollabile */
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+    /* Padding bottom extra per la barra di Safari */
+    padding-bottom: 80px !important;
   }
   
-  /* Titolo più compatto */
-  .modal-title {
-    font-size: 16px !important;
-  }
-  
-  /* Bottone chiudi più piccolo */
-  .modal-close {
-    width: 36px !important;
-    height: 36px !important;
-    font-size: 18px !important;
-  }
-  
-  /* Label più compatte */
-  .form-group label {
-    font-size: 11px !important;
-    margin-bottom: 6px !important;
-  }
-  
-  /* Input ottimizzati per evitare zoom */
+  /* Assicura che gli input abbiano font-size 16px per evitare zoom */
   .form-group input,
   .form-group textarea,
   .form-group select {
     font-size: 16px !important;
-    padding: 12px !important;
-  }
-  
-  /* Grid del form più compatto */
-  .form-grid {
-    gap: 12px !important;
-  }
-  
-  /* Margini header ridotti */
-  .modal-header {
-    margin-bottom: 12px !important;
-  }
-  
-  /* Checkbox più compatti */
-  .checkbox-wrapper {
-    padding: 12px !important;
-    font-size: 13px !important;
-  }
-  
-  /* Bottoni submit con margine bottom per sicurezza */
-  .btn-submit {
-    margin-top: 20px !important;
-    margin-bottom: 30px !important; /* Spazio extra per barra Safari */
-  }
-  
-  .btn-delete {
-    margin-bottom: 30px !important;
-  }
-  
-  /* Preview immagini più piccole */
-  .image-preview {
-    max-height: 150px !important;
-  }
-}
-
-/* Fix specifico per iPhone in portrait mode */
-@media only screen and (max-width: 768px) and (orientation: portrait) {
-  .modal-add, .modal-edit {
-    /* Usa safe area insets per dispositivi con notch */
-    padding-left: env(safe-area-inset-left) !important;
-    padding-right: env(safe-area-inset-right) !important;
-  }
-  
-  .modal-add-content, .modal-edit-content {
-    /* Padding bottom extra per la barra Safari */
-    padding-bottom: max(30px, env(safe-area-inset-bottom)) !important;
-  }
-}
-
-/* Supporto iOS Safari specifico */
-@supports (-webkit-touch-callout: none) {
-  .modal-add, .modal-edit, .modal-graph {
-    /* Altezza dinamica che si adatta alla barra degli indirizzi */
-    height: 100vh !important;
-    height: -webkit-fill-available !important;
   }
 }
