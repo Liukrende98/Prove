@@ -511,36 +511,126 @@ function previousPage() {
 }
 
 // ========== FILTRI E RICERCA ==========
-function cercaArticoli() {
-  const searchText = document.getElementById('searchInput')?.value?.toLowerCase() || '';
-  const categoria = document.getElementById('filterCategoria')?.value || '';
+
+// Aggiorna visualizzazione slider doppio
+function updateRangeSlider() {
+  const minInput = document.getElementById('fValoreMin');
+  const maxInput = document.getElementById('fValoreMax');
+  const display = document.getElementById('rangeValoreDisplay');
+  const progress = document.getElementById('rangeProgress');
+  
+  if (!minInput || !maxInput) return;
+  
+  let minVal = parseInt(minInput.value);
+  let maxVal = parseInt(maxInput.value);
+  
+  // Evita che si incrocino
+  if (minVal > maxVal) {
+    [minVal, maxVal] = [maxVal, minVal];
+    minInput.value = minVal;
+    maxInput.value = maxVal;
+  }
+  
+  // Aggiorna display
+  if (display) {
+    display.textContent = `${minVal}€ - ${maxVal}€`;
+  }
+  
+  // Aggiorna barra di progresso
+  if (progress) {
+    const range = 1000; // max - min del range
+    const left = (minVal / range) * 100;
+    const right = 100 - (maxVal / range) * 100;
+    progress.style.left = left + '%';
+    progress.style.right = right + '%';
+  }
+}
+
+// Applica tutti i filtri
+function applicaFiltri() {
+  const nome = document.getElementById('fNome')?.value?.toLowerCase() || '';
+  const categoria = document.getElementById('fCategoria')?.value || '';
+  const valoreMin = parseInt(document.getElementById('fValoreMin')?.value) || 0;
+  const valoreMax = parseInt(document.getElementById('fValoreMax')?.value) || 1000;
+  const statoMin = parseInt(document.getElementById('fStato')?.value) || 0;
+  const mostraPresenti = document.getElementById('fPresenti')?.checked ?? true;
+  const mostraAssenti = document.getElementById('fAssenti')?.checked ?? true;
+  const mostraGuadagno = document.getElementById('fProfit')?.checked ?? true;
+  const mostraPerdita = document.getElementById('fLoss')?.checked ?? true;
   
   filteredArticles = allArticles.filter(article => {
-    const matchSearch = !searchText || 
-      (article.Nome && article.Nome.toLowerCase().includes(searchText)) ||
-      (article.Descrizione && article.Descrizione.toLowerCase().includes(searchText));
+    // Filtro nome
+    const matchNome = !nome || 
+      (article.Nome && article.Nome.toLowerCase().includes(nome)) ||
+      (article.Descrizione && article.Descrizione.toLowerCase().includes(nome));
     
+    // Filtro categoria
     const matchCategoria = !categoria || article.Categoria === categoria;
     
-    return matchSearch && matchCategoria;
+    // Filtro valore
+    const valore = Number(article.ValoreAttuale) || 0;
+    const matchValore = valore >= valoreMin && valore <= valoreMax;
+    
+    // Filtro stato/valutazione
+    const stato = Number(article.ValutazioneStato) || 0;
+    const matchStato = !statoMin || stato >= statoMin;
+    
+    // Filtro presenza
+    const isPresente = article.Presente === true;
+    const matchPresenza = (mostraPresenti && isPresente) || (mostraAssenti && !isPresente);
+    
+    // Filtro guadagno/perdita
+    const delta = (Number(article.ValoreAttuale) || 0) - (Number(article.PrezzoPagato) || 0);
+    const isGuadagno = delta >= 0;
+    const matchDelta = (mostraGuadagno && isGuadagno) || (mostraPerdita && !isGuadagno);
+    
+    return matchNome && matchCategoria && matchValore && matchStato && matchPresenza && matchDelta;
   });
   
   currentPage = 1;
   renderArticles();
   updatePagination();
+  
+  // Chiudi filtri dopo applicazione (opzionale su mobile)
+  // toggleFilters();
 }
 
+// Reset tutti i filtri
 function resetFiltri() {
-  const searchInput = document.getElementById('searchInput');
-  const filterCategoria = document.getElementById('filterCategoria');
+  // Reset campi
+  const fNome = document.getElementById('fNome');
+  const fCategoria = document.getElementById('fCategoria');
+  const fValoreMin = document.getElementById('fValoreMin');
+  const fValoreMax = document.getElementById('fValoreMax');
+  const fStato = document.getElementById('fStato');
+  const fPresenti = document.getElementById('fPresenti');
+  const fAssenti = document.getElementById('fAssenti');
+  const fProfit = document.getElementById('fProfit');
+  const fLoss = document.getElementById('fLoss');
   
-  if (searchInput) searchInput.value = '';
-  if (filterCategoria) filterCategoria.value = '';
+  if (fNome) fNome.value = '';
+  if (fCategoria) fCategoria.value = '';
+  if (fValoreMin) fValoreMin.value = 0;
+  if (fValoreMax) fValoreMax.value = 1000;
+  if (fStato) fStato.value = '';
+  if (fPresenti) fPresenti.checked = true;
+  if (fAssenti) fAssenti.checked = true;
+  if (fProfit) fProfit.checked = true;
+  if (fLoss) fLoss.checked = true;
   
+  // Aggiorna slider
+  updateRangeSlider();
+  
+  // Reset articoli
   filteredArticles = [...allArticles];
   currentPage = 1;
   renderArticles();
   updatePagination();
+}
+
+// Funzione legacy per compatibilità
+function cercaArticoli() {
+  applicaFiltri();
 }
 
 // ========== MODAL AGGIUNGI ==========
@@ -567,18 +657,6 @@ function closeAddModal() {
     
     // Reset campi gradazione
     gestisciCarteGradate('', 'Add');
-  }
-}
-
-function updateRangeSlider() {
-  const slider = document.getElementById('valutazioneSlider');
-  const value = document.getElementById('valutazioneValue');
-  
-  if (slider && value) {
-    value.textContent = slider.value;
-    slider.addEventListener('input', () => {
-      value.textContent = slider.value;
-    });
   }
 }
 
@@ -1215,12 +1293,15 @@ function closeGraphModal() {
 
 // ========== FILTRI ==========
 function toggleFilters() {
-  const filterContent = document.querySelector('.filter-content');
-  const filterHeader = document.querySelector('.filter-header');
+  const filterContent = document.getElementById('filterContent');
+  const filterToggle = document.getElementById('filterToggle');
   
-  if (filterContent && filterHeader) {
+  if (filterContent) {
     filterContent.classList.toggle('active');
-    filterHeader.classList.toggle('active');
+  }
+  
+  if (filterToggle) {
+    filterToggle.classList.toggle('active');
   }
 }
 
