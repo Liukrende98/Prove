@@ -902,6 +902,257 @@
       margin-right: 4px;
       color: #fbbf24;
     }
+    
+    /* ========================================
+       🔥 STILI FILTRI TOGGLE
+       ======================================== */
+    
+    .filter-content {
+      display: none;
+      padding: 15px;
+      background: rgba(10, 10, 10, 0.8);
+      border-top: 1px solid rgba(251, 191, 36, 0.1);
+    }
+    
+    .filter-content.active {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+    
+    .filter-toggle {
+      background: transparent;
+      border: none;
+      color: #fbbf24;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      padding: 8px;
+    }
+    
+    .filter-toggle.active {
+      transform: rotate(180deg);
+    }
+    
+    .filter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+      border-radius: 12px;
+    }
+    
+    .filter-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fbbf24;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .filter-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    
+    .filter-group input,
+    .filter-group select {
+      width: 100%;
+      padding: 12px 15px;
+      background: #1a1a1a;
+      border: 1px solid rgba(251, 191, 36, 0.2);
+      border-radius: 10px;
+      color: #e5e5e5;
+      font-size: 14px;
+    }
+    
+    .filter-group select {
+      cursor: pointer;
+    }
+    
+    /* Range Slider Doppio */
+    .range-group {
+      margin-bottom: 15px;
+    }
+    
+    .range-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .range-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .range-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fbbf24;
+    }
+    
+    .range-slider-container {
+      position: relative;
+      height: 40px;
+    }
+    
+    .range-track {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
+      height: 6px;
+      background: #2a2a2a;
+      border-radius: 3px;
+    }
+    
+    .range-progress {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 6px;
+      background: linear-gradient(90deg, #fbbf24, #f59e0b);
+      border-radius: 3px;
+      left: 0;
+      right: 0;
+    }
+    
+    .range-input {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
+      height: 6px;
+      background: transparent;
+      pointer-events: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    
+    .range-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      background: #fbbf24;
+      border-radius: 50%;
+      cursor: pointer;
+      pointer-events: auto;
+      box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
+    }
+    
+    .range-input::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      background: #fbbf24;
+      border-radius: 50%;
+      cursor: pointer;
+      pointer-events: auto;
+      border: none;
+      box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
+    }
+    
+    /* Toggle Presenti/Assenti e Guadagno/Perdita */
+    .toggle-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .toggle-option {
+      position: relative;
+    }
+    
+    .toggle-option input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .toggle-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      background: #1a1a1a;
+      border: 2px solid rgba(251, 191, 36, 0.2);
+      border-radius: 10px;
+      color: #666;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .toggle-option input:checked + .toggle-label {
+      background: rgba(251, 191, 36, 0.15);
+      border-color: #fbbf24;
+      color: #fbbf24;
+    }
+    
+    /* Pulsanti Applica/Reset */
+    .filter-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .btn-filter {
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-apply {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #0a0a0a;
+    }
+    
+    .btn-reset {
+      background: #1a1a1a;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      color: #888;
+    }
+    
+    .btn-filter:active {
+      transform: scale(0.95);
+    }
   </style>
 </head>
 
@@ -963,8 +1214,10 @@
               <option value="">Tutte le categorie</option>
               <option value="ETB">ETB</option>
               <option value="Carte Singole">Carte Singole</option>
+              <option value="Carte gradate">Carte gradate</option>
               <option value="Booster Box">Booster Box</option>
               <option value="Collection Box">Collection Box</option>
+              <option value="Box mini tin">Box mini tin</option>
               <option value="Bustine">Bustine</option>
               <option value="Accessori">Accessori</option>
               <option value="Altro">Altro</option>
@@ -989,7 +1242,7 @@
 
         <div class="filter-group">
           <label><i class="fas fa-star"></i> VALUTAZIONE STATO (minimo)</label>
-          <select id="fStato" onchange="updateStatoDisplay()">
+          <select id="fStato">
             <option value="">Tutte</option>
             <option value="1">1⭐+</option>
             <option value="2">2⭐+</option>
