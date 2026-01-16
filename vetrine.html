@@ -1,1666 +1,1587 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+// ========================================
+// LOGICA IL TUO NEGOZIO - CON AUTENTICAZIONE E FOTO MULTIPLE
+// NODO Italia - v2.0 Modulare
+// ========================================
 
-   <!-- META iOS DARK MODE -->
-  <meta name="theme-color" content="#000000">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+let currentPage = 1;
+const itemsPerPage = 10;
+let allArticles = [];
+let filteredArticles = [];
+let currentChart = null;
+let currentChartColor = 'yellow';
+let stream = null;
+let viewMode = 'grid'; // 'grid' o 'list'
+
+// ========== TOGGLE VISTA GRID/LIST ==========
+function toggleViewMode() {
+  viewMode = viewMode === 'grid' ? 'list' : 'grid';
   
-  <title>Vetrine - NODO</title>
-  
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- CSS Base -->
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/messages-styles.css">
-
-  <style>
-/* ============================================
-   VETRINE NODO - ARTICOLI SI INGRANDISCONO
-   ============================================ */
-
-.vetrine-grid {
-  padding: 0 12px 40px 12px;
-}
-
-.vetrina-card-big {
-  background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-  border-radius: 20px;
-  overflow: hidden;
-  border: 2px solid rgba(251, 191, 36, 0.3);
-  box-shadow: 0 6px 30px rgba(251, 191, 36, 0.2);
-  margin-bottom: 24px;
-  transition: all 0.3s ease;
-}
-
-.vetrina-header {
-  padding: 18px;
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, transparent 100%);
-  border-bottom: 2px solid #fbbf24;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.vetrina-header:active {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, transparent 100%);
-}
-
-.vetrina-top {
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-}
-
-.vetrina-avatar {
-  width: 58px;
-  height: 58px;
-  min-width: 58px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  border: 3px solid #fbbf24;
-  box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
-  animation: avatarPulse 2s ease-in-out infinite;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26px;
-  color: #0a0a0a;
-}
-
-@keyframes avatarPulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.6); }
-  50% { box-shadow: 0 0 30px rgba(251, 191, 36, 0.9); }
-}
-
-.vetrina-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.vetrina-info h3 {
-  font-size: 18px;
-  font-weight: 900;
-  margin: 0 0 6px 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.vetrina-username {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.vetrina-username-link {
-  text-decoration: none;
-  color: inherit;
-  display: inline-block;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.vetrina-username-link:hover {
-  transform: scale(1.05);
-}
-
-.vetrina-username-link:hover .vetrina-username {
-  filter: brightness(1.2);
-}
-
-.vetrina-action-btn-messages {
-  width: 50px;
-  height: 50px;
-  min-width: 50px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  border: 3px solid #fbbf24;
-  color: #0a0a0a;
-  font-size: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.5);
-  transition: all 0.3s ease;
-  animation: messagePulse 2s ease-in-out infinite;
-  margin-left: auto;
-  flex-shrink: 0;
-}
-
-@keyframes messagePulse {
-  0%, 100% { 
-    box-shadow: 0 4px 20px rgba(251, 191, 36, 0.5);
-    transform: scale(1);
-  }
-  50% { 
-    box-shadow: 0 6px 30px rgba(251, 191, 36, 0.8);
-    transform: scale(1.05);
-  }
-}
-
-.vetrina-action-btn-messages:hover {
-  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
-  box-shadow: 0 8px 35px rgba(251, 191, 36, 0.9);
-  transform: scale(1.1) rotate(5deg);
-}
-
-.vetrina-action-btn-messages:active {
-  transform: scale(0.95);
-}
-
-/* NOTA: Gli stili .expanded sono stati disabilitati
-   La funzionalità di espansione delle vetrine è stata rimossa */
-
-.vetrina-info p {
-  font-size: 13px;
-  color: #9ca3af;
-  margin: 0 0 8px 0;
-  font-weight: 600;
-}
-
-.vetrina-info p i {
-  color: #fbbf24;
-  margin-right: 5px;
-  font-size: 12px;
-}
-
-.vetrina-rating {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: #9ca3af;
-  font-weight: 700;
-}
-
-.vetrina-rating i {
-  color: #fbbf24;
-  font-size: 13px;
-}
-
-/* STATS INLINE */
-.vetrina-stats-inline {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding: 14px 18px 16px 18px;
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, transparent 100%);
-  border-bottom: 1px solid rgba(251, 191, 36, 0.2);
-  margin-bottom: 0;
-}
-
-.vetrina-stat-inline {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: #9ca3af;
-  font-weight: 700;
-  padding: 7px 11px;
-  background: rgba(251, 191, 36, 0.08);
-  border-radius: 12px;
-  border: 1px solid rgba(251, 191, 36, 0.15);
-}
-
-.vetrina-stat-inline i {
-  color: #fbbf24;
-  font-size: 12px;
-}
-
-.vetrina-stat-inline-value {
-  color: #fbbf24;
-  font-weight: 900;
-  font-size: 12px;
-}
-
-/* SCROLL ORIZZONTALE - ARTICOLI PICCOLI DI DEFAULT */
-.vetrina-products-scroll {
-  padding: 16px 12px;
-  background: rgba(0, 0, 0, 0.3);
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  position: relative;
-  margin-bottom: 0;
-  transition: padding 0.4s ease;
-}
-
-.vetrina-products-scroll::-webkit-scrollbar {
-  display: none;
-}
-
-/* QUANDO ESPANSA - COMPORTAMENTO GALLERIA CON SNAP */
-.vetrina-card-big.expanded .vetrina-products-scroll {
-  padding: 24px 0;
-  background: rgba(0, 0, 0, 0.5);
-  scroll-snap-type: x mandatory;
-  scroll-padding: 0 48px;
-}
-
-.vetrina-products-container {
-  display: flex;
-  gap: 12px;
-  padding-bottom: 5px;
-  padding-right: 80px;
-  transition: gap 0.4s ease;
-}
-
-/* QUANDO ESPANSA - GALLERIA FULL WIDTH */
-.vetrina-card-big.expanded .vetrina-products-container {
-  gap: 16px;
-  padding-right: 48px;
-  padding-left: 48px;
-}
-
-/* ARTICOLI - PICCOLI DI DEFAULT */
-.vetrina-product-card {
-  min-width: 140px;
-  max-width: 140px;
-  background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-  border-radius: 14px;
-  border: 2px solid rgba(251, 191, 36, 0.2);
-  overflow: hidden;
-  flex-shrink: 0;
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  position: relative;
-}
-
-/* QUANDO ESPANSA - ARTICOLI FULL WIDTH CON SCROLL SNAP */
-.vetrina-card-big.expanded .vetrina-product-card {
-  min-width: calc(100vw - 96px);
-  max-width: calc(100vw - 96px);
-  border: 3px solid rgba(251, 191, 36, 0.5);
-  box-shadow: 0 10px 40px rgba(251, 191, 36, 0.4);
-  scroll-snap-align: center;
-}
-
-.vetrina-product-card:active {
-  transform: scale(0.96);
-  border-color: #fbbf24;
-}
-
-.vetrina-product-image {
-  width: 100%;
-  height: 140px;
-  background: #0a0a0a;
-  position: relative;
-  overflow: hidden;
-  transition: height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* QUANDO ESPANSA - IMMAGINE MEGA ALTA */
-.vetrina-card-big.expanded .vetrina-product-image {
-  height: 340px;
-}
-
-.vetrina-product-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: object-fit 0.4s ease;
-}
-
-/* QUANDO ESPANSA - CONTAIN PER VEDERE MEGLIO */
-.vetrina-card-big.expanded .vetrina-product-image img {
-  object-fit: contain;
-  padding: 10px;
-}
-
-.product-availability-badge {
-  position: absolute;
-  bottom: 6px;
-  right: 6px;
-  padding: 4px 8px;
-  border-radius: 10px;
-  font-size: 8px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  transition: all 0.3s ease;
-}
-
-/* QUANDO ESPANSA - BADGE PIÙ GRANDE */
-.vetrina-card-big.expanded .product-availability-badge {
-  padding: 6px 12px;
-  font-size: 10px;
-  bottom: 10px;
-  right: 10px;
-}
-
-.badge-disponibile {
-  background: rgba(34, 197, 94, 0.95);
-  color: #fff;
-}
-
-.badge-non-disponibile {
-  background: rgba(239, 68, 68, 0.95);
-  color: #fff;
-}
-
-.vetrina-product-rating {
-  position: absolute;
-  top: 6px;
-  left: 6px;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  padding: 4px 7px;
-  border-radius: 8px;
-  font-size: 10px;
-  font-weight: 700;
-  color: #fbbf24;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  transition: all 0.3s ease;
-}
-
-/* QUANDO ESPANSA - RATING PIÙ GRANDE */
-.vetrina-card-big.expanded .vetrina-product-rating {
-  padding: 6px 10px;
-  font-size: 12px;
-  top: 10px;
-  left: 10px;
-}
-
-.vetrina-product-info {
-  padding: 10px;
-  transition: padding 0.3s ease;
-}
-
-/* QUANDO ESPANSA - PIÙ PADDING */
-.vetrina-card-big.expanded .vetrina-product-info {
-  padding: 16px;
-}
-
-.vetrina-product-price {
-  font-size: 16px;
-  font-weight: 900;
-  color: #fbbf24;
-  text-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
-  margin-bottom: 6px;
-  transition: all 0.3s ease;
-}
-
-/* QUANDO ESPANSA - PREZZO GIGANTE */
-.vetrina-card-big.expanded .vetrina-product-price {
-  font-size: 28px;
-  text-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
-  margin-bottom: 10px;
-}
-
-.vetrina-product-name {
-  font-size: 12px;
-  font-weight: 800;
-  color: #e5e7eb;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  margin-bottom: 4px;
-  transition: all 0.3s ease;
-}
-
-/* QUANDO ESPANSA - NOME PIÙ GRANDE, 2 RIGHE */
-.vetrina-card-big.expanded .vetrina-product-name {
-  font-size: 16px;
-  white-space: normal;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  margin-bottom: 6px;
-  line-height: 1.4;
-}
-
-.vetrina-product-category {
-  font-size: 10px;
-  font-weight: 700;
-  color: #9ca3af;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease;
-}
-
-/* QUANDO ESPANSA - CATEGORIA PIÙ GRANDE */
-.vetrina-card-big.expanded .vetrina-product-category {
-  font-size: 12px;
-}
-
-/* SCROLL INDICATOR */
-.scroll-indicator {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(251, 191, 36, 0.95);
-  color: #0a0a0a;
-  font-size: 12px;
-  font-weight: 900;
-  padding: 8px 12px;
-  border-radius: 20px;
-  pointer-events: none;
-  z-index: 15;
-  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.6);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  opacity: 1;
-  transition: opacity 0.3s ease;
-}
-
-.scroll-indicator.hidden {
-  opacity: 0;
-}
-
-/* SEZIONE ESPANSA - NASCOSTA DI DEFAULT */
-.vetrina-products-expanded {
-  display: none;
-  padding: 0;
-  background: rgba(0, 0, 0, 0.3);
-}
-
-.vetrina-card-big.expanded .vetrina-products-expanded {
-  display: block;
-  padding: 16px 12px;
-}
-
-.vetrina-products-grid-expanded {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 12px;
-}
-
-.vetrina-product-expanded {
-  background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-  border-radius: 14px;
-  border: 2px solid rgba(251, 191, 36, 0.2);
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.vetrina-product-expanded:hover {
-  border-color: #fbbf24;
-  transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
-}
-
-.vetrina-product-expanded-image {
-  width: 100%;
-  height: 140px;
-  background: #0a0a0a;
-  position: relative;
-  overflow: hidden;
-}
-
-.vetrina-product-expanded-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.vetrina-product-expanded-info {
-  padding: 10px;
-}
-
-.vetrina-product-expanded-name {
-  font-size: 13px;
-  font-weight: 800;
-  color: #e5e7eb;
-  margin-bottom: 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.vetrina-product-expanded-category {
-  font-size: 11px;
-  color: #9ca3af;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.vetrina-product-expanded-price {
-  font-size: 16px;
-  font-weight: 900;
-  color: #fbbf24;
-  text-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
-}
-
-/* DOTS INDICATOR PER ARTICOLI NELLA VETRINA ESPANSA */
-.vetrina-products-dots {
-  display: none;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  padding: 16px 0 12px 0;
-  position: relative;
-  z-index: 10;
-}
-
-.vetrina-card-big.expanded .vetrina-products-dots {
-  display: flex;
-}
-
-.vetrina-product-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(251, 191, 36, 0.3);
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.vetrina-product-dot.active {
-  width: 24px;
-  border-radius: 4px;
-  background: #fbbf24;
-  box-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
-}
-
-/* COUNTER ARTICOLI NELLA VETRINA ESPANSA */
-.vetrina-products-counter {
-  position: absolute;
-  top: 30px;
-  right: 18px;
-  padding: 6px 12px;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 16px;
-  font-size: 11px;
-  font-weight: 800;
-  color: #fbbf24;
-  z-index: 20;
-  border: 2px solid rgba(251, 191, 36, 0.3);
-  display: none;
-  align-items: center;
-  gap: 5px;
-}
-
-.vetrina-card-big.expanded .vetrina-products-counter {
-  display: flex;
-}
-
-@media (max-width: 375px) {
-  .vetrina-avatar {
-    width: 54px;
-    height: 54px;
-    font-size: 24px;
+  const toggleBtn = document.getElementById('viewToggleBtn');
+  if (toggleBtn) {
+    toggleBtn.innerHTML = viewMode === 'grid' 
+      ? '<i class="fas fa-list"></i>' 
+      : '<i class="fas fa-th-large"></i>';
   }
   
-  .vetrina-card-big.expanded .vetrina-product-card {
-    min-width: calc(100vw - 96px);
-    max-width: calc(100vw - 96px);
-  }
+  renderArticles();
+}
+
+// ========== GESTIONE CARTE GRADATE ==========
+function gestisciCarteGradate(categoriaValue, prefix) {
+  const casaGroup = document.getElementById(`casaGradazioneGroup${prefix}`);
+  const votoGroup = document.getElementById(`votoGradazioneGroup${prefix}`);
+  const casaSelect = document.getElementById(`casaGradazione${prefix}`);
+  const votoInput = document.getElementById(`votoGradazione${prefix}`);
+  const altraCasaGroup = document.getElementById(`altraCasaGradazioneGroup${prefix}`);
   
-  .vetrina-card-big.expanded .vetrina-product-image {
-    height: 320px;
-  }
-}
-
-/* NAVIGAZIONE FOTO ARTICOLO */
-.article-photo-nav {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(251, 191, 36, 0.95);
-  color: #000;
-  border: none;
-  font-size: 14px;
-  font-weight: 900;
-  cursor: pointer;
-  z-index: 12;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.6);
-  opacity: 0;
-  pointer-events: none;
-}
-
-.vetrina-product-card:hover .article-photo-nav,
-.vetrina-product-image:active .article-photo-nav {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.article-photo-nav:active {
-  transform: translateY(-50%) scale(0.9);
-  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.8);
-}
-
-.article-photo-prev {
-  left: 6px;
-}
-
-.article-photo-next {
-  right: 6px;
-}
-
-/* BOTTONE FULLSCREEN */
-.article-fullscreen-btn {
-  position: absolute;
-  bottom: 6px;
-  left: 6px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(8px);
-  color: #fbbf24;
-  border: 2px solid rgba(251, 191, 36, 0.5);
-  font-size: 14px;
-  cursor: pointer;
-  z-index: 12;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
-}
-
-.article-fullscreen-btn:active {
-  transform: scale(0.9);
-  background: #fbbf24;
-  color: #000;
-  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.6);
-}
-
-/* QUANDO ESPANSA - BOTTONI PIÙ GRANDI */
-.vetrina-card-big.expanded .article-photo-nav {
-  width: 40px;
-  height: 40px;
-  font-size: 16px;
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.vetrina-card-big.expanded .article-photo-prev {
-  left: 10px;
-}
-
-.vetrina-card-big.expanded .article-photo-next {
-  right: 10px;
-}
-
-.vetrina-card-big.expanded .article-fullscreen-btn {
-  width: 40px;
-  height: 40px;
-  font-size: 16px;
-  bottom: 10px;
-  left: 10px;
-}
-
-/* DOTS INDICATOR PER FOTO ARTICOLO */
-.article-photo-dots {
-  position: absolute;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 6px;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
-  padding: 6px 10px;
-  border-radius: 15px;
-  z-index: 11;
-}
-
-.article-photo-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.4);
-  transition: all 0.3s ease;
-}
-
-.article-photo-dot.active {
-  background: #fbbf24;
-  width: 18px;
-  border-radius: 3px;
-}
-
-/* QUANDO ESPANSA - DOTS PIÙ GRANDI */
-.vetrina-card-big.expanded .article-photo-dots {
-  bottom: 50px;
-  padding: 8px 12px;
-  gap: 8px;
-}
-
-.vetrina-card-big.expanded .article-photo-dot {
-  width: 8px;
-  height: 8px;
-}
-
-.vetrina-card-big.expanded .article-photo-dot.active {
-  width: 22px;
-  border-radius: 4px;
-}
-
-/* AZIONI VETRINA (2 BOTTONI VERTICALI) */
-.vetrina-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-left: 8px;
-}
-
-.vetrina-action-btn {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  border-radius: 50%;
-  border: 2px solid rgba(251, 191, 36, 0.5);
-  background: rgba(251, 191, 36, 0.15);
-  color: #fbbf24;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-}
-
-.vetrina-action-btn:active {
-  transform: scale(0.9);
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  color: #000;
-  border-color: #fbbf24;
-  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.6);
-}
-
-.vetrina-action-btn i {
-  pointer-events: none;
-}
-
-@media (max-width: 375px) {
-  .vetrina-action-btn {
-    width: 36px;
-    height: 36px;
-    font-size: 14px;
-  }
-}
-/* ============================================
-   MODAL DETTAGLIO COMPATTO - OTTIMIZZATO
-   ============================================ */
-
-.modal-dettaglio-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  z-index: 10000;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 0;
-  overflow: hidden;
-  animation: modalFadeIn 0.25s ease;
-}
-
-@keyframes modalFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.modal-dettaglio-content {
-  background: #000;
-  border-radius: 24px 24px 0 0;
-  width: 100%;
-  max-width: 600px;
-  border: 2px solid #fbbf24;
-  border-bottom: none;
-  box-shadow: 0 -15px 60px rgba(251, 191, 36, 0.6);
-  height: 85vh;
-  display: flex;
-  flex-direction: column;
-  animation: modalSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  overflow: hidden;
-}
-
-@keyframes modalSlideUp {
-  from { transform: translateY(100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-/* HEADER MINI */
-.modal-header-sticky {
-  position: sticky;
-  top: 0;
-  background: linear-gradient(135deg, #1a1a1a 0%, #000 100%);
-  padding: 12px 16px;
-  border-bottom: 2px solid #fbbf24;
-  z-index: 100;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-}
-
-.modal-title-big {
-  font-size: 16px;
-  font-weight: 900;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  flex: 1;
-  line-height: 1.3;
-  min-width: 0;
-}
-
-.modal-close-btn {
-  width: 38px;
-  height: 38px;
-  min-width: 38px;
-  border-radius: 50%;
-  border: none;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  color: #000;
-  font-size: 20px;
-  font-weight: 900;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.5);
-}
-
-.modal-close-btn:active {
-  transform: scale(0.9);
-}
-
-.modal-body-scroll {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  padding: 0;
-  background: #000;
-}
-
-/* GALLERIA MINI MINI */
-.modal-gallery-swipe {
-  position: relative;
-  width: 100%;
-  height: 120px;
-  margin: 0;
-  overflow: hidden;
-  background: #0a0a0a;
-  border-bottom: 2px solid rgba(251, 191, 36, 0.3);
-}
-
-.gallery-container {
-  display: flex;
-  height: 100%;
-  transition: transform 0.3s ease;
-}
-
-.gallery-slide {
-  min-width: 100%;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #000;
-}
-
-.gallery-slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  padding: 5px;
-}
-
-.gallery-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: #0a0a0a;
-  color: #666;
-}
-
-.gallery-placeholder i {
-  font-size: 40px;
-  margin-bottom: 10px;
-  opacity: 0.3;
-}
-
-.gallery-placeholder p {
-  font-size: 12px;
-  font-weight: 600;
-  opacity: 0.5;
-}
-
-/* DOTS */
-.gallery-dots {
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 6px;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 6px 10px;
-  border-radius: 15px;
-  z-index: 10;
-}
-
-.gallery-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transition: all 0.3s;
-  cursor: pointer;
-}
-
-.gallery-dot.active {
-  background: #fbbf24;
-  width: 16px;
-  border-radius: 3px;
-}
-
-/* NAV BUTTONS */
-.gallery-nav-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(251, 191, 36, 0.95);
-  color: #000;
-  border: none;
-  font-size: 14px;
-  font-weight: 900;
-  cursor: pointer;
-  z-index: 10;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.gallery-nav-btn:active {
-  transform: translateY(-50%) scale(0.9);
-}
-
-.gallery-nav-prev { left: 8px; }
-.gallery-nav-next { right: 8px; }
-
-/* CONTENUTO */
-.modal-content-section {
-  padding: 14px 16px 20px 16px;
-}
-
-.modal-badge-disponibilita {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 12px;
-}
-
-.modal-badge-disponibilita.disponibile {
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-  color: #fff;
-}
-
-.modal-badge-disponibilita.non-disponibile {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: #fff;
-}
-
-.modal-price-mega {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(251, 191, 36, 0.05) 100%);
-  padding: 14px 16px;
-  border-radius: 16px;
-  margin-bottom: 14px;
-  border: 2px solid rgba(251, 191, 36, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.modal-price-label {
-  font-size: 13px;
-  font-weight: 800;
-  color: #f59e0b;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  text-transform: uppercase;
-}
-
-.modal-price-value {
-  font-size: 32px;
-  font-weight: 900;
-  color: #fbbf24;
-  text-shadow: 0 0 25px rgba(251, 191, 36, 0.8);
-  line-height: 1;
-}
-
-.modal-info-box {
-  background: rgba(251, 191, 36, 0.08);
-  padding: 14px;
-  border-radius: 16px;
-  margin-bottom: 14px;
-  border: 2px solid rgba(251, 191, 36, 0.3);
-}
-
-.modal-info-title {
-  font-size: 13px;
-  font-weight: 900;
-  color: #fbbf24;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  text-transform: uppercase;
-  padding-bottom: 10px;
-  border-bottom: 2px solid rgba(251, 191, 36, 0.3);
-}
-
-.modal-info-grid {
-  display: grid;
-  gap: 8px;
-}
-
-.modal-info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 12px;
-  background: rgba(251, 191, 36, 0.1);
-  border-radius: 12px;
-}
-
-.modal-info-label {
-  font-size: 12px;
-  font-weight: 700;
-  color: #9ca3af;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.modal-info-label i {
-  color: #fbbf24;
-  font-size: 14px;
-}
-
-.modal-info-value {
-  font-size: 13px;
-  font-weight: 800;
-  color: #e5e7eb;
-  text-align: right;
-  max-width: 65%;
-  word-break: break-word;
-}
-
-.modal-description-box {
-  background: rgba(251, 191, 36, 0.08);
-  padding: 14px;
-  border-radius: 16px;
-  border: 2px solid rgba(251, 191, 36, 0.3);
-  margin-bottom: 14px;
-}
-
-.modal-description-box h4 {
-  font-size: 13px;
-  font-weight: 900;
-  color: #fbbf24;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  text-transform: uppercase;
-  padding-bottom: 10px;
-  border-bottom: 2px solid rgba(251, 191, 36, 0.3);
-}
-
-.modal-description-box p {
-  color: #e5e7eb;
-  line-height: 1.6;
-  font-size: 13px;
-}
-
-.modal-contact-mega-btn {
-  width: 100%;
-  padding: 16px;
-  border-radius: 16px;
-  border: none;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  color: #000;
-  font-size: 15px;
-  font-weight: 900;
-  text-transform: uppercase;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.modal-contact-mega-btn:active {
-  transform: scale(0.97);
-}
-
-/* RESPONSIVE */
-@media (min-width: 768px) {
-  .modal-dettaglio-backdrop {
-    align-items: center;
-    padding: 20px;
-  }
+  if (!casaGroup || !votoGroup) return;
   
-  .modal-dettaglio-content {
-    border-radius: 24px;
-    border: 2px solid #fbbf24;
-    height: auto;
-    max-height: 85vh;
+  if (categoriaValue === 'Carte gradate') {
+    casaGroup.style.display = 'block';
+    votoGroup.style.display = 'block';
+    if (casaSelect) casaSelect.required = true;
+    if (votoInput) votoInput.required = true;
+  } else {
+    casaGroup.style.display = 'none';
+    votoGroup.style.display = 'none';
+    if (altraCasaGroup) altraCasaGroup.style.display = 'none';
+    if (casaSelect) {
+      casaSelect.required = false;
+      casaSelect.value = '';
+    }
+    if (votoInput) {
+      votoInput.required = false;
+      votoInput.value = '';
+    }
+    const altraCasaInput = document.getElementById(`altraCasaGradazione${prefix}`);
+    if (altraCasaInput) altraCasaInput.value = '';
   }
+}
+
+function gestisciAltraCasa(casaValue, prefix) {
+  const altraCasaGroup = document.getElementById(`altraCasaGradazioneGroup${prefix}`);
+  const altraCasaInput = document.getElementById(`altraCasaGradazione${prefix}`);
   
-  .modal-gallery-swipe {
-    height: 250px;
-  }
-}
-
-@media (max-width: 375px) {
-  .modal-gallery-swipe {
-    height: 110px;
-  }
+  if (!altraCasaGroup) return;
   
-  .modal-price-value {
-    font-size: 28px;
+  if (casaValue === 'Altra casa') {
+    altraCasaGroup.style.display = 'block';
+    if (altraCasaInput) altraCasaInput.required = true;
+  } else {
+    altraCasaGroup.style.display = 'none';
+    if (altraCasaInput) {
+      altraCasaInput.required = false;
+      altraCasaInput.value = '';
+    }
   }
 }
-/* FILTRO NORMALE - NO ANIMAZIONE MINIMIZZATA */
-.vetrine-filter {
-  margin: 20px 12px 24px 12px;
-  background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-  border-radius: 20px;
-  border: 2px solid rgba(251, 191, 36, 0.3);
-  overflow: hidden;
-  box-shadow: 0 6px 30px rgba(251, 191, 36, 0.2);
-}
 
-.filter-header {
-  padding: 16px;
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, transparent 100%);
-  border-bottom: 2px solid #fbbf24;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.filter-title {
-  font-size: 16px;
-  font-weight: 900;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.filter-toggle-icon {
-  font-size: 14px;
-  color: #fbbf24;
-  transition: transform 0.3s ease;
-}
-
-.vetrine-filter.expanded .filter-toggle-icon {
-  transform: rotate(180deg);
-}
-
-.filter-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s ease;
-}
-
-.vetrine-filter.expanded .filter-content {
-  max-height: 1000px;
-}
-
-.filter-body {
-  padding: 16px;
-}
-
-.filter-group {
-  margin-bottom: 16px;
-}
-
-.filter-group:last-child {
-  margin-bottom: 0;
-}
-
-.filter-label {
-  font-size: 12px;
-  font-weight: 800;
-  color: #9ca3af;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.filter-input, .filter-select {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 14px;
-  border: 2px solid rgba(251, 191, 36, 0.3);
-  background: #0a0a0a;
-  color: #e5e7eb;
-  font-size: 14px;
-  font-weight: 600;
-  font-family: inherit;
-  transition: all 0.3s ease;
-}
-
-.filter-input:focus, .filter-select:focus {
-  outline: none;
-  border-color: #fbbf24;
-  box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
-}
-
-/* PRICE SLIDER */
-.price-range-slider {
-  padding: 20px 10px;
-}
-
-.price-range-values {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.price-value {
-  font-size: 18px;
-  font-weight: 900;
-  color: #fbbf24;
-  padding: 8px 14px;
-  background: rgba(251, 191, 36, 0.1);
-  border-radius: 12px;
-  border: 2px solid rgba(251, 191, 36, 0.3);
-}
-
-.price-range-track {
-  position: relative;
-  height: 6px;
-  background: rgba(251, 191, 36, 0.2);
-  border-radius: 3px;
-  margin: 20px 0;
-}
-
-.price-range-fill {
-  position: absolute;
-  height: 100%;
-  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
-  border-radius: 3px;
-  left: 0%;
-  right: 0%;
-}
-
-.price-range-inputs {
-  position: relative;
-  height: 6px;
-}
-
-.price-range-input {
-  position: absolute;
-  width: 100%;
-  pointer-events: none;
-  appearance: none;
-  -webkit-appearance: none;
-  background: transparent;
-  height: 6px;
-  top: -3px;
-}
-
-.price-range-input::-webkit-slider-thumb {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  border: 3px solid #0a0a0a;
-  cursor: pointer;
-  pointer-events: auto;
-  box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
-  position: relative;
-  z-index: 10;
-}
-
-.price-range-input::-moz-range-thumb {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  border: 3px solid #0a0a0a;
-  cursor: pointer;
-  pointer-events: auto;
-  box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
-}
-
-.filter-checkboxes {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.filter-checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  background: rgba(251, 191, 36, 0.05);
-  border-radius: 12px;
-  border: 2px solid rgba(251, 191, 36, 0.2);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.filter-checkbox-item:active {
-  transform: scale(0.98);
-  background: rgba(251, 191, 36, 0.1);
-}
-
-.filter-checkbox {
-  width: 20px;
-  height: 20px;
-  accent-color: #fbbf24;
-  cursor: pointer;
-}
-
-.filter-checkbox-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #e5e7eb;
-  cursor: pointer;
-  flex: 1;
-}
-
-.filter-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 2px solid rgba(251, 191, 36, 0.2);
-}
-
-.filter-btn {
-  padding: 14px;
-  border-radius: 14px;
-  border: none;
-  font-size: 14px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.filter-btn-apply {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  color: #0a0a0a;
-  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
-}
-
-.filter-btn-apply:active {
-  transform: scale(0.97);
-  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
-}
-
-.filter-btn-reset {
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
-  border: 2px solid rgba(239, 68, 68, 0.3);
-}
-
-.filter-btn-reset:active {
-  transform: scale(0.97);
-  background: rgba(239, 68, 68, 0.25);
-}
-
-.filter-active-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  background: rgba(251, 191, 36, 0.2);
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 800;
-  color: #fbbf24;
-}
-
-/* FLOATING FILTER BUTTON */
-.filter-floating-btn {
-  position: fixed;
-  bottom: 80px;
-  right: 15px;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  color: #0a0a0a;
-  border: 3px solid #fbbf24;
-  box-shadow: 0 8px 30px rgba(251, 191, 36, 0.6);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  cursor: pointer;
-  z-index: 999;
-  transition: all 0.3s ease;
-  animation: floatPulse 2s ease-in-out infinite;
-}
-
-.filter-floating-btn.active {
-  display: flex;
-}
-
-.filter-floating-btn:active {
-  transform: scale(0.9);
-}
-
-@keyframes floatPulse {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-5px) scale(1.05); }
-}
-
-/* PAGINAZIONE */
-.vetrine-pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 15px;
-  padding: 30px 20px;
-  margin-top: 20px;
-}
-
-/* PAGINAZIONE TOP - sotto filtro */
-.pagination-top {
-  margin-top: 20px;
-  margin-bottom: 10px;
-  padding: 20px 20px;
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, transparent 100%);
-  border-radius: 16px;
-  border: 2px solid rgba(251, 191, 36, 0.2);
-  margin-left: 12px;
-  margin-right: 12px;
-}
-
-/* PAGINAZIONE BOTTOM - in fondo */
-.pagination-bottom {
-  margin-top: 20px;
-  margin-bottom: 20px;
-}
-
-.pagination-btn {
-  padding: 12px 20px;
-  border-radius: 16px;
-  border: 2px solid rgba(251, 191, 36, 0.3);
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, transparent 100%);
-  color: #fbbf24;
-  font-size: 14px;
-  font-weight: 900;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.pagination-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.pagination-btn:not(:disabled):active {
-  transform: scale(0.95);
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  color: #0a0a0a;
-  border-color: #fbbf24;
-}
-
-.pagination-info {
-  font-size: 14px;
-  font-weight: 800;
-  color: #e5e7eb;
-  padding: 10px 20px;
-  background: rgba(251, 191, 36, 0.1);
-  border-radius: 14px;
-  border: 2px solid rgba(251, 191, 36, 0.2);
-}
-
-.pagination-info span {
-  color: #fbbf24;
-}
-
-@media (max-width: 375px) {
-  .carousel-product-image {
-    height: 280px;
+// ========== CARICAMENTO ARTICOLI (SOLO DELL'UTENTE LOGGATO) ==========
+async function caricaArticoli() {
+  try {
+    // 🔥 FIX: Controlla se l'utente è loggato PRIMA di usare user.id
+    const user = getCurrentUser();
+    
+    if (!user || !user.id) {
+      console.warn('⚠️ Utente non loggato, impossibile caricare articoli');
+      return; // Esce senza errore - requireAuth() gestirà il redirect
+    }
+    
+    const { data, error } = await supabaseClient
+      .from("Articoli")
+      .select("*")
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    
+    allArticles = data || [];
+    filteredArticles = [...allArticles];
+    
+    console.log('📦 Articoli caricati:', allArticles.length);
+    
+    renderDashboard();
+    renderArticles();
+    updatePagination();
+  } catch (error) {
+    console.error('❌ Errore caricamento:', error);
   }
+}
+
+function renderDashboard() {
+  const dashboard = document.getElementById('dashboard');
+  if (!dashboard) return;
   
-  .carousel-product-name {
-    font-size: 16px;
-  }
+  const totale = allArticles.length;
+  const valoreAttuale = allArticles.reduce((sum, r) => sum + (Number(r.ValoreAttuale) || 0), 0);
+  const prezzoPagato = allArticles.reduce((sum, r) => sum + (Number(r.PrezzoPagato) || 0), 0);
+  const delta = valoreAttuale - prezzoPagato;
+  const deltaPercent = prezzoPagato > 0 ? ((delta / prezzoPagato) * 100) : 0;
   
-  .carousel-product-price {
-    font-size: 24px;
-  }
-  
-  .vetrina-avatar {
-    width: 54px;
-    height: 54px;
-    font-size: 24px;
-  }
-}
-  </style>
-</head>
-
-<body>
-  <div class="particles" id="particles"></div>
-
-  <!-- HEADER -->
-  <div class="header">
-    <h1>
-      <div class="header-logo">
-        <div class="header-logo-ring header-logo-ring-1"></div>
-        <div class="header-logo-ring header-logo-ring-2"></div>
-      </div>
-      <span class="title-gradient">NODO</span>
-    </h1>
-  </div>
-
-  <!-- MENU NAVIGAZIONE -->
-  <div class="bottom-nav">
-    <button class="menu-main-btn" id="menuBtn" onclick="toggleMenu()">
-      <i class="fas fa-bars"></i>
-    </button>
-    <div class="menu-items" id="menuItems"></div>
-  </div>
-
-  <!-- CONTENUTO PRINCIPALE -->
-  <div class="main-content">
-    <div class="vetrine-grid" id="vetrineContainer"></div>
-  </div>
-
-  <!-- FOOTER -->
-  <div class="page-footer">
-    <div class="footer-logo">NODO</div>
-    <div class="footer-text">La tua collezione Pokémon sempre con te</div>
-    <div class="footer-social">
-      <a href="#" class="footer-social-link"><i class="fab fa-instagram"></i></a>
-      <a href="#" class="footer-social-link"><i class="fab fa-twitter"></i></a>
-      <a href="#" class="footer-social-link"><i class="fab fa-discord"></i></a>
+  dashboard.innerHTML = `
+    <div class="stat-card" onclick="toggleDashboardCard(this, 'totale')">
+      <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
+      <div class="stat-label">Totale Articoli</div>
+      <div class="stat-value">${totale}</div>
+      <div class="stat-subtext">nel negozio</div>
     </div>
-  </div>
+    
+    <div class="stat-card" onclick="toggleDashboardCard(this, 'valore')">
+      <div class="stat-icon"><i class="fas fa-gem"></i></div>
+      <div class="stat-label">Valore Totale</div>
+      <div class="stat-value">${valoreAttuale.toFixed(2)} €</div>
+      <div class="stat-subtext">valore di mercato</div>
+    </div>
+    
+    <div class="stat-card" onclick="toggleDashboardCard(this, 'spesa')">
+      <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+      <div class="stat-label">Spesa Totale</div>
+      <div class="stat-value">${prezzoPagato.toFixed(2)} €</div>
+      <div class="stat-subtext">investimento iniziale</div>
+    </div>
+    
+    <div class="stat-card" onclick="toggleDashboardCard(this, 'performance')">
+      <div class="stat-icon"><i class="fas fa-rocket"></i></div>
+      <div class="stat-label">Performance</div>
+      <div class="stat-value">${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €</div>
+      <div class="stat-subtext">${delta >= 0 ? '+' : ''}${deltaPercent.toFixed(1)}%</div>
+    </div>
+  `;
+}
 
-  <!-- SCRIPTS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/config.js"></script>
-  <script src="js/common.js"></script>
-  <script src="js/menu.js"></script>
-  <script src="js/messages.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/vetrine.js"></script>
+function toggleDashboardCard(element, type) {
+  // Rimuovi expanded da tutti gli altri
+  document.querySelectorAll('.stat-card').forEach(card => {
+    if (card !== element) {
+      card.classList.remove('expanded');
+    }
+  });
+  
+  // Toggle su questo
+  element.classList.toggle('expanded');
+  
+  // Se expanded, apri grafico
+  if (element.classList.contains('expanded')) {
+    const colorMap = {
+      'totale': 'yellow',
+      'valore': 'yellow',
+      'spesa': 'yellow',
+      'performance': 'yellow'
+    };
+    apriGrafico(type, colorMap[type]);
+  }
+}
 
-  <script>
-    requireAuth();
-    window.addEventListener('DOMContentLoaded', () => {
-      loadVetrineContent();
-    });
-  </script>
-</body>
-</html>
+function renderArticles() {
+  const grid = document.getElementById('articlesGrid');
+  if (!grid) return;
+  
+  const start = (currentPage - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  const pageArticles = filteredArticles.slice(start, end);
+  
+  if (pageArticles.length === 0) {
+    grid.innerHTML = `
+      <div class="wip-container">
+        <div class="wip-icon"><i class="fas fa-inbox"></i></div>
+        <div class="wip-text">Nessun Articolo</div>
+        <div class="wip-subtext">Aggiungi il tuo primo articolo o modifica i filtri</div>
+      </div>
+    `;
+    return;
+  }
+  
+  // Render in base alla modalità
+  if (viewMode === 'list') {
+    grid.className = 'articles-list';
+    grid.innerHTML = pageArticles.map(article => createArticleListItem(article)).join('');
+  } else {
+    grid.className = 'articles-grid';
+    grid.innerHTML = pageArticles.map(article => createArticleCard(article)).join('');
+  }
+}
+
+// ========== VISTA LISTA - iPhone Optimized ==========
+function createArticleListItem(article) {
+  const delta = (Number(article.ValoreAttuale) || 0) - (Number(article.PrezzoPagato) || 0);
+  const deltaClass = delta >= 0 ? 'profit' : 'loss';
+  const foto = article.foto_principale || article.image_url || '';
+  
+  // Info gradazione
+  let gradedInfo = '';
+  if (article.Categoria === 'Carte gradate' && article.casa_gradazione && article.voto_gradazione) {
+    gradedInfo = `<span class="list-graded">${article.casa_gradazione} ${article.voto_gradazione}</span>`;
+  }
+  
+  return `
+    <div class="list-item" onclick="toggleArticleCard(${article.id})">
+      <div class="list-image">
+        <img src="${foto || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%231a1a1a%22 width=%22100%22 height=%22100%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23fbbf24%22 font-size=%2230%22>📷</text></svg>'}" alt="">
+        ${article.Presente 
+          ? '<span class="list-status presente"><i class="fas fa-check"></i></span>' 
+          : '<span class="list-status assente"><i class="fas fa-times"></i></span>'}
+      </div>
+      
+      <div class="list-info">
+        <div class="list-name">${article.Nome || 'Senza nome'}</div>
+        <div class="list-meta">
+          <span class="list-category">${article.Categoria || 'N/D'}</span>
+          ${gradedInfo}
+          ${article.in_vetrina ? '<span class="list-vetrina"><i class="fas fa-store"></i></span>' : ''}
+        </div>
+      </div>
+      
+      <div class="list-values">
+        <div class="list-price">${Number(article.ValoreAttuale || 0).toFixed(0)}€</div>
+        <div class="list-delta ${deltaClass}">${delta >= 0 ? '+' : ''}${delta.toFixed(0)}€</div>
+      </div>
+      
+      <div class="list-arrow">
+        <i class="fas fa-chevron-right"></i>
+      </div>
+    </div>
+  `;
+}
+
+// ========== VISTA GRIGLIA ==========
+
+function createArticleCard(article) {
+  const delta = (Number(article.ValoreAttuale) || 0) - (Number(article.PrezzoPagato) || 0);
+  const deltaClass = delta >= 0 ? 'profit' : 'loss';
+  const deltaIcon = delta >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+  const deltaPercent = article.PrezzoPagato > 0 ? ((delta / article.PrezzoPagato) * 100) : 0;
+  const rating = article.ValutazioneStato || 0;
+  const ratingPercent = (rating / 10) * 100;
+  
+  const foto = article.foto_principale || article.image_url || '';
+  const foto2 = article.foto_2 || '';
+  const foto3 = article.foto_3 || '';
+  const foto4 = article.foto_4 || '';
+  
+  const hasGallery = foto2 || foto3 || foto4;
+  
+  // Calcolo ROI e margine potenziale
+  const roi = article.PrezzoPagato > 0 ? ((delta / article.PrezzoPagato) * 100).toFixed(1) : '0.0';
+  const marginePotenziale = article.prezzo_vendita ? (Number(article.prezzo_vendita) - Number(article.PrezzoPagato || 0)) : null;
+  const marginePercent = (article.prezzo_vendita && article.PrezzoPagato > 0) 
+    ? (((article.prezzo_vendita - article.PrezzoPagato) / article.PrezzoPagato) * 100).toFixed(1) 
+    : null;
+  
+  return `
+    <div class="article-card" id="card-${article.id}">
+      <!-- IMMAGINE CHE SI INGRANDISCE -->
+      <div class="article-image-wrapper" onclick="toggleArticleCard(${article.id})">
+        <img src="${foto || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 400%22><rect fill=%22%231a1a1a%22 width=%22400%22 height=%22400%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23fbbf24%22 font-size=%2240%22>📷</text></svg>'}" alt="${article.Nome}" class="article-main-image">
+        
+        <!-- Badge Presenza -->
+        ${article.Presente 
+          ? '<div class="article-badge badge-presente"><i class="fas fa-check"></i> PRESENTE</div>' 
+          : '<div class="article-badge badge-assente"><i class="fas fa-times"></i> ASSENTE</div>'}
+        
+        <!-- Badge Gradazione -->
+        ${article.Categoria === 'Carte gradate' && article.casa_gradazione && article.voto_gradazione
+          ? `<div class="article-badge badge-graded" style="top: 45px;"><i class="fas fa-award"></i> ${article.casa_gradazione} ${article.voto_gradazione}</div>`
+          : ''}
+        
+        <!-- Badge Vetrina -->
+        ${article.in_vetrina 
+          ? `<div class="article-badge badge-vetrina" style="top: ${article.Categoria === 'Carte gradate' && article.casa_gradazione ? '85px' : '45px'};"><i class="fas fa-store"></i> IN VETRINA</div>` 
+          : ''}
+      </div>
+      
+      <!-- INFO COMPATTA -->
+      <div class="article-compact-info">
+        <div class="article-name" onclick="toggleArticleCard(${article.id})">${article.Nome || 'Senza nome'}</div>
+        <div class="article-category"><i class="fas fa-layer-group"></i> ${article.Categoria || 'Nessuna categoria'}</div>
+        
+        <!-- Valutazione Moderna -->
+        <div class="article-rating-modern">
+          <div class="rating-number-display">
+            <span class="rating-num">${rating}</span>
+            <span class="rating-sep">/</span>
+            <span class="rating-max">10</span>
+          </div>
+          <div class="rating-bar-wrap">
+            <div class="rating-bar-fill" style="width: ${ratingPercent}%;"></div>
+          </div>
+        </div>
+        
+        <!-- Valori Finanziari -->
+        <div class="article-values-grid">
+          <div class="value-box">
+            <div class="value-box-label">VALORE</div>
+            <div class="value-box-amount">${Number(article.ValoreAttuale || 0).toFixed(2)} €</div>
+          </div>
+          <div class="value-box">
+            <div class="value-box-label">DELTA</div>
+            <div class="value-box-amount ${deltaClass}">${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- DETTAGLI ESPANSI -->
+      <div class="article-expanded-section">
+        
+        <!-- 🔥 SEZIONE FINTECH - PANORAMICA INVESTIMENTO -->
+        <div class="fintech-portfolio">
+          
+          <!-- Header con Valore Totale -->
+          <div class="portfolio-header">
+            <div class="portfolio-main-value">
+              <span class="portfolio-label">VALORE DI MERCATO</span>
+              <span class="portfolio-amount">${Number(article.ValoreAttuale || 0).toFixed(2)} <small>EUR</small></span>
+            </div>
+            <div class="portfolio-change ${deltaClass}">
+              <i class="fas ${deltaIcon}"></i>
+              <span>${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €</span>
+              <span class="change-percent">(${delta >= 0 ? '+' : ''}${roi}%)</span>
+            </div>
+          </div>
+          
+          <!-- Grafico Mini Simulato -->
+          <div class="portfolio-mini-chart">
+            <div class="mini-chart-line ${deltaClass}"></div>
+            <div class="mini-chart-dot ${deltaClass}"></div>
+          </div>
+          
+          <!-- Metriche Finanziarie -->
+          <div class="fintech-metrics">
+            
+            <!-- Prezzo Acquisto -->
+            <div class="metric-card">
+              <div class="metric-icon cost">
+                <i class="fas fa-shopping-cart"></i>
+              </div>
+              <div class="metric-info">
+                <span class="metric-label">Prezzo Acquisto</span>
+                <span class="metric-value">${Number(article.PrezzoPagato || 0).toFixed(2)} €</span>
+              </div>
+            </div>
+            
+            <!-- Guadagno/Perdita -->
+            <div class="metric-card">
+              <div class="metric-icon ${deltaClass}">
+                ${delta >= 0 ? '<i class="fas fa-chart-line"></i>' : ''}
+              </div>
+              <div class="metric-info">
+                <span class="metric-label">${delta >= 0 ? 'Guadagno Potenziale' : 'Perdita Potenziale'}</span>
+                <span class="metric-value ${deltaClass}">${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €</span>
+              </div>
+              <div class="metric-badge ${deltaClass}">
+                <i class="fas ${deltaIcon}"></i> ${delta >= 0 ? '+' : ''}${roi}%
+              </div>
+            </div>
+            
+            <!-- Rendimento -->
+            <div class="metric-card">
+              <div class="metric-icon roi">
+                <i class="fas fa-percentage"></i>
+              </div>
+              <div class="metric-info">
+                <span class="metric-label">Rendimento</span>
+                <span class="metric-value ${deltaClass}">${delta >= 0 ? '+' : ''}${roi}%</span>
+              </div>
+            </div>
+            
+            ${article.prezzo_vendita ? `
+            <!-- Prezzo Vendita -->
+            <div class="metric-card highlight">
+              <div class="metric-icon target">
+                <i class="fas fa-bullseye"></i>
+              </div>
+              <div class="metric-info">
+                <span class="metric-label">Prezzo Vendita</span>
+                <span class="metric-value">${Number(article.prezzo_vendita).toFixed(2)} €</span>
+              </div>
+              <div class="metric-badge ${marginePotenziale >= 0 ? 'profit' : 'loss'}">
+                <i class="fas fa-coins"></i> +${marginePercent}%
+              </div>
+            </div>
+            
+            <!-- Margine Netto -->
+            <div class="metric-card">
+              <div class="metric-icon margin">
+                <i class="fas fa-hand-holding-usd"></i>
+              </div>
+              <div class="metric-info">
+                <span class="metric-label">Margine Netto</span>
+                <span class="metric-value profit">+${marginePotenziale.toFixed(2)} €</span>
+              </div>
+            </div>
+            ` : ''}
+            
+          </div>
+          
+          <!-- Timestamp -->
+          <div class="portfolio-timestamp">
+            <i class="fas fa-clock"></i> 
+            Aggiornato: ${new Date(article.updated_at || article.created_at).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+          </div>
+          
+        </div>
+        
+        ${article.casa_gradazione ? `
+        <!-- Sezione Gradazione -->
+        <div class="expanded-box">
+          <div class="expanded-box-title"><i class="fas fa-certificate"></i> CERTIFICAZIONE</div>
+          <div class="grading-display">
+            <div class="grading-house">
+              <div class="grading-icon"><i class="fas fa-award"></i></div>
+              <span class="grading-name">${article.casa_gradazione === 'Altra casa' ? article.altra_casa_gradazione : article.casa_gradazione}</span>
+            </div>
+            <div class="grading-score">
+              <span class="score-value">${article.voto_gradazione || '-'}</span>
+              <span class="score-label">VOTO</span>
+            </div>
+          </div>
+        </div>
+        ` : ''}
+        
+        ${article.Descrizione ? `
+        <!-- Sezione Descrizione -->
+        <div class="expanded-box">
+          <div class="expanded-box-title"><i class="fas fa-align-left"></i> NOTE</div>
+          <div class="expanded-box-content">${article.Descrizione}</div>
+        </div>
+        ` : ''}
+        
+        ${hasGallery ? `
+        <!-- Galleria Foto -->
+        <div class="expanded-box">
+          <div class="expanded-box-title"><i class="fas fa-images"></i> GALLERIA</div>
+          <div class="gallery-grid">
+            <img src="${foto}" onclick="openArticleGallery(${article.id}, 0)" class="gallery-thumb">
+            ${foto2 ? `<img src="${foto2}" onclick="openArticleGallery(${article.id}, 1)" class="gallery-thumb">` : ''}
+            ${foto3 ? `<img src="${foto3}" onclick="openArticleGallery(${article.id}, 2)" class="gallery-thumb">` : ''}
+            ${foto4 ? `<img src="${foto4}" onclick="openArticleGallery(${article.id}, 3)" class="gallery-thumb">` : ''}
+          </div>
+        </div>
+        ` : ''}
+        
+        <!-- Azioni -->
+        <div class="expanded-actions">
+          <button class="action-btn btn-edit" onclick="apriModifica(${article.id})">
+            <i class="fas fa-edit"></i> MODIFICA
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function toggleArticleCard(articleId) {
+  const card = document.getElementById(`card-${articleId}`);
+  if (!card) return;
+  
+  const wasExpanded = card.classList.contains('expanded');
+  
+  // Chiudi tutte le altre card
+  document.querySelectorAll('.article-card.expanded').forEach(c => {
+    c.classList.remove('expanded');
+  });
+  
+  // Toggle questa card
+  if (!wasExpanded) {
+    card.classList.add('expanded');
+    // Scroll to card
+    setTimeout(() => {
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+}
+
+// ========== GALLERIA IMMAGINI CON NAVIGAZIONE ==========
+function openArticleGallery(articleId, startIndex = 0) {
+  const article = allArticles.find(a => a.id === articleId);
+  if (!article) return;
+  
+  // Raccogli tutte le foto
+  const images = [
+    article.foto_principale || article.image_url,
+    article.foto_2,
+    article.foto_3,
+    article.foto_4,
+    article.foto_5,
+    article.foto_6
+  ].filter(img => img && img.trim());
+  
+  if (images.length === 0) return;
+  
+  // Usa NodoGalleria se disponibile, altrimenti fallback
+  if (window.NodoGalleria) {
+    NodoGalleria.open(images, startIndex);
+  } else {
+    openFullscreen(images[startIndex]);
+  }
+}
+
+function openFullscreen(imageUrl) {
+  // Fallback se NodoGalleria non è disponibile
+  if (window.NodoGalleria) {
+    NodoGalleria.open([imageUrl], 0);
+    return;
+  }
+  
+  const overlay = document.createElement('div');
+  overlay.className = 'fullscreen-overlay';
+  overlay.innerHTML = `
+    <img src="${imageUrl}" class="fullscreen-image">
+    <button class="fullscreen-close" onclick="this.parentElement.remove()">✕</button>
+  `;
+  overlay.onclick = (e) => {
+    if (e.target === overlay) overlay.remove();
+  };
+  document.body.appendChild(overlay);
+}
+
+// ========== PAGINAZIONE ==========
+function updatePagination() {
+  const pagination = document.getElementById('pagination');
+  const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
+  
+  const start = (currentPage - 1) * itemsPerPage + 1;
+  const end = Math.min(currentPage * itemsPerPage, filteredArticles.length);
+  
+  // Aggiorna ENTRAMBE le paginazioni (top e bottom)
+  ['', 'Bottom'].forEach(suffix => {
+    const pageStartEl = document.getElementById('pageStart' + suffix);
+    const pageEndEl = document.getElementById('pageEnd' + suffix);
+    const totalItemsEl = document.getElementById('totalItems' + suffix);
+    const prevBtn = document.getElementById('prevBtn' + suffix);
+    const nextBtn = document.getElementById('nextBtn' + suffix);
+    
+    if (pageStartEl) pageStartEl.textContent = filteredArticles.length > 0 ? start : 0;
+    if (pageEndEl) pageEndEl.textContent = end;
+    if (totalItemsEl) totalItemsEl.textContent = filteredArticles.length;
+    
+    if (prevBtn) prevBtn.disabled = currentPage <= 1;
+    if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+  });
+  
+  // Mostra/nascondi paginazione bottom solo se più di una pagina
+  const paginationBottom = document.getElementById('paginationBottom');
+  if (paginationBottom) {
+    paginationBottom.style.display = totalPages > 1 ? 'flex' : 'none';
+  }
+  
+  // Aggiorna contatore vista
+  const viewCount = document.getElementById('viewCount');
+  if (viewCount) {
+    viewCount.textContent = filteredArticles.length;
+  }
+  
+  // Pagination classica (se esiste)
+  if (!pagination) return;
+  
+  if (totalPages <= 1) {
+    pagination.innerHTML = '';
+    return;
+  }
+  
+  let html = '';
+  
+  // Prev
+  html += `<button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+    <i class="fas fa-chevron-left"></i>
+  </button>`;
+  
+  // Pages
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+      html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+    } else if (i === currentPage - 2 || i === currentPage + 2) {
+      html += `<span class="page-dots">...</span>`;
+    }
+  }
+  
+  // Next
+  html += `<button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+    <i class="fas fa-chevron-right"></i>
+  </button>`;
+  
+  pagination.innerHTML = html;
+}
+
+function goToPage(page) {
+  const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
+  if (page < 1 || page > totalPages) return;
+  
+  currentPage = page;
+  renderArticles();
+  updatePagination();
+  
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// 🔥 Funzioni paginazione
+function nextPage() {
+  const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
+  if (currentPage < totalPages) {
+    goToPage(currentPage + 1);
+  }
+}
+
+function previousPage() {
+  if (currentPage > 1) {
+    goToPage(currentPage - 1);
+  }
+}
+
+// ========== FILTRI ==========
+
+// Toggle apertura/chiusura filtri
+function toggleFilters() {
+  const body = document.getElementById('filterBody');
+  const btn = document.querySelector('.filter-expand-btn');
+  
+  if (body) body.classList.toggle('open');
+  if (btn) btn.classList.toggle('active');
+}
+
+// Conta filtri attivi e mostra badge
+function updateFilterBadge() {
+  let count = 0;
+  
+  if (document.getElementById('fCategoria')?.value) count++;
+  if (document.getElementById('fCasaGradazione')?.value) count++;
+  if (document.getElementById('fVotoGradazione')?.value) count++;
+  if (parseInt(document.getElementById('fValoreMin')?.value) > 0) count++;
+  if (parseInt(document.getElementById('fValoreMax')?.value) < 10000) count++;
+  if (document.getElementById('fStato')?.value) count++;
+  if (!document.getElementById('btnPresenti')?.classList.contains('active')) count++;
+  if (!document.getElementById('btnAssenti')?.classList.contains('active')) count++;
+  if (document.getElementById('btnVetrina')?.classList.contains('active')) count++;
+  if (!document.getElementById('btnProfit')?.classList.contains('active')) count++;
+  if (!document.getElementById('btnLoss')?.classList.contains('active')) count++;
+  
+  const badge = document.getElementById('filterBadge');
+  if (badge) {
+    badge.textContent = count > 0 ? count : '';
+  }
+}
+
+// Slider doppio valore
+function updateRangeSlider() {
+  const minInput = document.getElementById('fValoreMin');
+  const maxInput = document.getElementById('fValoreMax');
+  const valueDisplay = document.getElementById('rangeValue');
+  const progress = document.getElementById('rangeProgress');
+  
+  if (!minInput || !maxInput) return;
+  
+  let minVal = parseInt(minInput.value);
+  let maxVal = parseInt(maxInput.value);
+  
+  // Non permettere che si incrocino
+  if (minVal > maxVal - 100) {
+    if (this === minInput) {
+      minInput.value = maxVal - 100;
+      minVal = maxVal - 100;
+    } else {
+      maxInput.value = minVal + 100;
+      maxVal = minVal + 100;
+    }
+  }
+  
+  // Aggiorna display
+  if (valueDisplay) {
+    valueDisplay.textContent = `${minVal}€ - ${maxVal}€`;
+  }
+  
+  // Aggiorna barra progresso
+  if (progress) {
+    const percent1 = (minVal / 10000) * 100;
+    const percent2 = (maxVal / 10000) * 100;
+    progress.style.left = percent1 + '%';
+    progress.style.width = (percent2 - percent1) + '%';
+  }
+  
+  applicaFiltri();
+}
+
+// Gestisce mostra/nascondi filtri carte gradate
+function gestisciFiltroCategoria() {
+  const categoria = document.getElementById('fCategoria')?.value || '';
+  const gradedSection = document.getElementById('filterGradedSection');
+  
+  if (gradedSection) {
+    gradedSection.style.display = categoria === 'Carte gradate' ? 'block' : 'none';
+  }
+  
+  applicaFiltri();
+}
+
+// Toggle pulsante filtro
+function toggleFilterBtn(btnId) {
+  const btn = document.getElementById(btnId);
+  if (btn) {
+    btn.classList.toggle('active');
+    applicaFiltri();
+  }
+}
+
+// Applica tutti i filtri
+function applicaFiltri() {
+  const nome = document.getElementById('fNome')?.value?.toLowerCase() || '';
+  const categoria = document.getElementById('fCategoria')?.value || '';
+  const casaGradazione = document.getElementById('fCasaGradazione')?.value || '';
+  const votoGradazione = parseFloat(document.getElementById('fVotoGradazione')?.value) || 0;
+  const valoreMin = parseFloat(document.getElementById('fValoreMin')?.value) || 0;
+  const valoreMax = parseFloat(document.getElementById('fValoreMax')?.value) || 10000;
+  const statoMin = parseInt(document.getElementById('fStato')?.value) || 0;
+  
+  const mostraPresenti = document.getElementById('btnPresenti')?.classList.contains('active') ?? true;
+  const mostraAssenti = document.getElementById('btnAssenti')?.classList.contains('active') ?? true;
+  const soloVetrina = document.getElementById('btnVetrina')?.classList.contains('active') ?? false;
+  const mostraGuadagno = document.getElementById('btnProfit')?.classList.contains('active') ?? true;
+  const mostraPerdita = document.getElementById('btnLoss')?.classList.contains('active') ?? true;
+  
+  filteredArticles = allArticles.filter(article => {
+    // Filtro nome
+    const matchNome = !nome || 
+      (article.Nome && article.Nome.toLowerCase().includes(nome)) ||
+      (article.Descrizione && article.Descrizione.toLowerCase().includes(nome));
+    
+    // Filtro categoria
+    const matchCategoria = !categoria || article.Categoria === categoria;
+    
+    // Filtro carte gradate
+    let matchGraded = true;
+    if (categoria === 'Carte gradate') {
+      if (casaGradazione) {
+        matchGraded = article.casa_gradazione === casaGradazione;
+      }
+      if (matchGraded && votoGradazione > 0) {
+        matchGraded = (article.voto_gradazione || 0) >= votoGradazione;
+      }
+    }
+    
+    // Filtro valore
+    const valore = Number(article.ValoreAttuale) || 0;
+    const matchValore = valore >= valoreMin && valore <= valoreMax;
+    
+    // Filtro stato/valutazione
+    const stato = Number(article.ValutazioneStato) || 0;
+    const matchStato = !statoMin || stato >= statoMin;
+    
+    // Filtro presenza
+    const isPresente = article.Presente === true;
+    const matchPresenza = (mostraPresenti && isPresente) || (mostraAssenti && !isPresente);
+    
+    // Filtro vetrina
+    const matchVetrina = !soloVetrina || article.in_vetrina === true;
+    
+    // Filtro guadagno/perdita
+    const delta = (Number(article.ValoreAttuale) || 0) - (Number(article.PrezzoPagato) || 0);
+    const isGuadagno = delta >= 0;
+    const matchDelta = (mostraGuadagno && isGuadagno) || (mostraPerdita && !isGuadagno);
+    
+    return matchNome && matchCategoria && matchGraded && matchValore && matchStato && matchPresenza && matchVetrina && matchDelta;
+  });
+  
+  currentPage = 1;
+  renderArticles();
+  updatePagination();
+  updateFilterBadge();
+}
+
+// Reset tutti i filtri
+function resetFiltri() {
+  // Reset campi
+  const fNome = document.getElementById('fNome');
+  const fCategoria = document.getElementById('fCategoria');
+  const fCasaGradazione = document.getElementById('fCasaGradazione');
+  const fVotoGradazione = document.getElementById('fVotoGradazione');
+  const fValoreMin = document.getElementById('fValoreMin');
+  const fValoreMax = document.getElementById('fValoreMax');
+  const fStato = document.getElementById('fStato');
+  const filterGradedSection = document.getElementById('filterGradedSection');
+  
+  if (fNome) fNome.value = '';
+  if (fCategoria) fCategoria.value = '';
+  if (fCasaGradazione) fCasaGradazione.value = '';
+  if (fVotoGradazione) fVotoGradazione.value = '';
+  if (fValoreMin) fValoreMin.value = 0;
+  if (fValoreMax) fValoreMax.value = 10000;
+  if (fStato) fStato.value = '';
+  if (filterGradedSection) filterGradedSection.style.display = 'none';
+  
+  // Reset slider display
+  const valueDisplay = document.getElementById('rangeValue');
+  const progress = document.getElementById('rangeProgress');
+  if (valueDisplay) valueDisplay.textContent = '0€ - 10000€';
+  if (progress) {
+    progress.style.left = '0%';
+    progress.style.width = '100%';
+  }
+  
+  // Reset toggle buttons
+  ['btnPresenti', 'btnAssenti', 'btnProfit', 'btnLoss'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('active');
+  });
+  
+  const btnVetrina = document.getElementById('btnVetrina');
+  if (btnVetrina) btnVetrina.classList.remove('active');
+  
+  // Reset articoli
+  filteredArticles = [...allArticles];
+  currentPage = 1;
+  renderArticles();
+  updatePagination();
+}
+
+// Funzione legacy
+function cercaArticoli() {
+  applicaFiltri();
+}
+
+// ========== MODAL AGGIUNGI ==========
+function openAddModal() {
+  const modal = document.getElementById('modalAdd');
+  if (modal) {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeAddModal() {
+  const modal = document.getElementById('modalAdd');
+  if (modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    
+    // Reset form
+    const form = document.getElementById('formAdd');
+    if (form) form.reset();
+    
+    // 🔥 Reset nuovo sistema immagini
+    resetAddImages();
+    
+    // Reset campi gradazione
+    gestisciCarteGradate('', 'Add');
+  }
+}
+
+// ========== SISTEMA UPLOAD IMMAGINI ==========
+let addImages = [];
+let editImages = [];
+let editExistingUrls = [];
+const MAX_IMAGES = 6;
+
+// Funzione chiamata quando si selezionano file - FORM AGGIUNGI
+function onAddImageSelect(input) {
+  const files = Array.from(input.files);
+  console.log('📸 ADD - File selezionati:', files.length);
+  
+  if (addImages.length + files.length > MAX_IMAGES) {
+    alert(`Massimo ${MAX_IMAGES} foto! Ne hai già ${addImages.length}`);
+    input.value = '';
+    return;
+  }
+  
+  files.forEach(file => {
+    if (file.type.startsWith('image/')) {
+      addImages.push(file);
+      console.log('✅ Aggiunta:', file.name, 'Totale:', addImages.length);
+    }
+  });
+  
+  input.value = '';
+  renderAddImages();
+}
+
+// Funzione chiamata quando si selezionano file - FORM MODIFICA
+function onEditImageSelect(input) {
+  const files = Array.from(input.files);
+  const existingCount = editExistingUrls.filter(u => u).length;
+  console.log('📸 EDIT - File selezionati:', files.length, 'Esistenti:', existingCount);
+  
+  if (existingCount + editImages.length + files.length > MAX_IMAGES) {
+    alert(`Massimo ${MAX_IMAGES} foto!`);
+    input.value = '';
+    return;
+  }
+  
+  files.forEach(file => {
+    if (file.type.startsWith('image/')) {
+      editImages.push(file);
+    }
+  });
+  
+  input.value = '';
+  renderEditImages();
+}
+
+// Render griglia ADD
+function renderAddImages() {
+  const container = document.getElementById('addImagesContainer');
+  if (!container) return;
+  
+  let html = '<div class="img-grid">';
+  
+  addImages.forEach((file, i) => {
+    html += `
+      <div class="img-item">
+        <img src="${URL.createObjectURL(file)}">
+        <button type="button" class="img-remove" onclick="removeAddImage(${i})">×</button>
+        <span class="img-num">${i + 1}</span>
+      </div>
+    `;
+  });
+  
+  if (addImages.length < MAX_IMAGES) {
+    html += `
+      <label class="img-add" for="addImageInput">
+        <i class="fas fa-plus"></i>
+        <span>${addImages.length}/${MAX_IMAGES}</span>
+      </label>
+    `;
+  }
+  
+  html += '</div>';
+  if (addImages.length === 0) {
+    html += '<p class="img-hint">📷 La prima foto sarà quella principale</p>';
+  }
+  
+  container.innerHTML = html;
+}
+
+// Render griglia EDIT
+function renderEditImages() {
+  const container = document.getElementById('editImagesContainer');
+  if (!container) return;
+  
+  const existingCount = editExistingUrls.filter(u => u).length;
+  const totalCount = existingCount + editImages.length;
+  
+  let html = '<div class="img-grid">';
+  let num = 1;
+  
+  // URL esistenti
+  editExistingUrls.forEach((url, i) => {
+    if (url) {
+      html += `
+        <div class="img-item">
+          <img src="${url}">
+          <button type="button" class="img-remove" onclick="removeExistingImage(${i})">×</button>
+          <span class="img-num">${num++}</span>
+        </div>
+      `;
+    }
+  });
+  
+  // Nuovi file
+  editImages.forEach((file, i) => {
+    html += `
+      <div class="img-item">
+        <img src="${URL.createObjectURL(file)}">
+        <button type="button" class="img-remove" onclick="removeEditImage(${i})">×</button>
+        <span class="img-num">${num++}</span>
+      </div>
+    `;
+  });
+  
+  if (totalCount < MAX_IMAGES) {
+    html += `
+      <label class="img-add" for="editImageInput">
+        <i class="fas fa-plus"></i>
+        <span>${totalCount}/${MAX_IMAGES}</span>
+      </label>
+    `;
+  }
+  
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+// Rimuovi immagini
+function removeAddImage(index) {
+  addImages.splice(index, 1);
+  renderAddImages();
+}
+
+function removeEditImage(index) {
+  editImages.splice(index, 1);
+  renderEditImages();
+}
+
+function removeExistingImage(index) {
+  editExistingUrls[index] = null;
+  renderEditImages();
+}
+
+// Reset
+function resetAddImages() {
+  addImages = [];
+  renderAddImages();
+}
+
+function resetEditImages() {
+  editImages = [];
+  editExistingUrls = [];
+  renderEditImages();
+}
+
+// Carica immagini esistenti per modifica
+function loadExistingImages(article) {
+  editImages = [];
+  editExistingUrls = [
+    article.foto_principale || article.image_url || null,
+    article.foto_2 || null,
+    article.foto_3 || null,
+    article.foto_4 || null,
+    article.foto_5 || null,
+    article.foto_6 || null
+  ];
+  renderEditImages();
+}
+
+async function uploadImage(file) {
+  if (!file) return null;
+  
+  const user = getCurrentUser();
+  if (!user) return null;
+  
+  const fileName = `${user.id}/${Date.now()}_${file.name}`;
+  
+  const { data, error } = await supabaseClient.storage
+    .from('product-images')
+    .upload(fileName, file);
+  
+  if (error) {
+    console.error('❌ Errore upload:', error);
+    return null;
+  }
+  
+  const { data: urlData } = supabaseClient.storage
+    .from('product-images')
+    .getPublicUrl(fileName);
+  
+  return urlData?.publicUrl || null;
+}
+
+async function aggiungiArticolo(event) {
+  event.preventDefault();
+  
+  const user = getCurrentUser();
+  if (!user || !user.id) {
+    alert('❌ Devi essere loggato per aggiungere articoli');
+    return;
+  }
+  
+  // 🔥 Mostra loader operazione
+  if (window.NodoLoader) {
+    NodoLoader.showOperation('Salvataggio articolo...');
+  }
+  
+  const form = event.target;
+  const formData = new FormData(form);
+  
+  const msg = document.getElementById('addMsg');
+  msg.className = 'msg';
+  msg.textContent = '⏳ Caricamento...';
+  msg.style.display = 'block';
+  
+  // 🔥 DEBUG: Verifica array immagini
+  console.log('🖼️ addImages al momento del salvataggio:', addImages.length, addImages);
+  
+  // 🔥 NUOVO SISTEMA: Upload immagini dall'array addImages
+  const uploadedUrls = [];
+  
+  if (addImages.length === 0) {
+    console.log('⚠️ Nessuna immagine da caricare');
+  }
+  
+  for (let i = 0; i < addImages.length; i++) {
+    msg.textContent = `⏳ Caricamento foto ${i + 1}/${addImages.length}...`;
+    console.log(`📤 Upload foto ${i + 1}:`, addImages[i].name);
+    const url = await uploadImage(addImages[i]);
+    console.log(`📥 URL ottenuto:`, url);
+    if (url) {
+      uploadedUrls.push(url);
+    }
+  }
+  
+  console.log('✅ URL caricati:', uploadedUrls);
+  
+  const valore = parseFloat(formData.get('ValoreAttuale')) || 0;
+  const prezzo = parseFloat(formData.get('PrezzoPagato')) || 0;
+  
+  const inVetrina = document.getElementById('inVetrinaAdd')?.checked || false;
+  const prezzoVendita = inVetrina ? parseFloat(document.getElementById('prezzoVenditaAdd')?.value) || null : null;
+  
+  const categoria = formData.get('Categoria');
+  
+  // Campi gradazione
+  let casaGradazione = null;
+  let altraCasaGradazione = null;
+  let votoGradazione = null;
+  
+  if (categoria === 'Carte gradate') {
+    const casaEl = document.getElementById('casaGradazioneAdd');
+    const altraCasaEl = document.getElementById('altraCasaGradazioneAdd');
+    const votoEl = document.getElementById('votoGradazioneAdd');
+    
+    if (casaEl) casaGradazione = casaEl.value || null;
+    if (casaGradazione === 'Altra casa' && altraCasaEl) altraCasaGradazione = altraCasaEl.value || null;
+    if (votoEl) votoGradazione = parseFloat(votoEl.value) || null;
+  }
+  
+  const articolo = {
+    user_id: user.id,
+    Nome: formData.get('Nome'),
+    Descrizione: formData.get('Descrizione') || null,
+    Categoria: categoria || null,
+    ValoreAttuale: valore,
+    PrezzoPagato: prezzo,
+    Delta: valore - prezzo,
+    ValutazioneStato: formData.get('ValutazioneStato') ? parseInt(formData.get('ValutazioneStato')) : null,
+    Presente: formData.get('Presente') === 'on',
+    image_url: uploadedUrls[0] || null,
+    foto_principale: uploadedUrls[0] || null,
+    foto_2: uploadedUrls[1] || null,
+    foto_3: uploadedUrls[2] || null,
+    foto_4: uploadedUrls[3] || null,
+    foto_5: uploadedUrls[4] || null,
+    foto_6: uploadedUrls[5] || null,
+    in_vetrina: inVetrina,
+    prezzo_vendita: prezzoVendita,
+    casa_gradazione: casaGradazione,
+    altra_casa_gradazione: altraCasaGradazione,
+    voto_gradazione: votoGradazione
+  };
+  
+  console.log('📝 Articolo da salvare:', articolo);
+  
+  const { error } = await supabaseClient.from('Articoli').insert([articolo]);
+  
+  if (error) {
+    msg.className = 'msg error';
+    msg.textContent = '❌ ERRORE: ' + error.message;
+    console.error('❌ Errore salvataggio:', error);
+    
+    // 🔥 Nascondi loader su errore
+    if (window.NodoLoader) NodoLoader.hideOperation();
+  } else {
+    msg.className = 'msg success';
+    msg.textContent = '✅ ARTICOLO AGGIUNTO!';
+    
+    // Reset array immagini
+    addImages = [];
+    
+    setTimeout(() => {
+      closeAddModal();
+      // 🔥 Nascondi loader DOPO chiusura modal
+      if (window.NodoLoader) NodoLoader.hideOperation();
+      caricaArticoli();
+    }, 1500);
+  }
+}
+
+// ========== MODAL MODIFICA ==========
+async function apriModifica(articleId) {
+  const article = allArticles.find(a => a.id === articleId);
+  if (!article) return;
+  
+  console.log('📝 Apertura modifica articolo:', article);
+  
+  const modal = document.getElementById('modalEdit');
+  if (!modal) return;
+  
+  // Popola i campi
+  document.getElementById('editId').value = article.id;
+  document.getElementById('editNome').value = article.Nome || '';
+  document.getElementById('editDescrizione').value = article.Descrizione || '';
+  document.getElementById('editCategoria').value = article.Categoria || '';
+  document.getElementById('editValoreAttuale').value = article.ValoreAttuale || 0;
+  document.getElementById('editPrezzoPagato').value = article.PrezzoPagato || 0;
+  document.getElementById('editDelta').value = ((article.ValoreAttuale || 0) - (article.PrezzoPagato || 0)).toFixed(2) + ' €';
+  document.getElementById('editStato').value = article.ValutazioneStato || '';
+  document.getElementById('editPresente').checked = article.Presente || false;
+  document.getElementById('editInVetrina').checked = article.in_vetrina || false;
+  document.getElementById('editPrezzoVendita').value = article.prezzo_vendita || '';
+  
+  console.log('💰 Prezzi caricati - Valore:', article.ValoreAttuale, 'Pagato:', article.PrezzoPagato, 'Vendita:', article.prezzo_vendita);
+  
+  // Mostra/nascondi prezzo vendita
+  const prezzoGroup = document.getElementById('prezzoVenditaGroupEdit');
+  if (prezzoGroup) {
+    prezzoGroup.style.display = article.in_vetrina ? 'block' : 'none';
+  }
+  
+  // Gestisci carte gradate
+  gestisciCarteGradate(article.Categoria || '', 'Edit');
+  
+  if (article.Categoria === 'Carte gradate') {
+    console.log('🏆 Carte gradate - Casa:', article.casa_gradazione, 'Voto:', article.voto_gradazione);
+    
+    // Aspetta un attimo che i campi siano visibili
+    setTimeout(() => {
+      const casaSelect = document.getElementById('casaGradazioneEdit');
+      const altraCasaInput = document.getElementById('altraCasaGradazioneEdit');
+      const votoInput = document.getElementById('votoGradazioneEdit');
+      
+      if (casaSelect) casaSelect.value = article.casa_gradazione || '';
+      gestisciAltraCasa(article.casa_gradazione || '', 'Edit');
+      if (altraCasaInput) altraCasaInput.value = article.altra_casa_gradazione || '';
+      if (votoInput) votoInput.value = article.voto_gradazione || '';
+    }, 50);
+  }
+  
+  // 🔥 NUOVO SISTEMA: Carica immagini esistenti
+  loadExistingImages(article);
+  
+  // Reset msg
+  const msg = document.getElementById('editMsg');
+  if (msg) {
+    msg.style.display = 'none';
+    msg.textContent = '';
+  }
+  
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeEditModal() {
+  const modal = document.getElementById('modalEdit');
+  if (modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    
+    // 🔥 Reset immagini
+    resetEditImages();
+  }
+}
+
+function calcolaDeltaEdit() {
+  const valore = parseFloat(document.getElementById('editValoreAttuale')?.value) || 0;
+  const prezzo = parseFloat(document.getElementById('editPrezzoPagato')?.value) || 0;
+  const delta = valore - prezzo;
+  
+  const deltaInput = document.getElementById('editDelta');
+  if (deltaInput) {
+    deltaInput.value = delta.toFixed(2) + ' €';
+  }
+}
+
+async function salvaModifica(event) {
+  event.preventDefault();
+  
+  // 🔥 Mostra loader operazione
+  if (window.NodoLoader) {
+    NodoLoader.showOperation('Salvataggio modifiche...');
+  }
+  
+  const id = document.getElementById('editId').value;
+  const formData = new FormData(event.target);
+  
+  const msg = document.getElementById('editMsg');
+  msg.className = 'msg';
+  msg.textContent = '⏳ Salvataggio...';
+  msg.style.display = 'block';
+  
+  // 🔥 NUOVO SISTEMA: Combina URL esistenti + nuove immagini
+  const finalUrls = [];
+  
+  // Prima aggiungi gli URL esistenti (non null)
+  for (const url of editExistingUrls) {
+    if (url) finalUrls.push(url);
+  }
+  
+  // Poi carica e aggiungi le nuove immagini
+  for (let i = 0; i < editImages.length; i++) {
+    msg.textContent = `⏳ Caricamento foto ${i + 1}/${editImages.length}...`;
+    const url = await uploadImage(editImages[i]);
+    if (url) finalUrls.push(url);
+  }
+  
+  const valore = parseFloat(document.getElementById('editValoreAttuale').value) || 0;
+  const prezzo = parseFloat(document.getElementById('editPrezzoPagato').value) || 0;
+  
+  const inVetrina = document.getElementById('editInVetrina')?.checked || false;
+  const prezzoVendita = inVetrina ? parseFloat(document.getElementById('editPrezzoVendita')?.value) || null : null;
+  
+  const categoria = document.getElementById('editCategoria').value;
+  
+  // Campi gradazione
+  let casaGradazione = null;
+  let altraCasaGradazione = null;
+  let votoGradazione = null;
+  
+  if (categoria === 'Carte gradate') {
+    const casaEl = document.getElementById('casaGradazioneEdit');
+    const altraCasaEl = document.getElementById('altraCasaGradazioneEdit');
+    const votoEl = document.getElementById('votoGradazioneEdit');
+    
+    if (casaEl) casaGradazione = casaEl.value || null;
+    if (casaGradazione === 'Altra casa' && altraCasaEl) altraCasaGradazione = altraCasaEl.value || null;
+    if (votoEl) votoGradazione = parseFloat(votoEl.value) || null;
+  }
+
+  const articolo = {
+    Nome: formData.get('Nome'),
+    Descrizione: formData.get('Descrizione') || null,
+    Categoria: categoria || null,
+    ValoreAttuale: valore,
+    PrezzoPagato: prezzo,
+    Delta: valore - prezzo,
+    ValutazioneStato: formData.get('ValutazioneStato') ? parseInt(formData.get('ValutazioneStato')) : null,
+    Presente: formData.get('Presente') === 'on',
+    image_url: finalUrls[0] || null,
+    foto_principale: finalUrls[0] || null,
+    foto_2: finalUrls[1] || null,
+    foto_3: finalUrls[2] || null,
+    foto_4: finalUrls[3] || null,
+    foto_5: finalUrls[4] || null,
+    foto_6: finalUrls[5] || null,
+    in_vetrina: inVetrina,
+    prezzo_vendita: prezzoVendita,
+    casa_gradazione: casaGradazione,
+    altra_casa_gradazione: altraCasaGradazione,
+    voto_gradazione: votoGradazione
+  };
+
+  const { error } = await supabaseClient.from('Articoli').update(articolo).eq('id', id);
+
+  if (error) {
+    msg.className = 'msg error';
+    msg.textContent = '❌ ERRORE: ' + error.message;
+    msg.style.display = 'block';
+    
+    // 🔥 Nascondi loader su errore
+    if (window.NodoLoader) NodoLoader.hideOperation();
+  } else {
+    msg.className = 'msg success';
+    msg.textContent = '✅ SALVATO!';
+    msg.style.display = 'block';
+    
+    setTimeout(() => {
+      closeEditModal();
+      // 🔥 Nascondi loader DOPO chiusura modal
+      if (window.NodoLoader) NodoLoader.hideOperation();
+      caricaArticoli();
+    }, 1500);
+  }
+}
+
+async function eliminaArticolo() {
+  const id = document.getElementById('editId').value;
+  const nome = document.getElementById('editNome').value;
+  if (!confirm(`⚠️ ELIMINARE "${nome}"?`)) return;
+
+  // 🔥 Mostra loader
+  if (window.NodoLoader) NodoLoader.showOperation('Eliminazione...');
+
+  const { error } = await supabaseClient.from('Articoli').delete().eq('id', id);
+  const msg = document.getElementById('editMsg');
+
+  if (error) {
+    msg.className = 'msg error';
+    msg.textContent = '❌ ERRORE: ' + error.message;
+    msg.style.display = 'block';
+    // 🔥 Nascondi loader su errore
+    if (window.NodoLoader) NodoLoader.hideOperation();
+  } else {
+    msg.className = 'msg success';
+    msg.textContent = '✅ ELIMINATO!';
+    msg.style.display = 'block';
+    setTimeout(() => {
+      closeEditModal();
+      // 🔥 Nascondi loader DOPO chiusura modal
+      if (window.NodoLoader) NodoLoader.hideOperation();
+      caricaArticoli();
+    }, 1500);
+  }
+}
+
+// ========== GRAFICI ==========
+async function apriGrafico(tipo, colorTheme) {
+  const user = getCurrentUser();
+  
+  if (!user || !user.id) {
+    alert('⚠️ Devi essere loggato per vedere i grafici');
+    return;
+  }
+  
+  const { data, error } = await supabaseClient
+    .from("Articoli")
+    .select("*")
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: true });
+  
+  if (error || !data || data.length === 0) {
+    alert('⚠️ Nessun dato disponibile');
+    return;
+  }
+
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  document.body.style.overflow = 'hidden';
+
+  currentChartColor = colorTheme;
+  
+  const modal = document.getElementById('modalGraph');
+  modal.scrollTop = 0;
+  modal.classList.remove('closing');
+  modal.classList.add('active');
+
+  const modalContent = modal.querySelector('.modal-graph-content');
+  const modalTitle = document.getElementById('graphTitle');
+  
+  const colors = {
+    yellow: { border: '#fbbf24', gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)' },
+    green: { border: '#10b981', gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' },
+    orange: { border: '#f97316', gradient: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)' },
+    blue: { border: '#3b82f6', gradient: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' }
+  };
+  
+  modalContent.style.borderColor = colors[colorTheme].border;
+  modalTitle.style.background = colors[colorTheme].gradient;
+  modalTitle.style.webkitBackgroundClip = 'text';
+  modalTitle.style.webkitTextFillColor = 'transparent';
+  modalTitle.style.backgroundClip = 'text';
+
+  if (currentChart) {
+    currentChart.destroy();
+  }
+
+  const ctx = document.getElementById('chartCanvas').getContext('2d');
+  let chartConfig;
+
+  const chartColors = {
+    yellow: { main: '#fbbf24', light: 'rgba(251, 191, 36, 0.2)' },
+    green: { main: '#10b981', light: 'rgba(16, 185, 129, 0.2)' },
+    orange: { main: '#f97316', light: 'rgba(249, 115, 22, 0.2)' },
+    blue: { main: '#3b82f6', light: 'rgba(59, 130, 246, 0.2)' }
+  };
+
+  switch(tipo) {
+    case 'totale':
+      chartConfig = {
+        type: 'line',
+        data: {
+          labels: data.map(r => new Date(r.created_at).toLocaleDateString('it-IT')),
+          datasets: [{
+            label: '📦 Numero Articoli',
+            data: data.map((r, i) => i + 1),
+            borderColor: chartColors[colorTheme].main,
+            backgroundColor: chartColors[colorTheme].light,
+            fill: true,
+            tension: 0.4,
+            borderWidth: 3
+          }]
+        }
+      };
+      modalTitle.innerHTML = '<i class="fas fa-layer-group"></i> CRESCITA COLLEZIONE';
+      break;
+
+    case 'valore':
+      let cumVal = 0;
+      chartConfig = {
+        type: 'line',
+        data: {
+          labels: data.map(r => new Date(r.created_at).toLocaleDateString('it-IT')),
+          datasets: [{
+            label: '💎 Valore Totale (€)',
+            data: data.map(r => cumVal += Number(r.ValoreAttuale || 0)),
+            borderColor: chartColors[colorTheme].main,
+            backgroundColor: chartColors[colorTheme].light,
+            fill: true,
+            tension: 0.4,
+            borderWidth: 3
+          }]
+        }
+      };
+      modalTitle.innerHTML = '<i class="fas fa-gem"></i> VALORE NEL TEMPO';
+      break;
+
+    case 'spesa':
+      let cumSpe = 0;
+      chartConfig = {
+        type: 'line',
+        data: {
+          labels: data.map(r => new Date(r.created_at).toLocaleDateString('it-IT')),
+          datasets: [{
+            label: '💳 Spesa Totale (€)',
+            data: data.map(r => cumSpe += Number(r.PrezzoPagato || 0)),
+            borderColor: chartColors[colorTheme].main,
+            backgroundColor: chartColors[colorTheme].light,
+            fill: true,
+            tension: 0.4,
+            borderWidth: 3
+          }]
+        }
+      };
+      modalTitle.innerHTML = '<i class="fas fa-wallet"></i> INVESTIMENTO';
+      break;
+
+    case 'performance':
+      const values = data.map(r => Number(r.ValoreAttuale || 0) - Number(r.PrezzoPagato || 0));
+      chartConfig = {
+        type: 'bar',
+        data: {
+          labels: data.map(r => r.Nome),
+          datasets: [{
+            label: '📊 Guadagno/Perdita (€)',
+            data: values,
+            backgroundColor: values.map(v => v >= 0 ? 'rgba(16, 185, 129, 0.8)' : 'rgba(239, 68, 68, 0.8)'),
+            borderColor: values.map(v => v >= 0 ? '#10b981' : '#ef4444'),
+            borderWidth: 2
+          }]
+        }
+      };
+      modalTitle.innerHTML = '<i class="fas fa-rocket"></i> PERFORMANCE';
+      break;
+  }
+
+  currentChart = new Chart(ctx, {
+    type: chartConfig.type,
+    data: chartConfig.data,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: {
+            color: '#e5e7eb',
+            font: { size: 14, weight: 'bold' }
+          }
+        }
+      },
+      scales: chartConfig.type !== 'doughnut' ? {
+        x: {
+          ticks: { color: '#9ca3af' },
+          grid: { color: '#2a2a2a' }
+        },
+        y: {
+          ticks: { color: '#9ca3af' },
+          grid: { color: '#2a2a2a' }
+        }
+      } : {}
+    }
+  });
+}
+
+function closeGraphModal() {
+  const modal = document.getElementById('modalGraph');
+  if (modal) {
+    modal.classList.add('closing');
+    setTimeout(() => {
+      modal.classList.remove('active', 'closing');
+      document.body.style.overflow = '';
+    }, 300);
+  }
+  
+  // 🔥 FIX: Rimuovi expanded da tutti i cruscotti
+  document.querySelectorAll('.stat-card').forEach(card => {
+    card.classList.remove('expanded');
+  });
+}
+
+// Chiusura modals al click esterno
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'modalAdd') closeAddModal();
+  if (e.target.id === 'modalEdit') closeEditModal();
+  if (e.target.id === 'modalGraph') closeGraphModal();
+});
