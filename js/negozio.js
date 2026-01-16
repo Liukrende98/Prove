@@ -431,18 +431,6 @@ function openAddModal() {
   modal.classList.remove('closing');
   modal.classList.add('active');
   modal.style.display = '';
-  
-  // 🔥 FIX MOBILE: Auto-scroll input quando apre keyboard
-  setTimeout(() => {
-    const inputs = modal.querySelectorAll('input:not([type="checkbox"]), textarea, select');
-    inputs.forEach(input => {
-      input.addEventListener('focus', function() {
-        setTimeout(() => {
-          this.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 300);
-      }, { once: true });
-    });
-  }, 100);
 }
 
 function closeAddModal() {
