@@ -18,7 +18,9 @@ let userStatusSubscription = null;
 let usersStatusCache = new Map();
 const MAX_CACHE_SIZE = 100; // 🔥 NUOVO: Limite cache
 
-// 🔥 SISTEMA HEARTBEAT - Aggiorna stato online
+// 🔥 SISTEMA HEARTBEAT - DOPPIA MODALITÀ
+// - IDLE: ogni 120 secondi (quando messaggi chiusi)
+// - ATTIVO: ogni 60 secondi (quando messaggi aperti)
 function startHeartbeat() {
   const userId = getUserId();
   if (!userId) return;
@@ -26,19 +28,31 @@ function startHeartbeat() {
   // Aggiorna subito
   updateUserOnlineStatus(userId);
   
-  // Poi ogni 60 secondi (RIDOTTO da 20s)
   if (heartbeatInterval) clearInterval(heartbeatInterval);
   
   heartbeatInterval = setInterval(() => {
-    // 🔥 NUOVO: Salta se messaggi chiusi
+    const userId = getUserId();
+    if (!userId) return;
+    
+    // 🔥 NUOVO: Modalità SMART
+    // - Messaggi aperti: update ogni 60s
+    // - Messaggi chiusi: update ogni 120s (skip ogni 2 chiamate)
     if (!isMessagesOpen) {
-      console.log('⏸️ Messaggi chiusi, skip heartbeat');
-      return;
+      // Crea counter se non esiste
+      if (!window.heartbeatSkipCounter) window.heartbeatSkipCounter = 0;
+      window.heartbeatSkipCounter++;
+      
+      // Skip una chiamata su due = 120 secondi
+      if (window.heartbeatSkipCounter % 2 !== 0) {
+        console.log('⏸️ Skip heartbeat (idle mode)');
+        return;
+      }
     }
+    
     updateUserOnlineStatus(userId);
-  }, 60000); // 🔥 60 secondi invece di 20
+  }, 60000); // Base: 60 secondi
   
-  console.log('💓 Heartbeat avviato (60s)');
+  console.log('💓 Heartbeat avviato (smart mode)');
   
   // 🔥 REALTIME: Subscribe a cambiamenti stato TUTTI gli utenti
   startUserStatusRealtime();
@@ -195,13 +209,13 @@ function getUserId() {
 async function openMessagesCenter(targetUserId = null, prefillMessage = null) {
   console.log('📨 Apertura centro messaggi GIALLI...', targetUserId ? `Target: ${targetUserId}` : 'Inbox generale');
   
-  // 🔥 NUOVO: Marca come aperti e avvia heartbeat
+  // 🔥 Marca come aperti (heartbeat passa in modalità attiva 60s)
   isMessagesOpen = true;
   
-  resetMessagesState();
+  // 🔥 Reset counter per passare subito a modalità attiva
+  window.heartbeatSkipCounter = 0;
   
-  // 🔥 NUOVO: Avvia heartbeat SOLO ORA
-  startHeartbeat();
+  resetMessagesState();
   
   if (!document.getElementById('messagesOverlay')) {
     createMessagesUI();
@@ -294,17 +308,17 @@ function closeMessages() {
     if (overlay) overlay.classList.remove('active');
   }, 400);
   
-  // 🔥 NUOVO: Marca come chiusi
+  // 🔥 Marca come chiusi (heartbeat passa in modalità idle 120s)
   isMessagesOpen = false;
   
   resetMessagesState();
   
-  // 🔥 NUOVO: Ferma heartbeat quando chiudi
-  stopHeartbeat();
+  // 🔥 NON fermare heartbeat - continua in background in modalità idle
+  // L'utente è ancora sul sito, quindi deve risultare online
   
-  // 🔥 NUOVO: Pulisci cache
+  // 🔥 Pulisci cache
   usersStatusCache.clear();
-  console.log('🧹 Cache pulita');
+  console.log('🧹 Cache pulita - heartbeat continua in idle mode');
 }
 
 function createMessagesUI() {
@@ -1068,8 +1082,9 @@ window.deleteConversation = deleteConversation;
 window.openDirectChat = openDirectChat;
 window.forceUpdateNotificationBadge = forceUpdateNotificationBadge;
 
-// 🔥 NON avviare heartbeat automaticamente!
-// Heartbeat si avvia SOLO quando apri messaggi
+// 🔥 NUOVO: Avvia heartbeat automatico in MODALITÀ SMART
+// - Idle (messaggi chiusi): update ogni 120s
+// - Attivo (messaggi aperti): update ogni 60s
 document.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('messagesOverlay');
   if (overlay) {
@@ -1080,38 +1095,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  console.log('✅ Sistema messaggi pronto (lazy mode)');
+  // 🔥 AVVIA heartbeat per utenti loggati
+  const userId = getUserId();
+  if (userId) {
+    console.log('🚀 Avvio heartbeat automatico (smart mode)...');
+    startHeartbeat();
+  }
+  
+  console.log('✅ Sistema messaggi pronto (smart mode)');
 });
 
 // 🔥 Ferma heartbeat quando chiudi la pagina/tab
 window.addEventListener('beforeunload', () => {
-  if (isMessagesOpen) {
-    stopHeartbeat();
-  }
+  stopHeartbeat();
 });
 
 // 🔥 Event listener aggiuntivo per iOS/Safari
 window.addEventListener('pagehide', () => {
-  if (isMessagesOpen) {
-    stopHeartbeat();
-  }
+  stopHeartbeat();
 });
 
 // 🔥 RIMOSSI blur/focus - troppo trigger su mobile!
 
 // 🔥 Gestisci visibilità pagina (tab nascosta/visibile)
 document.addEventListener('visibilitychange', () => {
-  if (!isMessagesOpen) return; // 🔥 Skip se messaggi chiusi
-  
   const userId = getUserId();
   if (!userId) return;
   
   if (document.hidden) {
-    // Tab nascosta - NON settare offline, solo pausa
-    console.log('😴 Tab nascosta');
+    // Tab nascosta - NON settare offline, heartbeat continua in background
+    console.log('😴 Tab nascosta - heartbeat in background');
   } else {
     // Tab visibile - aggiorna subito
-    console.log('👀 Tab visibile');
+    console.log('👀 Tab visibile - update immediato');
     updateUserOnlineStatus(userId);
   }
 });
