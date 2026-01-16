@@ -305,6 +305,31 @@
       }
     }
     
+    /* Tasto Modifica Rapido */
+    .quick-edit-btn {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(251, 191, 36, 0.05));
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 10px;
+      color: #fbbf24;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    
+    .quick-edit-btn:active {
+      background: #fbbf24;
+      color: #0a0a0a;
+      transform: scale(0.98);
+    }
+    
     /* Menu Overlay Blur Effect */
     .menu-overlay {
       position: fixed;
@@ -1112,6 +1137,179 @@
       margin-bottom: 20px;
     }
     
+    /* ========================================
+       TOGGLE VISTA + VISTA LISTA
+       ======================================== */
+    
+    .view-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      padding: 0 5px;
+    }
+    
+    .view-count {
+      font-size: 13px;
+      color: #888;
+    }
+    
+    .view-count span {
+      color: #fbbf24;
+      font-weight: 600;
+    }
+    
+    .view-toggle-btn {
+      width: 44px;
+      height: 44px;
+      background: rgba(251, 191, 36, 0.1);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 10px;
+      color: #fbbf24;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* Vista Lista - iPhone Optimized */
+    .articles-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .list-item {
+      display: flex;
+      align-items: center;
+      background: #141414;
+      border-radius: 14px;
+      padding: 12px;
+      gap: 12px;
+      border: 1px solid rgba(255,255,255,0.05);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .list-item:active {
+      background: #1a1a1a;
+      transform: scale(0.98);
+    }
+    
+    .list-image {
+      position: relative;
+      width: 60px;
+      height: 60px;
+      border-radius: 10px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    
+    .list-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .list-status {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      border: 2px solid #141414;
+    }
+    
+    .list-status.presente {
+      background: #22c55e;
+      color: white;
+    }
+    
+    .list-status.assente {
+      background: #ef4444;
+      color: white;
+    }
+    
+    .list-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .list-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+    
+    .list-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .list-category {
+      font-size: 11px;
+      color: #888;
+      background: rgba(255,255,255,0.05);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    
+    .list-graded {
+      font-size: 11px;
+      font-weight: 700;
+      color: #8b5cf6;
+      background: rgba(139, 92, 246, 0.15);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    
+    .list-vetrina {
+      color: #fbbf24;
+      font-size: 12px;
+    }
+    
+    .list-values {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    
+    .list-price {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+    
+    .list-delta {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    
+    .list-delta.profit {
+      color: #22c55e;
+    }
+    
+    .list-delta.loss {
+      color: #ef4444;
+    }
+    
+    .list-arrow {
+      color: #444;
+      font-size: 14px;
+      margin-left: 5px;
+    }
+    
     /* Hidden file input */
     .hidden-file-input {
       position: absolute;
@@ -1410,6 +1608,44 @@
           </select>
         </div>
         
+        <!-- Condizione Carta -->
+        <div class="filter-group">
+          <label>Condizione</label>
+          <select id="fCondizione" onchange="applicaFiltri()">
+            <option value="">Tutte</option>
+            <option value="Mint">Mint (M)</option>
+            <option value="Near Mint">Near Mint (NM)</option>
+            <option value="Excellent">Excellent (EX)</option>
+            <option value="Good">Good (GD)</option>
+            <option value="Light Played">Light Played (LP)</option>
+            <option value="Played">Played (PL)</option>
+            <option value="Poor">Poor (P)</option>
+          </select>
+        </div>
+        
+        <!-- Espansione/Set -->
+        <div class="filter-group">
+          <label>Espansione</label>
+          <input type="text" id="fEspansione" placeholder="Nome espansione..." oninput="applicaFiltri()">
+        </div>
+        
+        <!-- Lingua -->
+        <div class="filter-group">
+          <label>Lingua</label>
+          <select id="fLingua" onchange="applicaFiltri()">
+            <option value="">Tutte</option>
+            <option value="ITA">Italiano</option>
+            <option value="ENG">Inglese</option>
+            <option value="JAP">Giapponese</option>
+            <option value="KOR">Coreano</option>
+            <option value="CHN">Cinese</option>
+            <option value="FRA">Francese</option>
+            <option value="GER">Tedesco</option>
+            <option value="SPA">Spagnolo</option>
+            <option value="POR">Portoghese</option>
+          </select>
+        </div>
+        
         <!-- Toggle Presenza -->
         <div class="filter-toggles">
           <label class="toggle-btn active" id="btnPresenti" onclick="toggleFilterBtn('btnPresenti')">
@@ -1459,7 +1695,17 @@
       </div>
     </div>
 
-    <!-- GRIGLIA ARTICOLI -->
+    <!-- CONTROLLI VISTA -->
+    <div class="view-controls">
+      <div class="view-count">
+        <span id="viewCount">0</span> articoli
+      </div>
+      <button class="view-toggle-btn" id="viewToggleBtn" onclick="toggleViewMode()">
+        <i class="fas fa-list"></i>
+      </button>
+    </div>
+
+    <!-- GRIGLIA/LISTA ARTICOLI -->
     <div class="articles-grid" id="articlesGrid"></div>
     
     <!-- PAGINAZIONE IN FONDO -->
@@ -1555,6 +1801,41 @@
           <div class="form-group">
             <label><i class="fas fa-align-left"></i> DESCRIZIONE</label>
             <textarea name="Descrizione" placeholder="Aggiungi una descrizione..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-box-open"></i> ESPANSIONE / SET</label>
+            <input type="text" name="Espansione" id="espansioneAdd" placeholder="es. Scarlet & Violet, 151, Prismatic...">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-globe"></i> LINGUA</label>
+            <select name="Lingua" id="linguaAdd">
+              <option value="">Seleziona...</option>
+              <option value="ITA">Italiano</option>
+              <option value="ENG">Inglese</option>
+              <option value="JAP">Giapponese</option>
+              <option value="KOR">Coreano</option>
+              <option value="CHN">Cinese</option>
+              <option value="FRA">Francese</option>
+              <option value="GER">Tedesco</option>
+              <option value="SPA">Spagnolo</option>
+              <option value="POR">Portoghese</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-certificate"></i> CONDIZIONE</label>
+            <select name="Condizione" id="condizioneAdd">
+              <option value="">Seleziona...</option>
+              <option value="Mint">Mint (M) - Perfetta</option>
+              <option value="Near Mint">Near Mint (NM) - Quasi perfetta</option>
+              <option value="Excellent">Excellent (EX) - Eccellente</option>
+              <option value="Good">Good (GD) - Buona</option>
+              <option value="Light Played">Light Played (LP) - Leggermente giocata</option>
+              <option value="Played">Played (PL) - Giocata</option>
+              <option value="Poor">Poor (P) - Scarsa</option>
+            </select>
           </div>
 
           <div class="form-group">
@@ -1675,6 +1956,41 @@
           </div>
 
           <div class="form-group">
+            <label><i class="fas fa-box-open"></i> ESPANSIONE / SET</label>
+            <input type="text" name="Espansione" id="editEspansione" placeholder="es. Scarlet & Violet, 151, Prismatic...">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-globe"></i> LINGUA</label>
+            <select name="Lingua" id="editLingua">
+              <option value="">Seleziona...</option>
+              <option value="ITA">Italiano</option>
+              <option value="ENG">Inglese</option>
+              <option value="JAP">Giapponese</option>
+              <option value="KOR">Coreano</option>
+              <option value="CHN">Cinese</option>
+              <option value="FRA">Francese</option>
+              <option value="GER">Tedesco</option>
+              <option value="SPA">Spagnolo</option>
+              <option value="POR">Portoghese</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-certificate"></i> CONDIZIONE</label>
+            <select name="Condizione" id="editCondizione">
+              <option value="">Seleziona...</option>
+              <option value="Mint">Mint (M) - Perfetta</option>
+              <option value="Near Mint">Near Mint (NM) - Quasi perfetta</option>
+              <option value="Excellent">Excellent (EX) - Eccellente</option>
+              <option value="Good">Good (GD) - Buona</option>
+              <option value="Light Played">Light Played (LP) - Leggermente giocata</option>
+              <option value="Played">Played (PL) - Giocata</option>
+              <option value="Poor">Poor (P) - Scarsa</option>
+            </select>
+          </div>
+
+          <div class="form-group">
             <label><i class="fas fa-gem"></i> VALORE ATTUALE (€)</label>
             <input type="number" id="editValoreAttuale" name="ValoreAttuale" step="0.01" required oninput="calcolaDeltaEdit()">
           </div>
@@ -1749,6 +2065,7 @@
 
   <!-- SCRIPTS -->
   <script src="js/loader.js"></script>
+  <script src="js/galleria.js"></script>
   <script src="js/config.js"></script>
   <script src="js/common.js"></script>
   <script src="js/menu.js"></script>
