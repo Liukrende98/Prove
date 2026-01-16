@@ -8,7 +8,6 @@ let messagesPollingInterval = null;
 let lastMessageId = null;
 let isInConversationsList = true;
 let heartbeatInterval = null;
-let isMessagesOpen = false; // 🔥 NUOVO: traccia se messaggi sono aperti
 
 // 🔥 REALTIME SUBSCRIPTIONS
 let messagesSubscription = null;
@@ -16,11 +15,8 @@ let userStatusSubscription = null;
 
 // 🔥 CACHE STATO UTENTI - per aggiornamenti istantanei
 let usersStatusCache = new Map();
-const MAX_CACHE_SIZE = 100; // 🔥 NUOVO: Limite cache
 
-// 🔥 SISTEMA HEARTBEAT - DOPPIA MODALITÀ
-// - IDLE: ogni 120 secondi (quando messaggi chiusi)
-// - ATTIVO: ogni 60 secondi (quando messaggi aperti)
+// 🔥 SISTEMA HEARTBEAT - Aggiorna stato online
 function startHeartbeat() {
   const userId = getUserId();
   if (!userId) return;
@@ -28,34 +24,17 @@ function startHeartbeat() {
   // Aggiorna subito
   updateUserOnlineStatus(userId);
   
+  // Poi ogni 90 secondi (era 20s)
   if (heartbeatInterval) clearInterval(heartbeatInterval);
   
   heartbeatInterval = setInterval(() => {
-    const userId = getUserId();
-    if (!userId) return;
-    
-    // 🔥 NUOVO: Modalità SMART
-    // - Messaggi aperti: update ogni 60s
-    // - Messaggi chiusi: update ogni 120s (skip ogni 2 chiamate)
-    if (!isMessagesOpen) {
-      // Crea counter se non esiste
-      if (!window.heartbeatSkipCounter) window.heartbeatSkipCounter = 0;
-      window.heartbeatSkipCounter++;
-      
-      // Skip una chiamata su due = 120 secondi
-      if (window.heartbeatSkipCounter % 2 !== 0) {
-        console.log('⏸️ Skip heartbeat (idle mode)');
-        return;
-      }
-    }
-    
     updateUserOnlineStatus(userId);
-  }, 60000); // Base: 60 secondi
+  }, 90000); // 90 secondi invece di 20
   
-  console.log('💓 Heartbeat avviato (smart mode)');
+  console.log('💓 Heartbeat avviato (90s)');
   
-  // 🔥 REALTIME: Subscribe a cambiamenti stato TUTTI gli utenti
-  startUserStatusRealtime();
+  // 🔥 REALTIME DISABILITATO - troppo pesante su mobile
+  // startUserStatusRealtime();
 }
 
 function stopHeartbeat() {
@@ -102,18 +81,14 @@ function startUserStatusRealtime() {
       (payload) => {
         console.log('⚡ Stato utente cambiato:', payload.new.username, payload.new.online);
         
-        // 🔥 NUOVO: Aggiorna cache CON LIMITE
-        if (usersStatusCache.size >= MAX_CACHE_SIZE) {
-          const firstKey = usersStatusCache.keys().next().value;
-          usersStatusCache.delete(firstKey);
-        }
+        // 🔥 NUOVO: Aggiorna cache
         usersStatusCache.set(payload.new.id, {
           online: payload.new.online,
           last_seen: payload.new.last_seen
         });
         
-        // 🔥 NUOVO: Aggiorna lista conversazioni SOLO se visibile
-        if (isInConversationsList && isMessagesOpen) {
+        // 🔥 NUOVO: Aggiorna lista conversazioni se visibile
+        if (isInConversationsList) {
           updateConversationUserStatus(payload.new.id, payload.new.online, payload.new.last_seen);
         }
         
@@ -208,14 +183,10 @@ function getUserId() {
 // 🔥 MODIFICATO: Supporta apertura diretta chat + messaggio pre-compilato
 async function openMessagesCenter(targetUserId = null, prefillMessage = null) {
   console.log('📨 Apertura centro messaggi GIALLI...', targetUserId ? `Target: ${targetUserId}` : 'Inbox generale');
-  
-  // 🔥 Marca come aperti (heartbeat passa in modalità attiva 60s)
-  isMessagesOpen = true;
-  
-  // 🔥 Reset counter per passare subito a modalità attiva
-  window.heartbeatSkipCounter = 0;
-  
   resetMessagesState();
+  
+  // 🔥 Avvia heartbeat
+  startHeartbeat();
   
   if (!document.getElementById('messagesOverlay')) {
     createMessagesUI();
@@ -308,17 +279,10 @@ function closeMessages() {
     if (overlay) overlay.classList.remove('active');
   }, 400);
   
-  // 🔥 Marca come chiusi (heartbeat passa in modalità idle 120s)
-  isMessagesOpen = false;
-  
   resetMessagesState();
   
-  // 🔥 NON fermare heartbeat - continua in background in modalità idle
-  // L'utente è ancora sul sito, quindi deve risultare online
-  
-  // 🔥 Pulisci cache
-  usersStatusCache.clear();
-  console.log('🧹 Cache pulita - heartbeat continua in idle mode');
+  // 🔥 FERMA heartbeat quando chiudi messaggi
+  stopHeartbeat();
 }
 
 function createMessagesUI() {
@@ -1082,9 +1046,7 @@ window.deleteConversation = deleteConversation;
 window.openDirectChat = openDirectChat;
 window.forceUpdateNotificationBadge = forceUpdateNotificationBadge;
 
-// 🔥 NUOVO: Avvia heartbeat automatico in MODALITÀ SMART
-// - Idle (messaggi chiusi): update ogni 120s
-// - Attivo (messaggi aperti): update ogni 60s
+// 🔥 NON avviare heartbeat automaticamente - risparmia batteria mobile
 document.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('messagesOverlay');
   if (overlay) {
@@ -1095,14 +1057,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  // 🔥 AVVIA heartbeat per utenti loggati
-  const userId = getUserId();
-  if (userId) {
-    console.log('🚀 Avvio heartbeat automatico (smart mode)...');
-    startHeartbeat();
-  }
-  
-  console.log('✅ Sistema messaggi pronto (smart mode)');
+  console.log('✅ Sistema messaggi pronto (ultra light mode)');
 });
 
 // 🔥 Ferma heartbeat quando chiudi la pagina/tab
@@ -1110,24 +1065,9 @@ window.addEventListener('beforeunload', () => {
   stopHeartbeat();
 });
 
-// 🔥 Event listener aggiuntivo per iOS/Safari
+// 🔥 iOS/Safari support
 window.addEventListener('pagehide', () => {
   stopHeartbeat();
 });
 
-// 🔥 RIMOSSI blur/focus - troppo trigger su mobile!
-
-// 🔥 Gestisci visibilità pagina (tab nascosta/visibile)
-document.addEventListener('visibilitychange', () => {
-  const userId = getUserId();
-  if (!userId) return;
-  
-  if (document.hidden) {
-    // Tab nascosta - NON settare offline, heartbeat continua in background
-    console.log('😴 Tab nascosta - heartbeat in background');
-  } else {
-    // Tab visibile - aggiorna subito
-    console.log('👀 Tab visibile - update immediato');
-    updateUserOnlineStatus(userId);
-  }
-});
+// 🔥 RIMOSSI: blur, focus, visibilitychange - troppo pesanti su mobile
