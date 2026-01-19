@@ -2058,7 +2058,7 @@
   <script src="js/menu.js"></script>
   <script src="js/messages.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/negozio.js"></script>
+  <script src="js/negozio.js?v=2"></script>
 
   <script>
     requireAuth();
@@ -2071,12 +2071,14 @@
       var urlParams = new URLSearchParams(window.location.search);
       var modificaId = urlParams.get('modifica');
       if (modificaId) {
-        // Attendi un attimo che tutto sia renderizzato, poi apri modifica
+        // Converti in numero e attendi che tutto sia renderizzato
+        var idNumero = parseInt(modificaId, 10);
+        console.log('🔧 Apertura modifica da URL, ID:', idNumero);
         setTimeout(function() {
-          apriModifica(modificaId);
+          apriModifica(idNumero);
           // Rimuovi il parametro dall'URL per evitare che si riapra al refresh
           window.history.replaceState({}, '', 'il-tuo-negozio.html');
-        }, 500);
+        }, 800);
       }
       
       // Render griglia immagini iniziale (vuota)
