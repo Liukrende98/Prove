@@ -11,12 +11,17 @@ function getCurrentUserId() {
   return localStorage.getItem('nodo_user_id') || null;
 }
 
-// Vai alla pagina modifica articolo
+// Apri modal modifica articolo
 function goToModifica() {
   if (!currentArticolo) return;
   
-  // Salva l'ID dell'articolo e vai alla pagina negozio con parametro per aprire modifica
-  window.location.href = 'il-tuo-negozio.html?modifica=' + currentArticolo.id;
+  // Apri direttamente il modal di modifica
+  if (typeof apriModifica === 'function') {
+    apriModifica(currentArticolo.id);
+  } else {
+    console.error('❌ apriModifica non disponibile');
+    alert('Errore: modulo modifica non caricato');
+  }
 }
 
 // Carica articolo
