@@ -991,7 +991,7 @@
       <div class="modal-filter-box">
         <div class="modal-filter-search">
           <i class="fas fa-search"></i>
-          <input type="text" id="modalUserSearch" placeholder="Cerca utente..." oninput="filterModalUsers()">
+          <input type="text" id="modalUserSearch" placeholder="Cerca utente...">
         </div>
       </div>
       <!-- LISTA UTENTI -->
@@ -1019,12 +1019,22 @@
   <script src="js/messages.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/filtri.js"></script>
-  <script src="js/vetrina-venditore.js?v=8"></script>
+  <script src="js/vetrina-venditore.js?v=9"></script>
 
   <script>
     requireAuth();
     window.addEventListener('DOMContentLoaded', () => {
       initVendorPage();
+      
+      // Listener per filtro ricerca utenti nel modal
+      const searchInput = document.getElementById('modalUserSearch');
+      if (searchInput) {
+        searchInput.addEventListener('input', function() {
+          if (typeof filterModalUsers === 'function') {
+            filterModalUsers();
+          }
+        });
+      }
     });
   </script>
 </body>
