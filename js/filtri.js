@@ -393,6 +393,25 @@
               </select>
             </div>
             
+            <div class="nodo-filter-group" id="nodoFAltroGroup" style="display:none;">
+              <label>Specifica Categoria</label>
+              <input type="text" id="nodoFAltroCategoria" placeholder="es. Pokemon Plush, Figure...">
+            </div>
+            
+            <div class="nodo-filter-group">
+              <label>Condizione</label>
+              <select id="nodoFCondizione">
+                <option value="">Tutte</option>
+                <option value="Mint">(M) - Perfetta</option>
+                <option value="Near Mint">(NM) - Quasi perfetta</option>
+                <option value="Excellent">(EX) - Eccellente</option>
+                <option value="Good">(GD) - Buona</option>
+                <option value="Light Played">(LP) - Leggermente giocata</option>
+                <option value="Played">(PL) - Giocata</option>
+                <option value="Poor">(P) - Scarsa</option>
+              </select>
+            </div>
+            
             <div class="nodo-filter-group">
               <label>Lingua</label>
             </div>
@@ -516,14 +535,19 @@
       // Categoria
       document.getElementById('nodoFCategoria')?.addEventListener('change', function() {
         const graded = document.getElementById('nodoFGraded');
+        const altroGroup = document.getElementById('nodoFAltroGroup');
         if (graded) graded.style.display = this.value === 'Carte gradate' ? 'block' : 'none';
+        if (altroGroup) altroGroup.style.display = this.value === 'Altro' ? 'block' : 'none';
         self.apply();
       });
       
-      // Select
-      ['nodoFCasa', 'nodoFVoto', 'nodoFStato'].forEach(id => {
+      // Select (incluso condizione)
+      ['nodoFCasa', 'nodoFVoto', 'nodoFStato', 'nodoFCondizione'].forEach(id => {
         document.getElementById(id)?.addEventListener('change', () => self.apply());
       });
+      
+      // Input Altro categoria
+      document.getElementById('nodoFAltroCategoria')?.addEventListener('input', () => self.apply());
       
       // Range
       ['nodoFMin', 'nodoFMax'].forEach(id => {
@@ -585,6 +609,8 @@
       return {
         nome: document.getElementById('nodoFNome')?.value?.toLowerCase() || '',
         categoria: document.getElementById('nodoFCategoria')?.value || '',
+        altroCategoria: document.getElementById('nodoFAltroCategoria')?.value?.toLowerCase() || '',
+        condizione: document.getElementById('nodoFCondizione')?.value || '',
         lingua: document.getElementById('nodoFLingua')?.value || '',
         casaGradazione: document.getElementById('nodoFCasa')?.value || '',
         votoGradazione: parseFloat(document.getElementById('nodoFVoto')?.value) || 0,
@@ -608,6 +634,8 @@
       const v = this.getValues();
       let count = 0;
       if (v.categoria) count++;
+      if (v.altroCategoria) count++;
+      if (v.condizione) count++;
       if (v.lingua) count++;
       if (v.casaGradazione) count++;
       if (v.votoGradazione) count++;
@@ -634,6 +662,19 @@
       document.getElementById('nodoFMax').value = 10000;
       document.getElementById('nodoFStato').value = '';
       document.getElementById('nodoFGraded').style.display = 'none';
+      
+      // Reset condizione
+      if (document.getElementById('nodoFCondizione')) {
+        document.getElementById('nodoFCondizione').value = '';
+      }
+      
+      // Reset campo Altro
+      if (document.getElementById('nodoFAltroCategoria')) {
+        document.getElementById('nodoFAltroCategoria').value = '';
+      }
+      if (document.getElementById('nodoFAltroGroup')) {
+        document.getElementById('nodoFAltroGroup').style.display = 'none';
+      }
       
       // Reset bandierine lingua
       document.querySelectorAll('#nodoFLinguaGrid .nodo-flag-btn').forEach(btn => {
