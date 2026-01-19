@@ -12,6 +12,18 @@ let currentChartColor = 'yellow';
 let stream = null;
 let viewMode = 'grid'; // 'grid' o 'list'
 
+// ========== HELPER BANDIERINA LINGUA ==========
+function getFlagHtml(lingua, size = 16) {
+  if (!lingua) return '';
+  const flagMap = {
+    'ITA': 'it', 'ENG': 'gb', 'JAP': 'jp', 'KOR': 'kr', 'CHN': 'cn',
+    'FRA': 'fr', 'GER': 'de', 'SPA': 'es', 'POR': 'pt'
+  };
+  const flagCode = flagMap[lingua];
+  if (!flagCode) return '';
+  return `<span class="fi fi-${flagCode}" style="font-size:${size}px;border-radius:2px;"></span>`;
+}
+
 // ========== TOGGLE VISTA GRID/LIST ==========
 function toggleViewMode() {
   viewMode = viewMode === 'grid' ? 'list' : 'grid';
@@ -253,6 +265,7 @@ function createArticleListItem(article) {
         <div class="list-name">${article.Nome || 'Senza nome'}</div>
         <div class="list-meta">
           <span class="list-category">${article.Categoria || 'N/D'}</span>
+          ${article.lingua ? `<span style="margin-left:6px;">${getFlagHtml(article.lingua, 12)}</span>` : ''}
           ${gradedInfo}
           ${article.in_vetrina ? '<span class="list-vetrina"><i class="fas fa-store"></i></span>' : ''}
         </div>
@@ -319,7 +332,10 @@ function createArticleCard(article) {
       <!-- INFO COMPATTA -->
       <div class="article-compact-info">
         <div class="article-name" onclick="toggleArticleCard(${article.id})">${article.Nome || 'Senza nome'}</div>
-        <div class="article-category"><i class="fas fa-layer-group"></i> ${article.Categoria || 'Nessuna categoria'}</div>
+        <div class="article-category">
+          <i class="fas fa-layer-group"></i> ${article.Categoria || 'Nessuna categoria'}
+          ${article.lingua ? `<span style="margin-left:8px;">${getFlagHtml(article.lingua, 14)}</span>` : ''}
+        </div>
         
         <!-- Valutazione Moderna -->
         <div class="article-rating-modern">
