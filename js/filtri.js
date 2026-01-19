@@ -270,6 +270,75 @@
       gap: 8px;
       margin-top: 10px;
     }
+    
+    /* Bandierine Lingua */
+    .nodo-filter-flags {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    
+    .nodo-flag-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 4px;
+      background: rgba(255,255,255,0.03);
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .nodo-flag-btn:hover {
+      background: rgba(251, 191, 36, 0.1);
+      border-color: rgba(251, 191, 36, 0.3);
+    }
+    
+    .nodo-flag-btn.active {
+      background: rgba(251, 191, 36, 0.2);
+      border-color: #fbbf24;
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+    }
+    
+    .nodo-flag-circle {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.1);
+      margin-bottom: 3px;
+    }
+    
+    .nodo-flag-circle .fi {
+      font-size: 24px;
+      transform: scale(1.4);
+    }
+    
+    .nodo-flag-circle i {
+      font-size: 12px;
+      color: #888;
+    }
+    
+    .nodo-flag-btn.active .nodo-flag-circle i {
+      color: #fbbf24;
+    }
+    
+    .nodo-flag-label {
+      font-size: 8px;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+    }
+    
+    .nodo-flag-btn.active .nodo-flag-label {
+      color: #fbbf24;
+    }
   `;
   
   const style = document.createElement('style');
@@ -321,6 +390,49 @@
                 <option value="Altro">Altro</option>
               </select>
             </div>
+            
+            <div class="nodo-filter-group">
+              <label>Lingua</label>
+            </div>
+            <div class="nodo-filter-flags" id="nodoFLinguaGrid">
+              <button type="button" class="nodo-flag-btn active" data-lang="" title="Tutte">
+                <span class="nodo-flag-circle"><i class="fas fa-globe"></i></span>
+                <span class="nodo-flag-label">Tutte</span>
+              </button>
+              <button type="button" class="nodo-flag-btn" data-lang="ITA" title="Italiano">
+                <span class="nodo-flag-circle"><span class="fi fi-it"></span></span>
+                <span class="nodo-flag-label">ITA</span>
+              </button>
+              <button type="button" class="nodo-flag-btn" data-lang="ENG" title="Inglese">
+                <span class="nodo-flag-circle"><span class="fi fi-gb"></span></span>
+                <span class="nodo-flag-label">ENG</span>
+              </button>
+              <button type="button" class="nodo-flag-btn" data-lang="JAP" title="Giapponese">
+                <span class="nodo-flag-circle"><span class="fi fi-jp"></span></span>
+                <span class="nodo-flag-label">JAP</span>
+              </button>
+              <button type="button" class="nodo-flag-btn" data-lang="KOR" title="Coreano">
+                <span class="nodo-flag-circle"><span class="fi fi-kr"></span></span>
+                <span class="nodo-flag-label">KOR</span>
+              </button>
+              <button type="button" class="nodo-flag-btn" data-lang="CHN" title="Cinese">
+                <span class="nodo-flag-circle"><span class="fi fi-cn"></span></span>
+                <span class="nodo-flag-label">CHN</span>
+              </button>
+              <button type="button" class="nodo-flag-btn" data-lang="FRA" title="Francese">
+                <span class="nodo-flag-circle"><span class="fi fi-fr"></span></span>
+                <span class="nodo-flag-label">FRA</span>
+              </button>
+              <button type="button" class="nodo-flag-btn" data-lang="GER" title="Tedesco">
+                <span class="nodo-flag-circle"><span class="fi fi-de"></span></span>
+                <span class="nodo-flag-label">GER</span>
+              </button>
+              <button type="button" class="nodo-flag-btn" data-lang="SPA" title="Spagnolo">
+                <span class="nodo-flag-circle"><span class="fi fi-es"></span></span>
+                <span class="nodo-flag-label">SPA</span>
+              </button>
+            </div>
+            <input type="hidden" id="nodoFLingua" value="">
             
             <div class="nodo-filter-graded" id="nodoFGraded">
               <div class="nodo-filter-group">
@@ -427,6 +539,16 @@
         });
       });
       
+      // Bandierine lingua
+      document.querySelectorAll('#nodoFLinguaGrid .nodo-flag-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('#nodoFLinguaGrid .nodo-flag-btn').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          document.getElementById('nodoFLingua').value = this.getAttribute('data-lang');
+          self.apply();
+        });
+      });
+      
       // Reset
       document.getElementById('nodoFReset')?.addEventListener('click', () => self.reset());
     },
@@ -461,6 +583,7 @@
       return {
         nome: document.getElementById('nodoFNome')?.value?.toLowerCase() || '',
         categoria: document.getElementById('nodoFCategoria')?.value || '',
+        lingua: document.getElementById('nodoFLingua')?.value || '',
         casaGradazione: document.getElementById('nodoFCasa')?.value || '',
         votoGradazione: parseFloat(document.getElementById('nodoFVoto')?.value) || 0,
         valoreMin: parseFloat(document.getElementById('nodoFMin')?.value) || 0,
@@ -483,6 +606,7 @@
       const v = this.getValues();
       let count = 0;
       if (v.categoria) count++;
+      if (v.lingua) count++;
       if (v.casaGradazione) count++;
       if (v.votoGradazione) count++;
       if (v.valoreMin > 0) count++;
@@ -501,12 +625,21 @@
     reset: function() {
       document.getElementById('nodoFNome').value = '';
       document.getElementById('nodoFCategoria').value = '';
+      document.getElementById('nodoFLingua').value = '';
       document.getElementById('nodoFCasa').value = '';
       document.getElementById('nodoFVoto').value = '';
       document.getElementById('nodoFMin').value = 0;
       document.getElementById('nodoFMax').value = 10000;
       document.getElementById('nodoFStato').value = '';
       document.getElementById('nodoFGraded').style.display = 'none';
+      
+      // Reset bandierine lingua
+      document.querySelectorAll('#nodoFLinguaGrid .nodo-flag-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-lang') === '') {
+          btn.classList.add('active');
+        }
+      });
       
       ['nodoTPresenti', 'nodoTAssenti', 'nodoTProfit', 'nodoTLoss'].forEach(id => {
         document.getElementById(id)?.classList.add('active');
