@@ -1131,6 +1131,54 @@
       background: rgba(255,255,255,0.05);
     }
     
+    /* Griglia Bandierine Lingua */
+    .language-flags-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+    
+    .flag-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 4px;
+      background: rgba(255,255,255,0.03);
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .flag-btn:hover {
+      background: rgba(251, 191, 36, 0.1);
+      border-color: rgba(251, 191, 36, 0.3);
+    }
+    
+    .flag-btn.active {
+      background: rgba(251, 191, 36, 0.2);
+      border-color: #fbbf24;
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+    }
+    
+    .flag-icon {
+      font-size: 20px;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    
+    .flag-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+    }
+    
+    .flag-btn.active .flag-label {
+      color: #fbbf24;
+    }
+    
     /* Paginazione Bottom */
     .pagination-bottom {
       margin-top: 20px;
@@ -1538,13 +1586,21 @@
             <option value="ETB">ETB</option>
             <option value="Carte Singole">Carte Singole</option>
             <option value="Carte gradate">Carte gradate</option>
+            <option value="Master Set">Master Set</option>
             <option value="Booster Box">Booster Box</option>
             <option value="Collection Box">Collection Box</option>
             <option value="Box mini tin">Box mini tin</option>
             <option value="Bustine">Bustine</option>
+            <option value="Poké Ball">Poké Ball</option>
             <option value="Accessori">Accessori</option>
             <option value="Altro">Altro</option>
           </select>
+        </div>
+        
+        <!-- Input per categoria "Altro" -->
+        <div class="filter-group" id="filterAltroInput" style="display:none;">
+          <label>Specifica categoria</label>
+          <input type="text" id="fAltroCategoria" placeholder="Descrivi la categoria..." oninput="applicaFiltri()">
         </div>
         
         <!-- Sezione Carte Gradate -->
@@ -1603,13 +1659,13 @@
           <label>Condizione</label>
           <select id="fCondizione" onchange="applicaFiltri()">
             <option value="">Tutte</option>
-            <option value="Mint">Mint (M)</option>
-            <option value="Near Mint">Near Mint (NM)</option>
-            <option value="Excellent">Excellent (EX)</option>
-            <option value="Good">Good (GD)</option>
-            <option value="Light Played">Light Played (LP)</option>
-            <option value="Played">Played (PL)</option>
-            <option value="Poor">Poor (P)</option>
+            <option value="Mint">(M) - Perfetta</option>
+            <option value="Near Mint">(NM) - Quasi perfetta</option>
+            <option value="Excellent">(EX) - Eccellente</option>
+            <option value="Good">(GD) - Buona</option>
+            <option value="Light Played">(LP) - Leggermente giocata</option>
+            <option value="Played">(PL) - Giocata</option>
+            <option value="Poor">(P) - Scarsa</option>
           </select>
         </div>
         
@@ -1622,18 +1678,45 @@
         <!-- Lingua -->
         <div class="filter-group">
           <label>Lingua</label>
-          <select id="fLingua" onchange="applicaFiltri()">
-            <option value="">Tutte</option>
-            <option value="ITA">Italiano</option>
-            <option value="ENG">Inglese</option>
-            <option value="JAP">Giapponese</option>
-            <option value="KOR">Coreano</option>
-            <option value="CHN">Cinese</option>
-            <option value="FRA">Francese</option>
-            <option value="GER">Tedesco</option>
-            <option value="SPA">Spagnolo</option>
-            <option value="POR">Portoghese</option>
-          </select>
+          <div class="language-flags-grid">
+            <button type="button" class="flag-btn" data-lang="" onclick="selectLanguage(this)" title="Tutte">
+              <span class="flag-icon">🌍</span>
+              <span class="flag-label">Tutte</span>
+            </button>
+            <button type="button" class="flag-btn" data-lang="ITA" onclick="selectLanguage(this)" title="Italiano">
+              <span class="flag-icon">🇮🇹</span>
+              <span class="flag-label">ITA</span>
+            </button>
+            <button type="button" class="flag-btn" data-lang="ENG" onclick="selectLanguage(this)" title="Inglese">
+              <span class="flag-icon">🇬🇧</span>
+              <span class="flag-label">ENG</span>
+            </button>
+            <button type="button" class="flag-btn" data-lang="JAP" onclick="selectLanguage(this)" title="Giapponese">
+              <span class="flag-icon">🇯🇵</span>
+              <span class="flag-label">JAP</span>
+            </button>
+            <button type="button" class="flag-btn" data-lang="KOR" onclick="selectLanguage(this)" title="Coreano">
+              <span class="flag-icon">🇰🇷</span>
+              <span class="flag-label">KOR</span>
+            </button>
+            <button type="button" class="flag-btn" data-lang="CHN" onclick="selectLanguage(this)" title="Cinese">
+              <span class="flag-icon">🇨🇳</span>
+              <span class="flag-label">CHN</span>
+            </button>
+            <button type="button" class="flag-btn" data-lang="FRA" onclick="selectLanguage(this)" title="Francese">
+              <span class="flag-icon">🇫🇷</span>
+              <span class="flag-label">FRA</span>
+            </button>
+            <button type="button" class="flag-btn" data-lang="GER" onclick="selectLanguage(this)" title="Tedesco">
+              <span class="flag-icon">🇩🇪</span>
+              <span class="flag-label">GER</span>
+            </button>
+            <button type="button" class="flag-btn" data-lang="SPA" onclick="selectLanguage(this)" title="Spagnolo">
+              <span class="flag-icon">🇪🇸</span>
+              <span class="flag-label">SPA</span>
+            </button>
+          </div>
+          <input type="hidden" id="fLingua" value="">
         </div>
         
         <!-- Toggle Presenza -->
@@ -1756,10 +1839,12 @@
               <option value="ETB">ETB</option>
               <option value="Carte Singole">Carte Singole</option>
               <option value="Carte gradate">Carte gradate</option>
+              <option value="Master Set">Master Set</option>
               <option value="Booster Box">Booster Box</option>
               <option value="Collection Box">Collection Box</option>
               <option value="Box mini tin">Box mini tin</option>
               <option value="Bustine">Bustine</option>
+              <option value="Poké Ball">Poké Ball</option>
               <option value="Accessori">Accessori</option>
               <option value="Altro">Altro</option>
             </select>
@@ -1816,13 +1901,13 @@
             <label><i class="fas fa-certificate"></i> CONDIZIONE</label>
             <select name="Condizione" id="condizioneAdd">
               <option value="">Seleziona...</option>
-              <option value="Mint">Mint (M) - Perfetta</option>
-              <option value="Near Mint">Near Mint (NM) - Quasi perfetta</option>
-              <option value="Excellent">Excellent (EX) - Eccellente</option>
-              <option value="Good">Good (GD) - Buona</option>
-              <option value="Light Played">Light Played (LP) - Leggermente giocata</option>
-              <option value="Played">Played (PL) - Giocata</option>
-              <option value="Poor">Poor (P) - Scarsa</option>
+              <option value="Mint">(M) - Perfetta</option>
+              <option value="Near Mint">(NM) - Quasi perfetta</option>
+              <option value="Excellent">(EX) - Eccellente</option>
+              <option value="Good">(GD) - Buona</option>
+              <option value="Light Played">(LP) - Leggermente giocata</option>
+              <option value="Played">(PL) - Giocata</option>
+              <option value="Poor">(P) - Scarsa</option>
             </select>
           </div>
 
@@ -1908,10 +1993,12 @@
               <option value="ETB">ETB</option>
               <option value="Carte Singole">Carte Singole</option>
               <option value="Carte gradate">Carte gradate</option>
+              <option value="Master Set">Master Set</option>
               <option value="Booster Box">Booster Box</option>
               <option value="Collection Box">Collection Box</option>
               <option value="Box mini tin">Box mini tin</option>
               <option value="Bustine">Bustine</option>
+              <option value="Poké Ball">Poké Ball</option>
               <option value="Accessori">Accessori</option>
               <option value="Altro">Altro</option>
             </select>
@@ -1968,13 +2055,13 @@
             <label><i class="fas fa-certificate"></i> CONDIZIONE</label>
             <select name="Condizione" id="editCondizione">
               <option value="">Seleziona...</option>
-              <option value="Mint">Mint (M) - Perfetta</option>
-              <option value="Near Mint">Near Mint (NM) - Quasi perfetta</option>
-              <option value="Excellent">Excellent (EX) - Eccellente</option>
-              <option value="Good">Good (GD) - Buona</option>
-              <option value="Light Played">Light Played (LP) - Leggermente giocata</option>
-              <option value="Played">Played (PL) - Giocata</option>
-              <option value="Poor">Poor (P) - Scarsa</option>
+              <option value="Mint">(M) - Perfetta</option>
+              <option value="Near Mint">(NM) - Quasi perfetta</option>
+              <option value="Excellent">(EX) - Eccellente</option>
+              <option value="Good">(GD) - Buona</option>
+              <option value="Light Played">(LP) - Leggermente giocata</option>
+              <option value="Played">(PL) - Giocata</option>
+              <option value="Poor">(P) - Scarsa</option>
             </select>
           </div>
 
@@ -2065,6 +2152,10 @@
     requireAuth();
     
     window.addEventListener('DOMContentLoaded', async () => {
+      // Attiva prima bandierina (Tutte) di default
+      const firstFlag = document.querySelector('.flag-btn[data-lang=""]');
+      if (firstFlag) firstFlag.classList.add('active');
+      
       // Carica articoli
       await caricaArticoli();
       
