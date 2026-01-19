@@ -224,7 +224,7 @@ function createArticleListItem(article) {
   }
   
   return `
-    <div class="list-item" onclick="apriModifica(${article.id})">
+    <div class="list-item" onclick="openDettaglio(${article.id})">
       <div class="list-image">
         <img src="${foto || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%231a1a1a%22 width=%22100%22 height=%22100%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23fbbf24%22 font-size=%2230%22>📷</text></svg>'}" alt="">
         ${article.Presente 
@@ -328,9 +328,9 @@ function createArticleCard(article) {
           </div>
         </div>
         
-        <!-- Tasto Modifica Rapido -->
-        <button class="quick-edit-btn" onclick="event.stopPropagation(); apriModifica(${article.id})">
-          <i class="fas fa-pen"></i> Modifica
+        <!-- Tasto Apri Articolo -->
+        <button class="quick-edit-btn" onclick="event.stopPropagation(); openDettaglio(${article.id})">
+          <i class="fas fa-external-link-alt"></i> Apri Articolo
         </button>
       </div>
       
@@ -475,8 +475,8 @@ function createArticleCard(article) {
         
         <!-- Azioni -->
         <div class="expanded-actions">
-          <button class="action-btn btn-edit" onclick="apriModifica(${article.id})">
-            <i class="fas fa-edit"></i> MODIFICA
+          <button class="action-btn btn-edit" onclick="openDettaglio(${article.id})">
+            <i class="fas fa-external-link-alt"></i> DETTAGLIO
           </button>
         </div>
       </div>
@@ -1221,6 +1221,12 @@ async function aggiungiArticolo(event) {
   }
 }
 
+// ========== APRI DETTAGLIO ARTICOLO ==========
+function openDettaglio(articleId) {
+  console.log('📄 Apertura dettaglio articolo ID:', articleId);
+  window.location.href = `dettaglio-articolo.html?id=${articleId}`;
+}
+
 // ========== MODAL MODIFICA ==========
 async function apriModifica(articleId) {
   console.log('🔧 apriModifica chiamata con ID:', articleId, 'tipo:', typeof articleId);
@@ -1638,3 +1644,6 @@ document.addEventListener('click', (e) => {
   if (e.target.id === 'modalEdit') closeEditModal();
   if (e.target.id === 'modalGraph') closeGraphModal();
 });
+
+// Export globale
+window.openDettaglio = openDettaglio;
