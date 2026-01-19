@@ -230,6 +230,11 @@ function renderArticolo(articolo) {
   var isMyArticle = currentUserId && articolo.user_id === currentUserId;
   var footerActions = document.getElementById('footerActions');
   
+  console.log('🔍 Verifica proprietà articolo:');
+  console.log('   - currentUserId:', currentUserId);
+  console.log('   - articolo.user_id:', articolo.user_id);
+  console.log('   - isMyArticle:', isMyArticle);
+  
   if (isMyArticle) {
     // È un tuo articolo - mostra bottone Modifica
     footerActions.innerHTML = 
