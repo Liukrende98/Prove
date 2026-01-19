@@ -718,13 +718,40 @@ function updateRangeSlider() {
   applicaFiltri();
 }
 
-// Gestisce mostra/nascondi filtri carte gradate
+// Gestisce mostra/nascondi filtri carte gradate e altro
 function gestisciFiltroCategoria() {
   const categoria = document.getElementById('fCategoria')?.value || '';
   const gradedSection = document.getElementById('filterGradedSection');
+  const altroInput = document.getElementById('filterAltroInput');
   
   if (gradedSection) {
     gradedSection.style.display = categoria === 'Carte gradate' ? 'block' : 'none';
+  }
+  
+  if (altroInput) {
+    altroInput.style.display = categoria === 'Altro' ? 'block' : 'none';
+    if (categoria !== 'Altro') {
+      const input = document.getElementById('fAltroCategoria');
+      if (input) input.value = '';
+    }
+  }
+  
+  applicaFiltri();
+}
+
+// Seleziona lingua con bandierine
+function selectLanguage(btn) {
+  // Rimuovi active da tutti
+  document.querySelectorAll('.flag-btn').forEach(b => b.classList.remove('active'));
+  
+  // Aggiungi active al selezionato
+  btn.classList.add('active');
+  
+  // Aggiorna valore nascosto
+  const lang = btn.getAttribute('data-lang');
+  const hiddenInput = document.getElementById('fLingua');
+  if (hiddenInput) {
+    hiddenInput.value = lang;
   }
   
   applicaFiltri();
@@ -1647,3 +1674,4 @@ document.addEventListener('click', (e) => {
 
 // Export globale
 window.openDettaglio = openDettaglio;
+window.selectLanguage = selectLanguage;
