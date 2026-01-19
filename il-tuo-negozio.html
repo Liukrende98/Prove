@@ -16,6 +16,7 @@
   
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/7.2.3/css/flag-icons.min.css">
   
   <!-- Tesseract.js (OCR) -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -1162,10 +1163,31 @@
       box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
     }
     
-    .flag-icon {
-      font-size: 20px;
-      line-height: 1;
-      margin-bottom: 2px;
+    /* Bandiera tonda */
+    .flag-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.1);
+      margin-bottom: 4px;
+    }
+    
+    .flag-circle .fi {
+      font-size: 28px;
+      transform: scale(1.4);
+    }
+    
+    .flag-circle i {
+      font-size: 14px;
+      color: #888;
+    }
+    
+    .flag-btn.active .flag-circle i {
+      color: #fbbf24;
     }
     
     .flag-label {
@@ -1211,19 +1233,22 @@
       box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
     }
     
-    .form-flag-icon {
-      width: 32px;
-      height: 32px;
-      font-size: 28px;
-      line-height: 32px;
-      text-align: center;
+    /* Bandiera tonda nei form */
+    .form-flag-circle {
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      background: rgba(0,0,0,0.3);
-      margin-bottom: 4px;
+      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      background: rgba(0,0,0,0.3);
+      margin-bottom: 4px;
+    }
+    
+    .form-flag-circle .fi {
+      font-size: 36px;
+      transform: scale(1.5);
     }
     
     .form-flag-label {
@@ -1738,39 +1763,39 @@
           <label>Lingua</label>
           <div class="language-flags-grid">
             <button type="button" class="flag-btn" data-lang="" onclick="selectLanguage(this)" title="Tutte">
-              <span class="flag-icon">🌍</span>
+              <span class="flag-circle"><i class="fas fa-globe"></i></span>
               <span class="flag-label">Tutte</span>
             </button>
             <button type="button" class="flag-btn" data-lang="ITA" onclick="selectLanguage(this)" title="Italiano">
-              <span class="flag-icon">🇮🇹</span>
+              <span class="flag-circle"><span class="fi fi-it"></span></span>
               <span class="flag-label">ITA</span>
             </button>
             <button type="button" class="flag-btn" data-lang="ENG" onclick="selectLanguage(this)" title="Inglese">
-              <span class="flag-icon">🇬🇧</span>
+              <span class="flag-circle"><span class="fi fi-gb"></span></span>
               <span class="flag-label">ENG</span>
             </button>
             <button type="button" class="flag-btn" data-lang="JAP" onclick="selectLanguage(this)" title="Giapponese">
-              <span class="flag-icon">🇯🇵</span>
+              <span class="flag-circle"><span class="fi fi-jp"></span></span>
               <span class="flag-label">JAP</span>
             </button>
             <button type="button" class="flag-btn" data-lang="KOR" onclick="selectLanguage(this)" title="Coreano">
-              <span class="flag-icon">🇰🇷</span>
+              <span class="flag-circle"><span class="fi fi-kr"></span></span>
               <span class="flag-label">KOR</span>
             </button>
             <button type="button" class="flag-btn" data-lang="CHN" onclick="selectLanguage(this)" title="Cinese">
-              <span class="flag-icon">🇨🇳</span>
+              <span class="flag-circle"><span class="fi fi-cn"></span></span>
               <span class="flag-label">CHN</span>
             </button>
             <button type="button" class="flag-btn" data-lang="FRA" onclick="selectLanguage(this)" title="Francese">
-              <span class="flag-icon">🇫🇷</span>
+              <span class="flag-circle"><span class="fi fi-fr"></span></span>
               <span class="flag-label">FRA</span>
             </button>
             <button type="button" class="flag-btn" data-lang="GER" onclick="selectLanguage(this)" title="Tedesco">
-              <span class="flag-icon">🇩🇪</span>
+              <span class="flag-circle"><span class="fi fi-de"></span></span>
               <span class="flag-label">GER</span>
             </button>
             <button type="button" class="flag-btn" data-lang="SPA" onclick="selectLanguage(this)" title="Spagnolo">
-              <span class="flag-icon">🇪🇸</span>
+              <span class="flag-circle"><span class="fi fi-es"></span></span>
               <span class="flag-label">SPA</span>
             </button>
           </div>
@@ -1949,39 +1974,39 @@
             <label><i class="fas fa-globe"></i> LINGUA</label>
             <div class="form-flags-grid" id="linguaAddGrid">
               <button type="button" class="form-flag-btn" data-lang="ITA" onclick="selectFormLanguage(this, 'Add')" title="Italiano">
-                <span class="form-flag-icon">🇮🇹</span>
+                <span class="form-flag-circle"><span class="fi fi-it"></span></span>
                 <span class="form-flag-label">ITA</span>
               </button>
               <button type="button" class="form-flag-btn" data-lang="ENG" onclick="selectFormLanguage(this, 'Add')" title="Inglese">
-                <span class="form-flag-icon">🇬🇧</span>
+                <span class="form-flag-circle"><span class="fi fi-gb"></span></span>
                 <span class="form-flag-label">ENG</span>
               </button>
               <button type="button" class="form-flag-btn" data-lang="JAP" onclick="selectFormLanguage(this, 'Add')" title="Giapponese">
-                <span class="form-flag-icon">🇯🇵</span>
+                <span class="form-flag-circle"><span class="fi fi-jp"></span></span>
                 <span class="form-flag-label">JAP</span>
               </button>
               <button type="button" class="form-flag-btn" data-lang="KOR" onclick="selectFormLanguage(this, 'Add')" title="Coreano">
-                <span class="form-flag-icon">🇰🇷</span>
+                <span class="form-flag-circle"><span class="fi fi-kr"></span></span>
                 <span class="form-flag-label">KOR</span>
               </button>
               <button type="button" class="form-flag-btn" data-lang="CHN" onclick="selectFormLanguage(this, 'Add')" title="Cinese">
-                <span class="form-flag-icon">🇨🇳</span>
+                <span class="form-flag-circle"><span class="fi fi-cn"></span></span>
                 <span class="form-flag-label">CHN</span>
               </button>
               <button type="button" class="form-flag-btn" data-lang="FRA" onclick="selectFormLanguage(this, 'Add')" title="Francese">
-                <span class="form-flag-icon">🇫🇷</span>
+                <span class="form-flag-circle"><span class="fi fi-fr"></span></span>
                 <span class="form-flag-label">FRA</span>
               </button>
               <button type="button" class="form-flag-btn" data-lang="GER" onclick="selectFormLanguage(this, 'Add')" title="Tedesco">
-                <span class="form-flag-icon">🇩🇪</span>
+                <span class="form-flag-circle"><span class="fi fi-de"></span></span>
                 <span class="form-flag-label">GER</span>
               </button>
               <button type="button" class="form-flag-btn" data-lang="SPA" onclick="selectFormLanguage(this, 'Add')" title="Spagnolo">
-                <span class="form-flag-icon">🇪🇸</span>
+                <span class="form-flag-circle"><span class="fi fi-es"></span></span>
                 <span class="form-flag-label">SPA</span>
               </button>
               <button type="button" class="form-flag-btn" data-lang="POR" onclick="selectFormLanguage(this, 'Add')" title="Portoghese">
-                <span class="form-flag-icon">🇵🇹</span>
+                <span class="form-flag-circle"><span class="fi fi-pt"></span></span>
                 <span class="form-flag-label">POR</span>
               </button>
             </div>
@@ -2136,39 +2161,39 @@
             <label><i class="fas fa-globe"></i> LINGUA</label>
             <div class="form-flags-grid" id="linguaEditGrid">
               <button type="button" class="form-flag-btn" data-lang="ITA" onclick="selectFormLanguage(this, 'Edit')" title="Italiano">
-                <span class="form-flag-icon">🇮🇹</span>
+                <span class="form-flag-circle"><span class="fi fi-it"></span></span>
                 <span class="form-flag-label">ITA</span>
               </button>
               <button type="button" class="form-flag-btn" data-lang="ENG" onclick="selectFormLanguage(this, 'Edit')" title="Inglese">
-                <span class="form-flag-icon">🇬🇧</span>
+                <span class="form-flag-circle"><span class="fi fi-gb"></span></span>
                 <span class="form-flag-label">ENG</span>
               </button>
               <button type="button" class="form-flag-btn" data-lang="JAP" onclick="selectFormLanguage(this, 'Edit')" title="Giapponese">
-                <span class="form-flag-icon">🇯🇵</span>
+                <span class="form-flag-circle"><span class="fi fi-jp"></span></span>
                 <span class="form-flag-label">JAP</span>
               </button>
               <button type="button" class="form-flag-btn" data-lang="KOR" onclick="selectFormLanguage(this, 'Edit')" title="Coreano">
-                <span class="form-flag-icon">🇰🇷</span>
+                <span class="form-flag-circle"><span class="fi fi-kr"></span></span>
                 <span class="form-flag-label">KOR</span>
               </button>
               <button type="button" class="form-flag-btn" data-lang="CHN" onclick="selectFormLanguage(this, 'Edit')" title="Cinese">
-                <span class="form-flag-icon">🇨🇳</span>
+                <span class="form-flag-circle"><span class="fi fi-cn"></span></span>
                 <span class="form-flag-label">CHN</span>
               </button>
               <button type="button" class="form-flag-btn" data-lang="FRA" onclick="selectFormLanguage(this, 'Edit')" title="Francese">
-                <span class="form-flag-icon">🇫🇷</span>
+                <span class="form-flag-circle"><span class="fi fi-fr"></span></span>
                 <span class="form-flag-label">FRA</span>
               </button>
               <button type="button" class="form-flag-btn" data-lang="GER" onclick="selectFormLanguage(this, 'Edit')" title="Tedesco">
-                <span class="form-flag-icon">🇩🇪</span>
+                <span class="form-flag-circle"><span class="fi fi-de"></span></span>
                 <span class="form-flag-label">GER</span>
               </button>
               <button type="button" class="form-flag-btn" data-lang="SPA" onclick="selectFormLanguage(this, 'Edit')" title="Spagnolo">
-                <span class="form-flag-icon">🇪🇸</span>
+                <span class="form-flag-circle"><span class="fi fi-es"></span></span>
                 <span class="form-flag-label">SPA</span>
               </button>
               <button type="button" class="form-flag-btn" data-lang="POR" onclick="selectFormLanguage(this, 'Edit')" title="Portoghese">
-                <span class="form-flag-icon">🇵🇹</span>
+                <span class="form-flag-circle"><span class="fi fi-pt"></span></span>
                 <span class="form-flag-label">POR</span>
               </button>
             </div>
