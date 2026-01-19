@@ -16,6 +16,9 @@ async function loadArticoloDettaglio() {
     return;
   }
   
+  // Mostra loader
+  if (window.NodoLoader) NodoLoader.show('Caricamento articolo...');
+  
   try {
     // Carica articolo con dati utente
     const { data: articolo, error } = await supabaseClient
@@ -35,6 +38,7 @@ async function loadArticoloDettaglio() {
     if (error) throw error;
     
     if (!articolo) {
+      if (window.NodoLoader) NodoLoader.hide();
       showError('Articolo non trovato');
       return;
     }
@@ -50,24 +54,28 @@ async function loadArticoloDettaglio() {
     document.getElementById('detailContent').style.display = 'block';
     document.getElementById('detailFooter').style.display = 'block';
     
+    // Nascondi loader
+    if (window.NodoLoader) NodoLoader.hide();
+    
   } catch (error) {
     console.error('❌ Errore caricamento articolo:', error);
+    if (window.NodoLoader) NodoLoader.hide();
     showError(error.message);
   }
 }
 
 // Renderizza articolo
 function renderArticolo(articolo) {
-  // GALLERIA FOTO
+  // GALLERIA FOTO - usa i nomi colonne corretti
   allPhotos = [
-    articolo.Foto1,
-    articolo.Foto2,
-    articolo.Foto3,
-    articolo.Foto4,
-    articolo.Foto5,
     articolo.foto_principale,
-    articolo.image_url
-  ].filter(f => f !== null && f !== '' && f !== undefined);
+    articolo.image_url,
+    articolo.foto_2,
+    articolo.foto_3,
+    articolo.foto_4,
+    articolo.foto_5,
+    articolo.foto_6
+  ].filter(function(f) { return f !== null && f !== '' && f !== undefined; });
   
   renderPhotoGallery();
   
@@ -253,19 +261,15 @@ function updateActiveDot() {
 
 // Apri lightbox
 function openLightbox(index) {
-  const lightbox = document.getElementById('photoLightbox');
-  const image = document.getElementById('lightboxImage');
-  
-  image.src = allPhotos[index];
-  lightbox.classList.add('active');
-  document.body.style.overflow = 'hidden';
+  // Usa NodoGalleria
+  if (window.NodoGalleria && allPhotos.length > 0) {
+    NodoGalleria.open(allPhotos, index);
+  }
 }
 
-// Chiudi lightbox
+// Chiudi lightbox - non più usata, gestita da NodoGalleria
 function closeLightbox() {
-  const lightbox = document.getElementById('photoLightbox');
-  lightbox.classList.remove('active');
-  document.body.style.overflow = '';
+  // Manteniamo per compatibilità
 }
 
 // Contatta venditore - CON MESSAGGIO PRE-COMPILATO
