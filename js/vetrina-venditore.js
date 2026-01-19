@@ -223,7 +223,7 @@ function renderVendorProfile(vendor) {
           <div class="vendor-stat-label">Follower</div>
         </div>
         <div class="vendor-stat-box" onclick="showFollowingList('${vendor.id}')">
-          <div class="vendor-stat-value">${vendor.followingCount}</div>
+          <div class="vendor-stat-value" id="followingCounter">${vendor.followingCount}</div>
           <div class="vendor-stat-label">Seguiti</div>
         </div>
       </div>
@@ -1066,6 +1066,7 @@ function showArticoliList() {
 
 async function showFollowersList(userId) {
   console.log('👥 Caricamento follower di:', userId);
+  followChangesInModal = false; // Reset flag
   
   const modal = document.getElementById('listModal');
   const title = document.getElementById('listModalTitle');
@@ -1153,6 +1154,7 @@ async function showFollowersList(userId) {
 
 async function showFollowingList(userId) {
   console.log('👥 Caricamento following di:', userId);
+  followChangesInModal = false; // Reset flag
   
   const modal = document.getElementById('listModal');
   const title = document.getElementById('listModalTitle');
@@ -1238,14 +1240,71 @@ async function showFollowingList(userId) {
   }
 }
 
-function closeListModal() {
+async function closeListModal() {
   const modal = document.getElementById('listModal');
   if (modal) {
     modal.style.display = 'none';
   }
+  
+  // Se ci sono state modifiche ai follow, aggiorna i contatori
+  if (followChangesInModal) {
+    console.log('🔄 Aggiornamento contatori dopo modifiche follow...');
+    followChangesInModal = false; // Reset flag
+    
+    try {
+      // Recupera l'ID del venditore corrente dalla URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const vendorId = urlParams.get('id');
+      
+      if (vendorId) {
+        // Ricarica i contatori follower e following
+        const { count: newFollowersCount } = await supabaseClient
+          .from('Followers')
+          .select('*', { count: 'exact', head: true })
+          .eq('utente_seguito_id', vendorId);
+        
+        const { count: newFollowingCount } = await supabaseClient
+          .from('Followers')
+          .select('*', { count: 'exact', head: true })
+          .eq('follower_id', vendorId);
+        
+        // Aggiorna i contatori nella UI
+        const followersCounter = document.getElementById('followersCounter');
+        const followingCounter = document.getElementById('followingCounter');
+        
+        if (followersCounter) {
+          followersCounter.textContent = newFollowersCount || 0;
+          // Animazione
+          followersCounter.style.transform = 'scale(1.3)';
+          followersCounter.style.color = '#10b981';
+          setTimeout(() => {
+            followersCounter.style.transform = 'scale(1)';
+            followersCounter.style.color = '#fbbf24';
+          }, 300);
+        }
+        
+        if (followingCounter) {
+          followingCounter.textContent = newFollowingCount || 0;
+          // Animazione
+          followingCounter.style.transform = 'scale(1.3)';
+          followingCounter.style.color = '#10b981';
+          setTimeout(() => {
+            followingCounter.style.transform = 'scale(1)';
+            followingCounter.style.color = '#fbbf24';
+          }, 300);
+        }
+        
+        console.log('✅ Contatori aggiornati - Follower:', newFollowersCount, 'Following:', newFollowingCount);
+      }
+    } catch (error) {
+      console.error('❌ Errore aggiornamento contatori:', error);
+    }
+  }
 }
 
 // Toggle follow veloce dal modal (senza ricaricare tutta la pagina)
+var followChangesInModal = false; // Flag per tracciare modifiche
+
 async function quickToggleFollow(targetUserId, buttonElement) {
   const currentUserId = getCurrentUserId();
   if (!currentUserId) {
@@ -1269,6 +1328,7 @@ async function quickToggleFollow(targetUserId, buttonElement) {
       buttonElement.classList.remove('secondary');
       buttonElement.classList.add('primary');
       buttonElement.textContent = 'Segui';
+      followChangesInModal = true;
       
       console.log('✅ Unfollow effettuato');
       
@@ -1286,6 +1346,7 @@ async function quickToggleFollow(targetUserId, buttonElement) {
       buttonElement.classList.remove('primary');
       buttonElement.classList.add('secondary');
       buttonElement.textContent = 'Seguito';
+      followChangesInModal = true;
       
       console.log('✅ Follow effettuato');
     }
