@@ -17,7 +17,52 @@
   <!-- CSS -->
   <link rel="stylesheet" href="css/dettaglio-articolo.css">
   <link rel="stylesheet" href="css/messages-styles.css">
-</head>
+  
+  <style>
+    /* Bottone Modifica */
+    .edit-btn {
+      width: 100%;
+      padding: 16px 24px;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      border: none;
+      border-radius: 16px;
+      color: #000;
+      font-size: 16px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(251, 191, 36, 0.4);
+      transition: all 0.2s;
+    }
+    
+    .edit-btn:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 10px rgba(251, 191, 36, 0.3);
+    }
+    
+    /* Highlight gradazione */
+    .detail-row.detail-highlight {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.1) 100%);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 12px;
+      padding: 12px;
+      margin: -4px -8px;
+    }
+    
+    .detail-row.detail-highlight .detail-value {
+      color: #fbbf24;
+      font-weight: 900;
+      font-size: 15px;
+    }
+    
+    /* Footer actions container */
+    #footerActions {
+      width: 100%;
+    }
+  </style></head>
 
 <body>
   <div class="particles" id="particles"></div>
@@ -97,9 +142,8 @@
 
   <!-- FOOTER FISSO CON AZIONE -->
   <div class="detail-footer" id="detailFooter" style="display: none;">
-    <button class="contact-btn" id="contactBtn">
-      <i class="fas fa-envelope"></i> Contatta Venditore
-    </button>
+    <!-- Bottone dinamico: Modifica (se tuo) o Contatta (se altri) -->
+    <div id="footerActions"></div>
   </div>
 
   <!-- LIGHTBOX FOTO - Gestito da NodoGalleria -->
@@ -111,7 +155,7 @@
   <script src="js/config.js"></script>
   <script src="js/messages.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/dettaglio-articolo.js?v=3"></script>
+  <script src="js/dettaglio-articolo.js?v=4"></script>
 
   <script>
     requireAuth();
