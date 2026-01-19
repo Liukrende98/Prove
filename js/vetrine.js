@@ -1104,7 +1104,17 @@ function createFilterHtmlNew() {
             <div class="filter-label"><i class="fas fa-tags"></i> Categoria</div>
             <select class="filter-select" id="filterCategoria">
               <option value="all">Tutte le categorie</option>
-              ${categorie.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+              <option value="ETB">ETB</option>
+              <option value="Carte Singole">Carte Singole</option>
+              <option value="Carte gradate">Carte gradate</option>
+              <option value="Master Set">Master Set</option>
+              <option value="Booster Box">Booster Box</option>
+              <option value="Collection Box">Collection Box</option>
+              <option value="Box mini tin">Box mini tin</option>
+              <option value="Bustine">Bustine</option>
+              <option value="Poké Ball">Poké Ball</option>
+              <option value="Accessori">Accessori</option>
+              <option value="Altro">Altro</option>
             </select>
           </div>
           
@@ -1172,12 +1182,11 @@ function createFilterHtmlNew() {
             <div class="filter-label"><i class="fas fa-star"></i> Valutazione Minima</div>
             <select class="filter-select" id="filterRating">
               <option value="0">Tutte</option>
-              <option value="5">5+ ⭐</option>
-              <option value="6">6+ ⭐</option>
-              <option value="7">7+ ⭐</option>
-              <option value="8">8+ ⭐</option>
-              <option value="9">9+ ⭐</option>
-              <option value="10">10 ⭐ (Perfetto)</option>
+              <option value="5">5+</option>
+              <option value="6">6+</option>
+              <option value="7">7+</option>
+              <option value="8">8+</option>
+              <option value="9">9+</option>
             </select>
           </div>
           
