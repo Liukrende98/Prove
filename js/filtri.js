@@ -382,10 +382,12 @@
                 <option value="ETB">ETB</option>
                 <option value="Carte Singole">Carte Singole</option>
                 <option value="Carte gradate">Carte gradate</option>
+                <option value="Master Set">Master Set</option>
                 <option value="Booster Box">Booster Box</option>
                 <option value="Collection Box">Collection Box</option>
                 <option value="Box mini tin">Box mini tin</option>
                 <option value="Bustine">Bustine</option>
+                <option value="Poké Ball">Poké Ball</option>
                 <option value="Accessori">Accessori</option>
                 <option value="Altro">Altro</option>
               </select>
