@@ -2,9 +2,22 @@
 // DETTAGLIO ARTICOLO - OTTIMIZZATO MOBILE
 // ========================================
 
-let currentArticolo = null;
-let currentPhotoIndex = 0;
-let allPhotos = [];
+var currentArticolo = null;
+var currentPhotoIndex = 0;
+var allPhotos = [];
+
+// Ottieni ID utente corrente
+function getCurrentUserId() {
+  return localStorage.getItem('nodo_user_id') || null;
+}
+
+// Vai alla pagina modifica articolo
+function goToModifica() {
+  if (!currentArticolo) return;
+  
+  // Salva l'ID dell'articolo e vai alla pagina negozio con parametro per aprire modifica
+  window.location.href = 'il-tuo-negozio.html?modifica=' + currentArticolo.id;
+}
 
 // Carica articolo
 async function loadArticoloDettaglio() {
@@ -151,22 +164,49 @@ function renderArticolo(articolo) {
   const details = [];
   const disponibile = articolo.Presente === true;
   
-  if (articolo.Set) {
-    details.push({ icon: 'fa-layer-group', label: 'Set', value: articolo.Set });
-  }
-  
+  // Categoria
   if (articolo.Categoria) {
     details.push({ icon: 'fa-tag', label: 'Categoria', value: articolo.Categoria });
   }
   
-  if (articolo.Lingua) {
+  // Gradazione (se carta gradata)
+  if (articolo.Categoria === 'Carte gradate' && articolo.casa_gradazione && articolo.voto_gradazione) {
+    details.push({ 
+      icon: 'fa-award', 
+      label: 'Gradazione', 
+      value: articolo.casa_gradazione + ' ' + articolo.voto_gradazione,
+      highlight: true
+    });
+  }
+  
+  // Set
+  if (articolo.Set) {
+    details.push({ icon: 'fa-layer-group', label: 'Set', value: articolo.Set });
+  }
+  
+  // Espansione
+  if (articolo.espansione) {
+    details.push({ icon: 'fa-boxes-stacked', label: 'Espansione', value: articolo.espansione });
+  }
+  
+  // Lingua
+  if (articolo.lingua) {
+    details.push({ icon: 'fa-language', label: 'Lingua', value: articolo.lingua });
+  } else if (articolo.Lingua) {
     details.push({ icon: 'fa-language', label: 'Lingua', value: articolo.Lingua });
   }
   
+  // Condizione
+  if (articolo.condizione) {
+    details.push({ icon: 'fa-star-half-alt', label: 'Condizione', value: articolo.condizione });
+  }
+  
+  // Rarità
   if (articolo.Rarita) {
     details.push({ icon: 'fa-gem', label: 'Rarità', value: articolo.Rarita });
   }
   
+  // Disponibilità
   details.push({ 
     icon: 'fa-box', 
     label: 'Disponibilità', 
@@ -174,19 +214,35 @@ function renderArticolo(articolo) {
   });
   
   if (details.length > 0) {
-    detailsGrid.innerHTML = details.map(d => `
-      <div class="detail-row">
-        <div class="detail-label">
-          <i class="fas ${d.icon}"></i> ${d.label}
-        </div>
-        <div class="detail-value">${d.value}</div>
-      </div>
-    `).join('');
+    detailsGrid.innerHTML = details.map(function(d) {
+      var highlightClass = d.highlight ? ' detail-highlight' : '';
+      return '<div class="detail-row' + highlightClass + '">' +
+        '<div class="detail-label">' +
+          '<i class="fas ' + d.icon + '"></i> ' + d.label +
+        '</div>' +
+        '<div class="detail-value">' + d.value + '</div>' +
+      '</div>';
+    }).join('');
   }
   
-  // BOTTONE CONTATTO
-  const contactBtn = document.getElementById('contactBtn');
-  contactBtn.onclick = () => contattaVenditore();
+  // FOOTER - Verifica se è un tuo articolo
+  var currentUserId = getCurrentUserId();
+  var isMyArticle = currentUserId && articolo.user_id === currentUserId;
+  var footerActions = document.getElementById('footerActions');
+  
+  if (isMyArticle) {
+    // È un tuo articolo - mostra bottone Modifica
+    footerActions.innerHTML = 
+      '<button class="edit-btn" onclick="goToModifica()">' +
+        '<i class="fas fa-edit"></i> Modifica Articolo' +
+      '</button>';
+  } else {
+    // Non è tuo - mostra bottone Contatta
+    footerActions.innerHTML = 
+      '<button class="contact-btn" onclick="contattaVenditore()">' +
+        '<i class="fas fa-envelope"></i> Contatta Venditore' +
+      '</button>';
+  }
 }
 
 // Renderizza galleria foto
