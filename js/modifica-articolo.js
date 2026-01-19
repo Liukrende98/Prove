@@ -66,7 +66,19 @@ async function apriModifica(articleId) {
   document.getElementById('editDescrizione').value = article.Descrizione || '';
   document.getElementById('editCategoria').value = article.Categoria || '';
   document.getElementById('editEspansione').value = article.espansione || '';
+  
+  // Seleziona bandierina lingua
   document.getElementById('editLingua').value = article.lingua || '';
+  var linguaGrid = document.getElementById('linguaEditGrid');
+  if (linguaGrid) {
+    linguaGrid.querySelectorAll('.form-flag-btn').forEach(function(btn) {
+      btn.classList.remove('active');
+      if (btn.getAttribute('data-lang') === (article.lingua || '')) {
+        btn.classList.add('active');
+      }
+    });
+  }
+  
   document.getElementById('editCondizione').value = article.condizione || '';
   document.getElementById('editValoreAttuale').value = article.ValoreAttuale || 0;
   document.getElementById('editPrezzoPagato').value = article.PrezzoPagato || 0;
@@ -84,7 +96,7 @@ async function apriModifica(articleId) {
     prezzoGroup.style.display = article.in_vetrina ? 'block' : 'none';
   }
   
-  // Gestisci carte gradate
+  // Gestisci carte gradate e altro
   gestisciCarteGradate(article.Categoria || '', 'Edit');
   
   if (article.Categoria === 'Carte gradate') {
@@ -98,6 +110,14 @@ async function apriModifica(articleId) {
       gestisciAltraCasa(article.casa_gradazione || '', 'Edit');
       if (altraCasaInput) altraCasaInput.value = article.altra_casa_gradazione || '';
       if (votoInput) votoInput.value = article.voto_gradazione || '';
+    }, 50);
+  }
+  
+  // Gestisci altra categoria
+  if (article.Categoria === 'Altro') {
+    setTimeout(function() {
+      var altraCatInput = document.getElementById('altraCategoriaEdit');
+      if (altraCatInput) altraCatInput.value = article.altra_categoria || '';
     }, 50);
   }
   
@@ -353,11 +373,19 @@ async function salvaModifica(event) {
     if (casaGradazione === 'Altra casa' && altraCasaEl) altraCasaGradazione = altraCasaEl.value || null;
     if (votoEl) votoGradazione = parseFloat(votoEl.value) || null;
   }
+  
+  // Campo altra categoria
+  var altraCategoria = null;
+  if (categoria === 'Altro') {
+    var altraCatEl = document.getElementById('altraCategoriaEdit');
+    if (altraCatEl) altraCategoria = altraCatEl.value || null;
+  }
 
   var articolo = {
     Nome: formData.get('Nome'),
     Descrizione: formData.get('Descrizione') || null,
     Categoria: categoria || null,
+    altra_categoria: altraCategoria,
     espansione: document.getElementById('editEspansione').value || null,
     lingua: document.getElementById('editLingua').value || null,
     condizione: document.getElementById('editCondizione').value || null,
@@ -460,5 +488,28 @@ window.renderEditImages = renderEditImages;
 window.loadExistingImages = loadExistingImages;
 window.resetEditImages = resetEditImages;
 window.uploadImage = uploadImage;
+
+// Seleziona lingua con bandierine nei FORM (per dettaglio-articolo)
+function selectFormLanguageDetail(btn) {
+  // Rimuovi active da tutti i bottoni nella stessa griglia
+  var grid = document.getElementById('linguaEditGrid');
+  if (grid) {
+    grid.querySelectorAll('.form-flag-btn').forEach(function(b) {
+      b.classList.remove('active');
+    });
+  }
+  
+  // Aggiungi active al selezionato
+  btn.classList.add('active');
+  
+  // Aggiorna valore nascosto
+  var lang = btn.getAttribute('data-lang');
+  var hiddenInput = document.getElementById('editLingua');
+  if (hiddenInput) {
+    hiddenInput.value = lang;
+  }
+}
+
+window.selectFormLanguageDetail = selectFormLanguageDetail;
 
 console.log('📝 Modifica-Articolo.js v4.0 caricato (solo logica)');
