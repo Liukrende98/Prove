@@ -663,25 +663,30 @@
       transform: scale(0.95);
     }
 
-    /* RICERCA UTENTI NEL MODAL */
-    .modal-search {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px;
+    /* RICERCA UTENTI NEL MODAL - Stile identico a filtri.js */
+    .modal-filter-box {
       background: #141414;
-      border: 1px solid rgba(251, 191, 36, 0.2);
       border-radius: 12px;
       margin-bottom: 16px;
+      border: 1px solid rgba(251, 191, 36, 0.2);
+      overflow: hidden;
       flex-shrink: 0;
     }
 
-    .modal-search i {
+    .modal-filter-search {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      gap: 10px;
+      background: #1a1a1a;
+    }
+
+    .modal-filter-search > i {
       color: #666;
       font-size: 14px;
     }
 
-    .modal-search input {
+    .modal-filter-search input {
       flex: 1;
       background: transparent;
       border: none;
@@ -691,7 +696,7 @@
       font-family: inherit;
     }
 
-    .modal-search input::placeholder {
+    .modal-filter-search input::placeholder {
       color: #666;
     }
 
@@ -1006,7 +1011,7 @@
   <script src="js/messages.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/filtri.js"></script>
-  <script src="js/vetrina-venditore.js?v=5"></script>
+  <script src="js/vetrina-venditore.js?v=6"></script>
 
   <script>
     requireAuth();
