@@ -612,14 +612,16 @@ function createVetrinaCard(userId, username, citta, disponibili, acquisti, media
 function createArticoloCard(articolo) {
   // Raccogli tutte le foto disponibili
   const allPhotos = [];
-  if (articolo.Foto1) allPhotos.push(articolo.Foto1);
-  if (articolo.Foto2) allPhotos.push(articolo.Foto2);
-  if (articolo.Foto3) allPhotos.push(articolo.Foto3);
-  if (articolo.Foto4) allPhotos.push(articolo.Foto4);
-  if (articolo.Foto5) allPhotos.push(articolo.Foto5);
+  if (articolo.foto_principale) allPhotos.push(articolo.foto_principale);
+  else if (articolo.image_url) allPhotos.push(articolo.image_url);
+  if (articolo.foto_2) allPhotos.push(articolo.foto_2);
+  if (articolo.foto_3) allPhotos.push(articolo.foto_3);
+  if (articolo.foto_4) allPhotos.push(articolo.foto_4);
+  if (articolo.foto_5) allPhotos.push(articolo.foto_5);
+  if (articolo.foto_6) allPhotos.push(articolo.foto_6);
   
   const hasMultiplePhotos = allPhotos.length > 1;
-  const mainPhoto = allPhotos[0] || articolo.foto_principale || articolo.image_url || '';
+  const mainPhoto = allPhotos[0] || '';
   
   const imageHtml = mainPhoto 
     ? `<img src="${mainPhoto}" alt="${articolo.Nome}" id="article-img-${articolo.id}">` 
@@ -660,7 +662,7 @@ function createArticoloCard(articolo) {
   ` : '';
   
   return `
-    <div class="vetrina-product-card" onclick="mostraDettaglioArticolo('${articolo.id}')" data-article-id="${articolo.id}" data-current-photo="0" data-photos='${JSON.stringify(allPhotos)}'>
+    <div class="vetrina-product-card" onclick="mostraDettaglioArticolo('${articolo.id}')" data-article-id="${articolo.id}" data-current-photo="0" data-photos="${encodeURIComponent(JSON.stringify(allPhotos))}">
       <div class="vetrina-product-image">
         ${imageHtml}
         ${navHtml}
@@ -1491,13 +1493,18 @@ function goToImage(index) {
 // ============================================
 
 function changeArticlePhoto(articleId, direction) {
-  const card = document.querySelector(`[data-article-id="${articleId}"]`);
+  var card = document.querySelector('[data-article-id="' + articleId + '"]');
   if (!card) return;
   
-  const photos = JSON.parse(card.getAttribute('data-photos') || '[]');
+  var photos = [];
+  try {
+    photos = JSON.parse(decodeURIComponent(card.getAttribute('data-photos') || '[]'));
+  } catch(e) {
+    return;
+  }
   if (photos.length === 0) return;
   
-  let currentIndex = parseInt(card.getAttribute('data-current-photo') || '0');
+  var currentIndex = parseInt(card.getAttribute('data-current-photo') || '0');
   currentIndex += direction;
   
   // Loop circolare
@@ -1505,16 +1512,16 @@ function changeArticlePhoto(articleId, direction) {
   if (currentIndex >= photos.length) currentIndex = 0;
   
   // Aggiorna immagine
-  const img = card.querySelector(`#article-img-${articleId}`);
+  var img = card.querySelector('#article-img-' + articleId);
   if (img) {
     img.src = photos[currentIndex];
   }
   
   // Aggiorna dots
-  const dotsContainer = card.querySelector(`#dots-${articleId}`);
+  var dotsContainer = card.querySelector('#dots-' + articleId);
   if (dotsContainer) {
-    const dots = dotsContainer.querySelectorAll('.article-photo-dot');
-    dots.forEach((dot, idx) => {
+    var dots = dotsContainer.querySelectorAll('.article-photo-dot');
+    dots.forEach(function(dot, idx) {
       if (idx === currentIndex) {
         dot.classList.add('active');
       } else {
@@ -1536,17 +1543,45 @@ function openFullscreen(imageUrl) {
 
 // Apre galleria con tutte le foto dell'articolo
 function openArticleGalleryVetrine(articleId) {
-  const card = document.querySelector(`[data-article-id="${articleId}"]`);
-  if (!card) return;
+  console.log('🖼️ openArticleGalleryVetrine chiamata con ID:', articleId);
   
-  const photos = JSON.parse(card.getAttribute('data-photos') || '[]');
-  const currentIndex = parseInt(card.getAttribute('data-current-photo') || '0');
+  var card = document.querySelector('[data-article-id="' + articleId + '"]');
+  console.log('🖼️ Card trovata:', card);
   
-  if (photos.length === 0) return;
+  if (!card) {
+    console.error('❌ Card non trovata per ID:', articleId);
+    return;
+  }
+  
+  var photosAttr = card.getAttribute('data-photos');
+  console.log('🖼️ data-photos (encoded):', photosAttr);
+  
+  var photos = [];
+  try {
+    photos = JSON.parse(decodeURIComponent(photosAttr || '[]'));
+  } catch(e) {
+    console.error('❌ Errore parsing photos:', e);
+    return;
+  }
+  
+  var currentIndex = parseInt(card.getAttribute('data-current-photo') || '0');
+  
+  console.log('🖼️ Photos array:', photos);
+  console.log('🖼️ Current index:', currentIndex);
+  console.log('🖼️ NodoGalleria disponibile:', !!window.NodoGalleria);
+  
+  if (photos.length === 0) {
+    console.error('❌ Nessuna foto trovata');
+    return;
+  }
   
   // Usa NodoGalleria
   if (window.NodoGalleria) {
     NodoGalleria.open(photos, currentIndex);
+  } else {
+    console.error('❌ NodoGalleria non disponibile!');
+    // Fallback: apri prima immagine in nuova tab
+    window.open(photos[currentIndex], '_blank');
   }
 }
 
