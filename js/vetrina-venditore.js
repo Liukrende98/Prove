@@ -243,7 +243,11 @@ function renderVendorProfile(vendor) {
 
       <div class="vendor-actions">
         ${isMyProfile ? `
-          <!-- Bottone Modifica Profilo -->
+          <!-- Bottoni per proprio profilo -->
+          <button class="vendor-action-btn vendor-action-primary" onclick="window.location.href='il-tuo-negozio.html'">
+            <i class="fas fa-store"></i>
+            <span>Gestisci Negozio</span>
+          </button>
           <button class="vendor-action-btn vendor-action-edit-profile" onclick="window.location.href='il-tuo-profilo.html'">
             <i class="fas fa-user-edit"></i>
             <span>Modifica Profilo</span>
