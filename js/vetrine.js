@@ -323,8 +323,11 @@ function getActiveFiltersCount() {
   if (currentFilters.venditore !== '') count++;
   if (currentFilters.set !== 'all') count++;
   if (currentFilters.categoria !== 'all') count++;
-  if (currentFilters.prezzoMin !== '' && currentFilters.prezzoMin > 0) count++;
-  if (currentFilters.prezzoMax !== '' && currentFilters.prezzoMax < 10000) count++;
+  if (currentFilters.altroCategoria !== '') count++;
+  if (currentFilters.condizione !== '') count++;
+  if (currentFilters.lingua !== '') count++;
+  if (currentFilters.prezzoMin > 0) count++;
+  if (currentFilters.prezzoMax < 1000) count++;
   if (currentFilters.disponibili) count++;
   return count;
 }
@@ -1060,154 +1063,209 @@ function createFilterHtmlNew() {
   const activeFiltersCount = getActiveFiltersCount();
   
   return `
-    <div class="vetrine-filter" id="vetrineFilter">
-      <div class="filter-header" onclick="handleFilterClick()">
-        <div class="filter-title">
-          <i class="fas fa-filter"></i> FILTRI E RICERCA
-          ${activeFiltersCount > 0 ? `<span class="filter-active-badge"><i class="fas fa-check"></i> ${activeFiltersCount}</span>` : ''}
-        </div>
-        <i class="fas fa-chevron-down filter-toggle-icon"></i>
+    <div class="filter-box">
+      <!-- Ricerca SEMPRE visibile -->
+      <div class="filter-search-always">
+        <i class="fas fa-search"></i>
+        <input type="text" id="filterNome" placeholder="Cerca articolo..." oninput="applyFiltersNew()">
+        <button class="filter-expand-btn" id="filterExpandBtn" onclick="toggleFilterBody()">
+          <i class="fas fa-sliders-h"></i>
+          <span id="filterBadge" class="${activeFiltersCount > 0 ? 'visible' : ''}">${activeFiltersCount > 0 ? activeFiltersCount : ''}</span>
+        </button>
       </div>
-      <div class="filter-content">
-        <div class="filter-body">
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-search"></i> Cerca Carta/Articolo</div>
-            <input type="text" class="filter-input" id="filterNome" placeholder="es. Charizard, Pikachu, UPC...">
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-user"></i> Cerca Venditore</div>
-            <input type="text" class="filter-input" id="filterVenditore" placeholder="Nome venditore...">
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-layer-group"></i> Set/Espansione</div>
-            <select class="filter-select" id="filterSet">
-              <option value="all">Tutti i set</option>
-              ${sets.map(set => `<option value="${set}">${set}</option>`).join('')}
-            </select>
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-tags"></i> Categoria</div>
-            <select class="filter-select" id="filterCategoria" onchange="gestisciFiltroAltro()">
-              <option value="all">Tutte le categorie</option>
-              <option value="ETB">ETB</option>
-              <option value="Carte Singole">Carte Singole</option>
-              <option value="Carte gradate">Carte gradate</option>
-              <option value="Master Set">Master Set</option>
-              <option value="Booster Box">Booster Box</option>
-              <option value="Collection Box">Collection Box</option>
-              <option value="Box mini tin">Box mini tin</option>
-              <option value="Bustine">Bustine</option>
-              <option value="Poké Ball">Poké Ball</option>
-              <option value="Accessori">Accessori</option>
-              <option value="Altro">Altro</option>
-            </select>
-          </div>
-          
-          <div class="filter-group" id="filterAltroGroup" style="display:none;">
-            <div class="filter-label"><i class="fas fa-edit"></i> Specifica Categoria</div>
-            <input type="text" class="filter-input" id="filterAltroCategoria" placeholder="es. Pokemon Plush, Figure...">
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-certificate"></i> Condizione</div>
-            <select class="filter-select" id="filterCondizione">
-              <option value="">Tutte</option>
-              <option value="Mint">(M) - Perfetta</option>
-              <option value="Near Mint">(NM) - Quasi perfetta</option>
-              <option value="Excellent">(EX) - Eccellente</option>
-              <option value="Good">(GD) - Buona</option>
-              <option value="Light Played">(LP) - Leggermente giocata</option>
-              <option value="Played">(PL) - Giocata</option>
-              <option value="Poor">(P) - Scarsa</option>
-            </select>
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-globe"></i> Lingua</div>
-            <div class="language-flags-grid">
-              <button type="button" class="flag-btn active" data-lang="" onclick="selectLanguage(this)" title="Tutte">
-                <span class="flag-circle"><i class="fas fa-globe"></i></span>
-                <span class="flag-label">Tutte</span>
-              </button>
-              <button type="button" class="flag-btn" data-lang="ITA" onclick="selectLanguage(this)" title="Italiano">
-                <span class="flag-circle"><span class="fi fi-it"></span></span>
-                <span class="flag-label">ITA</span>
-              </button>
-              <button type="button" class="flag-btn" data-lang="ENG" onclick="selectLanguage(this)" title="Inglese">
-                <span class="flag-circle"><span class="fi fi-gb"></span></span>
-                <span class="flag-label">ENG</span>
-              </button>
-              <button type="button" class="flag-btn" data-lang="JAP" onclick="selectLanguage(this)" title="Giapponese">
-                <span class="flag-circle"><span class="fi fi-jp"></span></span>
-                <span class="flag-label">JAP</span>
-              </button>
-              <button type="button" class="flag-btn" data-lang="KOR" onclick="selectLanguage(this)" title="Coreano">
-                <span class="flag-circle"><span class="fi fi-kr"></span></span>
-                <span class="flag-label">KOR</span>
-              </button>
-              <button type="button" class="flag-btn" data-lang="CHN" onclick="selectLanguage(this)" title="Cinese">
-                <span class="flag-circle"><span class="fi fi-cn"></span></span>
-                <span class="flag-label">CHN</span>
-              </button>
-              <button type="button" class="flag-btn" data-lang="FRA" onclick="selectLanguage(this)" title="Francese">
-                <span class="flag-circle"><span class="fi fi-fr"></span></span>
-                <span class="flag-label">FRA</span>
-              </button>
-              <button type="button" class="flag-btn" data-lang="GER" onclick="selectLanguage(this)" title="Tedesco">
-                <span class="flag-circle"><span class="fi fi-de"></span></span>
-                <span class="flag-label">GER</span>
-              </button>
-              <button type="button" class="flag-btn" data-lang="SPA" onclick="selectLanguage(this)" title="Spagnolo">
-                <span class="flag-circle"><span class="fi fi-es"></span></span>
-                <span class="flag-label">SPA</span>
-              </button>
-            </div>
-            <input type="hidden" id="filterLingua" value="">
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-euro-sign"></i> Fascia di Prezzo</div>
-            <div class="price-range-slider">
-              <div class="price-range-values">
-                <div class="price-value" id="priceMinValue">0€</div>
-                <div class="price-value" id="priceMaxValue">1000€</div>
-              </div>
-              <div class="price-range-track">
-                <div class="price-range-fill" id="priceRangeFill"></div>
-              </div>
-              <div class="price-range-inputs">
-                <input type="range" class="price-range-input" id="priceRangeMin" min="0" max="1000" value="0" step="5">
-                <input type="range" class="price-range-input" id="priceRangeMax" min="0" max="1000" value="1000" step="5">
-              </div>
-            </div>
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-box"></i> Disponibilità</div>
-            <div class="filter-checkboxes">
-              <label class="filter-checkbox-item">
-                <input type="checkbox" class="filter-checkbox" id="filterDisponibili">
-                <span class="filter-checkbox-label">Solo disponibili in magazzino</span>
-              </label>
-            </div>
-          </div>
-          
-          <div class="filter-actions">
-            <button class="filter-btn filter-btn-reset" onclick="resetFiltersNew()">
-              <i class="fas fa-redo"></i> Reset
+      
+      <!-- Resto filtri espandibile -->
+      <div class="filter-body" id="filterBody">
+        <div class="filter-group">
+          <label><i class="fas fa-user"></i> Venditore</label>
+          <input type="text" class="filter-input" id="filterVenditore" placeholder="Nome venditore...">
+        </div>
+        
+        <div class="filter-group">
+          <label><i class="fas fa-layer-group"></i> Set/Espansione</label>
+          <select class="filter-select" id="filterSet">
+            <option value="all">Tutti i set</option>
+            ${sets.map(set => `<option value="${set}">${set}</option>`).join('')}
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label><i class="fas fa-tags"></i> Categoria</label>
+          <select class="filter-select" id="filterCategoria" onchange="gestisciFiltroAltro()">
+            <option value="all">Tutte le categorie</option>
+            <option value="ETB">ETB</option>
+            <option value="Carte Singole">Carte Singole</option>
+            <option value="Carte gradate">Carte gradate</option>
+            <option value="Master Set">Master Set</option>
+            <option value="Booster Box">Booster Box</option>
+            <option value="Collection Box">Collection Box</option>
+            <option value="Box mini tin">Box mini tin</option>
+            <option value="Bustine">Bustine</option>
+            <option value="Poké Ball">Poké Ball</option>
+            <option value="Accessori">Accessori</option>
+            <option value="Altro">Altro</option>
+          </select>
+        </div>
+        
+        <div class="filter-group" id="filterAltroGroup" style="display:none;">
+          <label><i class="fas fa-edit"></i> Specifica Categoria</label>
+          <input type="text" class="filter-input" id="filterAltroCategoria" placeholder="es. Pokemon Plush, Figure...">
+        </div>
+        
+        <div class="filter-group">
+          <label><i class="fas fa-certificate"></i> Condizione</label>
+          <select class="filter-select" id="filterCondizione">
+            <option value="">Tutte</option>
+            <option value="Mint">(M) - Perfetta</option>
+            <option value="Near Mint">(NM) - Quasi perfetta</option>
+            <option value="Excellent">(EX) - Eccellente</option>
+            <option value="Good">(GD) - Buona</option>
+            <option value="Light Played">(LP) - Leggermente giocata</option>
+            <option value="Played">(PL) - Giocata</option>
+            <option value="Poor">(P) - Scarsa</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label><i class="fas fa-globe"></i> Lingua</label>
+          <div class="language-flags-grid">
+            <button type="button" class="flag-btn active" data-lang="" onclick="selectLanguage(this)" title="Tutte">
+              <span class="flag-circle"><i class="fas fa-globe"></i></span>
+              <span class="flag-label">Tutte</span>
             </button>
-            <button class="filter-btn filter-btn-apply" onclick="applyFiltersNew()">
-              <i class="fas fa-check"></i> Applica
+            <button type="button" class="flag-btn" data-lang="ITA" onclick="selectLanguage(this)" title="Italiano">
+              <span class="flag-circle"><span class="fi fi-it"></span></span>
+              <span class="flag-label">ITA</span>
+            </button>
+            <button type="button" class="flag-btn" data-lang="ENG" onclick="selectLanguage(this)" title="Inglese">
+              <span class="flag-circle"><span class="fi fi-gb"></span></span>
+              <span class="flag-label">ENG</span>
+            </button>
+            <button type="button" class="flag-btn" data-lang="JAP" onclick="selectLanguage(this)" title="Giapponese">
+              <span class="flag-circle"><span class="fi fi-jp"></span></span>
+              <span class="flag-label">JAP</span>
+            </button>
+            <button type="button" class="flag-btn" data-lang="KOR" onclick="selectLanguage(this)" title="Coreano">
+              <span class="flag-circle"><span class="fi fi-kr"></span></span>
+              <span class="flag-label">KOR</span>
+            </button>
+            <button type="button" class="flag-btn" data-lang="CHN" onclick="selectLanguage(this)" title="Cinese">
+              <span class="flag-circle"><span class="fi fi-cn"></span></span>
+              <span class="flag-label">CHN</span>
+            </button>
+            <button type="button" class="flag-btn" data-lang="FRA" onclick="selectLanguage(this)" title="Francese">
+              <span class="flag-circle"><span class="fi fi-fr"></span></span>
+              <span class="flag-label">FRA</span>
+            </button>
+            <button type="button" class="flag-btn" data-lang="GER" onclick="selectLanguage(this)" title="Tedesco">
+              <span class="flag-circle"><span class="fi fi-de"></span></span>
+              <span class="flag-label">GER</span>
+            </button>
+            <button type="button" class="flag-btn" data-lang="SPA" onclick="selectLanguage(this)" title="Spagnolo">
+              <span class="flag-circle"><span class="fi fi-es"></span></span>
+              <span class="flag-label">SPA</span>
             </button>
           </div>
+          <input type="hidden" id="filterLingua" value="">
+        </div>
+        
+        <div class="filter-group">
+          <label><i class="fas fa-euro-sign"></i> Fascia di Prezzo</label>
+          <div class="price-range-slider">
+            <div class="price-range-values">
+              <div class="price-value" id="priceMinValue">0€</div>
+              <div class="price-value" id="priceMaxValue">1000€</div>
+            </div>
+            <div class="price-range-track">
+              <div class="price-range-fill" id="priceRangeFill"></div>
+            </div>
+            <div class="price-range-inputs">
+              <input type="range" class="price-range-input" id="priceRangeMin" min="0" max="1000" value="0" step="5">
+              <input type="range" class="price-range-input" id="priceRangeMax" min="0" max="1000" value="1000" step="5">
+            </div>
+          </div>
+        </div>
+        
+        <div class="filter-group">
+          <div class="filter-checkboxes">
+            <label class="filter-checkbox-item">
+              <input type="checkbox" class="filter-checkbox" id="filterDisponibili">
+              <span class="filter-checkbox-label">Solo disponibili in magazzino</span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="filter-actions">
+          <button class="filter-btn filter-btn-reset" onclick="resetFiltersNew()">
+            <i class="fas fa-redo"></i> Reset
+          </button>
+          <button class="filter-btn filter-btn-apply" onclick="applyFiltersNew()">
+            <i class="fas fa-check"></i> Applica
+          </button>
         </div>
       </div>
     </div>
+    
+    <!-- PAGINAZIONE -->
+    <div class="pagination-container">
+      <div class="pagination-info">
+        <span id="pageStart">1</span>-<span id="pageEnd">10</span> di <span id="totalItems">0</span>
+      </div>
+      <div class="pagination-controls">
+        <button class="pagination-btn" id="prevBtn" onclick="previousPageVetrine()" disabled>
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="pagination-btn" id="nextBtn" onclick="nextPageVetrine()">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+    
     <div id="vetrineList"></div>
   `;
+}
+
+// Toggle body filtri
+function toggleFilterBody() {
+  const body = document.getElementById('filterBody');
+  const btn = document.getElementById('filterExpandBtn');
+  if (body && btn) {
+    body.classList.toggle('open');
+    btn.classList.toggle('active');
+  }
+}
+
+// Paginazione vetrine
+function updatePaginationInfo(total) {
+  const pageStartEl = document.getElementById('pageStart');
+  const pageEndEl = document.getElementById('pageEnd');
+  const totalItemsEl = document.getElementById('totalItems');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  
+  if (!pageStartEl || !pageEndEl || !totalItemsEl) return;
+  
+  const start = total === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+  const end = Math.min(currentPage * itemsPerPage, total);
+  
+  pageStartEl.textContent = start;
+  pageEndEl.textContent = end;
+  totalItemsEl.textContent = total;
+  
+  if (prevBtn) prevBtn.disabled = currentPage === 1;
+  if (nextBtn) nextBtn.disabled = end >= total;
+}
+
+function previousPageVetrine() {
+  if (currentPage > 1) {
+    currentPage--;
+    applyFiltersNew();
+  }
+}
+
+function nextPageVetrine() {
+  currentPage++;
+  applyFiltersNew();
 }
 
 // SOSTITUISCE renderVetrine per usare nuovo design
@@ -1232,6 +1290,7 @@ renderVetrine = function(articoli) {
         <div class="wip-subtext">Prova a modificare i filtri o la ricerca</div>
       </div>
     `;
+    updatePaginationInfo(0);
     return;
   }
   
@@ -1287,10 +1346,14 @@ renderVetrine = function(articoli) {
   });
   
   // PAGINAZIONE
-  const totalPages = Math.ceil(vetrine.length / itemsPerPage);
+  const totalVetrine = vetrine.length;
+  const totalPages = Math.ceil(totalVetrine / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalVetrine);
   const vetrinePaginate = vetrine.slice(startIndex, endIndex);
+  
+  // Aggiorna info paginazione nel box in alto
+  updatePaginationInfo(totalVetrine);
   
   // Crea HTML vetrine
   let html = '';
@@ -1306,23 +1369,6 @@ renderVetrine = function(articoli) {
       v.articoli
     );
   });
-  
-  // Aggiungi paginazione
-  if (totalPages > 1) {
-    html += `
-      <div class="vetrine-pagination">
-        <button class="pagination-btn" onclick="changePage(-1)" ${currentPage === 1 ? 'disabled' : ''}>
-          <i class="fas fa-chevron-left"></i> Indietro
-        </button>
-        <div class="pagination-info">
-          Pagina <span>${currentPage}</span> di <span>${totalPages}</span>
-        </div>
-        <button class="pagination-btn" onclick="changePage(1)" ${currentPage === totalPages ? 'disabled' : ''}>
-          Avanti <i class="fas fa-chevron-right"></i>
-        </button>
-      </div>
-    `;
-  }
   
   container.innerHTML = html;
   
@@ -1418,22 +1464,20 @@ applyFilters = function(closeFilter = true) {
   
   renderVetrine(articoliFiltrati);
   
+  // Chiudi body filtri e aggiorna badge
   if (closeFilter) {
-    const filterElement = document.getElementById('vetrineFilter');
-    if (filterElement && filterElement.classList.contains('expanded')) {
-      filterElement.classList.remove('expanded');
-    }
+    const filterBody = document.getElementById('filterBody');
+    const filterBtn = document.getElementById('filterExpandBtn');
+    if (filterBody) filterBody.classList.remove('open');
+    if (filterBtn) filterBtn.classList.remove('active');
   }
   
-  const filterHeader = document.querySelector('.filter-header');
-  if (filterHeader) {
-    filterHeader.innerHTML = `
-      <div class="filter-title">
-        <i class="fas fa-filter"></i> FILTRI E RICERCA
-        ${getActiveFiltersCount() > 0 ? `<span class="filter-active-badge"><i class="fas fa-check"></i> ${getActiveFiltersCount()}</span>` : ''}
-      </div>
-      <i class="fas fa-chevron-down filter-toggle-icon"></i>
-    `;
+  // Aggiorna badge filtri attivi
+  const badge = document.getElementById('filterBadge');
+  const activeCount = getActiveFiltersCount();
+  if (badge) {
+    badge.textContent = activeCount > 0 ? activeCount : '';
+    badge.classList.toggle('visible', activeCount > 0);
   }
 };
 
@@ -1495,15 +1539,18 @@ function resetFiltersNew() {
   
   renderVetrine(allArticoli);
   
-  const filterHeader = document.querySelector('.filter-header');
-  if (filterHeader) {
-    filterHeader.innerHTML = `
-      <div class="filter-title">
-        <i class="fas fa-filter"></i> FILTRI E RICERCA
-      </div>
-      <i class="fas fa-chevron-down filter-toggle-icon"></i>
-    `;
+  // Reset badge
+  const badge = document.getElementById('filterBadge');
+  if (badge) {
+    badge.textContent = '';
+    badge.classList.remove('visible');
   }
+  
+  // Chiudi body filtri
+  const filterBody = document.getElementById('filterBody');
+  const filterBtn = document.getElementById('filterExpandBtn');
+  if (filterBody) filterBody.classList.remove('open');
+  if (filterBtn) filterBtn.classList.remove('active');
 }
 
 function applyFiltersNew() {
@@ -1773,3 +1820,8 @@ window.contattaVenditore = contattaVenditore;
 window.openChatWithVendor = openChatWithVendor;
 window.selectLanguage = selectLanguage;
 window.gestisciFiltroAltro = gestisciFiltroAltro;
+window.toggleFilterBody = toggleFilterBody;
+window.previousPageVetrine = previousPageVetrine;
+window.nextPageVetrine = nextPageVetrine;
+window.applyFiltersNew = applyFiltersNew;
+window.resetFiltersNew = resetFiltersNew;
