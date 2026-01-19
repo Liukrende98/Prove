@@ -980,9 +980,11 @@ async function showFollowersList(userId) {
   
   title.innerHTML = '<i class="fas fa-users"></i> Follower';
   content.innerHTML = `
-    <div class="modal-search">
-      <i class="fas fa-search"></i>
-      <input type="text" id="modalUserSearch" placeholder="Cerca utente..." oninput="filterModalUsers()">
+    <div class="modal-filter-box">
+      <div class="modal-filter-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="modalUserSearch" placeholder="Cerca utente..." oninput="filterModalUsers()">
+      </div>
     </div>
     <div id="modalUsersList">
       <div class="empty-state-small"><i class="fas fa-spinner fa-spin"></i><p>Caricamento...</p></div>
@@ -1055,9 +1057,11 @@ async function showFollowingList(userId) {
   
   title.innerHTML = '<i class="fas fa-user-friends"></i> Seguiti';
   content.innerHTML = `
-    <div class="modal-search">
-      <i class="fas fa-search"></i>
-      <input type="text" id="modalUserSearch" placeholder="Cerca utente..." oninput="filterModalUsers()">
+    <div class="modal-filter-box">
+      <div class="modal-filter-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="modalUserSearch" placeholder="Cerca utente..." oninput="filterModalUsers()">
+      </div>
     </div>
     <div id="modalUsersList">
       <div class="empty-state-small"><i class="fas fa-spinner fa-spin"></i><p>Caricamento...</p></div>
