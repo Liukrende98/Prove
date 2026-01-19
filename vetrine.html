@@ -13,6 +13,7 @@
   
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/7.2.3/css/flag-icons.min.css">
   
   <!-- CSS Base -->
   <link rel="stylesheet" href="css/style.css">
@@ -1469,6 +1470,74 @@
 .filter-btn-reset:active {
   transform: scale(0.97);
   background: rgba(239, 68, 68, 0.25);
+}
+
+/* Griglia Bandierine Lingua */
+.language-flags-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.flag-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  background: rgba(255,255,255,0.03);
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.flag-btn:hover {
+  background: rgba(251, 191, 36, 0.1);
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.flag-btn.active {
+  background: rgba(251, 191, 36, 0.2);
+  border-color: #fbbf24;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+}
+
+.flag-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.1);
+  margin-bottom: 4px;
+}
+
+.flag-circle .fi {
+  font-size: 28px;
+  transform: scale(1.4);
+}
+
+.flag-circle i {
+  font-size: 14px;
+  color: #888;
+}
+
+.flag-btn.active .flag-circle i {
+  color: #fbbf24;
+}
+
+.flag-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+}
+
+.flag-btn.active .flag-label {
+  color: #fbbf24;
 }
 
 .filter-active-badge {
