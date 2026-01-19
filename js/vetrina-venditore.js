@@ -12,12 +12,25 @@ let activeTab = 'vetrina';
 let currentFilters = {
   search: '',
   categoria: 'all',
+  lingua: '',
   set: 'all',
   prezzoMin: 0,
   prezzoMax: Infinity,
   ratingMin: 0,
   disponibili: false
 };
+
+// ========== HELPER BANDIERINA LINGUA ==========
+function getFlagHtml(lingua, size = 16) {
+  if (!lingua) return '';
+  const flagMap = {
+    'ITA': 'it', 'ENG': 'gb', 'JAP': 'jp', 'KOR': 'kr', 'CHN': 'cn',
+    'FRA': 'fr', 'GER': 'de', 'SPA': 'es', 'POR': 'pt'
+  };
+  const flagCode = flagMap[lingua];
+  if (!flagCode) return '';
+  return `<span class="fi fi-${flagCode}" style="font-size:${size}px;border-radius:2px;"></span>`;
+}
 
 // ========================================
 // GET CURRENT USER - USA IL TUO SISTEMA AUTH
@@ -286,6 +299,9 @@ function applyNodoFilters(values) {
     // Categoria
     const matchCategoria = !values.categoria || p.Categoria === values.categoria;
     
+    // Lingua
+    const matchLingua = !values.lingua || p.lingua === values.lingua;
+    
     // Prezzo vendita (per vetrina)
     const prezzo = parseFloat(p.prezzo_vendita || 0);
     const matchPrezzo = prezzo >= values.valoreMin && prezzo <= values.valoreMax;
@@ -308,7 +324,7 @@ function applyNodoFilters(values) {
       }
     }
     
-    return matchSearch && matchCategoria && matchPrezzo && matchRating && matchPresente && matchGraded;
+    return matchSearch && matchCategoria && matchLingua && matchPrezzo && matchRating && matchPresente && matchGraded;
   });
 
   console.log('✅ Filtrati:', currentProducts.length, '/', allProducts.length);
@@ -360,7 +376,10 @@ function renderProducts(products) {
         </div>
         <div class="vendor-product-info">
           <div class="vendor-product-name">${p.Nome || 'Prodotto'}</div>
-          <div class="vendor-product-category">${p.Categoria || 'Carte'}</div>
+          <div class="vendor-product-category">
+            ${p.Categoria || 'Carte'}
+            ${p.lingua ? `<span style="margin-left:6px;">${getFlagHtml(p.lingua, 14)}</span>` : ''}
+          </div>
         </div>
       </div>
     `;
