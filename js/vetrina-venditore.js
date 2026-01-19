@@ -1,26 +1,24 @@
 // ========================================
-// LOGICA VETRINE - ARTICOLI REALI - OTTIMIZZATO MOBILE
+// VETRINA VENDITORE - COMPATIBILE CON AUTH PERSONALIZZATO
 // ========================================
 
-// Variabili globali
-let allArticoli = [];
+let currentVendorId = null;
+let currentVendorUsername = null;
+let allProducts = [];
+let currentProducts = [];
+let currentPosts = [];
+let activeTab = 'vetrina';
+
 let currentFilters = {
-  nome: '',
-  venditore: '',
-  set: 'all',
+  search: '',
   categoria: 'all',
-  altroCategoria: '',
-  casaGradazione: '',
-  votoGradazione: '',
-  condizione: '',
   lingua: '',
-  prezzoMin: '',
-  prezzoMax: '',
+  set: 'all',
+  prezzoMin: 0,
+  prezzoMax: Infinity,
+  ratingMin: 0,
   disponibili: false
 };
-let currentPage = 1;
-const itemsPerPage = 10;
-let scrollIndicatorTimers = new Map();
 
 // ========== HELPER BANDIERINA LINGUA ==========
 function getFlagHtml(lingua, size = 16) {
@@ -34,1861 +32,1323 @@ function getFlagHtml(lingua, size = 16) {
   return `<span class="fi fi-${flagCode}" style="font-size:${size}px;border-radius:2px;"></span>`;
 }
 
-// Seleziona lingua con bandierine
-function selectLanguage(btn) {
-  document.querySelectorAll('.flag-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const lang = btn.getAttribute('data-lang');
-  document.getElementById('filterLingua').value = lang;
-}
-
-// Gestisce visibilità campo "Altro" categoria
-function gestisciFiltroAltro() {
-  const categoria = document.getElementById('filterCategoria')?.value;
-  const altroGroup = document.getElementById('filterAltroGroup');
-  const gradedSection = document.getElementById('filterGradedSection');
-  
-  // Mostra/nascondi campo "Altro"
-  if (altroGroup) {
-    altroGroup.style.display = categoria === 'Altro' ? 'block' : 'none';
-  }
-  
-  // Mostra/nascondi sezione Carte Gradate
-  if (gradedSection) {
-    gradedSection.style.display = categoria === 'Carte gradate' ? 'block' : 'none';
-  }
-}
-
-// 🔥 FUNZIONE: Ottieni ID utente corrente
+// ========================================
+// GET CURRENT USER - USA IL TUO SISTEMA AUTH
+// ========================================
 function getCurrentUserId() {
-  // Prova con getCurrentUser (da auth.js)
-  if (typeof getCurrentUser === 'function') {
-    const user = getCurrentUser();
-    return user?.id || null;
+  // USA IL TUO SISTEMA DI AUTH!
+  const userId = localStorage.getItem('nodo_user_id');
+  
+  if (userId) {
+    console.log('✅ Utente loggato:', userId);
+    return userId;
   }
   
-  // Fallback: leggi direttamente da localStorage
-  return localStorage.getItem('nodo_user_id') || null;
+  console.error('❌ Utente NON loggato!');
+  return null;
 }
 
-// 🔥 NUOVA FUNZIONE: Apri chat con venditore
-function openChatWithVendor(userId, username) {
-  console.log(`💬 Apertura chat con ${username} (${userId})`);
+// ========================================
+// INIT
+// ========================================
+async function initVendorPage() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const vendorUsername = urlParams.get('vendor');
+  const vendorId = urlParams.get('id');
   
-  // Prima apri il centro messaggi
-  if (typeof openMessagesCenter === 'function') {
-    openMessagesCenter();
-    
-    // Aspetta che il centro messaggi sia pronto, poi apri la chat specifica
-    setTimeout(() => {
-      if (typeof openChat === 'function') {
-        openChat(userId, username);
-      } else {
-        console.error('❌ Funzione openChat non disponibile');
-      }
-    }, 500);
-  } else {
-    console.error('❌ Funzione openMessagesCenter non disponibile');
-    alert('⚠️ Sistema messaggi non disponibile. Ricarica la pagina.');
+  // Supporta sia ?vendor= che ?id=
+  if (!vendorUsername && !vendorId) {
+    alert('Venditore non specificato!');
+    window.location.href = 'vetrine.html';
+    return;
   }
-}
 
-// Crea HTML paginazione
-function createPaginationHtml(currentPage, totalPages, position = 'bottom') {
-  if (totalPages <= 1) return '';
-  
-  const prevDisabled = currentPage === 1 ? 'disabled' : '';
-  const nextDisabled = currentPage === totalPages ? 'disabled' : '';
-  
-  return `
-    <div class="vetrine-pagination pagination-${position}">
-      <button class="pagination-btn" onclick="changePage(-1)" ${prevDisabled}>
-        <i class="fas fa-chevron-left"></i> Indietro
-      </button>
-      <div class="pagination-info">
-        Pagina <span>${currentPage}</span> di <span>${totalPages}</span>
-      </div>
-      <button class="pagination-btn" onclick="changePage(1)" ${nextDisabled}>
-        Avanti <i class="fas fa-chevron-right"></i>
-      </button>
-    </div>
-  `;
-}
-
-async function loadVetrineContent() {
-  const container = document.getElementById('vetrineContainer');
-  
   // Mostra loader
-  if (window.NodoLoader) NodoLoader.show('Caricamento vetrine...');
+  if (window.NodoLoader) NodoLoader.show('Caricamento profilo...');
+
+  if (vendorId) {
+    // Carica tramite ID
+    await loadVendorProfileById(vendorId);
+  } else {
+    // Carica tramite username
+    currentVendorUsername = vendorUsername;
+    await loadVendorProfile(vendorUsername);
+  }
+}
+
+// ========================================
+// CARICAMENTO
+// ========================================
+async function loadVendorProfile(username) {
+  console.log('🔍 Caricamento:', username);
   
-  try {
-    // 🔥 Ottieni ID utente corrente
-    const currentUserId = getCurrentUserId();
-    
-    if (!currentUserId) {
-      console.error('❌ Utente non loggato!');
-      container.innerHTML = `
-        <div class="wip-container">
-          <div class="wip-icon"><i class="fas fa-user-slash"></i></div>
-          <div class="wip-text">DEVI ESSERE LOGGATO</div>
-          <div class="wip-subtext">Effettua il login per vedere le vetrine</div>
-        </div>
-      `;
-      if (window.NodoLoader) NodoLoader.hide();
-      return;
-    }
-    
-    // Carica articoli in vetrina ESCLUDENDO i propri
-    const { data: articoli, error } = await supabaseClient
-      .from('Articoli')
-      .select(`
-        *,
-        Utenti (
-          id,
-          username,
-          citta,
-          email
-        )
-      `)
-      .eq('in_vetrina', true)
-      .neq('user_id', currentUserId)  // 🔥 ESCLUDI I TUOI ARTICOLI
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.error('Errore query:', error);
-      throw error;
-    }
-    
-    console.log('📦 Articoli in vetrina caricati (escl. tuoi):', articoli?.length || 0);
-    
-    if (!articoli || articoli.length === 0) {
-      container.innerHTML = `
-        <div class="wip-container">
-          <div class="wip-icon"><i class="fas fa-store-slash"></i></div>
-          <div class="wip-text">NESSUN ARTICOLO IN VETRINA</div>
-          <div class="wip-subtext">Gli altri utenti non hanno ancora messo articoli in vendita</div>
-        </div>
-      `;
-      if (window.NodoLoader) NodoLoader.hide();
-      return;
-    }
-    
-    // Salva articoli globalmente
-    allArticoli = articoli;
-    
-    // Crea filtro
-    const filterHtml = createFilterHtml();
-    
-    // Mostra filtro + vetrine
-    container.innerHTML = filterHtml;
-    renderVetrine(articoli);
-    
-    // Nascondi loader
+  const { data: utente, error } = await supabaseClient
+    .from('Utenti')
+    .select('*')
+    .eq('username', username)
+    .single();
+
+  if (error || !utente) {
+    console.error('❌ Errore:', error);
     if (window.NodoLoader) NodoLoader.hide();
-    
-  } catch (error) {
-    console.error('❌ Errore caricamento vetrine:', error);
-    container.innerHTML = `
-      <div class="msg error" style="margin: 20px;">
-        ❌ Errore nel caricamento delle vetrine: ${error.message}
-      </div>
-    `;
-    if (window.NodoLoader) NodoLoader.hide();
-  }
-}
-
-function createFilterHtml() {
-  const categorie = getCategorie();
-  const sets = getSets();
-  const activeFiltersCount = getActiveFiltersCount();
-  
-  return `
-    <div class="vetrine-filter" id="vetrineFilter">
-      <div class="filter-header" onclick="toggleFilter()">
-        <div class="filter-title">
-          <i class="fas fa-filter"></i> FILTRI E RICERCA
-          ${activeFiltersCount > 0 ? `<span class="filter-active-badge"><i class="fas fa-check"></i> ${activeFiltersCount}</span>` : ''}
-        </div>
-        <i class="fas fa-chevron-down filter-toggle-icon"></i>
-      </div>
-      <div class="filter-content">
-        <div class="filter-body">
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-search"></i> Cerca Carta/Articolo</div>
-            <input type="text" class="filter-input" id="filterNome" placeholder="es. Charizard, Pikachu, UPC...">
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-layer-group"></i> Set/Espansione</div>
-            <select class="filter-select" id="filterSet">
-              <option value="all">Tutti i set</option>
-              ${sets.map(set => `<option value="${set}">${set}</option>`).join('')}
-            </select>
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-tags"></i> Categoria</div>
-            <select class="filter-select" id="filterCategoria">
-              <option value="all">Tutte le categorie</option>
-              ${categorie.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
-            </select>
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-globe"></i> Lingua</div>
-            <div class="language-flags-grid">
-              <button type="button" class="flag-btn active" data-lang="" onclick="selectLanguage(this)" title="Tutte">
-                <span class="flag-circle"><i class="fas fa-globe"></i></span>
-                <span class="flag-label">Tutte</span>
-              </button>
-              <button type="button" class="flag-btn" data-lang="ITA" onclick="selectLanguage(this)" title="Italiano">
-                <span class="flag-circle"><span class="fi fi-it"></span></span>
-                <span class="flag-label">ITA</span>
-              </button>
-              <button type="button" class="flag-btn" data-lang="ENG" onclick="selectLanguage(this)" title="Inglese">
-                <span class="flag-circle"><span class="fi fi-gb"></span></span>
-                <span class="flag-label">ENG</span>
-              </button>
-              <button type="button" class="flag-btn" data-lang="JAP" onclick="selectLanguage(this)" title="Giapponese">
-                <span class="flag-circle"><span class="fi fi-jp"></span></span>
-                <span class="flag-label">JAP</span>
-              </button>
-              <button type="button" class="flag-btn" data-lang="KOR" onclick="selectLanguage(this)" title="Coreano">
-                <span class="flag-circle"><span class="fi fi-kr"></span></span>
-                <span class="flag-label">KOR</span>
-              </button>
-              <button type="button" class="flag-btn" data-lang="CHN" onclick="selectLanguage(this)" title="Cinese">
-                <span class="flag-circle"><span class="fi fi-cn"></span></span>
-                <span class="flag-label">CHN</span>
-              </button>
-              <button type="button" class="flag-btn" data-lang="FRA" onclick="selectLanguage(this)" title="Francese">
-                <span class="flag-circle"><span class="fi fi-fr"></span></span>
-                <span class="flag-label">FRA</span>
-              </button>
-              <button type="button" class="flag-btn" data-lang="GER" onclick="selectLanguage(this)" title="Tedesco">
-                <span class="flag-circle"><span class="fi fi-de"></span></span>
-                <span class="flag-label">GER</span>
-              </button>
-              <button type="button" class="flag-btn" data-lang="SPA" onclick="selectLanguage(this)" title="Spagnolo">
-                <span class="flag-circle"><span class="fi fi-es"></span></span>
-                <span class="flag-label">SPA</span>
-              </button>
-            </div>
-            <input type="hidden" id="filterLingua" value="">
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-euro-sign"></i> Prezzo</div>
-            <div class="filter-price-inputs">
-              <input type="number" class="filter-input" id="filterPrezzoMin" placeholder="Min €" min="0" step="0.01">
-              <input type="number" class="filter-input" id="filterPrezzoMax" placeholder="Max €" min="0" step="0.01">
-            </div>
-          </div>
-          
-          <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-box"></i> Disponibilità</div>
-            <div class="filter-checkboxes">
-              <label class="filter-checkbox-item">
-                <input type="checkbox" class="filter-checkbox" id="filterDisponibili">
-                <span class="filter-checkbox-label">Solo disponibili in magazzino</span>
-              </label>
-            </div>
-          </div>
-          
-          <div class="filter-actions">
-            <button class="filter-btn filter-btn-reset" onclick="resetFilters()">
-              <i class="fas fa-redo"></i> Reset
-            </button>
-            <button class="filter-btn filter-btn-apply" onclick="applyFilters()">
-              <i class="fas fa-check"></i> Applica
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div id="vetrineList"></div>
-  `;
-}
-
-function getCategorie() {
-  const categorie = new Set();
-  allArticoli.forEach(art => {
-    if (art.Categoria) categorie.add(art.Categoria);
-  });
-  return Array.from(categorie).sort();
-}
-
-function getSets() {
-  const sets = new Set();
-  allArticoli.forEach(art => {
-    if (art.Set) sets.add(art.Set);
-    if (art.Espansione) sets.add(art.Espansione);
-  });
-  return Array.from(sets).sort();
-}
-
-function getActiveFiltersCount() {
-  let count = 0;
-  if (currentFilters.nome !== '') count++;
-  if (currentFilters.venditore !== '') count++;
-  if (currentFilters.set !== 'all') count++;
-  if (currentFilters.categoria !== 'all') count++;
-  if (currentFilters.altroCategoria !== '') count++;
-  if (currentFilters.casaGradazione !== '') count++;
-  if (currentFilters.votoGradazione !== '') count++;
-  if (currentFilters.condizione !== '') count++;
-  if (currentFilters.lingua !== '') count++;
-  if (currentFilters.prezzoMin > 0) count++;
-  if (currentFilters.prezzoMax < 1000) count++;
-  if (currentFilters.disponibili) count++;
-  return count;
-}
-
-function toggleFilter() {
-  const filter = document.getElementById('vetrineFilter');
-  if (filter) {
-    filter.classList.toggle('expanded');
-  }
-}
-
-function applyFilters(closeFilter = true) {
-  // Leggi valori filtri
-  currentFilters.nome = document.getElementById('filterNome').value.toLowerCase().trim();
-  currentFilters.set = document.getElementById('filterSet').value;
-  currentFilters.categoria = document.getElementById('filterCategoria').value;
-  currentFilters.prezzoMin = document.getElementById('filterPrezzoMin').value;
-  currentFilters.prezzoMax = document.getElementById('filterPrezzoMax').value;
-  currentFilters.disponibili = document.getElementById('filterDisponibili').checked;
-  
-  // Reset pagina quando si applicano filtri
-  currentPage = 1;
-  
-  // Filtra articoli
-  let articoliFiltrati = allArticoli.filter(art => {
-    // Filtro nome (ricerca in Nome, Descrizione, Set, Espansione)
-    if (currentFilters.nome !== '') {
-      const nomeArticolo = (art.Nome || '').toLowerCase();
-      const descrizione = (art.Descrizione || '').toLowerCase();
-      const set = (art.Set || '').toLowerCase();
-      const espansione = (art.Espansione || '').toLowerCase();
-      
-      if (!nomeArticolo.includes(currentFilters.nome) && 
-          !descrizione.includes(currentFilters.nome) &&
-          !set.includes(currentFilters.nome) &&
-          !espansione.includes(currentFilters.nome)) {
-        return false;
-      }
-    }
-    
-    // Filtro set/espansione
-    if (currentFilters.set !== 'all') {
-      if (art.Set !== currentFilters.set && art.Espansione !== currentFilters.set) {
-        return false;
-      }
-    }
-    
-    // Filtro categoria
-    if (currentFilters.categoria !== 'all' && art.Categoria !== currentFilters.categoria) {
-      return false;
-    }
-    
-    // Filtro prezzo minimo
-    if (currentFilters.prezzoMin !== '' && parseFloat(art.prezzo_vendita) < parseFloat(currentFilters.prezzoMin)) {
-      return false;
-    }
-    
-    // Filtro prezzo massimo
-    if (currentFilters.prezzoMax !== '' && parseFloat(art.prezzo_vendita) > parseFloat(currentFilters.prezzoMax)) {
-      return false;
-    }
-    
-    // Filtro disponibilità
-    if (currentFilters.disponibili && !art.Presente) {
-      return false;
-    }
-    
-    return true;
-  });
-  
-  console.log(`🔍 Filtrati: ${articoliFiltrati.length}/${allArticoli.length} articoli`);
-  
-  // Renderizza vetrine filtrate
-  renderVetrine(articoliFiltrati);
-  
-  // Chiudi filtro solo se richiesto
-  if (closeFilter) {
-    toggleFilter();
-  }
-  
-  // Aggiorna badge
-  const filterHeader = document.querySelector('.filter-header');
-  if (filterHeader) {
-    filterHeader.innerHTML = `
-      <div class="filter-title">
-        <i class="fas fa-filter"></i> FILTRI E RICERCA
-        ${getActiveFiltersCount() > 0 ? `<span class="filter-active-badge"><i class="fas fa-check"></i> ${getActiveFiltersCount()}</span>` : ''}
-      </div>
-      <i class="fas fa-chevron-down filter-toggle-icon"></i>
-    `;
-  }
-}
-
-function resetFilters() {
-  // Reset valori
-  currentFilters = {
-    nome: '',
-    set: 'all',
-    categoria: 'all',
-    prezzoMin: '',
-    prezzoMax: '',
-    disponibili: false
-  };
-  
-  // Reset pagina
-  currentPage = 1;
-  
-  // Reset inputs
-  document.getElementById('filterNome').value = '';
-  document.getElementById('filterSet').value = 'all';
-  document.getElementById('filterCategoria').value = 'all';
-  document.getElementById('filterPrezzoMin').value = '';
-  document.getElementById('filterPrezzoMax').value = '';
-  document.getElementById('filterDisponibili').checked = false;
-  
-  // Mostra tutti gli articoli
-  renderVetrine(allArticoli);
-  
-  // Aggiorna badge
-  const filterHeader = document.querySelector('.filter-header');
-  if (filterHeader) {
-    filterHeader.innerHTML = `
-      <div class="filter-title">
-        <i class="fas fa-filter"></i> FILTRI E RICERCA
-      </div>
-      <i class="fas fa-chevron-down filter-toggle-icon"></i>
-    `;
-  }
-}
-
-function renderVetrine(articoli) {
-  const container = document.getElementById('vetrineList');
-  
-  if (!articoli || articoli.length === 0) {
-    let messaggioFiltri = '';
-    if (currentFilters.nome !== '') {
-      messaggioFiltri = `Nessuna carta trovata per "${currentFilters.nome}"`;
-    } else if (getActiveFiltersCount() > 0) {
-      messaggioFiltri = 'Nessun articolo corrisponde ai filtri';
-    } else {
-      messaggioFiltri = 'Nessun articolo disponibile';
-    }
-    
-    container.innerHTML = `
-      <div class="wip-container" style="margin-top: 20px;">
-        <div class="wip-icon"><i class="fas fa-search"></i></div>
-        <div class="wip-text">${messaggioFiltri}</div>
-        <div class="wip-subtext">Prova a modificare i filtri o la ricerca</div>
-      </div>
-    `;
+    alert('Venditore non trovato!');
+    window.location.href = 'vetrine.html';
     return;
   }
-  
-  // Raggruppa articoli per utente
-  const articoliPerUtente = {};
-  articoli.forEach(art => {
-    const userId = art.user_id;
-    if (!articoliPerUtente[userId]) {
-      articoliPerUtente[userId] = {
-        username: art.Utenti?.username || 'Utente',
-        citta: art.Utenti?.citta || 'Italia',
-        email: art.Utenti?.email || '',
-        articoli: []
-      };
-    }
-    articoliPerUtente[userId].articoli.push(art);
-  });
-  
-  // Crea array di vetrine
-  const vetrine = [];
-  Object.entries(articoliPerUtente).forEach(([userId, userData]) => {
-    const disponibili = userData.articoli.filter(a => a.Presente).length;
-    
-    // Calcola media recensioni
-    const articoliConRecensione = userData.articoli.filter(a => a.ValutazioneStato && a.ValutazioneStato > 0);
-    const mediaRecensioni = articoliConRecensione.length > 0
-      ? (articoliConRecensione.reduce((sum, a) => sum + a.ValutazioneStato, 0) / articoliConRecensione.length).toFixed(1)
-      : 0;
-    
-    // Calcola percentuale recensioni
-    const percentualeRecensioni = userData.articoli.length > 0 
-      ? Math.round((articoliConRecensione.length / userData.articoli.length) * 100)
-      : 0;
-    
-    // Acquisti - per ora usiamo valore fittizio
-    const acquisti = 0;
-    
-    vetrine.push({
-      userId,
-      username: userData.username,
-      citta: userData.citta,
-      disponibili,
-      acquisti,
-      mediaRecensioni,
-      percentualeRecensioni,
-      articoli: userData.articoli
-    });
-  });
-  
-  // PAGINAZIONE
-  const totalPages = Math.ceil(vetrine.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const vetrinePaginate = vetrine.slice(startIndex, endIndex);
-  
-  // Paginazione TOP (sotto filtro)
-  const paginationTop = createPaginationHtml(currentPage, totalPages, 'top');
-  
-  // Crea HTML vetrine
-  let htmlVetrine = '';
-  vetrinePaginate.forEach(v => {
-    htmlVetrine += createVetrinaCard(
-      v.userId,
-      v.username,
-      v.citta,
-      v.disponibili,
-      v.acquisti,
-      v.mediaRecensioni,
-      v.percentualeRecensioni,
-      v.articoli
-    );
-  });
-  
-  // Paginazione BOTTOM (in fondo)
-  const paginationBottom = createPaginationHtml(currentPage, totalPages, 'bottom');
-  
-  // Combina tutto
-  const html = paginationTop + htmlVetrine + paginationBottom;
-  
-  container.innerHTML = html;
-  
-  // Setup scroll indicator con timer
-  setupScrollIndicators();
+
+  console.log('✅ Utente trovato');
+  await loadVendorData(utente);
 }
 
-function changePage(direction) {
-  currentPage += direction;
+// Carica profilo tramite ID
+async function loadVendorProfileById(userId) {
+  console.log('🔍 Caricamento tramite ID:', userId);
   
-  // Re-applica filtri con nuova pagina
-  applyFilters(false); // false = non chiudere filtro
-  
-  // Scroll smooth in alto
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const { data: utente, error } = await supabaseClient
+    .from('Utenti')
+    .select('*')
+    .eq('id', userId)
+    .single();
+
+  if (error || !utente) {
+    console.error('❌ Errore:', error);
+    if (window.NodoLoader) NodoLoader.hide();
+    alert('Venditore non trovato!');
+    window.location.href = 'vetrine.html';
+    return;
+  }
+
+  console.log('✅ Utente trovato:', utente.username);
+  await loadVendorData(utente);
 }
 
-function setupScrollIndicators() {
-  setTimeout(() => {
-    const scrollContainers = document.querySelectorAll('.vetrina-products-scroll');
-    scrollContainers.forEach((scrollContainer, index) => {
-      const indicator = scrollContainer.querySelector('.scroll-indicator');
-      if (indicator) {
-        let hasScrolled = false; // 🔥 Flag per tracciare se ha scrollato
-        
-        scrollContainer.addEventListener('scroll', () => {
-          // 🔥 Se scrolla per la prima volta, nascondi DEFINITIVAMENTE
-          if (scrollContainer.scrollLeft > 10 && !hasScrolled) {
-            hasScrolled = true;
-            indicator.style.opacity = '0';
-            indicator.style.pointerEvents = 'none';
-            
-            // 🔥 RIMUOVI completamente dopo animazione
-            setTimeout(() => {
-              if (indicator.parentNode) {
-                indicator.remove();
-              }
-            }, 300);
-          }
-        });
-      }
-    });
-  }, 100);
+// Funzione condivisa per caricare dati venditore
+async function loadVendorData(utente) {
+  currentVendorId = utente.id;
+  currentVendorUsername = utente.username;
+
+  const { data: tuttiArticoli } = await supabaseClient
+    .from('Articoli')
+    .select('*, Utenti(id, username)')
+    .eq('in_vetrina', true);
+
+  const articoliVenditore = tuttiArticoli?.filter(art => 
+    art.Utenti?.id === utente.id
+  ) || [];
+
+  console.log('✅ Articoli:', articoliVenditore.length);
+  
+  allProducts = articoliVenditore;
+  currentProducts = [...allProducts];
+
+  // Conta i FOLLOWER (chi segue questo utente)
+  const { count: followersCount } = await supabaseClient
+    .from('Followers')
+    .select('*', { count: 'exact', head: true })
+    .eq('utente_seguito_id', utente.id);
+
+  // Conta i FOLLOWING (quante persone segue questo utente)
+  const { count: followingCount } = await supabaseClient
+    .from('Followers')
+    .select('*', { count: 'exact', head: true })
+    .eq('follower_id', utente.id);
+
+  const currentUserId = getCurrentUserId();
+  let isFollowing = false;
+  if (currentUserId) {
+    const { data } = await supabaseClient
+      .from('Followers')
+      .select('id')
+      .eq('utente_seguito_id', utente.id)
+      .eq('follower_id', currentUserId)
+      .single();
+    isFollowing = !!data;
+  }
+
+  renderVendorProfile({
+    id: utente.id,
+    username: utente.username,
+    nome_completo: utente.nome_completo,
+    citta: utente.citta,
+    bio: utente.bio,
+    avatar_icon: '<i class="fas fa-user"></i>',
+    member_since: new Date(utente.created_at).toLocaleDateString('it-IT', { year: 'numeric', month: 'long' }),
+    totale_articoli: allProducts.length,
+    followersCount: followersCount || 0,
+    followingCount: followingCount || 0,
+    isFollowing: isFollowing
+  });
+
+  renderFilters();
+  renderProducts(currentProducts);
+  await loadVendorPosts(utente.id);
+  
+  // Nascondi loader
+  if (window.NodoLoader) NodoLoader.hide();
 }
 
-function createVetrinaCard(userId, username, citta, disponibili, acquisti, mediaRecensioni, percentualeRecensioni, articoli) {
-  // Crea dots per gli articoli
-  const dotsHtml = articoli.length > 1 ? articoli.map((_, idx) => 
-    `<div class="vetrina-product-dot ${idx === 0 ? 'active' : ''}" data-index="${idx}"></div>`
-  ).join('') : '';
-  
-  return `
-    <div class="vetrina-card-big" id="vetrina-${userId}" data-user-id="${userId}">
-      <div class="vetrina-header">
-        <div class="vetrina-top">
-          <div class="vetrina-avatar">
+// ========================================
+// RENDER PROFILO
+// ========================================
+function renderVendorProfile(vendor) {
+  const container = document.getElementById('vendorProfile');
+  if (!container) return;
+
+  const currentUserId = getCurrentUserId();
+  const isMyProfile = currentUserId === vendor.id;
+
+  container.innerHTML = `
+    <div class="vendor-header-card">
+      <div class="vendor-header-top">
+        <div class="vendor-header-avatar">${vendor.avatar_icon}</div>
+        <div class="vendor-header-info">
+          <div class="vendor-header-name">
+            <span class="vendor-name-text">${vendor.username}</span>
+            ${isMyProfile ? '<span class="badge-my-profile">TUO PROFILO</span>' : ''}
+          </div>
+          <div class="vendor-header-meta">
+            ${vendor.citta ? `
+              <div class="vendor-meta-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>${vendor.citta}</span>
+              </div>
+            ` : ''}
+            <div class="vendor-meta-item">
+              <i class="fas fa-calendar-alt"></i>
+              <span>Membro da ${vendor.member_since}</span>
+            </div>
+          </div>
+          ${vendor.bio ? `
+            <div style="margin-top: 12px; color: #9ca3af; font-size: 14px; font-weight: 600;">
+              ${vendor.bio}
+            </div>
+          ` : ''}
+        </div>
+      </div>
+
+      <div class="vendor-stats-grid">
+        <div class="vendor-stat-box" onclick="showArticoliList()">
+          <div class="vendor-stat-value">${vendor.totale_articoli}</div>
+          <div class="vendor-stat-label">Articoli</div>
+        </div>
+        <div class="vendor-stat-box" onclick="showFollowersList('${vendor.id}')">
+          <div class="vendor-stat-value" id="followersCounter">${vendor.followersCount}</div>
+          <div class="vendor-stat-label">Follower</div>
+        </div>
+        <div class="vendor-stat-box" onclick="showFollowingList('${vendor.id}')">
+          <div class="vendor-stat-value" id="followingCounter">${vendor.followingCount}</div>
+          <div class="vendor-stat-label">Seguiti</div>
+        </div>
+      </div>
+
+      <div class="vendor-actions">
+        ${isMyProfile ? `
+          <!-- Bottoni per proprio profilo -->
+          <button class="vendor-action-btn vendor-action-primary" onclick="window.location.href='il-tuo-negozio.html'">
             <i class="fas fa-store"></i>
-          </div>
-          <div class="vetrina-info">
-            <h3>
-              <a href="vetrina-venditore.html?id=${userId}" 
-                 class="vetrina-username-link" 
-                 onclick="event.stopPropagation()">
-                <span class="vetrina-username">${username}</span>
-              </a>
-            </h3>
-            <p><i class="fas fa-map-marker-alt"></i> ${citta}</p>
-            <div class="vetrina-rating">
-              <i class="fas fa-box-open"></i> ${articoli.length} articol${articoli.length === 1 ? 'o' : 'i'}
-            </div>
-          </div>
-          
-          <button class="vetrina-action-btn-messages" 
-                  onclick="event.stopPropagation(); openChatWithVendor('${userId}', '${username}')" 
-                  title="Invia messaggio">
-            <i class="fas fa-comment-dots"></i>
+            <span>Gestisci Negozio</span>
           </button>
-        </div>
-      </div>
-      
-      <div class="vetrina-stats-inline">
-        <div class="vetrina-stat-inline">
-          <i class="fas fa-check-circle"></i>
-          <span class="vetrina-stat-inline-value">${disponibili}</span> disponibili
-        </div>
-        <div class="vetrina-stat-inline">
-          <i class="fas fa-shopping-bag"></i>
-          <span class="vetrina-stat-inline-value">${acquisti}</span> acquisti
-        </div>
-        <div class="vetrina-stat-inline">
-          <i class="fas fa-star"></i>
-          <span class="vetrina-stat-inline-value">${mediaRecensioni}/10</span> (${percentualeRecensioni}%)
-        </div>
-      </div>
-      
-      <div class="vetrina-products-scroll" style="position: relative;" data-user-id="${userId}">
-        ${articoli.length > 1 ? '<div class="vetrina-products-counter"><i class="fas fa-images"></i> <span id="counter-${userId}">1</span>/${articoli.length}</div>' : ''}
-        <div class="vetrina-products-container" id="products-${userId}">
-          ${articoli.map(art => createArticoloCard(art)).join('')}
-        </div>
-        ${articoli.length > 2 ? `<div class="scroll-indicator" id="scroll-indicator-${userId}">SCORRI <i class="fas fa-chevron-right"></i></div>` : ''}
-      </div>
-      
-      ${articoli.length > 1 ? `<div class="vetrina-products-dots" id="dots-${userId}">${dotsHtml}</div>` : ''}
-    </div>
-  `;
-}
-
-function createArticoloCard(articolo) {
-  // Raccogli tutte le foto disponibili
-  const allPhotos = [];
-  if (articolo.foto_principale) allPhotos.push(articolo.foto_principale);
-  else if (articolo.image_url) allPhotos.push(articolo.image_url);
-  if (articolo.foto_2) allPhotos.push(articolo.foto_2);
-  if (articolo.foto_3) allPhotos.push(articolo.foto_3);
-  if (articolo.foto_4) allPhotos.push(articolo.foto_4);
-  if (articolo.foto_5) allPhotos.push(articolo.foto_5);
-  if (articolo.foto_6) allPhotos.push(articolo.foto_6);
-  
-  const hasMultiplePhotos = allPhotos.length > 1;
-  const mainPhoto = allPhotos[0] || '';
-  
-  const imageHtml = mainPhoto 
-    ? `<img src="${mainPhoto}" alt="${articolo.Nome}" id="article-img-${articolo.id}">` 
-    : '<div class="vetrina-product-placeholder"><i class="fas fa-image"></i></div>';
-  
-  // Badge disponibilità
-  const disponibile = articolo.Presente === true;
-  const badgeHtml = disponibile
-    ? '<div class="product-availability-badge badge-disponibile"><i class="fas fa-check"></i> DISPONIBILE</div>'
-    : '<div class="product-availability-badge badge-non-disponibile"><i class="fas fa-times"></i> NON DISPONIBILE</div>';
-  
-  // Rating
-  const rating = articolo.ValutazioneStato || 0;
-  const ratingHtml = rating > 0 ? `
-    <div class="vetrina-product-rating">
-      <i class="fas fa-star"></i> ${rating}/10
-    </div>
-  ` : '';
-  
-  // Navigation buttons (solo se più foto)
-  const navHtml = hasMultiplePhotos ? `
-    <button class="article-photo-nav article-photo-prev" onclick="event.stopPropagation(); changeArticlePhoto('${articolo.id}', -1)">
-      <i class="fas fa-chevron-left"></i>
-    </button>
-    <button class="article-photo-nav article-photo-next" onclick="event.stopPropagation(); changeArticlePhoto('${articolo.id}', 1)">
-      <i class="fas fa-chevron-right"></i>
-    </button>
-    <div class="article-photo-dots" id="dots-${articolo.id}">
-      ${allPhotos.map((_, idx) => `<div class="article-photo-dot ${idx === 0 ? 'active' : ''}"></div>`).join('')}
-    </div>
-  ` : '';
-  
-  // Fullscreen button - apre galleria con tutte le foto
-  const fullscreenHtml = mainPhoto ? `
-    <button class="article-fullscreen-btn" onclick="event.stopPropagation(); openArticleGalleryVetrine('${articolo.id}')">
-      <i class="fas fa-expand"></i>
-    </button>
-  ` : '';
-  
-  return `
-    <div class="vetrina-product-card" onclick="mostraDettaglioArticolo('${articolo.id}')" data-article-id="${articolo.id}" data-current-photo="0" data-photos="${encodeURIComponent(JSON.stringify(allPhotos))}">
-      <div class="vetrina-product-image">
-        ${imageHtml}
-        ${navHtml}
-        ${fullscreenHtml}
-        ${badgeHtml}
-        ${ratingHtml}
-      </div>
-      <div class="vetrina-product-info">
-        <div class="vetrina-product-price">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
-        <div class="vetrina-product-name">${articolo.Nome}</div>
-        <div class="vetrina-product-category">
-          ${articolo.Categoria || 'Varie'}
-          ${articolo.lingua ? `<span style="margin-left:6px;">${getFlagHtml(articolo.lingua, 14)}</span>` : ''}
-        </div>
+          <button class="vendor-action-btn vendor-action-edit-profile" onclick="window.location.href='il-tuo-profilo.html'">
+            <i class="fas fa-user-edit"></i>
+            <span>Modifica Profilo</span>
+          </button>
+        ` : `
+          <!-- Bottoni per altri profili -->
+          <button class="vendor-action-btn vendor-action-primary" onclick="contactVendor('${vendor.id}')">
+            <i class="fas fa-comment"></i>
+            <span>Contatta</span>
+          </button>
+          <button class="vendor-action-btn vendor-action-secondary ${vendor.isFollowing ? 'following' : ''}" 
+                  id="followBtn" 
+                  onclick="toggleFollowVendor('${vendor.id}')">
+            <i class="fas ${vendor.isFollowing ? 'fa-user-check' : 'fa-user-plus'}"></i>
+            <span>${vendor.isFollowing ? 'Seguito' : 'Segui'}</span>
+          </button>
+        `}
       </div>
     </div>
   `;
 }
 
-function createArticoloPreview(articolo) {
-  return createArticoloCard(articolo);
-}
-
-function createArticoloCompleto(articolo) {
-  return createArticoloCard(articolo);
-}
-
-async function mostraDettaglioArticolo(articoloId) {
-  // Apri nuova pagina di dettaglio ottimizzata per mobile
-  window.location.href = `dettaglio-articolo.html?id=${articoloId}`;
-}
-
-function chiudiModalDettaglio(event) {
-  // Funzione non più utilizzata - si usa pagina dettaglio-articolo.html
-}
-
-function contattaVenditore(username, email, nomeArticolo) {
-  const messaggio = `Ciao ${username}! Sono interessato all'articolo "${nomeArticolo}". Possiamo parlarne?`;
-  const subject = `Interesse per: ${nomeArticolo}`;
-  const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(messaggio)}`;
-  
-  // Prova ad aprire l'app email
-  window.location.href = mailtoLink;
-  
-  // Fallback: mostra alert con email
-  setTimeout(() => {
-    alert(`📧 Contatta ${username} via email:\n${email}\n\nOppure chiama/scrivi su WhatsApp se disponibile.`);
-  }, 500);
-}
-
-// FLOATING FILTER BUTTON
-window.addEventListener('DOMContentLoaded', () => {
-  // Crea bottone floating
-  const floatingBtn = document.createElement('button');
-  floatingBtn.className = 'filter-floating-btn';
-  floatingBtn.innerHTML = '<i class="fas fa-filter"></i>';
-  floatingBtn.onclick = scrollToFilter;
-  document.body.appendChild(floatingBtn);
-  
-  // Scroll listener per mostrare/nascondere bottone
-  let lastScrollTop = 0;
-  window.addEventListener('scroll', () => {
-    const filterElement = document.getElementById('vetrineFilter');
-    if (!filterElement) return;
-    
-    const filterRect = filterElement.getBoundingClientRect();
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    
-    // Mostra bottone se il filtro è fuori schermo verso l'alto
-    if (filterRect.bottom < 0 && scrollTop > lastScrollTop) {
-      floatingBtn.classList.add('active');
-    } else {
-      floatingBtn.classList.remove('active');
-    }
-    
-    lastScrollTop = scrollTop;
-  });
-});
-
-function scrollToFilter() {
-  const filterElement = document.getElementById('vetrineFilter');
-  if (filterElement) {
-    filterElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    
-    // Apri il filtro se è chiuso
-    setTimeout(() => {
-      if (!filterElement.classList.contains('expanded')) {
-        toggleFilter();
-      }
-    }, 500);
-  }
-}
-
-// ============================================
-// TOGGLE VETRINA - RIMOSSO
-// ============================================
-// La funzionalità di espansione è stata rimossa
-
-// CREA ARTICOLO ESPANSO (GRANDE) - RIMOSSO
-// La funzione createArticoloExpanded è stata rimossa
-
-// MODAL DETTAGLIO SUPER FIGO
-let currentGalleryIndex = 0;
-let currentModalArticolo = null;
-
-function openModalDettaglio(articolo) {
-  // Apri nuova pagina di dettaglio ottimizzata per mobile
-  window.location.href = `dettaglio-articolo.html?id=${articolo.id}`;
-}
-
-function closeModalDettaglio(event) {
-  if (event && event.target.id !== 'modalDettaglio') return;
-  
-  const modal = document.getElementById('modalDettaglio');
-  if (modal) {
-    modal.remove();
-    document.body.style.overflow = '';
-  }
-}
-
-// GALLERIA SWIPE
-function nextImage() {
-  const immagini = [];
-  if (currentModalArticolo.Foto1) immagini.push(currentModalArticolo.Foto1);
-  if (currentModalArticolo.Foto2) immagini.push(currentModalArticolo.Foto2);
-  if (currentModalArticolo.Foto3) immagini.push(currentModalArticolo.Foto3);
-  if (currentModalArticolo.Foto4) immagini.push(currentModalArticolo.Foto4);
-  if (currentModalArticolo.Foto5) immagini.push(currentModalArticolo.Foto5);
-  
-  if (currentGalleryIndex < immagini.length - 1) {
-    currentGalleryIndex++;
-    updateGallery();
-  }
-}
-
-function prevImage() {
-  if (currentGalleryIndex > 0) {
-    currentGalleryIndex--;
-    updateGallery();
-  }
-}
-
-function updateGallery() {
-  const container = document.getElementById('galleryContainer');
-  const dots = document.querySelectorAll('.gallery-dot');
-  
-  if (container) {
-    const translateX = -currentGalleryIndex * 100;
-    container.style.transform = `translateX(${translateX}%)`;
-  }
-  
-  dots.forEach((dot, index) => {
-    if (index === currentGalleryIndex) {
-      dot.classList.add('active');
-    } else {
-      dot.classList.remove('active');
-    }
-  });
-}
-
-// TOUCH SWIPE GESTURES
-function setupGallerySwipe() {
-  const gallery = document.getElementById('gallerySwipe');
-  if (!gallery) return;
-  
-  let touchStartX = 0;
-  let touchEndX = 0;
-  
-  gallery.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-  });
-  
-  gallery.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
-  });
-  
-  function handleSwipe() {
-    const swipeThreshold = 50;
-    
-    if (touchEndX < touchStartX - swipeThreshold) {
-      // Swipe left = next
-      nextImage();
-    }
-    
-    if (touchEndX > touchStartX + swipeThreshold) {
-      // Swipe right = prev
-      prevImage();
-    }
-  }
-}
-// ============================================
-// VETRINE NODO - AGGIUNTE E OTTIMIZZAZIONI
-// ============================================
-
-// Variabili globali per carousel
-window.carouselIndices = {}; // userId -> currentIndex
-
-// MODIFICA createVetrinaCard per aggiungere recensioni e carousel
-// ============================================
-// createVetrinaCardNew - RIMOSSA
-// ============================================
-// Questa funzione è stata rimossa e sostituita con createVetrinaCard
-// che include il nome cliccabile e il pulsante messaggi
-
-// TOGGLE ESPANSIONE - INGRANDISCE ARTICOLI NELLA SCROLL
-// TOGGLE ESPANSIONE - RIMOSSO
-// La funzione toggleVetrinaExpand è stata rimossa
-
-// SCROLL INDICATOR - SCOMPARE PERMANENTEMENTE
-function setupScrollIndicatorsOptimized() {
-  setTimeout(() => {
-    const scrollContainers = document.querySelectorAll('.vetrina-products-scroll');
-    scrollContainers.forEach((scrollContainer) => {
-      const userId = scrollContainer.getAttribute('data-user-id');
-      const indicator = document.getElementById(`scroll-indicator-${userId}`);
-      
-      if (indicator) {
-        let hasScrolled = false;
-        
-        scrollContainer.addEventListener('scroll', () => {
-          // 🔥 Se scrolla per la prima volta, nascondi DEFINITIVAMENTE
-          if (!hasScrolled && scrollContainer.scrollLeft > 10) {
-            hasScrolled = true;
-            indicator.style.opacity = '0';
-            indicator.style.pointerEvents = 'none';
-            
-            // 🔥 RIMUOVI completamente dopo animazione
-            setTimeout(() => {
-              if (indicator && indicator.parentNode) {
-                indicator.remove();
-              }
-            }, 300);
-          }
-        });
+// ========================================
+// RENDER FILTRI
+// ========================================
+function renderFilters() {
+  // Usa il sistema NodoFiltri da filtri.js
+  if (window.NodoFiltri) {
+    NodoFiltri.init('filtersContainer', {
+      onFilter: function(values) {
+        applyNodoFilters(values);
+      },
+      onReset: function() {
+        currentProducts = [...allProducts];
+        renderProducts(currentProducts);
       }
     });
-  }, 100);
-}
-
-// PRICE RANGE SLIDER
-let priceMin = 0;
-let priceMax = 1000;
-
-function initPriceRangeSlider() {
-  const minInput = document.getElementById('priceRangeMin');
-  const maxInput = document.getElementById('priceRangeMax');
-  const minValue = document.getElementById('priceMinValue');
-  const maxValue = document.getElementById('priceMaxValue');
-  const fill = document.getElementById('priceRangeFill');
-  
-  if (!minInput || !maxInput) return;
-  
-  // Trova max prezzo
-  const maxPrice = Math.max(...allArticoli.map(a => parseFloat(a.prezzo_vendita) || 0));
-  priceMax = Math.ceil(maxPrice / 100) * 100 || 1000;
-  
-  minInput.max = priceMax;
-  maxInput.max = priceMax;
-  maxInput.value = priceMax;
-  
-  function updateSlider() {
-    const min = parseInt(minInput.value);
-    const max = parseInt(maxInput.value);
-    
-    // Evita sovrapposizione
-    if (min >= max - 10) {
-      if (this === minInput) {
-        minInput.value = max - 10;
-      } else {
-        maxInput.value = min + 10;
-      }
-    }
-    
-    priceMin = parseInt(minInput.value);
-    priceMax = parseInt(maxInput.value);
-    
-    minValue.textContent = `${priceMin}€`;
-    maxValue.textContent = `${priceMax}€`;
-    
-    // Aggiorna fill
-    const percentMin = (priceMin / maxInput.max) * 100;
-    const percentMax = (priceMax / maxInput.max) * 100;
-    fill.style.left = `${percentMin}%`;
-    fill.style.right = `${100 - percentMax}%`;
-  }
-  
-  minInput.addEventListener('input', updateSlider);
-  maxInput.addEventListener('input', updateSlider);
-  
-  // Init
-  updateSlider();
-}
-
-// FLOATING FILTER BUTTON SEMPLICE - NO BUGS
-function handleFilterClick() {
-  toggleFilter();
-}
-
-// Setup floating button su scroll
-window.addEventListener('DOMContentLoaded', () => {
-  const floatingBtn = document.createElement('button');
-  floatingBtn.className = 'filter-floating-btn';
-  floatingBtn.innerHTML = '<i class="fas fa-filter"></i>';
-  floatingBtn.onclick = scrollToFilterSimple;
-  document.body.appendChild(floatingBtn);
-  
-  let lastScrollTop = 0;
-  window.addEventListener('scroll', () => {
-    const filterElement = document.getElementById('vetrineFilter');
-    if (!filterElement) return;
-    
-    const filterRect = filterElement.getBoundingClientRect();
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    
-    // Mostra bottone SOLO se filtro fuori schermo
-    if (filterRect.bottom < 0 && scrollTop > lastScrollTop) {
-      floatingBtn.classList.add('active');
-    } else {
-      floatingBtn.classList.remove('active');
-    }
-    
-    lastScrollTop = scrollTop;
-  }, { passive: true });
-});
-
-function scrollToFilterSimple() {
-  const filterElement = document.getElementById('vetrineFilter');
-  if (filterElement) {
-    filterElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setTimeout(() => {
-      if (!filterElement.classList.contains('expanded')) {
-        toggleFilter();
-      }
-    }, 500);
+    console.log('🔍 NodoFiltri inizializzato per vetrina-venditore');
+  } else {
+    console.warn('⚠️ NodoFiltri non disponibile');
   }
 }
 
-// AGGIORNA createFilterHtml per includere cerca venditore e price slider
-function createFilterHtmlNew() {
-  const categorie = getCategorie();
-  const sets = getSets();
-  const activeFiltersCount = getActiveFiltersCount();
-  
-  return `
-    <div class="filter-box">
-      <!-- Ricerca SEMPRE visibile -->
-      <div class="filter-search-always">
-        <i class="fas fa-search"></i>
-        <input type="text" id="filterNome" placeholder="Cerca articolo..." oninput="applyFiltersNew()">
-        <button class="filter-expand-btn" id="filterExpandBtn" onclick="toggleFilterBody()">
-          <i class="fas fa-sliders-h"></i>
-          <span id="filterBadge" class="${activeFiltersCount > 0 ? 'visible' : ''}">${activeFiltersCount > 0 ? activeFiltersCount : ''}</span>
-        </button>
-      </div>
-      
-      <!-- Resto filtri espandibile -->
-      <div class="filter-body" id="filterBody">
-        <div class="filter-group">
-          <label><i class="fas fa-user"></i> Venditore</label>
-          <input type="text" class="filter-input" id="filterVenditore" placeholder="Nome venditore...">
-        </div>
-        
-        <div class="filter-group">
-          <label><i class="fas fa-layer-group"></i> Set/Espansione</label>
-          <select class="filter-select" id="filterSet">
-            <option value="all">Tutti i set</option>
-            ${sets.map(set => `<option value="${set}">${set}</option>`).join('')}
-          </select>
-        </div>
-        
-        <div class="filter-group">
-          <label><i class="fas fa-tags"></i> Categoria</label>
-          <select class="filter-select" id="filterCategoria" onchange="gestisciFiltroAltro()">
-            <option value="all">Tutte le categorie</option>
-            <option value="ETB">ETB</option>
-            <option value="Carte Singole">Carte Singole</option>
-            <option value="Carte gradate">Carte gradate</option>
-            <option value="Master Set">Master Set</option>
-            <option value="Booster Box">Booster Box</option>
-            <option value="Collection Box">Collection Box</option>
-            <option value="Box mini tin">Box mini tin</option>
-            <option value="Bustine">Bustine</option>
-            <option value="Poké Ball">Poké Ball</option>
-            <option value="Accessori">Accessori</option>
-            <option value="Altro">Altro</option>
-          </select>
-        </div>
-        
-        <div class="filter-group" id="filterAltroGroup" style="display:none;">
-          <label><i class="fas fa-edit"></i> Specifica Categoria</label>
-          <input type="text" class="filter-input" id="filterAltroCategoria" placeholder="es. Pokemon Plush, Figure...">
-        </div>
-        
-        <!-- Sezione Carte Gradate -->
-        <div id="filterGradedSection" style="display:none;">
-          <div class="filter-group">
-            <label><i class="fas fa-building"></i> Casa Gradazione</label>
-            <select class="filter-select" id="filterCasaGradazione">
-              <option value="">Tutte</option>
-              <option value="PSA">PSA</option>
-              <option value="GRAAD">GRAAD</option>
-              <option value="Altra casa">Altra</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label><i class="fas fa-star"></i> Voto Minimo</label>
-            <select class="filter-select" id="filterVotoGradazione">
-              <option value="">Tutti</option>
-              <option value="6">6+</option>
-              <option value="7">7+</option>
-              <option value="8">8+</option>
-              <option value="9">9+</option>
-              <option value="10">10</option>
-            </select>
-          </div>
-        </div>
-        
-        <div class="filter-group">
-          <label><i class="fas fa-certificate"></i> Condizione</label>
-          <select class="filter-select" id="filterCondizione">
-            <option value="">Tutte</option>
-            <option value="Mint">(M) - Perfetta</option>
-            <option value="Near Mint">(NM) - Quasi perfetta</option>
-            <option value="Excellent">(EX) - Eccellente</option>
-            <option value="Good">(GD) - Buona</option>
-            <option value="Light Played">(LP) - Leggermente giocata</option>
-            <option value="Played">(PL) - Giocata</option>
-            <option value="Poor">(P) - Scarsa</option>
-          </select>
-        </div>
-        
-        <div class="filter-group">
-          <label><i class="fas fa-globe"></i> Lingua</label>
-          <div class="language-flags-grid">
-            <button type="button" class="flag-btn active" data-lang="" onclick="selectLanguage(this)" title="Tutte">
-              <span class="flag-circle"><i class="fas fa-globe"></i></span>
-              <span class="flag-label">Tutte</span>
-            </button>
-            <button type="button" class="flag-btn" data-lang="ITA" onclick="selectLanguage(this)" title="Italiano">
-              <span class="flag-circle"><span class="fi fi-it"></span></span>
-              <span class="flag-label">ITA</span>
-            </button>
-            <button type="button" class="flag-btn" data-lang="ENG" onclick="selectLanguage(this)" title="Inglese">
-              <span class="flag-circle"><span class="fi fi-gb"></span></span>
-              <span class="flag-label">ENG</span>
-            </button>
-            <button type="button" class="flag-btn" data-lang="JAP" onclick="selectLanguage(this)" title="Giapponese">
-              <span class="flag-circle"><span class="fi fi-jp"></span></span>
-              <span class="flag-label">JAP</span>
-            </button>
-            <button type="button" class="flag-btn" data-lang="KOR" onclick="selectLanguage(this)" title="Coreano">
-              <span class="flag-circle"><span class="fi fi-kr"></span></span>
-              <span class="flag-label">KOR</span>
-            </button>
-            <button type="button" class="flag-btn" data-lang="CHN" onclick="selectLanguage(this)" title="Cinese">
-              <span class="flag-circle"><span class="fi fi-cn"></span></span>
-              <span class="flag-label">CHN</span>
-            </button>
-            <button type="button" class="flag-btn" data-lang="FRA" onclick="selectLanguage(this)" title="Francese">
-              <span class="flag-circle"><span class="fi fi-fr"></span></span>
-              <span class="flag-label">FRA</span>
-            </button>
-            <button type="button" class="flag-btn" data-lang="GER" onclick="selectLanguage(this)" title="Tedesco">
-              <span class="flag-circle"><span class="fi fi-de"></span></span>
-              <span class="flag-label">GER</span>
-            </button>
-            <button type="button" class="flag-btn" data-lang="SPA" onclick="selectLanguage(this)" title="Spagnolo">
-              <span class="flag-circle"><span class="fi fi-es"></span></span>
-              <span class="flag-label">SPA</span>
-            </button>
-          </div>
-          <input type="hidden" id="filterLingua" value="">
-        </div>
-        
-        <div class="filter-group">
-          <label><i class="fas fa-euro-sign"></i> Fascia di Prezzo</label>
-          <div class="price-range-slider">
-            <div class="price-range-values">
-              <div class="price-value" id="priceMinValue">0€</div>
-              <div class="price-value" id="priceMaxValue">1000€</div>
-            </div>
-            <div class="price-range-track">
-              <div class="price-range-fill" id="priceRangeFill"></div>
-            </div>
-            <div class="price-range-inputs">
-              <input type="range" class="price-range-input" id="priceRangeMin" min="0" max="1000" value="0" step="5">
-              <input type="range" class="price-range-input" id="priceRangeMax" min="0" max="1000" value="1000" step="5">
-            </div>
-          </div>
-        </div>
-        
-        <div class="filter-group">
-          <div class="filter-checkboxes">
-            <label class="filter-checkbox-item">
-              <input type="checkbox" class="filter-checkbox" id="filterDisponibili">
-              <span class="filter-checkbox-label">Solo disponibili in magazzino</span>
-            </label>
-          </div>
-        </div>
-        
-        <div class="filter-actions">
-          <button class="filter-btn filter-btn-reset" onclick="resetFiltersNew()">
-            <i class="fas fa-redo"></i> Reset
-          </button>
-          <button class="filter-btn filter-btn-apply" onclick="applyFiltersNew()">
-            <i class="fas fa-check"></i> Applica
-          </button>
-        </div>
-      </div>
-    </div>
+// Applica filtri usando NodoFiltri
+function applyNodoFilters(values) {
+  currentProducts = allProducts.filter(p => {
+    // Ricerca nome
+    const matchSearch = !values.nome || 
+      (p.Nome && p.Nome.toLowerCase().includes(values.nome)) ||
+      (p.Categoria && p.Categoria.toLowerCase().includes(values.nome)) ||
+      (p.espansione && p.espansione.toLowerCase().includes(values.nome));
     
-    <!-- PAGINAZIONE -->
-    <div class="pagination-container">
-      <div class="pagination-info">
-        <span id="pageStart">1</span>-<span id="pageEnd">10</span> di <span id="totalItems">0</span>
-      </div>
-      <div class="pagination-controls">
-        <button class="pagination-btn" id="prevBtn" onclick="previousPageVetrine()" disabled>
-          <i class="fas fa-chevron-left"></i>
-        </button>
-        <button class="pagination-btn" id="nextBtn" onclick="nextPageVetrine()">
-          <i class="fas fa-chevron-right"></i>
-        </button>
-      </div>
-    </div>
-    
-    <div id="vetrineList"></div>
-  `;
-}
-
-// Toggle body filtri
-function toggleFilterBody() {
-  const body = document.getElementById('filterBody');
-  const btn = document.getElementById('filterExpandBtn');
-  if (body && btn) {
-    body.classList.toggle('open');
-    btn.classList.toggle('active');
-  }
-}
-
-// Paginazione vetrine
-function updatePaginationInfo(total) {
-  const pageStartEl = document.getElementById('pageStart');
-  const pageEndEl = document.getElementById('pageEnd');
-  const totalItemsEl = document.getElementById('totalItems');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  
-  if (!pageStartEl || !pageEndEl || !totalItemsEl) return;
-  
-  const start = total === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
-  const end = Math.min(currentPage * itemsPerPage, total);
-  
-  pageStartEl.textContent = start;
-  pageEndEl.textContent = end;
-  totalItemsEl.textContent = total;
-  
-  if (prevBtn) prevBtn.disabled = currentPage === 1;
-  if (nextBtn) nextBtn.disabled = end >= total;
-}
-
-function previousPageVetrine() {
-  if (currentPage > 1) {
-    currentPage--;
-    applyFiltersNew();
-  }
-}
-
-function nextPageVetrine() {
-  currentPage++;
-  applyFiltersNew();
-}
-
-// SOSTITUISCE renderVetrine per usare nuovo design
-const renderVetrineOriginal = renderVetrine;
-renderVetrine = function(articoli) {
-  const container = document.getElementById('vetrineList');
-  
-  if (!articoli || articoli.length === 0) {
-    let messaggioFiltri = '';
-    if (currentFilters.nome !== '') {
-      messaggioFiltri = `Nessuna carta trovata per "${currentFilters.nome}"`;
-    } else if (getActiveFiltersCount() > 0) {
-      messaggioFiltri = 'Nessun articolo corrisponde ai filtri';
-    } else {
-      messaggioFiltri = 'Nessun articolo disponibile';
-    }
-    
-    container.innerHTML = `
-      <div class="wip-container" style="margin-top: 20px;">
-        <div class="wip-icon"><i class="fas fa-search"></i></div>
-        <div class="wip-text">${messaggioFiltri}</div>
-        <div class="wip-subtext">Prova a modificare i filtri o la ricerca</div>
-      </div>
-    `;
-    updatePaginationInfo(0);
-    return;
-  }
-  
-  // Raggruppa articoli per utente
-  const articoliPerUtente = {};
-  articoli.forEach(art => {
-    const userId = art.user_id;
-    if (!articoliPerUtente[userId]) {
-      articoliPerUtente[userId] = {
-        username: art.Utenti?.username || 'Utente',
-        citta: art.Utenti?.citta || 'Italia',
-        email: art.Utenti?.email || '',
-        articoli: []
-      };
-    }
-    articoliPerUtente[userId].articoli.push(art);
-  });
-  
-  // Filtra per venditore se specificato
-  const venditoreFiltro = currentFilters.venditore || '';
-  if (venditoreFiltro) {
-    Object.keys(articoliPerUtente).forEach(userId => {
-      const userData = articoliPerUtente[userId];
-      if (!userData.username.toLowerCase().includes(venditoreFiltro.toLowerCase())) {
-        delete articoliPerUtente[userId];
-      }
-    });
-  }
-  
-  // Crea array di vetrine
-  const vetrine = [];
-  Object.entries(articoliPerUtente).forEach(([userId, userData]) => {
-    const disponibili = userData.articoli.filter(a => a.Presente).length;
-    const articoliConRecensione = userData.articoli.filter(a => a.ValutazioneStato && a.ValutazioneStato > 0);
-    const mediaRecensioni = articoliConRecensione.length > 0
-      ? (articoliConRecensione.reduce((sum, a) => sum + a.ValutazioneStato, 0) / articoliConRecensione.length).toFixed(1)
-      : 0;
-    const percentualeRecensioni = userData.articoli.length > 0 
-      ? Math.round((articoliConRecensione.length / userData.articoli.length) * 100)
-      : 0;
-    const acquisti = 0;
-    
-    vetrine.push({
-      userId,
-      username: userData.username,
-      citta: userData.citta,
-      disponibili,
-      acquisti,
-      mediaRecensioni,
-      percentualeRecensioni,
-      articoli: userData.articoli
-    });
-  });
-  
-  // PAGINAZIONE
-  const totalVetrine = vetrine.length;
-  const totalPages = Math.ceil(totalVetrine / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage, totalVetrine);
-  const vetrinePaginate = vetrine.slice(startIndex, endIndex);
-  
-  // Aggiorna info paginazione nel box in alto
-  updatePaginationInfo(totalVetrine);
-  
-  // Crea HTML vetrine
-  let html = '';
-  vetrinePaginate.forEach(v => {
-    html += createVetrinaCard(
-      v.userId,
-      v.username,
-      v.citta,
-      v.disponibili,
-      v.acquisti,
-      v.mediaRecensioni,
-      v.percentualeRecensioni,
-      v.articoli
-    );
-  });
-  
-  container.innerHTML = html;
-  
-  // Setup scroll indicators ottimizzati
-  setupScrollIndicatorsOptimized();
-};
-
-// SOSTITUISCE createFilterHtml
-const createFilterHtmlOriginal = createFilterHtml;
-createFilterHtml = createFilterHtmlNew;
-
-// SOSTITUISCE applyFilters per usare price slider e venditore
-const applyFiltersOriginal = applyFilters;
-applyFilters = function(closeFilter = true) {
-  currentFilters.nome = document.getElementById('filterNome').value.toLowerCase().trim();
-  currentFilters.venditore = document.getElementById('filterVenditore')?.value.toLowerCase().trim() || '';
-  currentFilters.set = document.getElementById('filterSet').value;
-  currentFilters.categoria = document.getElementById('filterCategoria').value;
-  currentFilters.altroCategoria = document.getElementById('filterAltroCategoria')?.value.toLowerCase().trim() || '';
-  currentFilters.casaGradazione = document.getElementById('filterCasaGradazione')?.value || '';
-  currentFilters.votoGradazione = document.getElementById('filterVotoGradazione')?.value || '';
-  currentFilters.condizione = document.getElementById('filterCondizione')?.value || '';
-  currentFilters.lingua = document.getElementById('filterLingua')?.value || '';
-  currentFilters.prezzoMin = priceMin;
-  currentFilters.prezzoMax = priceMax;
-  currentFilters.disponibili = document.getElementById('filterDisponibili').checked;
-  currentPage = 1;
-  
-  let articoliFiltrati = allArticoli.filter(art => {
-    if (currentFilters.nome !== '') {
-      const nomeArticolo = (art.Nome || '').toLowerCase();
-      const descrizione = (art.Descrizione || '').toLowerCase();
-      const set = (art.Set || '').toLowerCase();
-      const espansione = (art.Espansione || '').toLowerCase();
-      
-      if (!nomeArticolo.includes(currentFilters.nome) && 
-          !descrizione.includes(currentFilters.nome) &&
-          !set.includes(currentFilters.nome) &&
-          !espansione.includes(currentFilters.nome)) {
-        return false;
-      }
-    }
-    
-    if (currentFilters.set !== 'all') {
-      if (art.Set !== currentFilters.set && art.Espansione !== currentFilters.set) {
-        return false;
-      }
-    }
-    
-    // Filtro categoria con supporto "Altro"
-    if (currentFilters.categoria !== 'all') {
-      if (currentFilters.categoria === 'Altro') {
+    // Categoria con supporto "Altro"
+    let matchCategoria = true;
+    if (values.categoria) {
+      if (values.categoria === 'Altro') {
         // Se è selezionato "Altro", cerca nelle categorie personalizzate
         const categoriePredefinite = ['ETB', 'Carte Singole', 'Carte gradate', 'Master Set', 'Booster Box', 'Collection Box', 'Box mini tin', 'Bustine', 'Poké Ball', 'Accessori'];
-        const isCustomCategory = !categoriePredefinite.includes(art.Categoria);
+        const isCustomCategory = !categoriePredefinite.includes(p.Categoria);
         if (!isCustomCategory) return false;
         
         // Se c'è un testo specifico, filtra per quello
-        if (currentFilters.altroCategoria !== '') {
-          const artCategoria = (art.Categoria || '').toLowerCase();
-          if (!artCategoria.includes(currentFilters.altroCategoria)) {
+        if (values.altroCategoria && values.altroCategoria !== '') {
+          const artCategoria = (p.Categoria || '').toLowerCase();
+          if (!artCategoria.includes(values.altroCategoria)) {
             return false;
           }
         }
       } else {
-        if (art.Categoria !== currentFilters.categoria) {
-          return false;
-        }
+        matchCategoria = p.Categoria === values.categoria;
       }
     }
     
-    // Filtro carte gradate (casa e voto)
-    if (currentFilters.categoria === 'Carte gradate') {
-      // Filtro casa gradazione
-      if (currentFilters.casaGradazione !== '' && art.casa_gradazione !== currentFilters.casaGradazione) {
-        return false;
+    // Condizione
+    const matchCondizione = !values.condizione || p.condizione === values.condizione;
+    
+    // Lingua
+    const matchLingua = !values.lingua || p.lingua === values.lingua;
+    
+    // Prezzo vendita (per vetrina)
+    const prezzo = parseFloat(p.prezzo_vendita || 0);
+    const matchPrezzo = prezzo >= values.valoreMin && prezzo <= values.valoreMax;
+    
+    // Disponibilità (presente fisicamente)
+    const matchPresente = (values.presenti && p.Presente) || (values.assenti && !p.Presente);
+    
+    // Carte gradate
+    let matchGraded = true;
+    if (values.categoria === 'Carte gradate') {
+      if (values.casaGradazione) {
+        matchGraded = matchGraded && p.casa_gradazione === values.casaGradazione;
       }
-      // Filtro voto minimo gradazione
-      if (currentFilters.votoGradazione !== '') {
-        const votoMinimo = parseFloat(currentFilters.votoGradazione);
-        const votoArticolo = parseFloat(art.voto_gradazione) || 0;
-        if (votoArticolo < votoMinimo) {
-          return false;
-        }
+      if (values.votoGradazione) {
+        matchGraded = matchGraded && (p.voto_gradazione || 0) >= values.votoGradazione;
       }
     }
     
-    // Filtro condizione
-    if (currentFilters.condizione !== '' && art.condizione !== currentFilters.condizione) {
-      return false;
-    }
-    
-    // Filtro lingua
-    if (currentFilters.lingua !== '' && art.lingua !== currentFilters.lingua) {
-      return false;
-    }
-    
-    const prezzo = parseFloat(art.prezzo_vendita) || 0;
-    if (prezzo < currentFilters.prezzoMin || prezzo > currentFilters.prezzoMax) {
-      return false;
-    }
-    
-    if (currentFilters.disponibili && !art.Presente) {
-      return false;
-    }
-    
-    return true;
+    return matchSearch && matchCategoria && matchCondizione && matchLingua && matchPrezzo && matchPresente && matchGraded;
   });
-  
-  console.log(`🔍 Filtrati: ${articoliFiltrati.length}/${allArticoli.length} articoli`);
-  
-  renderVetrine(articoliFiltrati);
-  
-  // Chiudi body filtri e aggiorna badge
-  if (closeFilter) {
-    const filterBody = document.getElementById('filterBody');
-    const filterBtn = document.getElementById('filterExpandBtn');
-    if (filterBody) filterBody.classList.remove('open');
-    if (filterBtn) filterBtn.classList.remove('active');
-  }
-  
-  // Aggiorna badge filtri attivi
-  const badge = document.getElementById('filterBadge');
-  const activeCount = getActiveFiltersCount();
-  if (badge) {
-    badge.textContent = activeCount > 0 ? activeCount : '';
-    badge.classList.toggle('visible', activeCount > 0);
-  }
-};
 
-function resetFiltersNew() {
-  currentFilters = {
-    nome: '',
-    venditore: '',
-    set: 'all',
-    categoria: 'all',
-    altroCategoria: '',
-    casaGradazione: '',
-    votoGradazione: '',
-    condizione: '',
-    lingua: '',
-    prezzoMin: 0,
-    prezzoMax: 1000,
-    disponibili: false
-  };
-  currentPage = 1;
-  
-  document.getElementById('filterNome').value = '';
-  if (document.getElementById('filterVenditore')) {
-    document.getElementById('filterVenditore').value = '';
-  }
-  document.getElementById('filterSet').value = 'all';
-  document.getElementById('filterCategoria').value = 'all';
-  document.getElementById('filterDisponibili').checked = false;
-  
-  // Reset condizione
-  if (document.getElementById('filterCondizione')) {
-    document.getElementById('filterCondizione').value = '';
-  }
-  
-  // Reset campo Altro e nascondilo
-  if (document.getElementById('filterAltroCategoria')) {
-    document.getElementById('filterAltroCategoria').value = '';
-  }
-  if (document.getElementById('filterAltroGroup')) {
-    document.getElementById('filterAltroGroup').style.display = 'none';
-  }
-  
-  // Reset campi carte gradate e nascondili
-  if (document.getElementById('filterCasaGradazione')) {
-    document.getElementById('filterCasaGradazione').value = '';
-  }
-  if (document.getElementById('filterVotoGradazione')) {
-    document.getElementById('filterVotoGradazione').value = '';
-  }
-  if (document.getElementById('filterGradedSection')) {
-    document.getElementById('filterGradedSection').style.display = 'none';
-  }
-  
-  // Reset lingua e bandierine
-  if (document.getElementById('filterLingua')) {
-    document.getElementById('filterLingua').value = '';
-  }
-  document.querySelectorAll('.flag-btn').forEach(btn => {
-    btn.classList.remove('active');
-    if (btn.getAttribute('data-lang') === '') {
-      btn.classList.add('active');
-    }
-  });
-  
-  // Reset slider
-  priceMin = 0;
-  priceMax = Math.ceil(Math.max(...allArticoli.map(a => parseFloat(a.prezzo_vendita) || 0)) / 100) * 100 || 1000;
-  if (document.getElementById('priceRangeMin')) {
-    document.getElementById('priceRangeMin').value = 0;
-    document.getElementById('priceRangeMax').value = priceMax;
-    initPriceRangeSlider();
-  }
-  
-  renderVetrine(allArticoli);
-  
-  // Reset badge
-  const badge = document.getElementById('filterBadge');
-  if (badge) {
-    badge.textContent = '';
-    badge.classList.remove('visible');
-  }
-  
-  // Chiudi body filtri
-  const filterBody = document.getElementById('filterBody');
-  const filterBtn = document.getElementById('filterExpandBtn');
-  if (filterBody) filterBody.classList.remove('open');
-  if (filterBtn) filterBtn.classList.remove('active');
+  console.log('✅ Filtrati:', currentProducts.length, '/', allProducts.length);
+  renderProducts(currentProducts);
 }
 
-function applyFiltersNew() {
-  applyFilters(true);
-}
+// ========================================
+// RENDER PRODOTTI
+// ========================================
+function renderProducts(products) {
+  const container = document.getElementById('productsGrid');
+  if (!container) return;
 
-// Init price slider dopo caricamento filtro
-const loadVetrineContentOriginal = loadVetrineContent;
-loadVetrineContent = async function() {
-  await loadVetrineContentOriginal();
-  setTimeout(() => {
-    initPriceRangeSlider();
-  }, 500);
-};
+  if (products.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <i class="fas fa-box-open"></i>
+        <h3>Nessun articolo trovato</h3>
+        <p>Prova a modificare i filtri</p>
+      </div>
+    `;
+    return;
+  }
 
-// MODAL DETTAGLIO OTTIMIZZATO
-function openModalDettaglioOptimized(articolo) {
-  currentModalArticolo = articolo;
-  currentGalleryIndex = 0;
-  
-  const immagini = [];
-  if (articolo.Foto1) immagini.push(articolo.Foto1);
-  if (articolo.Foto2) immagini.push(articolo.Foto2);
-  if (articolo.Foto3) immagini.push(articolo.Foto3);
-  if (articolo.Foto4) immagini.push(articolo.Foto4);
-  if (articolo.Foto5) immagini.push(articolo.Foto5);
-  
-  const disponibile = articolo.Presente === true;
-  const badgeClass = disponibile ? 'disponibile' : 'non-disponibile';
-  const badgeText = disponibile ? '<i class="fas fa-check"></i> DISPONIBILE IN MAGAZZINO' : '<i class="fas fa-times"></i> NON DISPONIBILE';
-  
-  const modalHtml = `
-    <div class="modal-dettaglio-backdrop" id="modalDettaglio" onclick="closeModalDettaglio(event)">
-      <div class="modal-dettaglio-content" onclick="event.stopPropagation()">
-        <div class="modal-header-sticky">
-          <h3 class="modal-title-big">${articolo.Nome || 'Dettaglio Prodotto'}</h3>
-          <button class="modal-close-btn" onclick="closeModalDettaglio()">✕</button>
+  container.innerHTML = products.map(p => {
+    // ✅ PROVA TUTTI I CAMPI POSSIBILI PER LA FOTO
+    const mainPhoto = p.Foto1 || p.foto_principale || p.image_url || p.Foto2 || p.Foto3 || '';
+    
+    // Se NON c'è foto, usa placeholder SVG
+    const photoUrl = mainPhoto || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="420"%3E%3Crect fill="%231a1a1a" width="300" height="420"/%3E%3Ctext fill="%23fbbf24" font-family="Arial" font-size="24" font-weight="bold" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
+    
+    const disponibile = p.Presente === true;
+    const rating = p.ValutazioneStato || 0;
+
+    return `
+      <div class="vendor-product-card" onclick="openProduct('${p.id}')">
+        <div class="vendor-product-image">
+          <img src="${photoUrl}" alt="${p.Nome}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'300\\' height=\\'420\\'%3E%3Crect fill=\\'%231a1a1a\\' width=\\'300\\' height=\\'420\\'/%3E%3Ctext fill=\\'%23fbbf24\\' font-family=\\'Arial\\' font-size=\\'24\\' font-weight=\\'bold\\' x=\\'50%25\\' y=\\'50%25\\' text-anchor=\\'middle\\' dy=\\'.3em\\'%3ENo Image%3C/text%3E%3C/svg%3E'">
+          ${disponibile 
+            ? '<div class="product-availability-badge badge-disponibile"><i class="fas fa-check"></i> DISPONIBILE</div>'
+            : '<div class="product-availability-badge badge-non-disponibile"><i class="fas fa-times"></i> ESAURITO</div>'
+          }
+          ${rating > 0 ? `
+            <div class="vetrina-product-rating">
+              <i class="fas fa-star"></i> ${rating}/10
+            </div>
+          ` : ''}
+          <div class="product-price-badge">€${parseFloat(p.prezzo_vendita || 0).toFixed(2)}</div>
         </div>
-        
-        <div class="modal-body-scroll">
-          <div class="modal-gallery-swipe" id="gallerySwipe">
-            ${immagini.length > 0 ? `
-              <div class="gallery-container" id="galleryContainer">
-                ${immagini.map((img, index) => `
-                  <div class="gallery-slide">
-                    <img src="${img}" alt="Foto ${index + 1}">
-                  </div>
-                `).join('')}
-              </div>
-              
-              ${immagini.length > 1 ? `
-                <button class="gallery-nav-btn gallery-nav-prev" onclick="prevImage()">
-                  <i class="fas fa-chevron-left"></i>
-                </button>
-                <button class="gallery-nav-btn gallery-nav-next" onclick="nextImage()">
-                  <i class="fas fa-chevron-right"></i>
-                </button>
-                
-                <div class="gallery-dots">
-                  ${immagini.map((_, index) => `
-                    <div class="gallery-dot ${index === 0 ? 'active' : ''}" onclick="goToImage(${index})"></div>
-                  `).join('')}
-                </div>
-              ` : ''}
-            ` : `
-              <div class="gallery-placeholder">
-                <i class="fas fa-image"></i>
-                <p>Nessuna immagine</p>
-              </div>
-            `}
-          </div>
-          
-          <div class="modal-content-section">
-            <div class="modal-badge-disponibilita ${badgeClass}">
-              ${badgeText}
-            </div>
-            
-            <div class="modal-price-mega">
-              <div class="modal-price-label">
-                <i class="fas fa-tag"></i> PREZZO
-              </div>
-              <div class="modal-price-value">${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€</div>
-            </div>
-            
-            ${createModalInfoBox(articolo)}
-            
-            ${articolo.Descrizione ? `
-              <div class="modal-description-box">
-                <h4><i class="fas fa-align-left"></i> DESCRIZIONE</h4>
-                <p>${articolo.Descrizione}</p>
-              </div>
-            ` : ''}
-            
-            <button class="modal-contact-mega-btn" onclick="contattaVenditore('${articolo.Utenti?.username || 'Venditore'}', '${articolo.Utenti?.email || ''}', '${articolo.Nome || 'Prodotto'}')">
-              <i class="fas fa-envelope"></i> CONTATTA VENDITORE
-            </button>
+        <div class="vendor-product-info">
+          <div class="vendor-product-name">${p.Nome || 'Prodotto'}</div>
+          <div class="vendor-product-category">
+            ${p.Categoria || 'Carte'}
+            ${p.lingua ? `<span style="margin-left:6px;">${getFlagHtml(p.lingua, 14)}</span>` : ''}
           </div>
         </div>
       </div>
-    </div>
-  `;
-  
-  document.body.insertAdjacentHTML('beforeend', modalHtml);
-  document.body.style.overflow = 'hidden';
-  
-  if (immagini.length > 1) {
-    setupGallerySwipe();
-  }
+    `;
+  }).join('');
 }
 
-function createModalInfoBox(articolo) {
-  const fields = [];
-  
-  if (articolo.Categoria) fields.push({icon: 'fa-tag', label: 'Categoria', value: articolo.Categoria});
-  if (articolo.Set) fields.push({icon: 'fa-layer-group', label: 'Set', value: articolo.Set});
-  if (articolo.Espansione) fields.push({icon: 'fa-boxes', label: 'Espansione', value: articolo.Espansione});
-  if (articolo.Numero) fields.push({icon: 'fa-hashtag', label: 'Numero', value: articolo.Numero});
-  if (articolo.Rarita) fields.push({icon: 'fa-gem', label: 'Rarità', value: articolo.Rarita});
-  if (articolo.ValutazioneStato) fields.push({icon: 'fa-star', label: 'Valutazione', value: `${articolo.ValutazioneStato}/10`});
-  if (articolo.Lingua) fields.push({icon: 'fa-language', label: 'Lingua', value: articolo.Lingua});
-  
-  if (fields.length === 0) return '';
-  
-  return `
-    <div class="modal-info-box">
-      <div class="modal-info-title">
-        <i class="fas fa-info-circle"></i> INFORMAZIONI
-      </div>
-      <div class="modal-info-grid">
-        ${fields.map(f => `
-          <div class="modal-info-row">
-            <div class="modal-info-label"><i class="fas ${f.icon}"></i> ${f.label}</div>
-            <div class="modal-info-value">${f.value}</div>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `;
-}
+// ========================================
+// LOAD POSTS
+// ========================================
+async function loadVendorPosts(vendorUserId) {
+  console.log('📰 Caricamento post di:', vendorUserId);
 
-function goToImage(index) {
-  currentGalleryIndex = index;
-  updateGallery();
-}
-// ============================================
-// OVERRIDE FUNZIONI - VERSIONE PULITA
+  const { data, error } = await supabaseClient
+    .from('PostSocial')
+    .select(`
+      *,
+      utente:Utenti!PostSocial_utente_id_fkey (id, username)
+    `)
+    .eq('utente_id', vendorUserId)
+    .order('created_at', { ascending: false });
 
-// ============================================
-
-// ============================================
-// NAVIGAZIONE FOTO ARTICOLI
-// ============================================
-
-function changeArticlePhoto(articleId, direction) {
-  var card = document.querySelector('[data-article-id="' + articleId + '"]');
-  if (!card) return;
-  
-  var photos = [];
-  try {
-    photos = JSON.parse(decodeURIComponent(card.getAttribute('data-photos') || '[]'));
-  } catch(e) {
-    return;
-  }
-  if (photos.length === 0) return;
-  
-  var currentIndex = parseInt(card.getAttribute('data-current-photo') || '0');
-  currentIndex += direction;
-  
-  // Loop circolare
-  if (currentIndex < 0) currentIndex = photos.length - 1;
-  if (currentIndex >= photos.length) currentIndex = 0;
-  
-  // Aggiorna immagine
-  var img = card.querySelector('#article-img-' + articleId);
-  if (img) {
-    img.src = photos[currentIndex];
-  }
-  
-  // Aggiorna dots
-  var dotsContainer = card.querySelector('#dots-' + articleId);
-  if (dotsContainer) {
-    var dots = dotsContainer.querySelectorAll('.article-photo-dot');
-    dots.forEach(function(dot, idx) {
-      if (idx === currentIndex) {
-        dot.classList.add('active');
-      } else {
-        dot.classList.remove('active');
-      }
-    });
-  }
-  
-  // Salva nuovo indice
-  card.setAttribute('data-current-photo', currentIndex);
-}
-
-function openFullscreen(imageUrl) {
-  // Usa NodoGalleria se disponibile
-  if (window.NodoGalleria) {
-    NodoGalleria.open([imageUrl], 0);
-  }
-}
-
-// Apre galleria con tutte le foto dell'articolo
-function openArticleGalleryVetrine(articleId) {
-  console.log('🖼️ openArticleGalleryVetrine chiamata con ID:', articleId);
-  
-  var card = document.querySelector('[data-article-id="' + articleId + '"]');
-  console.log('🖼️ Card trovata:', card);
-  
-  if (!card) {
-    console.error('❌ Card non trovata per ID:', articleId);
-    return;
-  }
-  
-  var photosAttr = card.getAttribute('data-photos');
-  console.log('🖼️ data-photos (encoded):', photosAttr);
-  
-  var photos = [];
-  try {
-    photos = JSON.parse(decodeURIComponent(photosAttr || '[]'));
-  } catch(e) {
-    console.error('❌ Errore parsing photos:', e);
-    return;
-  }
-  
-  var currentIndex = parseInt(card.getAttribute('data-current-photo') || '0');
-  
-  console.log('🖼️ Photos array:', photos);
-  console.log('🖼️ Current index:', currentIndex);
-  console.log('🖼️ NodoGalleria disponibile:', !!window.NodoGalleria);
-  
-  if (photos.length === 0) {
-    console.error('❌ Nessuna foto trovata');
-    return;
-  }
-  
-  // Usa NodoGalleria
-  if (window.NodoGalleria) {
-    NodoGalleria.open(photos, currentIndex);
+  if (error) {
+    console.error('❌ Errore caricamento post:', error);
+    renderPosts([]);
   } else {
-    console.error('❌ NodoGalleria non disponibile!');
-    // Fallback: apri prima immagine in nuova tab
-    window.open(photos[currentIndex], '_blank');
+    const currentUserId = getCurrentUserId();
+    
+    let likedPosts = [];
+    if (currentUserId) {
+      const { data: likes } = await supabaseClient
+        .from('PostLikes')
+        .select('post_id')
+        .eq('utente_id', currentUserId);
+      likedPosts = likes ? likes.map(l => l.post_id) : [];
+    }
+
+    currentPosts = data.map(post => ({
+      id: post.id,
+      utente_id: post.utente_id,
+      content: post.contenuto,
+      time: formatDate(new Date(post.created_at)),
+      likes: post.likes_count || 0,
+      comments: post.comments_count || 0,
+      liked: likedPosts.includes(post.id),
+      image: post.immagine_url,
+      username: post.utente?.username || 'Utente'
+    }));
+  }
+
+  renderPosts(currentPosts);
+}
+
+function renderPosts(posts) {
+  const container = document.getElementById('postsFeed');
+  if (!container) return;
+
+  if (posts.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-newspaper"></i>
+        <h3>Nessun post</h3>
+      </div>
+    `;
+    return;
+  }
+
+  const avatarInitials = posts[0]?.username?.substring(0, 2).toUpperCase() || 'VE';
+  const currentUserId = getCurrentUserId();
+
+  container.innerHTML = posts.map(post => {
+    const isMyPost = currentUserId && post.utente_id === currentUserId;
+    
+    // Determina se è video
+    const mediaUrl = post.image;
+    const isVideo = mediaUrl && (
+      mediaUrl.endsWith('.mp4') || 
+      mediaUrl.endsWith('.webm') || 
+      mediaUrl.endsWith('.ogg') ||
+      mediaUrl.startsWith('data:video/')
+    );
+    
+    return `
+    <div class="vendor-post-card" id="post-${post.id}">
+      <div class="vendor-post-header">
+        <div class="vendor-post-avatar">${avatarInitials}</div>
+        <div class="vendor-post-user">
+          <h4>${post.username} ${isMyPost ? '<span class="badge-owner-small">TU</span>' : ''}</h4>
+          <span>${post.time}</span>
+        </div>
+        ${isMyPost ? `
+          <button class="vendor-post-delete-btn" onclick="deleteVendorPost('${post.id}')" title="Elimina post">
+            <i class="fas fa-trash"></i>
+          </button>
+        ` : ''}
+      </div>
+      <div class="vendor-post-content">${post.content}</div>
+      ${mediaUrl ? (isVideo ? `
+        <div class="vendor-post-video">
+          <video controls>
+            <source src="${mediaUrl}" type="video/mp4">
+          </video>
+        </div>
+      ` : `
+        <div class="vendor-post-image">
+          <img src="${mediaUrl}" alt="Post" onerror="this.style.display='none'">
+        </div>
+      `) : ''}
+      <div class="vendor-post-actions">
+        <button class="vendor-post-action-btn ${post.liked ? 'liked' : ''} ${isMyPost ? 'disabled' : ''}" 
+                onclick="togglePostLike(event, '${post.id}', '${post.utente_id}')">
+          <i class="fas fa-heart"></i>
+          <span id="likes-${post.id}">${post.likes}</span>
+        </button>
+        <button class="vendor-post-action-btn" onclick="showCommentsModal('${post.id}')">
+          <i class="fas fa-comment"></i>
+          <span id="comments-${post.id}">${post.comments}</span>
+        </button>
+      </div>
+    </div>
+  `;
+  }).join('');
+}
+
+// ========================================
+// TAB
+// ========================================
+function switchTab(tabName) {
+  activeTab = tabName;
+  
+  document.querySelectorAll('.vendor-tab').forEach(tab => {
+    if (tab.dataset.tab === tabName) {
+      tab.classList.add('active');
+    } else {
+      tab.classList.remove('active');
+    }
+  });
+
+  document.querySelectorAll('.tab-content').forEach(content => {
+    content.classList.remove('active');
+  });
+
+  if (tabName === 'vetrina') {
+    document.getElementById('vetrinaTab').classList.add('active');
+  } else if (tabName === 'posts') {
+    document.getElementById('postsTab').classList.add('active');
   }
 }
 
-// ============================================
-// PROFILO VENDITORE - RIMOSSO
-// ============================================
-// La vecchia funzione openVendorProfile è stata rimossa
-// Ora il nome è cliccabile direttamente (link HTML)
-// Il pulsante usa openChatWithVendor per aprire i messaggi
+// ========================================
+// AZIONI LIKE POST
+// ========================================
+async function togglePostLike(event, postId, postOwnerId) {
+  console.log('💖 Toggle like:', postId);
+  
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    alert('❌ Non sei loggato!');
+    return;
+  }
 
-// ============================================
-// EXPORTS GLOBALI
-// ============================================
-window.openFullscreen = openFullscreen;
-window.openArticleGalleryVetrine = openArticleGalleryVetrine;
-window.changeArticlePhoto = changeArticlePhoto;
-window.loadVetrineContent = loadVetrineContent;
-window.applyFilters = applyFilters;
-window.resetFilters = resetFilters;
-window.toggleFilter = toggleFilter;
-window.changePage = changePage;
-window.mostraDettaglioArticolo = mostraDettaglioArticolo;
-window.contattaVenditore = contattaVenditore;
-window.openChatWithVendor = openChatWithVendor;
-window.selectLanguage = selectLanguage;
-window.gestisciFiltroAltro = gestisciFiltroAltro;
-window.toggleFilterBody = toggleFilterBody;
-window.previousPageVetrine = previousPageVetrine;
-window.nextPageVetrine = nextPageVetrine;
-window.applyFiltersNew = applyFiltersNew;
-window.resetFiltersNew = resetFiltersNew;
+  if (postOwnerId === currentUserId) {
+    alert('❌ Non puoi mettere like ai tuoi post!');
+    return;
+  }
+
+  const post = currentPosts.find(p => p.id === postId);
+  if (!post) return;
+
+  try {
+    if (post.liked) {
+      const { error } = await supabaseClient
+        .from('PostLikes')
+        .delete()
+        .eq('post_id', postId)
+        .eq('utente_id', currentUserId);
+      
+      if (error) {
+        console.error('❌ Errore unlike:', error);
+        alert('❌ Errore: ' + error.message);
+        return;
+      }
+      
+      post.liked = false;
+      post.likes--;
+    } else {
+      const { error } = await supabaseClient
+        .from('PostLikes')
+        .insert([{ post_id: postId, utente_id: currentUserId }]);
+      
+      if (error) {
+        console.error('❌ Errore like:', error);
+        alert('❌ Errore: ' + error.message);
+        return;
+      }
+      
+      post.liked = true;
+      post.likes++;
+    }
+
+    // Aggiorna UI
+    const likesSpan = document.getElementById(`likes-${postId}`);
+    if (likesSpan) likesSpan.textContent = post.likes;
+
+    const postCard = document.getElementById(`post-${postId}`);
+    if (postCard) {
+      const likeButton = postCard.querySelector('.vendor-post-action-btn');
+      if (likeButton) {
+        if (post.liked) {
+          likeButton.classList.add('liked');
+        } else {
+          likeButton.classList.remove('liked');
+        }
+      }
+    }
+
+  } catch (error) {
+    console.error('❌ Errore:', error);
+    alert('❌ Errore: ' + error.message);
+  }
+}
+
+// ========================================
+// MODAL COMMENTI - IDENTICA LOGICA COMMUNITY
+// ========================================
+async function showCommentsModal(postId) {
+  console.log('💬 Apertura modal commenti:', postId);
+  
+  const modal = document.getElementById('commentsModal');
+  const modalPostId = document.getElementById('modalPostId');
+  
+  if (!modal || !modalPostId) {
+    console.error('❌ Modal elementi non trovati!');
+    return;
+  }
+  
+  modalPostId.value = postId;
+  modal.style.display = 'flex';
+  
+  await loadComments(postId);
+}
+
+function closeCommentsModal() {
+  const modal = document.getElementById('commentsModal');
+  const commentInput = document.getElementById('commentInput');
+  
+  if (modal) modal.style.display = 'none';
+  if (commentInput) commentInput.value = '';
+}
+
+async function loadComments(postId) {
+  console.log('📥 Caricamento commenti per post:', postId);
+  
+  const container = document.getElementById('modalCommentsList');
+  if (!container) {
+    console.error('❌ Container commenti non trovato!');
+    return;
+  }
+  
+  container.innerHTML = '<div class="empty-state-small"><i class="fas fa-spinner fa-spin"></i><p>Caricamento...</p></div>';
+  
+  try {
+    const { data: comments, error } = await supabaseClient
+      .from('PostCommenti')
+      .select(`
+        *,
+        utente:Utenti!PostCommenti_utente_id_fkey (id, username)
+      `)
+      .eq('post_id', postId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('❌ Errore caricamento commenti:', error);
+      container.innerHTML = '<div class="empty-state-small">❌ Errore caricamento</div>';
+      return;
+    }
+
+    if (!comments || comments.length === 0) {
+      container.innerHTML = '<div class="empty-state-small"><i class="fas fa-comment-slash"></i><p>Nessun commento.<br>Sii il primo!</p></div>';
+      return;
+    }
+
+    const currentUserId = getCurrentUserId();
+    
+    container.innerHTML = comments.map(c => {
+      const isMyComment = c.utente_id === currentUserId;
+      const avatarInitials = c.utente?.username?.substring(0, 2).toUpperCase() || 'U';
+      
+      return `
+        <div class="comment-item">
+          <div class="comment-avatar">${avatarInitials}</div>
+          <div class="comment-content">
+            <a href="vetrina-venditore.html?id=${c.utente.id}" class="comment-username">
+              ${c.utente.username}
+            </a>
+            ${isMyComment ? '<span class="badge-small">TU</span>' : ''}
+            <p>${c.contenuto}</p>
+            <span class="comment-time">${formatDate(new Date(c.created_at))}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    console.log('✅ Commenti caricati:', comments.length);
+
+  } catch (error) {
+    console.error('❌ Errore catturato:', error);
+    container.innerHTML = '<div class="empty-state-small">❌ Errore</div>';
+  }
+}
+
+async function addComment() {
+  const postId = document.getElementById('modalPostId')?.value;
+  const input = document.getElementById('commentInput');
+  const contenuto = input?.value.trim();
+  
+  if (!postId) {
+    alert('❌ Errore: ID post mancante!');
+    return;
+  }
+  
+  if (!contenuto) {
+    alert('❌ Scrivi un commento!');
+    return;
+  }
+  
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    alert('❌ Devi essere loggato!');
+    return;
+  }
+  
+  console.log('💬 Aggiunta commento a post:', postId);
+  
+  // Mostra loader operazione
+  if (window.NodoLoader) NodoLoader.showOperation('Invio commento...');
+  
+  try {
+    const { error } = await supabaseClient
+      .from('PostCommenti')
+      .insert([{
+        post_id: postId,
+        utente_id: currentUserId,
+        contenuto: contenuto
+      }]);
+    
+    if (error) {
+      console.error('❌ Errore inserimento commento:', error);
+      alert('❌ Errore: ' + error.message);
+      if (window.NodoLoader) NodoLoader.hideOperation();
+      return;
+    }
+    
+    console.log('✅ Commento aggiunto');
+    
+    // Pulisci input
+    if (input) input.value = '';
+    
+    // Aggiorna contatore commenti
+    const post = currentPosts.find(p => p.id === postId);
+    if (post) {
+      post.comments++;
+      const commentsSpan = document.getElementById(`comments-${postId}`);
+      if (commentsSpan) commentsSpan.textContent = post.comments;
+    }
+    
+    // Nascondi loader
+    if (window.NodoLoader) NodoLoader.hideOperation();
+    
+    // Ricarica commenti
+    await loadComments(postId);
+    
+  } catch (error) {
+    console.error('❌ Errore catturato:', error);
+    alert('❌ Errore: ' + error.message);
+    if (window.NodoLoader) NodoLoader.hideOperation();
+  }
+}
+
+// ========================================
+// ELIMINA POST (SOLO PROPRI)
+// ========================================
+async function deleteVendorPost(postId) {
+  if (!confirm('🗑️ Sei sicuro di voler eliminare questo post?')) {
+    return;
+  }
+  
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    alert('❌ Devi essere loggato!');
+    return;
+  }
+  
+  try {
+    console.log('🗑️ Eliminazione post:', postId);
+    
+    // Verifica che sia il proprietario
+    const post = currentPosts.find(p => p.id === postId);
+    if (!post || post.utente_id !== currentUserId) {
+      alert('❌ Non puoi eliminare questo post!');
+      return;
+    }
+    
+    // Elimina dal DB
+    const { error } = await supabaseClient
+      .from('PostSocial')
+      .delete()
+      .eq('id', postId)
+      .eq('utente_id', currentUserId);  // Sicurezza extra
+    
+    if (error) {
+      console.error('❌ Errore:', error);
+      alert('❌ Errore eliminazione: ' + error.message);
+      return;
+    }
+    
+    console.log('✅ Post eliminato');
+    
+    // Rimuovi dalla UI con animazione
+    const postCard = document.getElementById(`post-${postId}`);
+    if (postCard) {
+      postCard.style.transition = 'all 0.3s ease';
+      postCard.style.opacity = '0';
+      postCard.style.transform = 'scale(0.9)';
+      setTimeout(() => {
+        postCard.remove();
+        // Rimuovi anche dall'array
+        currentPosts = currentPosts.filter(p => p.id !== postId);
+        
+        // Se non ci sono più post, mostra empty state
+        if (currentPosts.length === 0) {
+          renderPosts(currentPosts);
+        }
+      }, 300);
+    }
+    
+  } catch (error) {
+    console.error('❌ Errore:', error);
+    alert('❌ Errore: ' + error.message);
+  }
+}
+
+// ========================================
+// FOLLOW/UNFOLLOW
+// ========================================
+async function toggleFollowVendor(vendorUserId) {
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    alert('❌ Errore: Non sei loggato!');
+    return;
+  }
+
+  if (vendorUserId === currentUserId) {
+    alert('❌ Non puoi seguire te stesso!');
+    return;
+  }
+
+  const btn = document.getElementById('followBtn');
+  const isFollowing = btn.classList.contains('following');
+
+  try {
+    if (isFollowing) {
+      // UNFOLLOW
+      console.log('👥 Unfollow in corso...');
+      const { error } = await supabaseClient
+        .from('Followers')
+        .delete()
+        .eq('utente_seguito_id', vendorUserId)
+        .eq('follower_id', currentUserId);
+      
+      if (error) {
+        console.error('❌ Errore unfollow:', error);
+        alert('❌ Errore: ' + error.message);
+        return;
+      }
+      
+      btn.classList.remove('following');
+      btn.innerHTML = '<i class="fas fa-user-plus"></i><span>Segui</span>';
+      
+      // ✅ DECREMENTA COUNTER FOLLOWER con animazione
+      const followerCounter = document.getElementById('followersCounter');
+      if (followerCounter) {
+        const currentCount = parseInt(followerCounter.textContent) || 0;
+        const newCount = Math.max(0, currentCount - 1);
+        
+        // Animazione
+        followerCounter.style.transform = 'scale(1.4)';
+        followerCounter.style.color = '#ef4444';
+        setTimeout(() => {
+          followerCounter.textContent = newCount;
+          setTimeout(() => {
+            followerCounter.style.transform = 'scale(1)';
+            followerCounter.style.color = '#fbbf24';
+          }, 200);
+        }, 150);
+        
+        console.log('✅ Follower decrementati:', newCount);
+      }
+    } else {
+      // FOLLOW
+      console.log('👥 Follow in corso...');
+      const { error } = await supabaseClient
+        .from('Followers')
+        .insert([{ utente_seguito_id: vendorUserId, follower_id: currentUserId }]);
+      
+      if (error) {
+        console.error('❌ Errore follow:', error);
+        alert('❌ Errore: ' + error.message);
+        return;
+      }
+      
+      btn.classList.add('following');
+      btn.innerHTML = '<i class="fas fa-user-check"></i><span>Seguito</span>';
+      
+      // ✅ INCREMENTA COUNTER FOLLOWER con animazione
+      const followerCounter = document.getElementById('followersCounter');
+      if (followerCounter) {
+        const currentCount = parseInt(followerCounter.textContent) || 0;
+        const newCount = currentCount + 1;
+        
+        // Animazione
+        followerCounter.style.transform = 'scale(1.4)';
+        followerCounter.style.color = '#10b981';
+        setTimeout(() => {
+          followerCounter.textContent = newCount;
+          setTimeout(() => {
+            followerCounter.style.transform = 'scale(1)';
+            followerCounter.style.color = '#fbbf24';
+          }, 200);
+        }, 150);
+        
+        console.log('✅ Follower incrementati:', newCount);
+      }
+    }
+  } catch (error) {
+    console.error('❌ Errore catturato:', error);
+    alert('❌ Errore imprevisto: ' + error.message);
+  }
+}
+
+// ========================================
+// ALTRE FUNZIONI
+// ========================================
+async function contactVendor(vendorUserId) {
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    alert('❌ Errore: Non sei loggato!');
+    return;
+  }
+
+  if (vendorUserId === currentUserId) {
+    alert('❌ Non puoi messaggiare te stesso!');
+    return;
+  }
+
+  // Apri chat diretta
+  if (typeof openDirectChat === 'function') {
+    openDirectChat(vendorUserId, currentVendorUsername);
+  } else {
+    console.error('❌ openDirectChat non disponibile');
+  }
+}
+
+function openProduct(productId) {
+  window.location.href = `dettaglio-articolo.html?id=${productId}`;
+}
+
+function formatDate(date) {
+  const now = new Date();
+  const diff = now - date;
+  const minutes = Math.floor(diff / (1000 * 60));
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+  if (minutes < 1) return 'Pochi secondi fa';
+  if (minutes < 60) return `${minutes} min fa`;
+  if (hours < 24) return `${hours} ore fa`;
+  if (days === 1) return '1 giorno fa';
+  if (days < 7) return `${days} giorni fa`;
+  return date.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
+}
+
+// ========================================
+// MODAL LISTE (ARTICOLI, FOLLOWER, FOLLOWING)
+// ========================================
+function showArticoliList() {
+  console.log('📦 Mostra articoli - scroll alla vetrina');
+  
+  // Switch al tab vetrina se non è già attivo
+  if (activeTab !== 'vetrina') {
+    switchTab('vetrina');
+  }
+  
+  // Scroll alla sezione vetrina con animazione
+  const vetrinaTab = document.getElementById('vetrinaTab');
+  if (vetrinaTab) {
+    vetrinaTab.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+// Dati utenti per filtro ricerca
+var modalUsersData = [];
+var modalFollowingIds = [];
+var modalCurrentUserId = null;
+
+async function showFollowersList(userId) {
+  console.log('👥 Caricamento follower di:', userId);
+  followChangesInModal = false; // Reset flag
+  
+  const modal = document.getElementById('listModal');
+  const title = document.getElementById('listModalTitle');
+  const content = document.getElementById('modalListContent');
+  
+  if (!modal || !title || !content) {
+    console.error('❌ Elementi modal non trovati!');
+    return;
+  }
+  
+  title.innerHTML = '<i class="fas fa-users"></i> Follower';
+  
+  // Reset ricerca
+  const searchInput = document.getElementById('modalUserSearch');
+  if (searchInput) searchInput.value = '';
+  
+  content.innerHTML = '<div class="empty-state-small"><i class="fas fa-spinner fa-spin"></i><p>Caricamento...</p></div>';
+  
+  modal.style.display = 'flex';
+  
+  try {
+    // Carica i follower con i dati degli utenti
+    const { data: followers, error } = await supabaseClient
+      .from('Followers')
+      .select(`
+        *,
+        follower:Utenti!Followers_follower_id_fkey (
+          id,
+          username,
+          nome_completo,
+          citta
+        )
+      `)
+      .eq('utente_seguito_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('❌ Errore caricamento follower:', error);
+      document.getElementById('modalListContent').innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore caricamento</p></div>';
+      return;
+    }
+    
+    if (!followers || followers.length === 0) {
+      document.getElementById('modalListContent').innerHTML = '<div class="empty-state-small"><i class="fas fa-user-slash"></i><p>Nessun follower ancora</p></div>';
+      return;
+    }
+    
+    modalCurrentUserId = getCurrentUserId();
+    
+    // Controlla chi già segui
+    const { data: myFollowing } = await supabaseClient
+      .from('Followers')
+      .select('utente_seguito_id')
+      .eq('follower_id', modalCurrentUserId);
+    
+    modalFollowingIds = myFollowing ? myFollowing.map(f => f.utente_seguito_id) : [];
+    
+    // Salva dati per filtro
+    modalUsersData = followers.map(f => f.follower);
+    
+    renderModalUsers();
+    console.log('✅ Follower caricati:', followers.length);
+    
+  } catch (error) {
+    console.error('❌ Errore:', error);
+    document.getElementById('modalListContent').innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore imprevisto</p></div>';
+  }
+}
+
+async function showFollowingList(userId) {
+  console.log('👥 Caricamento following di:', userId);
+  followChangesInModal = false; // Reset flag
+  
+  const modal = document.getElementById('listModal');
+  const title = document.getElementById('listModalTitle');
+  const content = document.getElementById('modalListContent');
+  
+  if (!modal || !title || !content) {
+    console.error('❌ Elementi modal non trovati!');
+    return;
+  }
+  
+  title.innerHTML = '<i class="fas fa-user-friends"></i> Seguiti';
+  
+  // Reset ricerca
+  const searchInput = document.getElementById('modalUserSearch');
+  if (searchInput) searchInput.value = '';
+  
+  content.innerHTML = '<div class="empty-state-small"><i class="fas fa-spinner fa-spin"></i><p>Caricamento...</p></div>';
+  
+  modal.style.display = 'flex';
+  
+  try {
+    // Carica chi segue questo utente
+    const { data: following, error } = await supabaseClient
+      .from('Followers')
+      .select(`
+        *,
+        seguito:Utenti!Followers_utente_seguito_id_fkey (
+          id,
+          username,
+          nome_completo,
+          citta
+        )
+      `)
+      .eq('follower_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('❌ Errore caricamento following:', error);
+      document.getElementById('modalListContent').innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore caricamento</p></div>';
+      return;
+    }
+    
+    if (!following || following.length === 0) {
+      document.getElementById('modalListContent').innerHTML = '<div class="empty-state-small"><i class="fas fa-user-slash"></i><p>Non segue nessuno ancora</p></div>';
+      return;
+    }
+    
+    modalCurrentUserId = getCurrentUserId();
+    
+    // Controlla chi già segui
+    const { data: myFollowing } = await supabaseClient
+      .from('Followers')
+      .select('utente_seguito_id')
+      .eq('follower_id', modalCurrentUserId);
+    
+    modalFollowingIds = myFollowing ? myFollowing.map(f => f.utente_seguito_id) : [];
+    
+    // Salva dati per filtro
+    modalUsersData = following.map(f => f.seguito);
+    
+    renderModalUsers();
+    console.log('✅ Following caricati:', following.length);
+    
+  } catch (error) {
+    console.error('❌ Errore:', error);
+    document.getElementById('modalListContent').innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore imprevisto</p></div>';
+  }
+}
+
+// Render lista utenti nel modal
+function renderModalUsers(filteredUsers = null) {
+  const container = document.getElementById('modalListContent');
+  if (!container) return;
+  
+  const users = filteredUsers || modalUsersData;
+  
+  if (users.length === 0) {
+    container.innerHTML = '<div class="empty-state-small"><i class="fas fa-search"></i><p>Nessun risultato</p></div>';
+    return;
+  }
+  
+  container.innerHTML = users.map(user => {
+    const avatarInitials = user.username.substring(0, 2).toUpperCase();
+    const isMe = user.id === modalCurrentUserId;
+    const isFollowing = modalFollowingIds.includes(user.id);
+    
+    return `
+      <div class="user-list-item" onclick="window.location.href='vetrina-venditore.html?id=${user.id}'">
+        <div class="user-list-avatar">${avatarInitials}</div>
+        <div class="user-list-info">
+          <div class="user-list-username">${user.username}</div>
+          <div class="user-list-meta">
+            ${user.citta ? `<i class="fas fa-map-marker-alt"></i> ${user.citta}` : 'Utente NODO'}
+          </div>
+        </div>
+        ${!isMe ? `
+          <button class="user-list-action ${isFollowing ? 'secondary' : 'primary'}" 
+                  onclick="event.stopPropagation(); quickToggleFollow('${user.id}', this)">
+            ${isFollowing ? 'Seguito' : 'Segui'}
+          </button>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+// Filtra utenti nel modal
+function filterModalUsers() {
+  const searchInput = document.getElementById('modalUserSearch');
+  if (!searchInput) return;
+  
+  const query = searchInput.value.toLowerCase().trim();
+  
+  if (!query) {
+    renderModalUsers();
+    return;
+  }
+  
+  const filtered = modalUsersData.filter(user => {
+    return user.username.toLowerCase().includes(query) ||
+           (user.nome_completo && user.nome_completo.toLowerCase().includes(query)) ||
+           (user.citta && user.citta.toLowerCase().includes(query));
+  });
+  
+  renderModalUsers(filtered);
+}
+
+// Flag per tracciare modifiche follow nel modal
+var followChangesInModal = false;
+
+async function closeListModal() {
+  const modal = document.getElementById('listModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+  
+  // Se ci sono state modifiche ai follow, aggiorna i contatori
+  if (followChangesInModal) {
+    console.log('🔄 Aggiornamento contatori dopo modifiche follow...');
+    followChangesInModal = false; // Reset flag
+    
+    try {
+      // Recupera l'ID del venditore corrente dalla URL o usa l'utente corrente
+      const urlParams = new URLSearchParams(window.location.search);
+      let vendorId = urlParams.get('id');
+      
+      // Se non c'è id nella URL, siamo sul nostro profilo
+      if (!vendorId) {
+        vendorId = getCurrentUserId();
+      }
+      
+      if (vendorId) {
+        // Ricarica i contatori follower e following
+        const { count: newFollowersCount } = await supabaseClient
+          .from('Followers')
+          .select('*', { count: 'exact', head: true })
+          .eq('utente_seguito_id', vendorId);
+        
+        const { count: newFollowingCount } = await supabaseClient
+          .from('Followers')
+          .select('*', { count: 'exact', head: true })
+          .eq('follower_id', vendorId);
+        
+        // Aggiorna i contatori nella UI
+        const followersCounter = document.getElementById('followersCounter');
+        const followingCounter = document.getElementById('followingCounter');
+        
+        if (followersCounter) {
+          followersCounter.textContent = newFollowersCount || 0;
+          // Animazione
+          followersCounter.style.transform = 'scale(1.3)';
+          followersCounter.style.color = '#10b981';
+          setTimeout(() => {
+            followersCounter.style.transform = 'scale(1)';
+            followersCounter.style.color = '#fbbf24';
+          }, 300);
+        }
+        
+        if (followingCounter) {
+          followingCounter.textContent = newFollowingCount || 0;
+          // Animazione
+          followingCounter.style.transform = 'scale(1.3)';
+          followingCounter.style.color = '#10b981';
+          setTimeout(() => {
+            followingCounter.style.transform = 'scale(1)';
+            followingCounter.style.color = '#fbbf24';
+          }, 300);
+        }
+        
+        console.log('✅ Contatori aggiornati - Follower:', newFollowersCount, 'Following:', newFollowingCount);
+      }
+    } catch (error) {
+      console.error('❌ Errore aggiornamento contatori:', error);
+    }
+  }
+}
+
+// Toggle follow veloce dal modal (senza ricaricare tutta la pagina)
+async function quickToggleFollow(targetUserId, buttonElement) {
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    alert('❌ Devi essere loggato!');
+    return;
+  }
+  
+  const isFollowing = buttonElement.classList.contains('secondary');
+  
+  try {
+    if (isFollowing) {
+      // Unfollow
+      const { error } = await supabaseClient
+        .from('Followers')
+        .delete()
+        .eq('utente_seguito_id', targetUserId)
+        .eq('follower_id', currentUserId);
+      
+      if (error) throw error;
+      
+      buttonElement.classList.remove('secondary');
+      buttonElement.classList.add('primary');
+      buttonElement.textContent = 'Segui';
+      followChangesInModal = true;
+      
+      console.log('✅ Unfollow effettuato');
+      
+    } else {
+      // Follow
+      const { error } = await supabaseClient
+        .from('Followers')
+        .insert([{
+          utente_seguito_id: targetUserId,
+          follower_id: currentUserId
+        }]);
+      
+      if (error) throw error;
+      
+      buttonElement.classList.remove('primary');
+      buttonElement.classList.add('secondary');
+      buttonElement.textContent = 'Seguito';
+      followChangesInModal = true;
+      
+      console.log('✅ Follow effettuato');
+    }
+    
+  } catch (error) {
+    console.error('❌ Errore toggle follow:', error);
+    alert('❌ Errore: ' + error.message);
+  }
+}
+
+// ========================================
+// EXPORTS
+// ========================================
+window.initVendorPage = initVendorPage;
+window.switchTab = switchTab;
+window.togglePostLike = togglePostLike;
+window.showCommentsModal = showCommentsModal;
+window.closeCommentsModal = closeCommentsModal;
+window.loadComments = loadComments;
+window.addComment = addComment;
+window.deleteVendorPost = deleteVendorPost;
+window.toggleFollowVendor = toggleFollowVendor;
+window.contactVendor = contactVendor;
+window.openProduct = openProduct;
+window.getCurrentUserId = getCurrentUserId;
+window.showArticoliList = showArticoliList;
+window.showFollowersList = showFollowersList;
+window.showFollowingList = showFollowingList;
+window.closeListModal = closeListModal;
+window.filterModalUsers = filterModalUsers;
+window.renderModalUsers = renderModalUsers;
+window.quickToggleFollow = quickToggleFollow;
