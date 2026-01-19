@@ -194,11 +194,16 @@ function renderArticolo(articolo) {
     details.push({ icon: 'fa-boxes-stacked', label: 'Espansione', value: articolo.espansione });
   }
   
-  // Lingua
-  if (articolo.lingua) {
-    details.push({ icon: 'fa-language', label: 'Lingua', value: articolo.lingua });
-  } else if (articolo.Lingua) {
-    details.push({ icon: 'fa-language', label: 'Lingua', value: articolo.Lingua });
+  // Lingua con bandierina
+  var linguaValue = articolo.lingua || articolo.Lingua;
+  if (linguaValue) {
+    var flagMap = {
+      'ITA': 'it', 'ENG': 'gb', 'JAP': 'jp', 'KOR': 'kr', 'CHN': 'cn',
+      'FRA': 'fr', 'GER': 'de', 'SPA': 'es', 'POR': 'pt'
+    };
+    var flagCode = flagMap[linguaValue] || '';
+    var flagHtml = flagCode ? '<span class="fi fi-' + flagCode + '" style="font-size:16px;margin-right:6px;border-radius:2px;"></span>' : '';
+    details.push({ icon: 'fa-language', label: 'Lingua', value: flagHtml + linguaValue, isHtml: true });
   }
   
   // Condizione
@@ -221,11 +226,12 @@ function renderArticolo(articolo) {
   if (details.length > 0) {
     detailsGrid.innerHTML = details.map(function(d) {
       var highlightClass = d.highlight ? ' detail-highlight' : '';
+      var valueContent = d.isHtml ? d.value : d.value;
       return '<div class="detail-row' + highlightClass + '">' +
         '<div class="detail-label">' +
           '<i class="fas ' + d.icon + '"></i> ' + d.label +
         '</div>' +
-        '<div class="detail-value">' + d.value + '</div>' +
+        '<div class="detail-value">' + valueContent + '</div>' +
       '</div>';
     }).join('');
   }
