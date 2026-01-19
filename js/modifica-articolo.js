@@ -182,22 +182,39 @@ function gestisciCarteGradate(categoriaValue, prefix) {
   var casaSelect = document.getElementById('casaGradazione' + prefix);
   var votoInput = document.getElementById('votoGradazione' + prefix);
   var altraCasaGroup = document.getElementById('altraCasaGradazioneGroup' + prefix);
+  var altraCategoriaGroup = document.getElementById('altraCategoriaGroup' + prefix);
+  var altraCategoriaInput = document.getElementById('altraCategoria' + prefix);
   
-  if (!casaGroup || !votoGroup) return;
+  // Gestione Carte Gradate
+  if (casaGroup && votoGroup) {
+    if (categoriaValue === 'Carte gradate') {
+      casaGroup.style.display = 'block';
+      votoGroup.style.display = 'block';
+      if (casaSelect) casaSelect.required = true;
+      if (votoInput) votoInput.required = true;
+    } else {
+      casaGroup.style.display = 'none';
+      votoGroup.style.display = 'none';
+      if (altraCasaGroup) altraCasaGroup.style.display = 'none';
+      if (casaSelect) { casaSelect.required = false; casaSelect.value = ''; }
+      if (votoInput) { votoInput.required = false; votoInput.value = ''; }
+      var altraCasaInput = document.getElementById('altraCasaGradazione' + prefix);
+      if (altraCasaInput) altraCasaInput.value = '';
+    }
+  }
   
-  if (categoriaValue === 'Carte gradate') {
-    casaGroup.style.display = 'block';
-    votoGroup.style.display = 'block';
-    if (casaSelect) casaSelect.required = true;
-    if (votoInput) votoInput.required = true;
-  } else {
-    casaGroup.style.display = 'none';
-    votoGroup.style.display = 'none';
-    if (altraCasaGroup) altraCasaGroup.style.display = 'none';
-    if (casaSelect) { casaSelect.required = false; casaSelect.value = ''; }
-    if (votoInput) { votoInput.required = false; votoInput.value = ''; }
-    var altraCasaInput = document.getElementById('altraCasaGradazione' + prefix);
-    if (altraCasaInput) altraCasaInput.value = '';
+  // Gestione Altro
+  if (altraCategoriaGroup) {
+    if (categoriaValue === 'Altro') {
+      altraCategoriaGroup.style.display = 'block';
+      if (altraCategoriaInput) altraCategoriaInput.required = true;
+    } else {
+      altraCategoriaGroup.style.display = 'none';
+      if (altraCategoriaInput) {
+        altraCategoriaInput.required = false;
+        altraCategoriaInput.value = '';
+      }
+    }
   }
 }
 
