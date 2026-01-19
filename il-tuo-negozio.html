@@ -2063,9 +2063,21 @@
   <script>
     requireAuth();
     
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('DOMContentLoaded', async () => {
       // Carica articoli
-      caricaArticoli();
+      await caricaArticoli();
+      
+      // Controlla se c'è un parametro ?modifica= per aprire direttamente la modifica
+      var urlParams = new URLSearchParams(window.location.search);
+      var modificaId = urlParams.get('modifica');
+      if (modificaId) {
+        // Attendi un attimo che tutto sia renderizzato, poi apri modifica
+        setTimeout(function() {
+          apriModifica(modificaId);
+          // Rimuovi il parametro dall'URL per evitare che si riapra al refresh
+          window.history.replaceState({}, '', 'il-tuo-negozio.html');
+        }, 500);
+      }
       
       // Render griglia immagini iniziale (vuota)
       renderAddImages();
