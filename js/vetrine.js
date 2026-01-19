@@ -979,17 +979,12 @@ async function showFollowersList(userId) {
   }
   
   title.innerHTML = '<i class="fas fa-users"></i> Follower';
-  content.innerHTML = `
-    <div class="modal-filter-box">
-      <div class="modal-filter-search">
-        <i class="fas fa-search"></i>
-        <input type="text" id="modalUserSearch" placeholder="Cerca utente..." oninput="filterModalUsers()">
-      </div>
-    </div>
-    <div id="modalUsersList">
-      <div class="empty-state-small"><i class="fas fa-spinner fa-spin"></i><p>Caricamento...</p></div>
-    </div>
-  `;
+  
+  // Reset ricerca
+  const searchInput = document.getElementById('modalUserSearch');
+  if (searchInput) searchInput.value = '';
+  
+  content.innerHTML = '<div class="empty-state-small"><i class="fas fa-spinner fa-spin"></i><p>Caricamento...</p></div>';
   
   modal.style.display = 'flex';
   
@@ -1011,12 +1006,12 @@ async function showFollowersList(userId) {
     
     if (error) {
       console.error('❌ Errore caricamento follower:', error);
-      document.getElementById('modalUsersList').innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore caricamento</p></div>';
+      document.getElementById('modalListContent').innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore caricamento</p></div>';
       return;
     }
     
     if (!followers || followers.length === 0) {
-      document.getElementById('modalUsersList').innerHTML = '<div class="empty-state-small"><i class="fas fa-user-slash"></i><p>Nessun follower ancora</p></div>';
+      document.getElementById('modalListContent').innerHTML = '<div class="empty-state-small"><i class="fas fa-user-slash"></i><p>Nessun follower ancora</p></div>';
       return;
     }
     
@@ -1038,7 +1033,7 @@ async function showFollowersList(userId) {
     
   } catch (error) {
     console.error('❌ Errore:', error);
-    document.getElementById('modalUsersList').innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore imprevisto</p></div>';
+    document.getElementById('modalListContent').innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore imprevisto</p></div>';
   }
 }
 
@@ -1056,17 +1051,12 @@ async function showFollowingList(userId) {
   }
   
   title.innerHTML = '<i class="fas fa-user-friends"></i> Seguiti';
-  content.innerHTML = `
-    <div class="modal-filter-box">
-      <div class="modal-filter-search">
-        <i class="fas fa-search"></i>
-        <input type="text" id="modalUserSearch" placeholder="Cerca utente..." oninput="filterModalUsers()">
-      </div>
-    </div>
-    <div id="modalUsersList">
-      <div class="empty-state-small"><i class="fas fa-spinner fa-spin"></i><p>Caricamento...</p></div>
-    </div>
-  `;
+  
+  // Reset ricerca
+  const searchInput = document.getElementById('modalUserSearch');
+  if (searchInput) searchInput.value = '';
+  
+  content.innerHTML = '<div class="empty-state-small"><i class="fas fa-spinner fa-spin"></i><p>Caricamento...</p></div>';
   
   modal.style.display = 'flex';
   
@@ -1088,12 +1078,12 @@ async function showFollowingList(userId) {
     
     if (error) {
       console.error('❌ Errore caricamento following:', error);
-      document.getElementById('modalUsersList').innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore caricamento</p></div>';
+      document.getElementById('modalListContent').innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore caricamento</p></div>';
       return;
     }
     
     if (!following || following.length === 0) {
-      document.getElementById('modalUsersList').innerHTML = '<div class="empty-state-small"><i class="fas fa-user-slash"></i><p>Non segue nessuno ancora</p></div>';
+      document.getElementById('modalListContent').innerHTML = '<div class="empty-state-small"><i class="fas fa-user-slash"></i><p>Non segue nessuno ancora</p></div>';
       return;
     }
     
@@ -1115,13 +1105,13 @@ async function showFollowingList(userId) {
     
   } catch (error) {
     console.error('❌ Errore:', error);
-    document.getElementById('modalUsersList').innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore imprevisto</p></div>';
+    document.getElementById('modalListContent').innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore imprevisto</p></div>';
   }
 }
 
 // Render lista utenti nel modal
 function renderModalUsers(filteredUsers = null) {
-  const container = document.getElementById('modalUsersList');
+  const container = document.getElementById('modalListContent');
   if (!container) return;
   
   const users = filteredUsers || modalUsersData;
