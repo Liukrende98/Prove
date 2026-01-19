@@ -9,6 +9,8 @@ let currentFilters = {
   venditore: '',
   set: 'all',
   categoria: 'all',
+  altroCategoria: '',
+  condizione: '',
   lingua: '',
   prezzoMin: '',
   prezzoMax: '',
@@ -37,6 +39,15 @@ function selectLanguage(btn) {
   btn.classList.add('active');
   const lang = btn.getAttribute('data-lang');
   document.getElementById('filterLingua').value = lang;
+}
+
+// Gestisce visibilità campo "Altro" categoria
+function gestisciFiltroAltro() {
+  const categoria = document.getElementById('filterCategoria')?.value;
+  const altroGroup = document.getElementById('filterAltroGroup');
+  if (altroGroup) {
+    altroGroup.style.display = categoria === 'Altro' ? 'block' : 'none';
+  }
 }
 
 // 🔥 FUNZIONE: Ottieni ID utente corrente
@@ -1102,7 +1113,7 @@ function createFilterHtmlNew() {
           
           <div class="filter-group">
             <div class="filter-label"><i class="fas fa-tags"></i> Categoria</div>
-            <select class="filter-select" id="filterCategoria">
+            <select class="filter-select" id="filterCategoria" onchange="gestisciFiltroAltro()">
               <option value="all">Tutte le categorie</option>
               <option value="ETB">ETB</option>
               <option value="Carte Singole">Carte Singole</option>
@@ -1115,6 +1126,25 @@ function createFilterHtmlNew() {
               <option value="Poké Ball">Poké Ball</option>
               <option value="Accessori">Accessori</option>
               <option value="Altro">Altro</option>
+            </select>
+          </div>
+          
+          <div class="filter-group" id="filterAltroGroup" style="display:none;">
+            <div class="filter-label"><i class="fas fa-edit"></i> Specifica Categoria</div>
+            <input type="text" class="filter-input" id="filterAltroCategoria" placeholder="es. Pokemon Plush, Figure...">
+          </div>
+          
+          <div class="filter-group">
+            <div class="filter-label"><i class="fas fa-certificate"></i> Condizione</div>
+            <select class="filter-select" id="filterCondizione">
+              <option value="">Tutte</option>
+              <option value="Mint">(M) - Perfetta</option>
+              <option value="Near Mint">(NM) - Quasi perfetta</option>
+              <option value="Excellent">(EX) - Eccellente</option>
+              <option value="Good">(GD) - Buona</option>
+              <option value="Light Played">(LP) - Leggermente giocata</option>
+              <option value="Played">(PL) - Giocata</option>
+              <option value="Poor">(P) - Scarsa</option>
             </select>
           </div>
           
@@ -1346,6 +1376,8 @@ applyFilters = function(closeFilter = true) {
   currentFilters.venditore = document.getElementById('filterVenditore')?.value.toLowerCase().trim() || '';
   currentFilters.set = document.getElementById('filterSet').value;
   currentFilters.categoria = document.getElementById('filterCategoria').value;
+  currentFilters.altroCategoria = document.getElementById('filterAltroCategoria')?.value.toLowerCase().trim() || '';
+  currentFilters.condizione = document.getElementById('filterCondizione')?.value || '';
   currentFilters.lingua = document.getElementById('filterLingua')?.value || '';
   currentFilters.prezzoMin = priceMin;
   currentFilters.prezzoMax = priceMax;
@@ -1374,7 +1406,30 @@ applyFilters = function(closeFilter = true) {
       }
     }
     
-    if (currentFilters.categoria !== 'all' && art.Categoria !== currentFilters.categoria) {
+    // Filtro categoria con supporto "Altro"
+    if (currentFilters.categoria !== 'all') {
+      if (currentFilters.categoria === 'Altro') {
+        // Se è selezionato "Altro", cerca nelle categorie personalizzate
+        const categoriePredefinite = ['ETB', 'Carte Singole', 'Carte gradate', 'Master Set', 'Booster Box', 'Collection Box', 'Box mini tin', 'Bustine', 'Poké Ball', 'Accessori'];
+        const isCustomCategory = !categoriePredefinite.includes(art.Categoria);
+        if (!isCustomCategory) return false;
+        
+        // Se c'è un testo specifico, filtra per quello
+        if (currentFilters.altroCategoria !== '') {
+          const artCategoria = (art.Categoria || '').toLowerCase();
+          if (!artCategoria.includes(currentFilters.altroCategoria)) {
+            return false;
+          }
+        }
+      } else {
+        if (art.Categoria !== currentFilters.categoria) {
+          return false;
+        }
+      }
+    }
+    
+    // Filtro condizione
+    if (currentFilters.condizione !== '' && art.condizione !== currentFilters.condizione) {
       return false;
     }
     
@@ -1428,6 +1483,8 @@ function resetFiltersNew() {
     venditore: '',
     set: 'all',
     categoria: 'all',
+    altroCategoria: '',
+    condizione: '',
     lingua: '',
     prezzoMin: 0,
     prezzoMax: 1000,
@@ -1444,6 +1501,19 @@ function resetFiltersNew() {
   document.getElementById('filterCategoria').value = 'all';
   document.getElementById('filterDisponibili').checked = false;
   document.getElementById('filterRating').value = '0';
+  
+  // Reset condizione
+  if (document.getElementById('filterCondizione')) {
+    document.getElementById('filterCondizione').value = '';
+  }
+  
+  // Reset campo Altro e nascondilo
+  if (document.getElementById('filterAltroCategoria')) {
+    document.getElementById('filterAltroCategoria').value = '';
+  }
+  if (document.getElementById('filterAltroGroup')) {
+    document.getElementById('filterAltroGroup').style.display = 'none';
+  }
   
   // Reset lingua e bandierine
   if (document.getElementById('filterLingua')) {
@@ -1743,3 +1813,5 @@ window.changePage = changePage;
 window.mostraDettaglioArticolo = mostraDettaglioArticolo;
 window.contattaVenditore = contattaVenditore;
 window.openChatWithVendor = openChatWithVendor;
+window.selectLanguage = selectLanguage;
+window.gestisciFiltroAltro = gestisciFiltroAltro;
