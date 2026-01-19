@@ -1109,6 +1109,49 @@ function createFilterHtmlNew() {
           </div>
           
           <div class="filter-group">
+            <div class="filter-label"><i class="fas fa-globe"></i> Lingua</div>
+            <div class="language-flags-grid">
+              <button type="button" class="flag-btn active" data-lang="" onclick="selectLanguage(this)" title="Tutte">
+                <span class="flag-circle"><i class="fas fa-globe"></i></span>
+                <span class="flag-label">Tutte</span>
+              </button>
+              <button type="button" class="flag-btn" data-lang="ITA" onclick="selectLanguage(this)" title="Italiano">
+                <span class="flag-circle"><span class="fi fi-it"></span></span>
+                <span class="flag-label">ITA</span>
+              </button>
+              <button type="button" class="flag-btn" data-lang="ENG" onclick="selectLanguage(this)" title="Inglese">
+                <span class="flag-circle"><span class="fi fi-gb"></span></span>
+                <span class="flag-label">ENG</span>
+              </button>
+              <button type="button" class="flag-btn" data-lang="JAP" onclick="selectLanguage(this)" title="Giapponese">
+                <span class="flag-circle"><span class="fi fi-jp"></span></span>
+                <span class="flag-label">JAP</span>
+              </button>
+              <button type="button" class="flag-btn" data-lang="KOR" onclick="selectLanguage(this)" title="Coreano">
+                <span class="flag-circle"><span class="fi fi-kr"></span></span>
+                <span class="flag-label">KOR</span>
+              </button>
+              <button type="button" class="flag-btn" data-lang="CHN" onclick="selectLanguage(this)" title="Cinese">
+                <span class="flag-circle"><span class="fi fi-cn"></span></span>
+                <span class="flag-label">CHN</span>
+              </button>
+              <button type="button" class="flag-btn" data-lang="FRA" onclick="selectLanguage(this)" title="Francese">
+                <span class="flag-circle"><span class="fi fi-fr"></span></span>
+                <span class="flag-label">FRA</span>
+              </button>
+              <button type="button" class="flag-btn" data-lang="GER" onclick="selectLanguage(this)" title="Tedesco">
+                <span class="flag-circle"><span class="fi fi-de"></span></span>
+                <span class="flag-label">GER</span>
+              </button>
+              <button type="button" class="flag-btn" data-lang="SPA" onclick="selectLanguage(this)" title="Spagnolo">
+                <span class="flag-circle"><span class="fi fi-es"></span></span>
+                <span class="flag-label">SPA</span>
+              </button>
+            </div>
+            <input type="hidden" id="filterLingua" value="">
+          </div>
+          
+          <div class="filter-group">
             <div class="filter-label"><i class="fas fa-euro-sign"></i> Fascia di Prezzo</div>
             <div class="price-range-slider">
               <div class="price-range-values">
