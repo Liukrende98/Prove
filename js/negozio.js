@@ -1213,8 +1213,14 @@ async function aggiungiArticolo(event) {
 
 // ========== MODAL MODIFICA ==========
 async function apriModifica(articleId) {
-  const article = allArticles.find(a => a.id === articleId);
-  if (!article) return;
+  console.log('🔧 apriModifica chiamata con ID:', articleId, 'tipo:', typeof articleId);
+  console.log('🔧 allArticles contiene', allArticles.length, 'articoli');
+  
+  const article = allArticles.find(a => a.id == articleId); // == invece di === per confronto flessibile
+  if (!article) {
+    console.error('❌ Articolo non trovato in allArticles per ID:', articleId);
+    return;
+  }
   
   console.log('📝 Apertura modifica articolo:', article);
   
