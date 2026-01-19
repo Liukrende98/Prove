@@ -99,7 +99,6 @@ async function apriModifica(articleId) {
   document.getElementById('editValoreAttuale').value = article.ValoreAttuale || 0;
   document.getElementById('editPrezzoPagato').value = article.PrezzoPagato || 0;
   document.getElementById('editDelta').value = ((article.ValoreAttuale || 0) - (article.PrezzoPagato || 0)).toFixed(2) + ' €';
-  document.getElementById('editStato').value = article.ValutazioneStato || '';
   document.getElementById('editPresente').checked = article.Presente || false;
   document.getElementById('editInVetrina').checked = article.in_vetrina || false;
   document.getElementById('editPrezzoVendita').value = article.prezzo_vendita || '';
@@ -420,7 +419,6 @@ async function salvaModifica(event) {
     ValoreAttuale: valore,
     PrezzoPagato: prezzo,
     Delta: valore - prezzo,
-    ValutazioneStato: formData.get('ValutazioneStato') ? parseInt(formData.get('ValutazioneStato')) : null,
     Presente: formData.get('Presente') === 'on',
     image_url: finalUrls[0] || null,
     foto_principale: finalUrls[0] || null,
