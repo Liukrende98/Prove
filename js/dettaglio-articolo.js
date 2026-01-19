@@ -66,8 +66,8 @@ async function loadArticoloDettaglio() {
 
 // Renderizza articolo
 function renderArticolo(articolo) {
-  // GALLERIA FOTO - usa i nomi colonne corretti
-  allPhotos = [
+  // GALLERIA FOTO - usa i nomi colonne corretti, rimuovi duplicati
+  var fotoArray = [
     articolo.foto_principale,
     articolo.image_url,
     articolo.foto_2,
@@ -76,6 +76,14 @@ function renderArticolo(articolo) {
     articolo.foto_5,
     articolo.foto_6
   ].filter(function(f) { return f !== null && f !== '' && f !== undefined; });
+  
+  // Rimuovi duplicati
+  allPhotos = [];
+  fotoArray.forEach(function(foto) {
+    if (allPhotos.indexOf(foto) === -1) {
+      allPhotos.push(foto);
+    }
+  });
   
   renderPhotoGallery();
   
