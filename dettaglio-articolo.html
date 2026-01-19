@@ -63,6 +63,70 @@
     #footerActions {
       width: 100%;
     }
+    
+    /* ========== GRIGLIA IMMAGINI UPLOAD ========== */
+    .img-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .img-item {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid rgba(251, 191, 36, 0.3);
+    }
+    .img-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .img-remove {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 24px;
+      height: 24px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .img-num {
+      position: absolute;
+      bottom: 5px;
+      left: 5px;
+      background: rgba(0,0,0,0.7);
+      color: #fbbf24;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .img-add {
+      aspect-ratio: 1;
+      border: 2px dashed rgba(251, 191, 36, 0.4);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #fbbf24;
+      gap: 5px;
+      background: rgba(251, 191, 36, 0.05);
+    }
+    .img-add i { font-size: 24px; }
+    .img-add span { font-size: 11px; }
+    .hidden-file-input { display: none; }
   </style></head>
 
 <body>
@@ -148,6 +212,162 @@
   </div>
 
   <!-- LIGHTBOX FOTO - Gestito da NodoGalleria -->
+
+  <!-- ========== MODAL MODIFICA ========== -->
+  <div class="modal-edit" id="modalEdit">
+    <div class="modal-edit-content">
+      <div class="modal-header">
+        <h2 class="modal-title"><i class="fas fa-edit"></i> MODIFICA ARTICOLO</h2>
+        <button class="modal-close" onclick="closeEditModal()">✕</button>
+      </div>
+
+      <div id="editMsg" class="msg"></div>
+
+      <form id="formEdit" onsubmit="salvaModifica(event)">
+        <input type="hidden" id="editId">
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label><i class="fas fa-tag"></i> NOME</label>
+            <input type="text" id="editNome" name="Nome" required>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-layer-group"></i> CATEGORIA</label>
+            <select id="editCategoria" name="Categoria" onchange="gestisciCarteGradate(this.value, 'Edit')">
+              <option value="">Seleziona...</option>
+              <option value="ETB">ETB</option>
+              <option value="Carte Singole">Carte Singole</option>
+              <option value="Carte gradate">Carte gradate</option>
+              <option value="Booster Box">Booster Box</option>
+              <option value="Collection Box">Collection Box</option>
+              <option value="Box mini tin">Box mini tin</option>
+              <option value="Bustine">Bustine</option>
+              <option value="Accessori">Accessori</option>
+              <option value="Altro">Altro</option>
+            </select>
+          </div>
+
+          <!-- CAMPI CARTE GRADATE (nascosti di default) -->
+          <div class="form-group" id="casaGradazioneGroupEdit" style="display:none;">
+            <label><i class="fas fa-certificate"></i> CASA DI GRADAZIONE *</label>
+            <select id="casaGradazioneEdit" name="CasaGradazione" onchange="gestisciAltraCasa(this.value, 'Edit')">
+              <option value="">Seleziona casa...</option>
+              <option value="PSA">PSA</option>
+              <option value="GRAAD">GRAAD</option>
+              <option value="Altra casa">Altra casa</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="altraCasaGradazioneGroupEdit" style="display:none;">
+            <label><i class="fas fa-edit"></i> SPECIFICA CASA DI GRADAZIONE *</label>
+            <input type="text" id="altraCasaGradazioneEdit" name="AltraCasaGradazione" placeholder="es. BGS, CGC, etc.">
+          </div>
+
+          <div class="form-group" id="votoGradazioneGroupEdit" style="display:none;">
+            <label><i class="fas fa-star"></i> VOTO GRADAZIONE *</label>
+            <input type="number" id="votoGradazioneEdit" name="VotoGradazione" min="1" max="10" step="0.5" placeholder="es. 9.5">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-align-left"></i> DESCRIZIONE</label>
+            <textarea id="editDescrizione" name="Descrizione"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-box-open"></i> ESPANSIONE / SET</label>
+            <input type="text" name="Espansione" id="editEspansione" placeholder="es. Scarlet & Violet, 151, Prismatic...">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-globe"></i> LINGUA</label>
+            <select name="Lingua" id="editLingua">
+              <option value="">Seleziona...</option>
+              <option value="ITA">Italiano</option>
+              <option value="ENG">Inglese</option>
+              <option value="JAP">Giapponese</option>
+              <option value="KOR">Coreano</option>
+              <option value="CHN">Cinese</option>
+              <option value="FRA">Francese</option>
+              <option value="GER">Tedesco</option>
+              <option value="SPA">Spagnolo</option>
+              <option value="POR">Portoghese</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-certificate"></i> CONDIZIONE</label>
+            <select name="Condizione" id="editCondizione">
+              <option value="">Seleziona...</option>
+              <option value="Mint">Mint (M) - Perfetta</option>
+              <option value="Near Mint">Near Mint (NM) - Quasi perfetta</option>
+              <option value="Excellent">Excellent (EX) - Eccellente</option>
+              <option value="Good">Good (GD) - Buona</option>
+              <option value="Light Played">Light Played (LP) - Leggermente giocata</option>
+              <option value="Played">Played (PL) - Giocata</option>
+              <option value="Poor">Poor (P) - Scarsa</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-gem"></i> VALORE ATTUALE (€)</label>
+            <input type="number" id="editValoreAttuale" name="ValoreAttuale" step="0.01" required oninput="calcolaDeltaEdit()">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-receipt"></i> PREZZO PAGATO (€)</label>
+            <input type="number" id="editPrezzoPagato" name="PrezzoPagato" step="0.01" required oninput="calcolaDeltaEdit()">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-chart-line"></i> DELTA (€)</label>
+            <input type="text" id="editDelta" readonly style="background:#2a2a2a; cursor:not-allowed;">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-star"></i> VALUTAZIONE STATO (1-10)</label>
+            <input type="number" id="editStato" name="ValutazioneStato" min="1" max="10">
+          </div>
+
+          <!-- UPLOAD FOTO -->
+          <div class="form-group">
+            <label><i class="fas fa-camera"></i> FOTO ARTICOLO</label>
+            <input type="file" id="editImageInput" accept="image/*" multiple class="hidden-file-input" onchange="onEditImageSelect(this)">
+            <div id="editImagesContainer"></div>
+          </div>
+
+          <div class="form-group" style="border-top: 2px solid #2a2a2a; padding-top: 20px; margin-top: 20px;">
+            <label style="font-size: 16px; color: #fbbf24;">
+              <i class="fas fa-store"></i> VETRINA
+            </label>
+          </div>
+
+          <div class="checkbox-wrapper">
+            <input type="checkbox" id="editInVetrina" name="InVetrina">
+            <span><i class="fas fa-store-alt"></i> Metti in vetrina (visibile a tutti)</span>
+          </div>
+
+          <div class="form-group" id="prezzoVenditaGroupEdit" style="display:none;">
+            <label><i class="fas fa-tag"></i> PREZZO DI VENDITA (€)</label>
+            <input type="number" id="editPrezzoVendita" name="PrezzoVendita" step="0.01" min="0">
+          </div>
+
+          <div class="checkbox-wrapper">
+            <input type="checkbox" id="editPresente" name="Presente">
+            <span><i class="fas fa-box"></i> Articolo presente fisicamente</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit">
+          <i class="fas fa-save"></i> SALVA MODIFICHE
+        </button>
+
+        <button type="button" class="btn-delete" onclick="eliminaArticolo()">
+          <i class="fas fa-trash"></i> ELIMINA ARTICOLO
+        </button>
+      </form>
+    </div>
+  </div>
 
   <!-- SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
