@@ -1242,19 +1242,20 @@ async function aggiungiArticolo(event) {
     if (votoEl) votoGradazione = parseFloat(votoEl.value) || null;
   }
   
-  // Campo altra categoria
-  let altraCategoria = null;
+  // Se categoria è "Altro", usa il valore scritto dall'utente
+  let categoriaFinale = categoria;
   if (categoria === 'Altro') {
     const altraCatEl = document.getElementById('altraCategoriaAdd');
-    if (altraCatEl) altraCategoria = altraCatEl.value || null;
+    if (altraCatEl && altraCatEl.value.trim()) {
+      categoriaFinale = altraCatEl.value.trim();
+    }
   }
   
   const articolo = {
     user_id: user.id,
     Nome: formData.get('Nome'),
     Descrizione: formData.get('Descrizione') || null,
-    Categoria: categoria || null,
-    altra_categoria: altraCategoria,
+    Categoria: categoriaFinale || null,
     espansione: document.getElementById('espansioneAdd')?.value || null,
     lingua: document.getElementById('linguaAdd')?.value || null,
     condizione: document.getElementById('condizioneAdd')?.value || null,
@@ -1330,7 +1331,23 @@ async function apriModifica(articleId) {
   document.getElementById('editId').value = article.id;
   document.getElementById('editNome').value = article.Nome || '';
   document.getElementById('editDescrizione').value = article.Descrizione || '';
-  document.getElementById('editCategoria').value = article.Categoria || '';
+  
+  // Gestisci categoria - se non è predefinita, usa "Altro" + campo testo
+  const categoriePredefinite = ['ETB', 'Carte Singole', 'Carte gradate', 'Master Set', 'Booster Box', 'Collection Box', 'Box mini tin', 'Bustine', 'Poké Ball', 'Accessori', 'Altro', ''];
+  const categoriaArticolo = article.Categoria || '';
+  
+  if (categoriePredefinite.includes(categoriaArticolo)) {
+    document.getElementById('editCategoria').value = categoriaArticolo;
+  } else {
+    // Categoria personalizzata - seleziona "Altro" e popola il campo
+    document.getElementById('editCategoria').value = 'Altro';
+    gestisciCarteGradate('Altro', 'Edit'); // Mostra il campo "Altro"
+    setTimeout(() => {
+      const altraCatInput = document.getElementById('altraCategoriaEdit');
+      if (altraCatInput) altraCatInput.value = categoriaArticolo;
+    }, 50);
+  }
+  
   document.getElementById('editEspansione').value = article.espansione || '';
   
   // Seleziona bandierina lingua
@@ -1362,8 +1379,10 @@ async function apriModifica(articleId) {
     prezzoGroup.style.display = article.in_vetrina ? 'block' : 'none';
   }
   
-  // Gestisci carte gradate e altro
-  gestisciCarteGradate(article.Categoria || '', 'Edit');
+  // Gestisci carte gradate - solo se categoria è predefinita
+  if (categoriePredefinite.includes(categoriaArticolo)) {
+    gestisciCarteGradate(categoriaArticolo, 'Edit');
+  }
   
   if (article.Categoria === 'Carte gradate') {
     console.log('🏆 Carte gradate - Casa:', article.casa_gradazione, 'Voto:', article.voto_gradazione);
@@ -1378,14 +1397,6 @@ async function apriModifica(articleId) {
       gestisciAltraCasa(article.casa_gradazione || '', 'Edit');
       if (altraCasaInput) altraCasaInput.value = article.altra_casa_gradazione || '';
       if (votoInput) votoInput.value = article.voto_gradazione || '';
-    }, 50);
-  }
-  
-  // Gestisci altra categoria
-  if (article.Categoria === 'Altro') {
-    setTimeout(() => {
-      const altraCatInput = document.getElementById('altraCategoriaEdit');
-      if (altraCatInput) altraCatInput.value = article.altra_categoria || '';
     }, 50);
   }
   
@@ -1479,18 +1490,19 @@ async function salvaModifica(event) {
     if (votoEl) votoGradazione = parseFloat(votoEl.value) || null;
   }
   
-  // Campo altra categoria
-  let altraCategoria = null;
+  // Se categoria è "Altro", usa il valore scritto dall'utente
+  let categoriaFinale = categoria;
   if (categoria === 'Altro') {
     const altraCatEl = document.getElementById('altraCategoriaEdit');
-    if (altraCatEl) altraCategoria = altraCatEl.value || null;
+    if (altraCatEl && altraCatEl.value.trim()) {
+      categoriaFinale = altraCatEl.value.trim();
+    }
   }
 
   const articolo = {
     Nome: formData.get('Nome'),
     Descrizione: formData.get('Descrizione') || null,
-    Categoria: categoria || null,
-    altra_categoria: altraCategoria,
+    Categoria: categoriaFinale || null,
     espansione: document.getElementById('editEspansione')?.value || null,
     lingua: document.getElementById('editLingua')?.value || null,
     condizione: document.getElementById('editCondizione')?.value || null,
