@@ -1,464 +1,496 @@
 // ========================================
-// MODIFICA-ARTICOLO.JS v4.0
-// SOLO LOGICA - Il modal HTML deve essere nella pagina
+// DETTAGLIO ARTICOLO - OTTIMIZZATO MOBILE
 // ========================================
 
-var editImages = [];
-var editExistingUrls = [];
-var MAX_IMAGES = 6;
-var currentEditArticle = null;
+var currentArticolo = null;
+var currentPhotoIndex = 0;
+var allPhotos = [];
 
-// ========================================
-// APRI MODIFICA
-// ========================================
-async function apriModifica(articleId) {
-  console.log('🔧 apriModifica chiamata con ID:', articleId);
+// Ottieni ID utente corrente
+function getCurrentUserId() {
+  return localStorage.getItem('nodo_user_id') || null;
+}
+
+// Apri modal modifica articolo
+function goToModifica() {
+  if (!currentArticolo) return;
   
-  var modal = document.getElementById('modalEdit');
-  if (!modal) {
-    console.error('❌ Modal #modalEdit non trovato nella pagina!');
-    alert('Errore: modal modifica non presente');
+  // Apri direttamente il modal di modifica
+  if (typeof apriModifica === 'function') {
+    apriModifica(currentArticolo.id);
+  } else {
+    console.error('❌ apriModifica non disponibile');
+    alert('Errore: modulo modifica non caricato');
+  }
+}
+
+// Carica articolo
+async function loadArticoloDettaglio() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const articoloId = urlParams.get('id');
+  
+  if (!articoloId) {
+    showError('ID articolo mancante');
     return;
   }
   
-  var article = null;
+  // Mostra loader
+  if (window.NodoLoader) NodoLoader.show('Caricamento articolo...');
   
-  // Cerca in cache se disponibile
-  if (typeof allArticles !== 'undefined' && allArticles && allArticles.length > 0) {
-    article = allArticles.find(function(a) { return a.id == articleId; });
-    if (article) console.log('📦 Articolo trovato in cache');
-  }
-  
-  // Se non trovato, carica da DB
-  if (!article) {
-    console.log('🔍 Articolo non in cache, caricamento da DB...');
-    if (window.NodoLoader) NodoLoader.show('Caricamento articolo...');
+  try {
+    // Carica articolo con dati utente
+    const { data: articolo, error } = await supabaseClient
+      .from('Articoli')
+      .select(`
+        *,
+        Utenti (
+          id,
+          username,
+          email,
+          citta
+        )
+      `)
+      .eq('id', articoloId)
+      .single();
     
-    try {
-      var result = await supabaseClient
-        .from('Articoli')
-        .select('*')
-        .eq('id', articleId)
-        .single();
-      
-      if (result.error) throw result.error;
-      article = result.data;
+    if (error) throw error;
+    
+    if (!articolo) {
       if (window.NodoLoader) NodoLoader.hide();
-    } catch (err) {
-      console.error('❌ Errore caricamento articolo:', err);
-      if (window.NodoLoader) NodoLoader.hide();
-      alert('Errore: articolo non trovato');
+      showError('Articolo non trovato');
       return;
     }
-  }
-  
-  if (!article) {
-    console.error('❌ Articolo non trovato per ID:', articleId);
-    return;
-  }
-  
-  currentEditArticle = article;
-  console.log('📝 Apertura modifica articolo:', article);
-  
-  // Popola i campi
-  document.getElementById('editId').value = article.id;
-  document.getElementById('editNome').value = article.Nome || '';
-  document.getElementById('editDescrizione').value = article.Descrizione || '';
-  document.getElementById('editCategoria').value = article.Categoria || '';
-  document.getElementById('editEspansione').value = article.espansione || '';
-  document.getElementById('editLingua').value = article.lingua || '';
-  document.getElementById('editCondizione').value = article.condizione || '';
-  document.getElementById('editValoreAttuale').value = article.ValoreAttuale || 0;
-  document.getElementById('editPrezzoPagato').value = article.PrezzoPagato || 0;
-  document.getElementById('editDelta').value = ((article.ValoreAttuale || 0) - (article.PrezzoPagato || 0)).toFixed(2) + ' €';
-  document.getElementById('editStato').value = article.ValutazioneStato || '';
-  document.getElementById('editPresente').checked = article.Presente || false;
-  document.getElementById('editInVetrina').checked = article.in_vetrina || false;
-  document.getElementById('editPrezzoVendita').value = article.prezzo_vendita || '';
-  
-  console.log('💰 Prezzi caricati - Valore:', article.ValoreAttuale, 'Pagato:', article.PrezzoPagato, 'Vendita:', article.prezzo_vendita);
-  
-  // Mostra/nascondi prezzo vendita
-  var prezzoGroup = document.getElementById('prezzoVenditaGroupEdit');
-  if (prezzoGroup) {
-    prezzoGroup.style.display = article.in_vetrina ? 'block' : 'none';
-  }
-  
-  // Gestisci carte gradate
-  gestisciCarteGradate(article.Categoria || '', 'Edit');
-  
-  if (article.Categoria === 'Carte gradate') {
-    console.log('🏆 Carte gradate - Casa:', article.casa_gradazione, 'Voto:', article.voto_gradazione);
-    setTimeout(function() {
-      var casaSelect = document.getElementById('casaGradazioneEdit');
-      var altraCasaInput = document.getElementById('altraCasaGradazioneEdit');
-      var votoInput = document.getElementById('votoGradazioneEdit');
-      
-      if (casaSelect) casaSelect.value = article.casa_gradazione || '';
-      gestisciAltraCasa(article.casa_gradazione || '', 'Edit');
-      if (altraCasaInput) altraCasaInput.value = article.altra_casa_gradazione || '';
-      if (votoInput) votoInput.value = article.voto_gradazione || '';
-    }, 50);
-  }
-  
-  // Carica immagini esistenti
-  loadExistingImages(article);
-  
-  // Reset msg
-  var msg = document.getElementById('editMsg');
-  if (msg) {
-    msg.style.display = 'none';
-    msg.textContent = '';
-  }
-  
-  modal.classList.add('active');
-  document.body.style.overflow = 'hidden';
-}
-
-// ========================================
-// CHIUDI MODAL
-// ========================================
-function closeEditModal() {
-  var modal = document.getElementById('modalEdit');
-  if (modal) {
-    modal.classList.add('closing');
-    setTimeout(function() {
-      modal.classList.remove('active', 'closing');
-      document.body.style.overflow = '';
-      resetEditImages();
-    }, 400);
-  }
-}
-
-// ========================================
-// CALCOLO DELTA
-// ========================================
-function calcolaDeltaEdit() {
-  var valore = parseFloat(document.getElementById('editValoreAttuale').value) || 0;
-  var prezzo = parseFloat(document.getElementById('editPrezzoPagato').value) || 0;
-  var delta = valore - prezzo;
-  var deltaInput = document.getElementById('editDelta');
-  if (deltaInput) {
-    deltaInput.value = delta.toFixed(2) + ' €';
-  }
-}
-
-// ========================================
-// GESTIONE CARTE GRADATE
-// ========================================
-function gestisciCarteGradate(categoriaValue, prefix) {
-  var casaGroup = document.getElementById('casaGradazioneGroup' + prefix);
-  var votoGroup = document.getElementById('votoGradazioneGroup' + prefix);
-  var casaSelect = document.getElementById('casaGradazione' + prefix);
-  var votoInput = document.getElementById('votoGradazione' + prefix);
-  var altraCasaGroup = document.getElementById('altraCasaGradazioneGroup' + prefix);
-  
-  if (!casaGroup || !votoGroup) return;
-  
-  if (categoriaValue === 'Carte gradate') {
-    casaGroup.style.display = 'block';
-    votoGroup.style.display = 'block';
-    if (casaSelect) casaSelect.required = true;
-    if (votoInput) votoInput.required = true;
-  } else {
-    casaGroup.style.display = 'none';
-    votoGroup.style.display = 'none';
-    if (altraCasaGroup) altraCasaGroup.style.display = 'none';
-    if (casaSelect) { casaSelect.required = false; casaSelect.value = ''; }
-    if (votoInput) { votoInput.required = false; votoInput.value = ''; }
-    var altraCasaInput = document.getElementById('altraCasaGradazione' + prefix);
-    if (altraCasaInput) altraCasaInput.value = '';
-  }
-}
-
-function gestisciAltraCasa(casaValue, prefix) {
-  var altraCasaGroup = document.getElementById('altraCasaGradazioneGroup' + prefix);
-  var altraCasaInput = document.getElementById('altraCasaGradazione' + prefix);
-  if (!altraCasaGroup) return;
-  if (casaValue === 'Altra casa') {
-    altraCasaGroup.style.display = 'block';
-    if (altraCasaInput) altraCasaInput.required = true;
-  } else {
-    altraCasaGroup.style.display = 'none';
-    if (altraCasaInput) { altraCasaInput.required = false; altraCasaInput.value = ''; }
-  }
-}
-
-// ========================================
-// TOGGLE PREZZO VENDITA
-// ========================================
-function togglePrezzoVenditaEdit() {
-  var checkbox = document.getElementById('editInVetrina');
-  var prezzoGroup = document.getElementById('prezzoVenditaGroupEdit');
-  if (prezzoGroup && checkbox) {
-    prezzoGroup.style.display = checkbox.checked ? 'block' : 'none';
-  }
-}
-
-// ========================================
-// GESTIONE IMMAGINI
-// ========================================
-function onEditImageSelect(input) {
-  var files = Array.from(input.files);
-  var existingCount = editExistingUrls.filter(function(u) { return u; }).length;
-  console.log('📸 EDIT - File selezionati:', files.length, 'Esistenti:', existingCount);
-  
-  if (existingCount + editImages.length + files.length > MAX_IMAGES) {
-    alert('Massimo ' + MAX_IMAGES + ' foto!');
-    input.value = '';
-    return;
-  }
-  
-  files.forEach(function(file) {
-    if (file.type.startsWith('image/')) {
-      editImages.push(file);
-    }
-  });
-  
-  input.value = '';
-  renderEditImages();
-}
-
-function renderEditImages() {
-  var container = document.getElementById('editImagesContainer');
-  if (!container) return;
-  
-  var existingCount = editExistingUrls.filter(function(u) { return u; }).length;
-  var totalCount = existingCount + editImages.length;
-  
-  var html = '<div class="img-grid">';
-  var num = 1;
-  
-  editExistingUrls.forEach(function(url, i) {
-    if (url) {
-      html += '<div class="img-item"><img src="' + url + '"><button type="button" class="img-remove" onclick="removeExistingImage(' + i + ')">×</button><span class="img-num">' + (num++) + '</span></div>';
-    }
-  });
-  
-  editImages.forEach(function(file, i) {
-    html += '<div class="img-item"><img src="' + URL.createObjectURL(file) + '"><button type="button" class="img-remove" onclick="removeEditImage(' + i + ')">×</button><span class="img-num">' + (num++) + '</span></div>';
-  });
-  
-  if (totalCount < MAX_IMAGES) {
-    html += '<label class="img-add" for="editImageInput"><i class="fas fa-plus"></i><span>' + totalCount + '/' + MAX_IMAGES + '</span></label>';
-  }
-  
-  html += '</div>';
-  container.innerHTML = html;
-}
-
-function removeEditImage(index) {
-  editImages.splice(index, 1);
-  renderEditImages();
-}
-
-function removeExistingImage(index) {
-  editExistingUrls[index] = null;
-  renderEditImages();
-}
-
-function resetEditImages() {
-  editImages = [];
-  editExistingUrls = [];
-  var container = document.getElementById('editImagesContainer');
-  if (container) container.innerHTML = '';
-}
-
-function loadExistingImages(article) {
-  editImages = [];
-  editExistingUrls = [
-    article.foto_principale || article.image_url || null,
-    article.foto_2 || null,
-    article.foto_3 || null,
-    article.foto_4 || null,
-    article.foto_5 || null,
-    article.foto_6 || null
-  ];
-  renderEditImages();
-}
-
-// ========================================
-// UPLOAD IMMAGINE
-// ========================================
-async function uploadImage(file) {
-  if (!file) return null;
-  
-  var user = null;
-  if (typeof getCurrentUser === 'function') {
-    user = getCurrentUser();
-  }
-  var userId = user ? user.id : localStorage.getItem('nodo_user_id');
-  
-  if (!userId) return null;
-  
-  var fileName = userId + '/' + Date.now() + '_' + file.name;
-  
-  var result = await supabaseClient.storage.from('product-images').upload(fileName, file);
-  
-  if (result.error) {
-    console.error('❌ Errore upload:', result.error);
-    return null;
-  }
-  
-  var urlResult = supabaseClient.storage.from('product-images').getPublicUrl(fileName);
-  return urlResult.data.publicUrl;
-}
-
-// ========================================
-// SALVA MODIFICA
-// ========================================
-async function salvaModifica(event) {
-  event.preventDefault();
-  
-  if (window.NodoLoader) NodoLoader.showOperation('Salvataggio modifiche...');
-  
-  var id = document.getElementById('editId').value;
-  var formData = new FormData(event.target);
-  var msg = document.getElementById('editMsg');
-  
-  msg.className = 'msg';
-  msg.textContent = '⏳ Salvataggio...';
-  msg.style.display = 'block';
-  
-  // Combina URL esistenti + nuove immagini
-  var finalUrls = [];
-  
-  editExistingUrls.forEach(function(url) {
-    if (url) finalUrls.push(url);
-  });
-  
-  for (var i = 0; i < editImages.length; i++) {
-    msg.textContent = '⏳ Caricamento foto ' + (i + 1) + '/' + editImages.length + '...';
-    var url = await uploadImage(editImages[i]);
-    if (url) finalUrls.push(url);
-  }
-  
-  var valore = parseFloat(document.getElementById('editValoreAttuale').value) || 0;
-  var prezzo = parseFloat(document.getElementById('editPrezzoPagato').value) || 0;
-  var inVetrina = document.getElementById('editInVetrina').checked || false;
-  var prezzoVendita = inVetrina ? parseFloat(document.getElementById('editPrezzoVendita').value) || null : null;
-  var categoria = document.getElementById('editCategoria').value;
-  
-  // Campi gradazione
-  var casaGradazione = null;
-  var altraCasaGradazione = null;
-  var votoGradazione = null;
-  
-  if (categoria === 'Carte gradate') {
-    var casaEl = document.getElementById('casaGradazioneEdit');
-    var altraCasaEl = document.getElementById('altraCasaGradazioneEdit');
-    var votoEl = document.getElementById('votoGradazioneEdit');
     
-    if (casaEl) casaGradazione = casaEl.value || null;
-    if (casaGradazione === 'Altra casa' && altraCasaEl) altraCasaGradazione = altraCasaEl.value || null;
-    if (votoEl) votoGradazione = parseFloat(votoEl.value) || null;
+    currentArticolo = articolo;
+    console.log('📦 Articolo caricato:', articolo);
+    
+    // Renderizza articolo
+    renderArticolo(articolo);
+    
+    // Nascondi loading, mostra contenuto
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('detailContent').style.display = 'block';
+    document.getElementById('detailFooter').style.display = 'block';
+    
+    // Nascondi loader
+    if (window.NodoLoader) NodoLoader.hide();
+    
+  } catch (error) {
+    console.error('❌ Errore caricamento articolo:', error);
+    if (window.NodoLoader) NodoLoader.hide();
+    showError(error.message);
   }
+}
 
-  var articolo = {
-    Nome: formData.get('Nome'),
-    Descrizione: formData.get('Descrizione') || null,
-    Categoria: categoria || null,
-    espansione: document.getElementById('editEspansione').value || null,
-    lingua: document.getElementById('editLingua').value || null,
-    condizione: document.getElementById('editCondizione').value || null,
-    ValoreAttuale: valore,
-    PrezzoPagato: prezzo,
-    Delta: valore - prezzo,
-    ValutazioneStato: formData.get('ValutazioneStato') ? parseInt(formData.get('ValutazioneStato')) : null,
-    Presente: formData.get('Presente') === 'on',
-    image_url: finalUrls[0] || null,
-    foto_principale: finalUrls[0] || null,
-    foto_2: finalUrls[1] || null,
-    foto_3: finalUrls[2] || null,
-    foto_4: finalUrls[3] || null,
-    foto_5: finalUrls[4] || null,
-    foto_6: finalUrls[5] || null,
-    in_vetrina: inVetrina,
-    prezzo_vendita: prezzoVendita,
-    casa_gradazione: casaGradazione,
-    altra_casa_gradazione: altraCasaGradazione,
-    voto_gradazione: votoGradazione
+// Renderizza articolo
+function renderArticolo(articolo) {
+  // GALLERIA FOTO - usa i nomi colonne corretti, rimuovi duplicati
+  var fotoArray = [
+    articolo.foto_principale,
+    articolo.image_url,
+    articolo.foto_2,
+    articolo.foto_3,
+    articolo.foto_4,
+    articolo.foto_5,
+    articolo.foto_6
+  ].filter(function(f) { return f !== null && f !== '' && f !== undefined; });
+  
+  // Rimuovi duplicati
+  allPhotos = [];
+  fotoArray.forEach(function(foto) {
+    if (allPhotos.indexOf(foto) === -1) {
+      allPhotos.push(foto);
+    }
+  });
+  
+  renderPhotoGallery();
+  
+  // DISPONIBILITÀ - NASCONDI IL BANNER
+  const availabilityBanner = document.getElementById('availabilityBanner');
+  if (availabilityBanner) {
+    availabilityBanner.style.display = 'none';
+  }
+  
+  // INFO PRINCIPALE
+  document.getElementById('articleName').textContent = articolo.Nome || 'Articolo';
+  
+  const categoryEl = document.getElementById('articleCategory');
+  if (articolo.Categoria) {
+    categoryEl.textContent = articolo.Categoria;
+    categoryEl.style.display = 'inline-block';
+  } else {
+    categoryEl.style.display = 'none';
+  }
+  
+  document.getElementById('articlePrice').textContent = `${parseFloat(articolo.prezzo_vendita || 0).toFixed(2)}€`;
+  
+  // RATING
+  const ratingEl = document.getElementById('articleRating');
+  const rating = articolo.ValutazioneStato || 0;
+  if (rating > 0) {
+    ratingEl.innerHTML = `
+      <i class="fas fa-star"></i>
+      <div>
+        <div class="rating-value">${rating}/10</div>
+        <div class="rating-label">Valutazione</div>
+      </div>
+    `;
+    ratingEl.style.display = 'flex';
+  } else {
+    ratingEl.style.display = 'none';
+  }
+  
+  // DESCRIZIONE
+  const descriptionCard = document.getElementById('descriptionCard');
+  if (articolo.Descrizione && articolo.Descrizione.trim() !== '') {
+    descriptionCard.innerHTML = `
+      <h3 class="card-title">
+        <i class="fas fa-align-left"></i> Descrizione
+      </h3>
+      <div class="description-content">${articolo.Descrizione}</div>
+    `;
+    descriptionCard.style.display = 'block';
+  } else {
+    descriptionCard.style.display = 'none';
+  }
+  
+  // VENDITORE
+  document.getElementById('sellerName').textContent = articolo.Utenti?.username || 'Utente';
+  const locationEl = document.getElementById('sellerLocation');
+  if (articolo.Utenti?.citta) {
+    locationEl.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${articolo.Utenti.citta}`;
+    locationEl.style.display = 'flex';
+  } else {
+    locationEl.style.display = 'none';
+  }
+  
+  // DETTAGLI
+  const detailsGrid = document.getElementById('detailsGrid');
+  const details = [];
+  const disponibile = articolo.Presente === true;
+  
+  // Categoria
+  if (articolo.Categoria) {
+    details.push({ icon: 'fa-tag', label: 'Categoria', value: articolo.Categoria });
+  }
+  
+  // Gradazione (se carta gradata)
+  if (articolo.Categoria === 'Carte gradate' && articolo.casa_gradazione && articolo.voto_gradazione) {
+    details.push({ 
+      icon: 'fa-award', 
+      label: 'Gradazione', 
+      value: articolo.casa_gradazione + ' ' + articolo.voto_gradazione,
+      highlight: true
+    });
+  }
+  
+  // Set
+  if (articolo.Set) {
+    details.push({ icon: 'fa-layer-group', label: 'Set', value: articolo.Set });
+  }
+  
+  // Espansione
+  if (articolo.espansione) {
+    details.push({ icon: 'fa-boxes-stacked', label: 'Espansione', value: articolo.espansione });
+  }
+  
+  // Lingua
+  if (articolo.lingua) {
+    details.push({ icon: 'fa-language', label: 'Lingua', value: articolo.lingua });
+  } else if (articolo.Lingua) {
+    details.push({ icon: 'fa-language', label: 'Lingua', value: articolo.Lingua });
+  }
+  
+  // Condizione
+  if (articolo.condizione) {
+    details.push({ icon: 'fa-star-half-alt', label: 'Condizione', value: articolo.condizione });
+  }
+  
+  // Rarità
+  if (articolo.Rarita) {
+    details.push({ icon: 'fa-gem', label: 'Rarità', value: articolo.Rarita });
+  }
+  
+  // Disponibilità
+  details.push({ 
+    icon: 'fa-box', 
+    label: 'Disponibilità', 
+    value: disponibile ? 'In Magazzino' : 'Non Disponibile' 
+  });
+  
+  if (details.length > 0) {
+    detailsGrid.innerHTML = details.map(function(d) {
+      var highlightClass = d.highlight ? ' detail-highlight' : '';
+      return '<div class="detail-row' + highlightClass + '">' +
+        '<div class="detail-label">' +
+          '<i class="fas ' + d.icon + '"></i> ' + d.label +
+        '</div>' +
+        '<div class="detail-value">' + d.value + '</div>' +
+      '</div>';
+    }).join('');
+  }
+  
+  // FOOTER - Verifica se è un tuo articolo
+  var currentUserId = getCurrentUserId();
+  var isMyArticle = currentUserId && articolo.user_id === currentUserId;
+  var footerActions = document.getElementById('footerActions');
+  
+  console.log('🔍 Verifica proprietà articolo:');
+  console.log('   - currentUserId:', currentUserId);
+  console.log('   - articolo.user_id:', articolo.user_id);
+  console.log('   - isMyArticle:', isMyArticle);
+  
+  if (isMyArticle) {
+    // È un tuo articolo - mostra bottone Modifica
+    footerActions.innerHTML = 
+      '<button class="edit-btn" onclick="goToModifica()">' +
+        '<i class="fas fa-edit"></i> Modifica Articolo' +
+      '</button>';
+  } else {
+    // Non è tuo - mostra bottone Contatta
+    footerActions.innerHTML = 
+      '<button class="contact-btn" onclick="contattaVenditore()">' +
+        '<i class="fas fa-envelope"></i> Contatta Venditore' +
+      '</button>';
+  }
+}
+
+// Renderizza galleria foto
+function renderPhotoGallery() {
+  const slider = document.getElementById('photoSlider');
+  const dots = document.getElementById('photoDots');
+  
+  if (allPhotos.length === 0) {
+    slider.innerHTML = `
+      <div class="photo-slide">
+        <div class="photo-placeholder">
+          <i class="fas fa-image"></i>
+          <div>Nessuna foto disponibile</div>
+        </div>
+      </div>
+    `;
+    dots.style.display = 'none';
+    return;
+  }
+  
+  // Crea slide
+  slider.innerHTML = allPhotos.map((foto, index) => `
+    <div class="photo-slide">
+      <img src="${foto}" alt="Foto ${index + 1}" onclick="openLightbox(${index})">
+    </div>
+  `).join('');
+  
+  // Counter foto
+  if (allPhotos.length > 1) {
+    const counter = document.createElement('div');
+    counter.className = 'photo-counter';
+    counter.innerHTML = `<i class="fas fa-images"></i> ${allPhotos.length} foto`;
+    document.querySelector('.photo-gallery').appendChild(counter);
+    
+    // Hint zoom
+    const hint = document.createElement('div');
+    hint.className = 'photo-zoom-hint';
+    hint.innerHTML = '<i class="fas fa-search-plus"></i> Tocca per ingrandire';
+    document.querySelector('.photo-gallery').appendChild(hint);
+    
+    // Nascondi hint dopo 3 secondi
+    setTimeout(() => {
+      hint.style.opacity = '0';
+      setTimeout(() => hint.remove(), 300);
+    }, 3000);
+  }
+  
+  // Crea dots
+  if (allPhotos.length > 1) {
+    dots.innerHTML = allPhotos.map((_, index) => 
+      `<div class="photo-dot ${index === 0 ? 'active' : ''}"></div>`
+    ).join('');
+    dots.style.display = 'flex';
+    
+    // Gestisci scroll per aggiornare dots
+    slider.addEventListener('scroll', updateActiveDot);
+  } else {
+    dots.style.display = 'none';
+  }
+}
+
+// Aggiorna dot attivo durante scroll
+function updateActiveDot() {
+  const slider = document.getElementById('photoSlider');
+  const scrollLeft = slider.scrollLeft;
+  const slideWidth = slider.offsetWidth;
+  const currentIndex = Math.round(scrollLeft / slideWidth);
+  
+  const dotElements = document.querySelectorAll('.photo-dot');
+  dotElements.forEach((dot, index) => {
+    if (index === currentIndex) {
+      dot.classList.add('active');
+    } else {
+      dot.classList.remove('active');
+    }
+  });
+  
+  currentPhotoIndex = currentIndex;
+}
+
+// Apri lightbox
+function openLightbox(index) {
+  // Usa NodoGalleria
+  if (window.NodoGalleria && allPhotos.length > 0) {
+    NodoGalleria.open(allPhotos, index);
+  }
+}
+
+// Chiudi lightbox - non più usata, gestita da NodoGalleria
+function closeLightbox() {
+  // Manteniamo per compatibilità
+}
+
+// Contatta venditore - CON MESSAGGIO PRE-COMPILATO
+function contattaVenditore() {
+  if (!currentArticolo) return;
+  
+  const vendorId = currentArticolo.Utenti?.id;
+  const vendorUsername = currentArticolo.Utenti?.username;
+  const nomeArticolo = currentArticolo.Nome || 'Articolo';
+  const prezzoArticolo = parseFloat(currentArticolo.prezzo_vendita || 0).toFixed(2);
+  const articoloId = currentArticolo.id;
+  
+  if (!vendorId) {
+    alert('❌ Errore: dati venditore non disponibili');
+    return;
+  }
+  
+  // Messaggio pre-compilato con riferimenti articolo
+  const messaggioPrefillato = `Ciao! Sono interessato a questo articolo:
+
+📦 ${nomeArticolo}
+💰 Prezzo: ${prezzoArticolo}€
+🔗 ID: ${articoloId}
+
+Vorrei avere più informazioni. È ancora disponibile?`;
+  
+  console.log('💬 Apertura chat con venditore:', vendorUsername, vendorId);
+  
+  // Passa anche il messaggio pre-compilato
+  if (window.openMessagesCenter && typeof window.openMessagesCenter === 'function') {
+    window.openMessagesCenter(vendorId, messaggioPrefillato);
+  } else {
+    console.error('❌ openMessagesCenter non disponibile');
+    alert('❌ Errore: sistema messaggi non disponibile.\n\nVerifica che messages.js sia caricato correttamente.');
+  }
+}
+
+// Condividi articolo
+function shareArticolo() {
+  if (!currentArticolo) return;
+  
+  const shareData = {
+    title: currentArticolo.Nome || 'Articolo NODO',
+    text: `Guarda questo articolo su NODO: ${currentArticolo.Nome}`,
+    url: window.location.href
   };
-
-  var result = await supabaseClient.from('Articoli').update(articolo).eq('id', id);
-
-  if (result.error) {
-    msg.className = 'msg error';
-    msg.textContent = '❌ ERRORE: ' + result.error.message;
-    msg.style.display = 'block';
-    if (window.NodoLoader) NodoLoader.hideOperation();
+  
+  if (navigator.share) {
+    navigator.share(shareData).catch(err => {
+      console.log('Condivisione annullata', err);
+    });
   } else {
-    msg.className = 'msg success';
-    msg.textContent = '✅ SALVATO!';
-    msg.style.display = 'block';
-    
-    setTimeout(function() {
-      closeEditModal();
-      if (window.NodoLoader) NodoLoader.hideOperation();
-      
-      // Ricarica articoli se la funzione esiste
-      if (typeof caricaArticoli === 'function') {
-        caricaArticoli();
-      } else {
-        window.location.reload();
-      }
-    }, 1500);
+    // Fallback: copia link
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      alert('✅ Link copiato negli appunti!');
+    }).catch(() => {
+      alert('❌ Impossibile copiare il link');
+    });
   }
 }
 
-// ========================================
-// ELIMINA ARTICOLO
-// ========================================
-async function eliminaArticolo() {
-  var id = document.getElementById('editId').value;
-  var nome = document.getElementById('editNome').value;
-  if (!confirm('⚠️ ELIMINARE "' + nome + '"?')) return;
-
-  if (window.NodoLoader) NodoLoader.showOperation('Eliminazione...');
-
-  var result = await supabaseClient.from('Articoli').delete().eq('id', id);
-  var msg = document.getElementById('editMsg');
-
-  if (result.error) {
-    msg.className = 'msg error';
-    msg.textContent = '❌ ERRORE: ' + result.error.message;
-    msg.style.display = 'block';
-    if (window.NodoLoader) NodoLoader.hideOperation();
+// Torna indietro
+function goBack() {
+  // Se c'è history, torna indietro
+  if (window.history.length > 1) {
+    window.history.back();
   } else {
-    msg.className = 'msg success';
-    msg.textContent = '✅ ELIMINATO!';
-    msg.style.display = 'block';
-    
-    setTimeout(function() {
-      closeEditModal();
-      if (window.NodoLoader) NodoLoader.hideOperation();
-      
-      if (typeof caricaArticoli === 'function') {
-        caricaArticoli();
-      } else {
-        window.location.href = 'il-tuo-negozio.html';
-      }
-    }, 1500);
+    // Altrimenti vai alla home
+    window.location.href = 'vetrine.html';
   }
 }
+
+// Mostra errore
+function showError(message) {
+  const loadingState = document.getElementById('loadingState');
+  loadingState.innerHTML = `
+    <div style="text-align: center;">
+      <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #ef4444; margin-bottom: 20px;"></i>
+      <div class="loading-text" style="color: #ef4444;">${message}</div>
+      <button 
+        onclick="goBack()" 
+        style="margin-top: 20px; padding: 12px 24px; background: #fbbf24; color: #0a0a0a; border: none; border-radius: 12px; font-weight: 800; cursor: pointer;"
+      >
+        <i class="fas fa-arrow-left"></i> Torna Indietro
+      </button>
+    </div>
+  `;
+}
+
+// Particles animation
+function createParticles() {
+  const particlesContainer = document.getElementById('particles');
+  if (!particlesContainer) return;
+  
+  const particleCount = 30;
+  
+  for (let i = 0; i < particleCount; i++) {
+    const particle = document.createElement('div');
+    particle.style.position = 'absolute';
+    particle.style.width = Math.random() * 3 + 1 + 'px';
+    particle.style.height = particle.style.width;
+    particle.style.background = 'rgba(251, 191, 36, 0.6)';
+    particle.style.borderRadius = '50%';
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.top = Math.random() * 100 + '%';
+    particle.style.animation = `float ${Math.random() * 10 + 10}s linear infinite`;
+    particle.style.animationDelay = Math.random() * 5 + 's';
+    
+    particlesContainer.appendChild(particle);
+  }
+}
+
+// Init particles
+window.addEventListener('DOMContentLoaded', () => {
+  createParticles();
+});
+
+// Stile per animazione particles
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes float {
+    0% {
+      transform: translateY(0) translateX(0);
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.8;
+    }
+    90% {
+      opacity: 0.8;
+    }
+    100% {
+      transform: translateY(-100vh) translateX(${Math.random() * 100 - 50}px);
+      opacity: 0;
+    }
+  }
+`;
+document.head.appendChild(style);
 
 // ========================================
 // EXPORTS GLOBALI
 // ========================================
-window.apriModifica = apriModifica;
-window.closeEditModal = closeEditModal;
-window.salvaModifica = salvaModifica;
-window.eliminaArticolo = eliminaArticolo;
-window.calcolaDeltaEdit = calcolaDeltaEdit;
-window.gestisciCarteGradate = gestisciCarteGradate;
-window.gestisciAltraCasa = gestisciAltraCasa;
-window.onEditImageSelect = onEditImageSelect;
-window.removeEditImage = removeEditImage;
-window.removeExistingImage = removeExistingImage;
-window.togglePrezzoVenditaEdit = togglePrezzoVenditaEdit;
-window.renderEditImages = renderEditImages;
-window.loadExistingImages = loadExistingImages;
-window.resetEditImages = resetEditImages;
-window.uploadImage = uploadImage;
+window.loadArticoloDettaglio = loadArticoloDettaglio;
+window.goBack = goBack;
+window.shareArticolo = shareArticolo;
+window.openLightbox = openLightbox;
+window.contattaVenditore = contattaVenditore;
+window.goToModifica = goToModifica;
 
-console.log('📝 Modifica-Articolo.js v4.0 caricato (solo logica)');
+console.log('📝 dettaglio-articolo.js caricato');
