@@ -36,35 +36,52 @@ function toggleViewMode() {
   renderArticles();
 }
 
-// ========== GESTIONE CARTE GRADATE ==========
+// ========== GESTIONE CARTE GRADATE E ALTRO ==========
 function gestisciCarteGradate(categoriaValue, prefix) {
   const casaGroup = document.getElementById(`casaGradazioneGroup${prefix}`);
   const votoGroup = document.getElementById(`votoGradazioneGroup${prefix}`);
   const casaSelect = document.getElementById(`casaGradazione${prefix}`);
   const votoInput = document.getElementById(`votoGradazione${prefix}`);
   const altraCasaGroup = document.getElementById(`altraCasaGradazioneGroup${prefix}`);
+  const altraCategoriaGroup = document.getElementById(`altraCategoriaGroup${prefix}`);
+  const altraCategoriaInput = document.getElementById(`altraCategoria${prefix}`);
   
-  if (!casaGroup || !votoGroup) return;
+  // Gestione Carte Gradate
+  if (casaGroup && votoGroup) {
+    if (categoriaValue === 'Carte gradate') {
+      casaGroup.style.display = 'block';
+      votoGroup.style.display = 'block';
+      if (casaSelect) casaSelect.required = true;
+      if (votoInput) votoInput.required = true;
+    } else {
+      casaGroup.style.display = 'none';
+      votoGroup.style.display = 'none';
+      if (altraCasaGroup) altraCasaGroup.style.display = 'none';
+      if (casaSelect) {
+        casaSelect.required = false;
+        casaSelect.value = '';
+      }
+      if (votoInput) {
+        votoInput.required = false;
+        votoInput.value = '';
+      }
+      const altraCasaInput = document.getElementById(`altraCasaGradazione${prefix}`);
+      if (altraCasaInput) altraCasaInput.value = '';
+    }
+  }
   
-  if (categoriaValue === 'Carte gradate') {
-    casaGroup.style.display = 'block';
-    votoGroup.style.display = 'block';
-    if (casaSelect) casaSelect.required = true;
-    if (votoInput) votoInput.required = true;
-  } else {
-    casaGroup.style.display = 'none';
-    votoGroup.style.display = 'none';
-    if (altraCasaGroup) altraCasaGroup.style.display = 'none';
-    if (casaSelect) {
-      casaSelect.required = false;
-      casaSelect.value = '';
+  // Gestione Altro
+  if (altraCategoriaGroup) {
+    if (categoriaValue === 'Altro') {
+      altraCategoriaGroup.style.display = 'block';
+      if (altraCategoriaInput) altraCategoriaInput.required = true;
+    } else {
+      altraCategoriaGroup.style.display = 'none';
+      if (altraCategoriaInput) {
+        altraCategoriaInput.required = false;
+        altraCategoriaInput.value = '';
+      }
     }
-    if (votoInput) {
-      votoInput.required = false;
-      votoInput.value = '';
-    }
-    const altraCasaInput = document.getElementById(`altraCasaGradazione${prefix}`);
-    if (altraCasaInput) altraCasaInput.value = '';
   }
 }
 
@@ -757,6 +774,25 @@ function selectLanguage(btn) {
   applicaFiltri();
 }
 
+// Seleziona lingua con bandierine nei FORM (Add/Edit)
+function selectFormLanguage(btn, prefix) {
+  // Rimuovi active da tutti i bottoni nella stessa griglia
+  const grid = document.getElementById(`lingua${prefix}Grid`);
+  if (grid) {
+    grid.querySelectorAll('.form-flag-btn').forEach(b => b.classList.remove('active'));
+  }
+  
+  // Aggiungi active al selezionato
+  btn.classList.add('active');
+  
+  // Aggiorna valore nascosto
+  const lang = btn.getAttribute('data-lang');
+  const hiddenInput = document.getElementById(prefix === 'Add' ? 'linguaAdd' : 'editLingua');
+  if (hiddenInput) {
+    hiddenInput.value = lang;
+  }
+}
+
 // Toggle pulsante filtro
 function toggleFilterBtn(btnId) {
   const btn = document.getElementById(btnId);
@@ -858,6 +894,8 @@ function resetFiltri() {
   const fEspansione = document.getElementById('fEspansione');
   const fLingua = document.getElementById('fLingua');
   const filterGradedSection = document.getElementById('filterGradedSection');
+  const filterAltroInput = document.getElementById('filterAltroInput');
+  const fAltroCategoria = document.getElementById('fAltroCategoria');
   
   if (fNome) fNome.value = '';
   if (fCategoria) fCategoria.value = '';
@@ -870,6 +908,16 @@ function resetFiltri() {
   if (fEspansione) fEspansione.value = '';
   if (fLingua) fLingua.value = '';
   if (filterGradedSection) filterGradedSection.style.display = 'none';
+  if (filterAltroInput) filterAltroInput.style.display = 'none';
+  if (fAltroCategoria) fAltroCategoria.value = '';
+  
+  // Reset bandierine lingua - attiva solo "Tutte"
+  document.querySelectorAll('.flag-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.getAttribute('data-lang') === '') {
+      btn.classList.add('active');
+    }
+  });
   
   // Reset slider display
   const valueDisplay = document.getElementById('rangeValue');
@@ -1194,11 +1242,19 @@ async function aggiungiArticolo(event) {
     if (votoEl) votoGradazione = parseFloat(votoEl.value) || null;
   }
   
+  // Campo altra categoria
+  let altraCategoria = null;
+  if (categoria === 'Altro') {
+    const altraCatEl = document.getElementById('altraCategoriaAdd');
+    if (altraCatEl) altraCategoria = altraCatEl.value || null;
+  }
+  
   const articolo = {
     user_id: user.id,
     Nome: formData.get('Nome'),
     Descrizione: formData.get('Descrizione') || null,
     Categoria: categoria || null,
+    altra_categoria: altraCategoria,
     espansione: document.getElementById('espansioneAdd')?.value || null,
     lingua: document.getElementById('linguaAdd')?.value || null,
     condizione: document.getElementById('condizioneAdd')?.value || null,
@@ -1276,7 +1332,19 @@ async function apriModifica(articleId) {
   document.getElementById('editDescrizione').value = article.Descrizione || '';
   document.getElementById('editCategoria').value = article.Categoria || '';
   document.getElementById('editEspansione').value = article.espansione || '';
+  
+  // Seleziona bandierina lingua
   document.getElementById('editLingua').value = article.lingua || '';
+  const linguaGrid = document.getElementById('linguaEditGrid');
+  if (linguaGrid) {
+    linguaGrid.querySelectorAll('.form-flag-btn').forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.getAttribute('data-lang') === (article.lingua || '')) {
+        btn.classList.add('active');
+      }
+    });
+  }
+  
   document.getElementById('editCondizione').value = article.condizione || '';
   document.getElementById('editValoreAttuale').value = article.ValoreAttuale || 0;
   document.getElementById('editPrezzoPagato').value = article.PrezzoPagato || 0;
@@ -1294,7 +1362,7 @@ async function apriModifica(articleId) {
     prezzoGroup.style.display = article.in_vetrina ? 'block' : 'none';
   }
   
-  // Gestisci carte gradate
+  // Gestisci carte gradate e altro
   gestisciCarteGradate(article.Categoria || '', 'Edit');
   
   if (article.Categoria === 'Carte gradate') {
@@ -1310,6 +1378,14 @@ async function apriModifica(articleId) {
       gestisciAltraCasa(article.casa_gradazione || '', 'Edit');
       if (altraCasaInput) altraCasaInput.value = article.altra_casa_gradazione || '';
       if (votoInput) votoInput.value = article.voto_gradazione || '';
+    }, 50);
+  }
+  
+  // Gestisci altra categoria
+  if (article.Categoria === 'Altro') {
+    setTimeout(() => {
+      const altraCatInput = document.getElementById('altraCategoriaEdit');
+      if (altraCatInput) altraCatInput.value = article.altra_categoria || '';
     }, 50);
   }
   
@@ -1402,11 +1478,19 @@ async function salvaModifica(event) {
     if (casaGradazione === 'Altra casa' && altraCasaEl) altraCasaGradazione = altraCasaEl.value || null;
     if (votoEl) votoGradazione = parseFloat(votoEl.value) || null;
   }
+  
+  // Campo altra categoria
+  let altraCategoria = null;
+  if (categoria === 'Altro') {
+    const altraCatEl = document.getElementById('altraCategoriaEdit');
+    if (altraCatEl) altraCategoria = altraCatEl.value || null;
+  }
 
   const articolo = {
     Nome: formData.get('Nome'),
     Descrizione: formData.get('Descrizione') || null,
     Categoria: categoria || null,
+    altra_categoria: altraCategoria,
     espansione: document.getElementById('editEspansione')?.value || null,
     lingua: document.getElementById('editLingua')?.value || null,
     condizione: document.getElementById('editCondizione')?.value || null,
@@ -1675,3 +1759,4 @@ document.addEventListener('click', (e) => {
 // Export globale
 window.openDettaglio = openDettaglio;
 window.selectLanguage = selectLanguage;
+window.selectFormLanguage = selectFormLanguage;
