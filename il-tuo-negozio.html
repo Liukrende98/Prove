@@ -1610,6 +1610,50 @@
       pointer-events: auto;
       border: none;
     }
+    
+    /* BOTTONE VISUALIZZA PROFILO */
+    .profile-link-container {
+      margin: 0 12px 16px 12px;
+    }
+    
+    .btn-view-profile {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(251, 191, 36, 0.05) 100%);
+      border: 2px solid rgba(251, 191, 36, 0.3);
+      border-radius: 14px;
+      color: #fbbf24;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-view-profile:hover,
+    .btn-view-profile:active {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.25) 0%, rgba(251, 191, 36, 0.1) 100%);
+      border-color: #fbbf24;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+    }
+    
+    .btn-view-profile i:first-child {
+      font-size: 18px;
+      margin-right: 10px;
+    }
+    
+    .btn-view-profile span {
+      flex: 1;
+      text-align: left;
+    }
+    
+    .btn-view-profile i:last-child {
+      font-size: 12px;
+      opacity: 0.7;
+    }
   </style>
 </head>
 
@@ -1646,6 +1690,15 @@
   <div class="main-content">
     <!-- DASHBOARD -->
     <div class="dashboard" id="dashboard"></div>
+
+    <!-- BOTTONE VISUALIZZA PROFILO -->
+    <div class="profile-link-container" id="profileLinkContainer" style="display:none;">
+      <button class="btn-view-profile" onclick="goToMyProfile()">
+        <i class="fas fa-user-circle"></i>
+        <span>Visualizza il tuo profilo</span>
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
 
     <!-- FILTRI -->
     <div class="filter-box">
@@ -2290,6 +2343,31 @@
   <script>
     requireAuth();
     
+    // Funzione per andare al proprio profilo
+    async function goToMyProfile() {
+      const user = supabaseClient.auth.getUser ? (await supabaseClient.auth.getUser()).data.user : null;
+      if (!user) return;
+      
+      const { data } = await supabaseClient
+        .from('users')
+        .select('username')
+        .eq('id', user.id)
+        .single();
+      
+      if (data && data.username) {
+        window.location.href = `vetrina-venditore.html?vendor=${encodeURIComponent(data.username)}`;
+      }
+    }
+    
+    // Mostra bottone profilo quando utente loggato
+    async function initProfileButton() {
+      const user = supabaseClient.auth.getUser ? (await supabaseClient.auth.getUser()).data.user : null;
+      if (user) {
+        const container = document.getElementById('profileLinkContainer');
+        if (container) container.style.display = 'block';
+      }
+    }
+    
     window.addEventListener('DOMContentLoaded', async () => {
       // Attiva prima bandierina (Tutte) di default
       const firstFlag = document.querySelector('.flag-btn[data-lang=""]');
@@ -2297,6 +2375,9 @@
       
       // Carica articoli
       await caricaArticoli();
+      
+      // Mostra bottone profilo
+      await initProfileButton();
       
       // Controlla se c'è un parametro ?modifica= per aprire direttamente la modifica
       var urlParams = new URLSearchParams(window.location.search);
