@@ -1210,61 +1210,94 @@
     font-size: 28px;
   }
 }
-/* FILTRO NORMALE - NO ANIMAZIONE MINIMIZZATA */
-.vetrine-filter {
-  margin: 20px 12px 24px 12px;
-  background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-  border-radius: 20px;
-  border: 2px solid rgba(251, 191, 36, 0.3);
+/* FILTRO BOX - identico a il-tuo-negozio */
+.filter-box {
+  background: #141414;
+  border-radius: 12px;
+  margin: 12px;
+  margin-bottom: 15px;
+  border: 1px solid rgba(251, 191, 36, 0.2);
   overflow: hidden;
-  box-shadow: 0 6px 30px rgba(251, 191, 36, 0.2);
 }
 
-.filter-header {
-  padding: 16px;
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, transparent 100%);
-  border-bottom: 2px solid #fbbf24;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.filter-title {
-  font-size: 16px;
-  font-weight: 900;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* Ricerca sempre visibile */
+.filter-search-always {
   display: flex;
   align-items: center;
-  gap: 8px;
+  padding: 12px;
+  gap: 10px;
+  background: #1a1a1a;
 }
 
-.filter-toggle-icon {
+.filter-search-always i {
+  color: #666;
   font-size: 14px;
+}
+
+.filter-search-always input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+}
+
+.filter-search-always input::placeholder {
+  color: #666;
+}
+
+.filter-expand-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 10px;
   color: #fbbf24;
-  transition: transform 0.3s ease;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.vetrine-filter.expanded .filter-toggle-icon {
-  transform: rotate(180deg);
+.filter-expand-btn.active {
+  background: #fbbf24;
+  color: #0a0a0a;
 }
 
-.filter-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s ease;
+#filterBadge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 18px;
+  height: 18px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 9px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
 }
 
-.vetrine-filter.expanded .filter-content {
-  max-height: 2000px;
+#filterBadge.visible {
+  display: flex;
 }
 
 .filter-body {
-  padding: 16px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  padding: 0 12px;
+}
+
+.filter-body.open {
+  max-height: 2000px;
+  padding: 12px;
 }
 
 .filter-group {
@@ -1275,23 +1308,22 @@
   margin-bottom: 0;
 }
 
-.filter-label {
-  font-size: 12px;
-  font-weight: 800;
-  color: #9ca3af;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 10px;
+.filter-group label {
   display: flex;
   align-items: center;
   gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  margin-bottom: 8px;
 }
 
 .filter-input, .filter-select {
   width: 100%;
   padding: 12px 14px;
-  border-radius: 14px;
-  border: 2px solid rgba(251, 191, 36, 0.3);
+  border-radius: 10px;
+  border: 1px solid rgba(251, 191, 36, 0.2);
   background: #0a0a0a;
   color: #e5e7eb;
   font-size: 14px;
@@ -1303,7 +1335,59 @@
 .filter-input:focus, .filter-select:focus {
   outline: none;
   border-color: #fbbf24;
-  box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+}
+
+/* PAGINAZIONE */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  margin: 0 12px 12px 12px;
+  background: linear-gradient(135deg, #1f1f1f 0%, #1a1a1a 100%);
+  border-radius: 12px;
+  border: 1px solid #2a2a2a;
+}
+
+.pagination-info {
+  font-weight: 700;
+  color: #fbbf24;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.pagination-info span {
+  font-size: 14px;
+  font-weight: 900;
+  margin: 0 2px;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.pagination-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  background: rgba(251, 191, 36, 0.1);
+  color: #fbbf24;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: rgba(251, 191, 36, 0.2);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* PRICE SLIDER */
