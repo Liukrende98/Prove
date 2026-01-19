@@ -325,6 +325,64 @@
     .roi-gauge-value.profit { color: #22c55e; }
     .roi-gauge-value.loss { color: #ef4444; }
 
+    /* Griglia Bandierine Lingua nei FORM (tonde) */
+    .form-flags-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+    
+    .form-flag-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 4px;
+      background: rgba(255,255,255,0.03);
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .form-flag-btn:hover {
+      background: rgba(251, 191, 36, 0.1);
+      border-color: rgba(251, 191, 36, 0.3);
+    }
+    
+    .form-flag-btn.active {
+      background: rgba(251, 191, 36, 0.2);
+      border-color: #fbbf24;
+      box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+    }
+    
+    .form-flag-icon {
+      width: 32px;
+      height: 32px;
+      font-size: 28px;
+      line-height: 32px;
+      text-align: center;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.3);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    
+    .form-flag-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+    }
+    
+    .form-flag-btn.active .form-flag-label {
+      color: #fbbf24;
+    }
+
   </style></head>
 
 <body>
@@ -456,6 +514,12 @@
             </select>
           </div>
 
+          <!-- CAMPO SPECIFICA ALTRO (nascosto di default) -->
+          <div class="form-group" id="altraCategoriaGroupEdit" style="display:none;">
+            <label><i class="fas fa-edit"></i> SPECIFICA CATEGORIA *</label>
+            <input type="text" id="altraCategoriaEdit" name="AltraCategoria" placeholder="Descrivi la categoria...">
+          </div>
+
           <!-- CAMPI CARTE GRADATE (nascosti di default) -->
           <div class="form-group" id="casaGradazioneGroupEdit" style="display:none;">
             <label><i class="fas fa-certificate"></i> CASA DI GRADAZIONE *</label>
@@ -489,18 +553,45 @@
 
           <div class="form-group">
             <label><i class="fas fa-globe"></i> LINGUA</label>
-            <select name="Lingua" id="editLingua">
-              <option value="">Seleziona...</option>
-              <option value="ITA">Italiano</option>
-              <option value="ENG">Inglese</option>
-              <option value="JAP">Giapponese</option>
-              <option value="KOR">Coreano</option>
-              <option value="CHN">Cinese</option>
-              <option value="FRA">Francese</option>
-              <option value="GER">Tedesco</option>
-              <option value="SPA">Spagnolo</option>
-              <option value="POR">Portoghese</option>
-            </select>
+            <div class="form-flags-grid" id="linguaEditGrid">
+              <button type="button" class="form-flag-btn" data-lang="ITA" onclick="selectFormLanguageDetail(this)" title="Italiano">
+                <span class="form-flag-icon">🇮🇹</span>
+                <span class="form-flag-label">ITA</span>
+              </button>
+              <button type="button" class="form-flag-btn" data-lang="ENG" onclick="selectFormLanguageDetail(this)" title="Inglese">
+                <span class="form-flag-icon">🇬🇧</span>
+                <span class="form-flag-label">ENG</span>
+              </button>
+              <button type="button" class="form-flag-btn" data-lang="JAP" onclick="selectFormLanguageDetail(this)" title="Giapponese">
+                <span class="form-flag-icon">🇯🇵</span>
+                <span class="form-flag-label">JAP</span>
+              </button>
+              <button type="button" class="form-flag-btn" data-lang="KOR" onclick="selectFormLanguageDetail(this)" title="Coreano">
+                <span class="form-flag-icon">🇰🇷</span>
+                <span class="form-flag-label">KOR</span>
+              </button>
+              <button type="button" class="form-flag-btn" data-lang="CHN" onclick="selectFormLanguageDetail(this)" title="Cinese">
+                <span class="form-flag-icon">🇨🇳</span>
+                <span class="form-flag-label">CHN</span>
+              </button>
+              <button type="button" class="form-flag-btn" data-lang="FRA" onclick="selectFormLanguageDetail(this)" title="Francese">
+                <span class="form-flag-icon">🇫🇷</span>
+                <span class="form-flag-label">FRA</span>
+              </button>
+              <button type="button" class="form-flag-btn" data-lang="GER" onclick="selectFormLanguageDetail(this)" title="Tedesco">
+                <span class="form-flag-icon">🇩🇪</span>
+                <span class="form-flag-label">GER</span>
+              </button>
+              <button type="button" class="form-flag-btn" data-lang="SPA" onclick="selectFormLanguageDetail(this)" title="Spagnolo">
+                <span class="form-flag-icon">🇪🇸</span>
+                <span class="form-flag-label">SPA</span>
+              </button>
+              <button type="button" class="form-flag-btn" data-lang="POR" onclick="selectFormLanguageDetail(this)" title="Portoghese">
+                <span class="form-flag-icon">🇵🇹</span>
+                <span class="form-flag-label">POR</span>
+              </button>
+            </div>
+            <input type="hidden" name="Lingua" id="editLingua" value="">
           </div>
 
           <div class="form-group">
