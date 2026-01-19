@@ -960,6 +960,11 @@ function showArticoliList() {
   }
 }
 
+// Dati utenti per filtro ricerca
+var modalUsersData = [];
+var modalFollowingIds = [];
+var modalCurrentUserId = null;
+
 async function showFollowersList(userId) {
   console.log('👥 Caricamento follower di:', userId);
   followChangesInModal = false; // Reset flag
@@ -974,6 +979,11 @@ async function showFollowersList(userId) {
   }
   
   title.innerHTML = '<i class="fas fa-users"></i> Follower';
+  
+  // Reset ricerca
+  const searchInput = document.getElementById('modalUserSearch');
+  if (searchInput) searchInput.value = '';
+  
   content.innerHTML = '<div class="empty-state-small"><i class="fas fa-spinner fa-spin"></i><p>Caricamento...</p></div>';
   
   modal.style.display = 'flex';
@@ -996,55 +1006,34 @@ async function showFollowersList(userId) {
     
     if (error) {
       console.error('❌ Errore caricamento follower:', error);
-      content.innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore caricamento</p></div>';
+      document.getElementById('modalListContent').innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore caricamento</p></div>';
       return;
     }
     
     if (!followers || followers.length === 0) {
-      content.innerHTML = '<div class="empty-state-small"><i class="fas fa-user-slash"></i><p>Nessun follower ancora</p></div>';
+      document.getElementById('modalListContent').innerHTML = '<div class="empty-state-small"><i class="fas fa-user-slash"></i><p>Nessun follower ancora</p></div>';
       return;
     }
     
-    const currentUserId = getCurrentUserId();
+    modalCurrentUserId = getCurrentUserId();
     
     // Controlla chi già segui
     const { data: myFollowing } = await supabaseClient
       .from('Followers')
       .select('utente_seguito_id')
-      .eq('follower_id', currentUserId);
+      .eq('follower_id', modalCurrentUserId);
     
-    const followingIds = myFollowing ? myFollowing.map(f => f.utente_seguito_id) : [];
+    modalFollowingIds = myFollowing ? myFollowing.map(f => f.utente_seguito_id) : [];
     
-    content.innerHTML = followers.map(f => {
-      const user = f.follower;
-      const avatarInitials = user.username.substring(0, 2).toUpperCase();
-      const isMe = user.id === currentUserId;
-      const isFollowing = followingIds.includes(user.id);
-      
-      return `
-        <div class="user-list-item" onclick="window.location.href='vetrina-venditore.html?id=${user.id}'">
-          <div class="user-list-avatar">${avatarInitials}</div>
-          <div class="user-list-info">
-            <div class="user-list-username">${user.username}</div>
-            <div class="user-list-meta">
-              ${user.citta ? `<i class="fas fa-map-marker-alt"></i> ${user.citta}` : 'Utente NODO'}
-            </div>
-          </div>
-          ${!isMe ? `
-            <button class="user-list-action ${isFollowing ? 'secondary' : 'primary'}" 
-                    onclick="event.stopPropagation(); quickToggleFollow('${user.id}', this)">
-              ${isFollowing ? 'Seguito' : 'Segui'}
-            </button>
-          ` : ''}
-        </div>
-      `;
-    }).join('');
+    // Salva dati per filtro
+    modalUsersData = followers.map(f => f.follower);
     
+    renderModalUsers();
     console.log('✅ Follower caricati:', followers.length);
     
   } catch (error) {
     console.error('❌ Errore:', error);
-    content.innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore imprevisto</p></div>';
+    document.getElementById('modalListContent').innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore imprevisto</p></div>';
   }
 }
 
@@ -1062,6 +1051,11 @@ async function showFollowingList(userId) {
   }
   
   title.innerHTML = '<i class="fas fa-user-friends"></i> Seguiti';
+  
+  // Reset ricerca
+  const searchInput = document.getElementById('modalUserSearch');
+  if (searchInput) searchInput.value = '';
+  
   content.innerHTML = '<div class="empty-state-small"><i class="fas fa-spinner fa-spin"></i><p>Caricamento...</p></div>';
   
   modal.style.display = 'flex';
@@ -1084,56 +1078,93 @@ async function showFollowingList(userId) {
     
     if (error) {
       console.error('❌ Errore caricamento following:', error);
-      content.innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore caricamento</p></div>';
+      document.getElementById('modalListContent').innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore caricamento</p></div>';
       return;
     }
     
     if (!following || following.length === 0) {
-      content.innerHTML = '<div class="empty-state-small"><i class="fas fa-user-slash"></i><p>Non segue nessuno ancora</p></div>';
+      document.getElementById('modalListContent').innerHTML = '<div class="empty-state-small"><i class="fas fa-user-slash"></i><p>Non segue nessuno ancora</p></div>';
       return;
     }
     
-    const currentUserId = getCurrentUserId();
+    modalCurrentUserId = getCurrentUserId();
     
     // Controlla chi già segui
     const { data: myFollowing } = await supabaseClient
       .from('Followers')
       .select('utente_seguito_id')
-      .eq('follower_id', currentUserId);
+      .eq('follower_id', modalCurrentUserId);
     
-    const followingIds = myFollowing ? myFollowing.map(f => f.utente_seguito_id) : [];
+    modalFollowingIds = myFollowing ? myFollowing.map(f => f.utente_seguito_id) : [];
     
-    content.innerHTML = following.map(f => {
-      const user = f.seguito;
-      const avatarInitials = user.username.substring(0, 2).toUpperCase();
-      const isMe = user.id === currentUserId;
-      const isFollowing = followingIds.includes(user.id);
-      
-      return `
-        <div class="user-list-item" onclick="window.location.href='vetrina-venditore.html?id=${user.id}'">
-          <div class="user-list-avatar">${avatarInitials}</div>
-          <div class="user-list-info">
-            <div class="user-list-username">${user.username}</div>
-            <div class="user-list-meta">
-              ${user.citta ? `<i class="fas fa-map-marker-alt"></i> ${user.citta}` : 'Utente NODO'}
-            </div>
-          </div>
-          ${!isMe ? `
-            <button class="user-list-action ${isFollowing ? 'secondary' : 'primary'}" 
-                    onclick="event.stopPropagation(); quickToggleFollow('${user.id}', this)">
-              ${isFollowing ? 'Seguito' : 'Segui'}
-            </button>
-          ` : ''}
-        </div>
-      `;
-    }).join('');
+    // Salva dati per filtro
+    modalUsersData = following.map(f => f.seguito);
     
+    renderModalUsers();
     console.log('✅ Following caricati:', following.length);
     
   } catch (error) {
     console.error('❌ Errore:', error);
-    content.innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore imprevisto</p></div>';
+    document.getElementById('modalListContent').innerHTML = '<div class="empty-state-small"><i class="fas fa-exclamation-circle"></i><p>Errore imprevisto</p></div>';
   }
+}
+
+// Render lista utenti nel modal
+function renderModalUsers(filteredUsers = null) {
+  const container = document.getElementById('modalListContent');
+  if (!container) return;
+  
+  const users = filteredUsers || modalUsersData;
+  
+  if (users.length === 0) {
+    container.innerHTML = '<div class="empty-state-small"><i class="fas fa-search"></i><p>Nessun risultato</p></div>';
+    return;
+  }
+  
+  container.innerHTML = users.map(user => {
+    const avatarInitials = user.username.substring(0, 2).toUpperCase();
+    const isMe = user.id === modalCurrentUserId;
+    const isFollowing = modalFollowingIds.includes(user.id);
+    
+    return `
+      <div class="user-list-item" onclick="window.location.href='vetrina-venditore.html?id=${user.id}'">
+        <div class="user-list-avatar">${avatarInitials}</div>
+        <div class="user-list-info">
+          <div class="user-list-username">${user.username}</div>
+          <div class="user-list-meta">
+            ${user.citta ? `<i class="fas fa-map-marker-alt"></i> ${user.citta}` : 'Utente NODO'}
+          </div>
+        </div>
+        ${!isMe ? `
+          <button class="user-list-action ${isFollowing ? 'secondary' : 'primary'}" 
+                  onclick="event.stopPropagation(); quickToggleFollow('${user.id}', this)">
+            ${isFollowing ? 'Seguito' : 'Segui'}
+          </button>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+// Filtra utenti nel modal
+function filterModalUsers() {
+  const searchInput = document.getElementById('modalUserSearch');
+  if (!searchInput) return;
+  
+  const query = searchInput.value.toLowerCase().trim();
+  
+  if (!query) {
+    renderModalUsers();
+    return;
+  }
+  
+  const filtered = modalUsersData.filter(user => {
+    return user.username.toLowerCase().includes(query) ||
+           (user.nome_completo && user.nome_completo.toLowerCase().includes(query)) ||
+           (user.citta && user.citta.toLowerCase().includes(query));
+  });
+  
+  renderModalUsers(filtered);
 }
 
 // Flag per tracciare modifiche follow nel modal
@@ -1278,4 +1309,6 @@ window.showArticoliList = showArticoliList;
 window.showFollowersList = showFollowersList;
 window.showFollowingList = showFollowingList;
 window.closeListModal = closeListModal;
+window.filterModalUsers = filterModalUsers;
+window.renderModalUsers = renderModalUsers;
 window.quickToggleFollow = quickToggleFollow;
