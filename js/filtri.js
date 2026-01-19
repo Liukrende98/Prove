@@ -491,18 +491,6 @@
               </div>
             </div>
             
-            <div class="nodo-filter-group">
-              <label>Valutazione Minima</label>
-              <select id="nodoFStato">
-                <option value="">Tutte</option>
-                <option value="5">5+</option>
-                <option value="6">6+</option>
-                <option value="7">7+</option>
-                <option value="8">8+</option>
-                <option value="9">9+</option>
-              </select>
-            </div>
-            
             <div class="nodo-filter-toggles">
               <button class="nodo-toggle active" id="nodoTPresenti"><i class="fas fa-box"></i> Presenti</button>
               <button class="nodo-toggle active" id="nodoTAssenti"><i class="fas fa-box-open"></i> Assenti</button>
@@ -542,7 +530,7 @@
       });
       
       // Select (incluso condizione)
-      ['nodoFCasa', 'nodoFVoto', 'nodoFStato', 'nodoFCondizione'].forEach(id => {
+      ['nodoFCasa', 'nodoFVoto', 'nodoFCondizione'].forEach(id => {
         document.getElementById(id)?.addEventListener('change', () => self.apply());
       });
       
@@ -616,7 +604,6 @@
         votoGradazione: parseFloat(document.getElementById('nodoFVoto')?.value) || 0,
         valoreMin: parseFloat(document.getElementById('nodoFMin')?.value) || 0,
         valoreMax: parseFloat(document.getElementById('nodoFMax')?.value) || 10000,
-        statoMin: parseInt(document.getElementById('nodoFStato')?.value) || 0,
         presenti: document.getElementById('nodoTPresenti')?.classList.contains('active') ?? true,
         assenti: document.getElementById('nodoTAssenti')?.classList.contains('active') ?? true,
         profit: document.getElementById('nodoTProfit')?.classList.contains('active') ?? true,
@@ -641,7 +628,6 @@
       if (v.votoGradazione) count++;
       if (v.valoreMin > 0) count++;
       if (v.valoreMax < 10000) count++;
-      if (v.statoMin) count++;
       if (!v.presenti) count++;
       if (!v.assenti) count++;
       if (!v.profit) count++;
@@ -660,7 +646,6 @@
       document.getElementById('nodoFVoto').value = '';
       document.getElementById('nodoFMin').value = 0;
       document.getElementById('nodoFMax').value = 10000;
-      document.getElementById('nodoFStato').value = '';
       document.getElementById('nodoFGraded').style.display = 'none';
       
       // Reset condizione
