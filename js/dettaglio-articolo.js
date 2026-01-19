@@ -240,6 +240,17 @@ function renderArticolo(articolo) {
   console.log('   - articolo.user_id:', articolo.user_id);
   console.log('   - isMyArticle:', isMyArticle);
   
+  // STATISTICHE PROPRIETARIO - Solo se è tuo articolo
+  var statsContainer = document.getElementById('ownerStatsSection');
+  if (statsContainer) {
+    if (isMyArticle) {
+      statsContainer.style.display = 'block';
+      renderOwnerStats(articolo);
+    } else {
+      statsContainer.style.display = 'none';
+    }
+  }
+  
   if (isMyArticle) {
     // È un tuo articolo - mostra bottone Modifica
     footerActions.innerHTML = 
@@ -253,6 +264,94 @@ function renderArticolo(articolo) {
         '<i class="fas fa-envelope"></i> Contatta Venditore' +
       '</button>';
   }
+}
+
+// Renderizza statistiche proprietario
+function renderOwnerStats(articolo) {
+  var container = document.getElementById('ownerStatsContent');
+  if (!container) return;
+  
+  var prezzo = parseFloat(articolo.PrezzoPagato || 0);
+  var valore = parseFloat(articolo.ValoreAttuale || 0);
+  var vendita = parseFloat(articolo.prezzo_vendita || 0);
+  
+  var delta = valore - prezzo;
+  var deltaPercent = prezzo > 0 ? ((delta / prezzo) * 100) : 0;
+  var deltaClass = delta >= 0 ? 'profit' : 'loss';
+  var deltaIcon = delta >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+  
+  var marginePotenziale = vendita > 0 ? (vendita - prezzo) : 0;
+  var marginePercent = prezzo > 0 && vendita > 0 ? ((marginePotenziale / prezzo) * 100) : 0;
+  var margineClass = marginePotenziale >= 0 ? 'profit' : 'loss';
+  
+  var roi = prezzo > 0 ? ((delta / prezzo) * 100).toFixed(1) : '0.0';
+  
+  container.innerHTML = `
+    <!-- Header Portfolio -->
+    <div class="owner-stats-header">
+      <div class="stats-main-value">
+        <span class="stats-label">VALORE DI MERCATO</span>
+        <span class="stats-amount">${valore.toFixed(2)} <small>EUR</small></span>
+      </div>
+      <div class="stats-change ${deltaClass}">
+        <i class="fas ${deltaIcon}"></i>
+        <span>${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €</span>
+        <span class="change-percent">(${delta >= 0 ? '+' : ''}${roi}%)</span>
+      </div>
+    </div>
+    
+    <!-- Mini Chart -->
+    <div class="stats-mini-chart">
+      <div class="mini-chart-line ${deltaClass}"></div>
+      <div class="mini-chart-dot ${deltaClass}"></div>
+    </div>
+    
+    <!-- Metriche -->
+    <div class="stats-metrics">
+      <div class="stat-metric">
+        <div class="metric-icon cost"><i class="fas fa-shopping-cart"></i></div>
+        <div class="metric-info">
+          <span class="metric-label">Prezzo Acquisto</span>
+          <span class="metric-value">${prezzo.toFixed(2)} €</span>
+        </div>
+      </div>
+      
+      <div class="stat-metric">
+        <div class="metric-icon ${deltaClass}"><i class="fas fa-chart-line"></i></div>
+        <div class="metric-info">
+          <span class="metric-label">${delta >= 0 ? 'Guadagno' : 'Perdita'} Potenziale</span>
+          <span class="metric-value ${deltaClass}">${delta >= 0 ? '+' : ''}${delta.toFixed(2)} €</span>
+        </div>
+      </div>
+      
+      <div class="stat-metric">
+        <div class="metric-icon roi"><i class="fas fa-percentage"></i></div>
+        <div class="metric-info">
+          <span class="metric-label">ROI</span>
+          <span class="metric-value ${deltaClass}">${delta >= 0 ? '+' : ''}${roi}%</span>
+        </div>
+      </div>
+      
+      ${vendita > 0 ? `
+      <div class="stat-metric">
+        <div class="metric-icon ${margineClass}"><i class="fas fa-tag"></i></div>
+        <div class="metric-info">
+          <span class="metric-label">Margine Vendita</span>
+          <span class="metric-value ${margineClass}">${marginePotenziale >= 0 ? '+' : ''}${marginePotenziale.toFixed(2)} € (${marginePercent.toFixed(1)}%)</span>
+        </div>
+      </div>
+      ` : ''}
+    </div>
+    
+    <!-- ROI Gauge -->
+    <div class="roi-gauge-container">
+      <div class="roi-gauge-label">Performance Investimento</div>
+      <div class="roi-gauge">
+        <div class="roi-gauge-fill ${deltaClass}" style="width: ${Math.min(Math.abs(deltaPercent), 100)}%"></div>
+      </div>
+      <div class="roi-gauge-value ${deltaClass}">${delta >= 0 ? '+' : ''}${roi}%</div>
+    </div>
+  `;
 }
 
 // Renderizza galleria foto
