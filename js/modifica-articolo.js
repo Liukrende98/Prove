@@ -1,7 +1,7 @@
 // ========================================
-// MODIFICA-ARTICOLO.JS
+// MODIFICA-ARTICOLO.JS v2.0
 // Modulo autonomo per la modifica articoli
-// Può essere usato da qualsiasi pagina
+// Include HTML + CSS + JS completo
 // ========================================
 
 var editImages = [];
@@ -10,390 +10,589 @@ var MAX_IMAGES = 6;
 var currentEditArticle = null;
 
 // ========================================
-// INIZIALIZZAZIONE - Inietta modal nel DOM
+// INIZIALIZZAZIONE - Inietta modal e CSS nel DOM
 // ========================================
 function initModificaArticolo() {
-  if (document.getElementById('modalEdit')) {
+  if (document.getElementById('modalEditStandalone')) {
     console.log('📝 Modal modifica già presente');
     return;
   }
   
-  var modalHtml = `
-  <div class="modal-edit" id="modalEdit">
-    <div class="modal-edit-content">
-      <div class="modal-header">
-        <h2 class="modal-title"><i class="fas fa-edit"></i> MODIFICA ARTICOLO</h2>
-        <button class="modal-close" onclick="closeEditModal()">✕</button>
-      </div>
-
-      <div id="editMsg" class="msg"></div>
-
-      <form id="formEdit" onsubmit="salvaModifica(event)">
-        <input type="hidden" id="editId">
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label><i class="fas fa-tag"></i> NOME</label>
-            <input type="text" id="editNome" name="Nome" required>
-          </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-layer-group"></i> CATEGORIA</label>
-            <select id="editCategoria" name="Categoria" onchange="gestisciCarteGradate(this.value, 'Edit')">
-              <option value="">Seleziona...</option>
-              <option value="ETB">ETB</option>
-              <option value="Carte Singole">Carte Singole</option>
-              <option value="Carte gradate">Carte gradate</option>
-              <option value="Booster Box">Booster Box</option>
-              <option value="Collection Box">Collection Box</option>
-              <option value="Box mini tin">Box mini tin</option>
-              <option value="Bustine">Bustine</option>
-              <option value="Accessori">Accessori</option>
-              <option value="Altro">Altro</option>
-            </select>
-          </div>
-
-          <!-- CAMPI CARTE GRADATE -->
-          <div class="form-group" id="casaGradazioneGroupEdit" style="display:none;">
-            <label><i class="fas fa-certificate"></i> CASA DI GRADAZIONE *</label>
-            <select id="casaGradazioneEdit" name="CasaGradazione" onchange="gestisciAltraCasa(this.value, 'Edit')">
-              <option value="">Seleziona casa...</option>
-              <option value="PSA">PSA</option>
-              <option value="GRAAD">GRAAD</option>
-              <option value="Altra casa">Altra casa</option>
-            </select>
-          </div>
-
-          <div class="form-group" id="altraCasaGradazioneGroupEdit" style="display:none;">
-            <label><i class="fas fa-edit"></i> SPECIFICA CASA DI GRADAZIONE *</label>
-            <input type="text" id="altraCasaGradazioneEdit" name="AltraCasaGradazione" placeholder="es. BGS, CGC, etc.">
-          </div>
-
-          <div class="form-group" id="votoGradazioneGroupEdit" style="display:none;">
-            <label><i class="fas fa-star"></i> VOTO GRADAZIONE *</label>
-            <input type="number" id="votoGradazioneEdit" name="VotoGradazione" min="1" max="10" step="0.5" placeholder="es. 9.5">
-          </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-align-left"></i> DESCRIZIONE</label>
-            <textarea id="editDescrizione" name="Descrizione"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-box-open"></i> ESPANSIONE / SET</label>
-            <input type="text" name="Espansione" id="editEspansione" placeholder="es. Scarlet & Violet, 151, Prismatic...">
-          </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-globe"></i> LINGUA</label>
-            <select name="Lingua" id="editLingua">
-              <option value="">Seleziona...</option>
-              <option value="ITA">Italiano</option>
-              <option value="ENG">Inglese</option>
-              <option value="JAP">Giapponese</option>
-              <option value="KOR">Coreano</option>
-              <option value="CHN">Cinese</option>
-              <option value="FRA">Francese</option>
-              <option value="GER">Tedesco</option>
-              <option value="SPA">Spagnolo</option>
-              <option value="POR">Portoghese</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-certificate"></i> CONDIZIONE</label>
-            <select name="Condizione" id="editCondizione">
-              <option value="">Seleziona...</option>
-              <option value="Mint">Mint (M) - Perfetta</option>
-              <option value="Near Mint">Near Mint (NM) - Quasi perfetta</option>
-              <option value="Excellent">Excellent (EX) - Eccellente</option>
-              <option value="Good">Good (GD) - Buona</option>
-              <option value="Light Played">Light Played (LP) - Leggermente giocata</option>
-              <option value="Played">Played (PL) - Giocata</option>
-              <option value="Poor">Poor (P) - Scarsa</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-gem"></i> VALORE ATTUALE (€)</label>
-            <input type="number" id="editValoreAttuale" name="ValoreAttuale" step="0.01" required oninput="calcolaDeltaEdit()">
-          </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-receipt"></i> PREZZO PAGATO (€)</label>
-            <input type="number" id="editPrezzoPagato" name="PrezzoPagato" step="0.01" required oninput="calcolaDeltaEdit()">
-          </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-chart-line"></i> DELTA (€)</label>
-            <input type="text" id="editDelta" readonly style="background:#2a2a2a; cursor:not-allowed;">
-          </div>
-
-          <div class="form-group">
-            <label><i class="fas fa-star"></i> VALUTAZIONE STATO (1-10)</label>
-            <input type="number" id="editStato" name="ValutazioneStato" min="1" max="10">
-          </div>
-
-          <!-- UPLOAD FOTO -->
-          <div class="form-group">
-            <label><i class="fas fa-camera"></i> FOTO ARTICOLO</label>
-            <input type="file" id="editImageInput" accept="image/*" multiple class="hidden-file-input" onchange="onEditImageSelect(this)">
-            <div id="editImagesContainer"></div>
-          </div>
-
-          <div class="form-group" style="border-top: 2px solid #2a2a2a; padding-top: 20px; margin-top: 20px;">
-            <label style="font-size: 16px; color: #fbbf24;">
-              <i class="fas fa-store"></i> VETRINA
-            </label>
-          </div>
-
-          <div class="checkbox-wrapper">
-            <input type="checkbox" id="editInVetrina" name="InVetrina" onchange="togglePrezzoVendita()">
-            <span><i class="fas fa-store-alt"></i> Metti in vetrina (visibile a tutti)</span>
-          </div>
-
-          <div class="form-group" id="prezzoVenditaGroupEdit" style="display:none;">
-            <label><i class="fas fa-tag"></i> PREZZO DI VENDITA (€)</label>
-            <input type="number" id="editPrezzoVendita" name="PrezzoVendita" step="0.01" min="0">
-          </div>
-
-          <div class="checkbox-wrapper">
-            <input type="checkbox" id="editPresente" name="Presente">
-            <span><i class="fas fa-box"></i> Articolo presente fisicamente</span>
-          </div>
-        </div>
-
-        <button type="submit" class="btn-submit">
-          <i class="fas fa-save"></i> SALVA MODIFICHE
-        </button>
-
-        <button type="button" class="btn-delete" onclick="eliminaArticolo()">
-          <i class="fas fa-trash"></i> ELIMINA ARTICOLO
-        </button>
-      </form>
-    </div>
-  </div>
-  `;
-  
-  // Inietta CSS se non presente
+  // CSS IDENTICO all'originale
   if (!document.getElementById('modifica-articolo-styles')) {
     var styles = document.createElement('style');
     styles.id = 'modifica-articolo-styles';
     styles.textContent = `
-      .modal-edit {
+      /* ========== MODAL MODIFICA ========== */
+      .modal-edit-standalone {
         display: none;
         position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.95);
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
         z-index: 10000;
-        overflow-y: auto;
+        align-items: center;
+        justify-content: center;
         padding: 20px;
+        animation: modalFadeIn 0.4s ease;
       }
-      .modal-edit.active { display: block; }
-      .modal-edit-content {
+      
+      .modal-edit-standalone.active {
+        display: flex;
+      }
+      
+      .modal-edit-standalone.closing {
+        animation: modalFadeOut 0.4s ease;
+      }
+      
+      @keyframes modalFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      
+      @keyframes modalFadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+      }
+      
+      .modal-edit-standalone .modal-content {
         background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-        border-radius: 24px;
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 24px;
-        border: 2px solid #fbbf24;
+        border-radius: 28px;
+        padding: 28px;
+        max-width: 95vw;
+        width: 100%;
+        max-height: 95vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 80px rgba(251, 191, 36, 0.4);
+        animation: modalScaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        border: 3px solid #fbbf24;
+        position: relative;
+        margin: auto;
       }
-      .modal-edit .modal-header {
+      
+      .modal-edit-standalone.closing .modal-content {
+        animation: modalScaleOut 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      }
+      
+      @keyframes modalScaleIn {
+        from { transform: scale(0.8) rotate(-5deg); opacity: 0; }
+        to { transform: scale(1) rotate(0); opacity: 1; }
+      }
+      
+      @keyframes modalScaleOut {
+        from { transform: scale(1) rotate(0); opacity: 1; }
+        to { transform: scale(0.8) rotate(5deg); opacity: 0; }
+      }
+      
+      .modal-edit-standalone .modal-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
-        padding-bottom: 15px;
-        border-bottom: 2px solid #2a2a2a;
+        margin-bottom: 24px;
       }
-      .modal-edit .modal-title {
-        font-size: 20px;
+      
+      .modal-edit-standalone .modal-title {
+        font-size: 24px;
         font-weight: 900;
-        color: #fbbf24;
-        margin: 0;
-      }
-      .modal-edit .modal-close {
-        background: none;
-        border: 2px solid #ef4444;
-        color: #ef4444;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        font-size: 20px;
-        cursor: pointer;
-      }
-      .modal-edit .form-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-      }
-      .modal-edit .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-      .modal-edit .form-group label {
-        font-size: 13px;
-        font-weight: 800;
-        color: #fbbf24;
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         text-transform: uppercase;
+        letter-spacing: 1px;
       }
-      .modal-edit .form-group input,
-      .modal-edit .form-group select,
-      .modal-edit .form-group textarea {
-        padding: 14px;
-        background: #0a0a0a;
-        border: 2px solid #3b82f6;
-        border-radius: 12px;
-        color: #fff;
-        font-size: 16px;
-        font-weight: 600;
-      }
-      .modal-edit .form-group textarea {
-        min-height: 100px;
-        resize: vertical;
-      }
-      .modal-edit .checkbox-wrapper {
+      
+      .modal-edit-standalone .modal-close {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: none;
+        background: #2a2a2a;
+        cursor: pointer;
+        font-size: 24px;
+        color: #e5e7eb;
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 12px;
-        background: rgba(59, 130, 246, 0.1);
-        border-radius: 12px;
+        justify-content: center;
       }
-      .modal-edit .checkbox-wrapper input[type="checkbox"] {
+      
+      .modal-edit-standalone .modal-close:hover,
+      .modal-edit-standalone .modal-close:active {
+        background: #ef4444;
+        color: #fff;
+        transform: rotate(90deg);
+      }
+      
+      /* ========== FORM ========== */
+      .modal-edit-standalone .form-grid {
+        display: grid;
+        gap: 20px;
+      }
+      
+      .modal-edit-standalone .form-group {
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .modal-edit-standalone .form-group label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 10px;
+        font-weight: 700;
+        color: #fbbf24;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .modal-edit-standalone .form-group input,
+      .modal-edit-standalone .form-group textarea {
+        width: 100%;
+        padding: 16px;
+        border-radius: 16px;
+        border: 2px solid #2a2a2a;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #0a0a0a;
+        color: #e5e7eb;
+        font-weight: 500;
+        box-sizing: border-box;
+      }
+      
+      .modal-edit-standalone .form-group input::placeholder,
+      .modal-edit-standalone .form-group textarea::placeholder {
+        color: #6b7280;
+      }
+      
+      .modal-edit-standalone .form-group input:focus,
+      .modal-edit-standalone .form-group textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: #1a1a1a;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+      }
+      
+      .modal-edit-standalone .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+        font-family: inherit;
+      }
+      
+      .modal-edit-standalone .form-group select {
+        width: 100%;
+        padding: 16px;
+        padding-right: 40px;
+        border-radius: 16px;
+        border: 2px solid #2a2a2a;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #0a0a0a;
+        color: #e5e7eb;
+        font-weight: 500;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23fbbf24' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        box-sizing: border-box;
+      }
+      
+      .modal-edit-standalone .form-group select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background-color: #1a1a1a;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23fbbf24' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      }
+      
+      .modal-edit-standalone .form-group select option {
+        background: #1a1a1a;
+        color: #e5e7eb;
+        padding: 12px;
+      }
+      
+      .modal-edit-standalone .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        background: #0a0a0a;
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid #2a2a2a;
+      }
+      
+      .modal-edit-standalone .checkbox-wrapper:active {
+        background: #1a1a1a;
+        border-color: #3a3a3a;
+      }
+      
+      .modal-edit-standalone .checkbox-wrapper input[type="checkbox"] {
         width: 24px;
         height: 24px;
-        accent-color: #fbbf24;
+        margin-right: 14px;
+        cursor: pointer;
+        accent-color: #3b82f6;
       }
-      .modal-edit .checkbox-wrapper span {
+      
+      .modal-edit-standalone .checkbox-wrapper span {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         color: #e5e7eb;
         font-weight: 600;
       }
-      .modal-edit .btn-submit {
+      
+      .modal-edit-standalone .btn-submit {
         width: 100%;
-        padding: 16px;
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        padding: 20px;
+        border-radius: 16px;
         border: none;
-        border-radius: 14px;
-        color: #fff;
-        font-size: 16px;
-        font-weight: 900;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        font-size: 18px;
+        font-weight: 800;
         cursor: pointer;
-        margin-top: 20px;
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        margin-top: 24px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
       }
-      .modal-edit .btn-delete {
+      
+      .modal-edit-standalone .btn-submit:active {
+        transform: scale(0.95);
+        box-shadow: 0 12px 35px rgba(59, 130, 246, 0.6);
+      }
+      
+      .modal-edit-standalone .btn-delete {
         width: 100%;
         padding: 16px;
-        background: transparent;
-        border: 2px solid #ef4444;
-        border-radius: 14px;
-        color: #ef4444;
-        font-size: 16px;
-        font-weight: 900;
+        border-radius: 16px;
+        border: none;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        font-size: 15px;
+        font-weight: 800;
         cursor: pointer;
-        margin-top: 12px;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        margin-top: 24px;
       }
-      .modal-edit .msg {
-        padding: 12px;
-        border-radius: 10px;
-        margin-bottom: 15px;
-        font-weight: 700;
-        text-align: center;
+      
+      .modal-edit-standalone .btn-delete:active {
+        transform: scale(0.95);
+        box-shadow: 0 10px 30px rgba(239, 68, 68, 0.6);
+      }
+      
+      /* ========== MESSAGGI ========== */
+      .modal-edit-standalone .msg {
+        padding: 18px 24px;
+        border-radius: 16px;
+        margin-bottom: 20px;
         display: none;
+        font-weight: 700;
+        animation: msgSlideIn 0.4s ease;
+        border: 3px solid;
+        font-size: 15px;
       }
-      .modal-edit .msg.success {
-        background: rgba(34, 197, 94, 0.2);
-        color: #22c55e;
-        border: 1px solid #22c55e;
+      
+      @keyframes msgSlideIn {
+        from { opacity: 0; transform: translateX(-30px); }
+        to { opacity: 1; transform: translateX(0); }
       }
-      .modal-edit .msg.error {
-        background: rgba(239, 68, 68, 0.2);
+      
+      .modal-edit-standalone .msg.success {
+        background: rgba(59, 130, 246, 0.15);
+        color: #3b82f6;
+        border-color: #3b82f6;
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+      }
+      
+      .modal-edit-standalone .msg.error {
+        background: rgba(239, 68, 68, 0.15);
         color: #ef4444;
-        border: 1px solid #ef4444;
+        border-color: #ef4444;
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
       }
-      .modal-edit .img-grid {
+      
+      /* ========== GRIGLIA IMMAGINI ========== */
+      .modal-edit-standalone .img-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 10px;
+        margin-bottom: 10px;
       }
-      .modal-edit .img-item {
+      
+      .modal-edit-standalone .img-item {
         position: relative;
         aspect-ratio: 1;
-        border-radius: 12px;
+        border-radius: 10px;
         overflow: hidden;
-        border: 2px solid #3b82f6;
+        border: 2px solid rgba(251, 191, 36, 0.3);
       }
-      .modal-edit .img-item img {
+      
+      .modal-edit-standalone .img-item img {
         width: 100%;
         height: 100%;
         object-fit: cover;
       }
-      .modal-edit .img-remove {
+      
+      .modal-edit-standalone .img-remove {
         position: absolute;
-        top: 4px; right: 4px;
-        width: 24px; height: 24px;
+        top: 5px;
+        right: 5px;
+        width: 24px;
+        height: 24px;
         background: #ef4444;
+        color: white;
         border: none;
         border-radius: 50%;
-        color: #fff;
-        font-size: 14px;
+        font-size: 16px;
+        font-weight: bold;
         cursor: pointer;
-      }
-      .modal-edit .img-num {
-        position: absolute;
-        bottom: 4px; left: 4px;
-        background: #fbbf24;
-        color: #000;
-        width: 20px; height: 20px;
-        border-radius: 50%;
-        font-size: 11px;
-        font-weight: 900;
         display: flex;
         align-items: center;
         justify-content: center;
       }
-      .modal-edit .img-add {
+      
+      .modal-edit-standalone .img-num {
+        position: absolute;
+        bottom: 5px;
+        left: 5px;
+        background: rgba(0,0,0,0.7);
+        color: #fbbf24;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+      
+      .modal-edit-standalone .img-add {
         aspect-ratio: 1;
-        border: 2px dashed #3b82f6;
-        border-radius: 12px;
+        border: 2px dashed rgba(251, 191, 36, 0.4);
+        border-radius: 10px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        color: #3b82f6;
+        color: #fbbf24;
+        gap: 5px;
+        background: rgba(251, 191, 36, 0.05);
       }
-      .modal-edit .img-add i { font-size: 24px; }
-      .modal-edit .img-add span { font-size: 11px; margin-top: 4px; }
-      .modal-edit .hidden-file-input { display: none; }
+      
+      .modal-edit-standalone .img-add i {
+        font-size: 24px;
+      }
+      
+      .modal-edit-standalone .img-add span {
+        font-size: 11px;
+      }
+      
+      .modal-edit-standalone .img-hint {
+        font-size: 12px;
+        color: #888;
+        text-align: center;
+        margin: 0;
+      }
+      
+      .modal-edit-standalone .hidden-file-input {
+        display: none;
+      }
+      
+      .modal-edit-standalone .section-divider {
+        border-top: 2px solid #2a2a2a;
+        padding-top: 20px;
+        margin-top: 20px;
+      }
+      
+      .modal-edit-standalone .section-title {
+        font-size: 16px;
+        color: #fbbf24;
+        font-weight: 700;
+      }
+      
+      /* ========== MOBILE OPTIMIZATION ========== */
+      @media (max-width: 768px) {
+        .modal-edit-standalone .modal-content {
+          padding: 20px;
+          border-radius: 20px;
+        }
+        
+        .modal-edit-standalone .form-group input,
+        .modal-edit-standalone .form-group select,
+        .modal-edit-standalone .form-group textarea {
+          font-size: 16px !important;
+        }
+      }
     `;
     document.head.appendChild(styles);
   }
   
-  // Inietta HTML nel body
+  // HTML del modal
+  var modalHtml = '<div class="modal-edit-standalone" id="modalEditStandalone">' +
+    '<div class="modal-content">' +
+      '<div class="modal-header">' +
+        '<h2 class="modal-title"><i class="fas fa-edit"></i> MODIFICA ARTICOLO</h2>' +
+        '<button class="modal-close" onclick="closeEditModal()">✕</button>' +
+      '</div>' +
+      '<div id="editMsgStandalone" class="msg"></div>' +
+      '<form id="formEditStandalone" onsubmit="salvaModifica(event)">' +
+        '<input type="hidden" id="editIdStandalone">' +
+        '<div class="form-grid">' +
+          '<div class="form-group">' +
+            '<label><i class="fas fa-tag"></i> NOME</label>' +
+            '<input type="text" id="editNomeStandalone" name="Nome" required>' +
+          '</div>' +
+          '<div class="form-group">' +
+            '<label><i class="fas fa-layer-group"></i> CATEGORIA</label>' +
+            '<select id="editCategoriaStandalone" name="Categoria" onchange="gestisciCarteGradate(this.value, \'Standalone\')">' +
+              '<option value="">Seleziona...</option>' +
+              '<option value="ETB">ETB</option>' +
+              '<option value="Carte Singole">Carte Singole</option>' +
+              '<option value="Carte gradate">Carte gradate</option>' +
+              '<option value="Booster Box">Booster Box</option>' +
+              '<option value="Collection Box">Collection Box</option>' +
+              '<option value="Box mini tin">Box mini tin</option>' +
+              '<option value="Bustine">Bustine</option>' +
+              '<option value="Accessori">Accessori</option>' +
+              '<option value="Altro">Altro</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="form-group" id="casaGradazioneGroupStandalone" style="display:none;">' +
+            '<label><i class="fas fa-certificate"></i> CASA DI GRADAZIONE *</label>' +
+            '<select id="casaGradazioneStandalone" name="CasaGradazione" onchange="gestisciAltraCasa(this.value, \'Standalone\')">' +
+              '<option value="">Seleziona casa...</option>' +
+              '<option value="PSA">PSA</option>' +
+              '<option value="GRAAD">GRAAD</option>' +
+              '<option value="Altra casa">Altra casa</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="form-group" id="altraCasaGradazioneGroupStandalone" style="display:none;">' +
+            '<label><i class="fas fa-edit"></i> SPECIFICA CASA DI GRADAZIONE *</label>' +
+            '<input type="text" id="altraCasaGradazioneStandalone" name="AltraCasaGradazione" placeholder="es. BGS, CGC, etc.">' +
+          '</div>' +
+          '<div class="form-group" id="votoGradazioneGroupStandalone" style="display:none;">' +
+            '<label><i class="fas fa-star"></i> VOTO GRADAZIONE *</label>' +
+            '<input type="number" id="votoGradazioneStandalone" name="VotoGradazione" min="1" max="10" step="0.5" placeholder="es. 9.5">' +
+          '</div>' +
+          '<div class="form-group">' +
+            '<label><i class="fas fa-align-left"></i> DESCRIZIONE</label>' +
+            '<textarea id="editDescrizioneStandalone" name="Descrizione"></textarea>' +
+          '</div>' +
+          '<div class="form-group">' +
+            '<label><i class="fas fa-box-open"></i> ESPANSIONE / SET</label>' +
+            '<input type="text" name="Espansione" id="editEspansioneStandalone" placeholder="es. Scarlet & Violet, 151, Prismatic...">' +
+          '</div>' +
+          '<div class="form-group">' +
+            '<label><i class="fas fa-globe"></i> LINGUA</label>' +
+            '<select name="Lingua" id="editLinguaStandalone">' +
+              '<option value="">Seleziona...</option>' +
+              '<option value="ITA">Italiano</option>' +
+              '<option value="ENG">Inglese</option>' +
+              '<option value="JAP">Giapponese</option>' +
+              '<option value="KOR">Coreano</option>' +
+              '<option value="CHN">Cinese</option>' +
+              '<option value="FRA">Francese</option>' +
+              '<option value="GER">Tedesco</option>' +
+              '<option value="SPA">Spagnolo</option>' +
+              '<option value="POR">Portoghese</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="form-group">' +
+            '<label><i class="fas fa-certificate"></i> CONDIZIONE</label>' +
+            '<select name="Condizione" id="editCondizioneStandalone">' +
+              '<option value="">Seleziona...</option>' +
+              '<option value="Mint">Mint (M) - Perfetta</option>' +
+              '<option value="Near Mint">Near Mint (NM) - Quasi perfetta</option>' +
+              '<option value="Excellent">Excellent (EX) - Eccellente</option>' +
+              '<option value="Good">Good (GD) - Buona</option>' +
+              '<option value="Light Played">Light Played (LP) - Leggermente giocata</option>' +
+              '<option value="Played">Played (PL) - Giocata</option>' +
+              '<option value="Poor">Poor (P) - Scarsa</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="form-group">' +
+            '<label><i class="fas fa-gem"></i> VALORE ATTUALE (€)</label>' +
+            '<input type="number" id="editValoreAttualeStandalone" name="ValoreAttuale" step="0.01" required oninput="calcolaDeltaEdit()">' +
+          '</div>' +
+          '<div class="form-group">' +
+            '<label><i class="fas fa-receipt"></i> PREZZO PAGATO (€)</label>' +
+            '<input type="number" id="editPrezzoPagatoStandalone" name="PrezzoPagato" step="0.01" required oninput="calcolaDeltaEdit()">' +
+          '</div>' +
+          '<div class="form-group">' +
+            '<label><i class="fas fa-chart-line"></i> DELTA (€)</label>' +
+            '<input type="text" id="editDeltaStandalone" readonly style="background:#2a2a2a; cursor:not-allowed;">' +
+          '</div>' +
+          '<div class="form-group">' +
+            '<label><i class="fas fa-star"></i> VALUTAZIONE STATO (1-10)</label>' +
+            '<input type="number" id="editStatoStandalone" name="ValutazioneStato" min="1" max="10">' +
+          '</div>' +
+          '<div class="form-group">' +
+            '<label><i class="fas fa-camera"></i> FOTO ARTICOLO</label>' +
+            '<input type="file" id="editImageInputStandalone" accept="image/*" multiple class="hidden-file-input" onchange="onEditImageSelectStandalone(this)">' +
+            '<div id="editImagesContainerStandalone"></div>' +
+          '</div>' +
+          '<div class="form-group section-divider">' +
+            '<label class="section-title"><i class="fas fa-store"></i> VETRINA</label>' +
+          '</div>' +
+          '<div class="checkbox-wrapper" onclick="document.getElementById(\'editInVetrinaStandalone\').click()">' +
+            '<input type="checkbox" id="editInVetrinaStandalone" name="InVetrina" onchange="togglePrezzoVenditaStandalone()">' +
+            '<span><i class="fas fa-store-alt"></i> Metti in vetrina (visibile a tutti)</span>' +
+          '</div>' +
+          '<div class="form-group" id="prezzoVenditaGroupStandalone" style="display:none;">' +
+            '<label><i class="fas fa-tag"></i> PREZZO DI VENDITA (€)</label>' +
+            '<input type="number" id="editPrezzoVenditaStandalone" name="PrezzoVendita" step="0.01" min="0">' +
+          '</div>' +
+          '<div class="checkbox-wrapper" onclick="document.getElementById(\'editPresenteStandalone\').click()">' +
+            '<input type="checkbox" id="editPresenteStandalone" name="Presente">' +
+            '<span><i class="fas fa-box"></i> Articolo presente fisicamente</span>' +
+          '</div>' +
+        '</div>' +
+        '<button type="submit" class="btn-submit">' +
+          '<i class="fas fa-save"></i> SALVA MODIFICHE' +
+        '</button>' +
+        '<button type="button" class="btn-delete" onclick="eliminaArticolo()">' +
+          '<i class="fas fa-trash"></i> ELIMINA ARTICOLO' +
+        '</button>' +
+      '</form>' +
+    '</div>' +
+  '</div>';
+  
   document.body.insertAdjacentHTML('beforeend', modalHtml);
-  console.log('📝 Modal modifica inizializzato');
+  console.log('📝 Modal modifica standalone inizializzato');
 }
 
 // ========================================
-// APRI MODIFICA - Carica articolo e apre modal
+// APRI MODIFICA
 // ========================================
 async function apriModifica(articleId) {
   console.log('🔧 apriModifica chiamata con ID:', articleId);
   
-  // Inizializza modal se non esiste
   initModificaArticolo();
   
-  // Cerca articolo in allArticles se esiste, altrimenti carica da DB
   var article = null;
   
   if (typeof allArticles !== 'undefined' && allArticles.length > 0) {
     article = allArticles.find(function(a) { return a.id == articleId; });
   }
   
-  // Se non trovato, carica da database
   if (!article) {
     console.log('🔍 Articolo non in cache, caricamento da DB...');
     if (window.NodoLoader) NodoLoader.show('Caricamento articolo...');
@@ -425,52 +624,47 @@ async function apriModifica(articleId) {
   currentEditArticle = article;
   console.log('📝 Apertura modifica articolo:', article);
   
-  var modal = document.getElementById('modalEdit');
+  var modal = document.getElementById('modalEditStandalone');
   if (!modal) return;
   
-  // Popola i campi
-  document.getElementById('editId').value = article.id;
-  document.getElementById('editNome').value = article.Nome || '';
-  document.getElementById('editDescrizione').value = article.Descrizione || '';
-  document.getElementById('editCategoria').value = article.Categoria || '';
-  document.getElementById('editEspansione').value = article.espansione || '';
-  document.getElementById('editLingua').value = article.lingua || '';
-  document.getElementById('editCondizione').value = article.condizione || '';
-  document.getElementById('editValoreAttuale').value = article.ValoreAttuale || 0;
-  document.getElementById('editPrezzoPagato').value = article.PrezzoPagato || 0;
-  document.getElementById('editDelta').value = ((article.ValoreAttuale || 0) - (article.PrezzoPagato || 0)).toFixed(2) + ' €';
-  document.getElementById('editStato').value = article.ValutazioneStato || '';
-  document.getElementById('editPresente').checked = article.Presente || false;
-  document.getElementById('editInVetrina').checked = article.in_vetrina || false;
-  document.getElementById('editPrezzoVendita').value = article.prezzo_vendita || '';
+  document.getElementById('editIdStandalone').value = article.id;
+  document.getElementById('editNomeStandalone').value = article.Nome || '';
+  document.getElementById('editDescrizioneStandalone').value = article.Descrizione || '';
+  document.getElementById('editCategoriaStandalone').value = article.Categoria || '';
+  document.getElementById('editEspansioneStandalone').value = article.espansione || '';
+  document.getElementById('editLinguaStandalone').value = article.lingua || '';
+  document.getElementById('editCondizioneStandalone').value = article.condizione || '';
+  document.getElementById('editValoreAttualeStandalone').value = article.ValoreAttuale || 0;
+  document.getElementById('editPrezzoPagatoStandalone').value = article.PrezzoPagato || 0;
+  document.getElementById('editDeltaStandalone').value = ((article.ValoreAttuale || 0) - (article.PrezzoPagato || 0)).toFixed(2) + ' €';
+  document.getElementById('editStatoStandalone').value = article.ValutazioneStato || '';
+  document.getElementById('editPresenteStandalone').checked = article.Presente || false;
+  document.getElementById('editInVetrinaStandalone').checked = article.in_vetrina || false;
+  document.getElementById('editPrezzoVenditaStandalone').value = article.prezzo_vendita || '';
   
-  // Mostra/nascondi prezzo vendita
-  var prezzoGroup = document.getElementById('prezzoVenditaGroupEdit');
+  var prezzoGroup = document.getElementById('prezzoVenditaGroupStandalone');
   if (prezzoGroup) {
     prezzoGroup.style.display = article.in_vetrina ? 'block' : 'none';
   }
   
-  // Gestisci carte gradate
-  gestisciCarteGradate(article.Categoria || '', 'Edit');
+  gestisciCarteGradate(article.Categoria || '', 'Standalone');
   
   if (article.Categoria === 'Carte gradate') {
     setTimeout(function() {
-      var casaSelect = document.getElementById('casaGradazioneEdit');
-      var altraCasaInput = document.getElementById('altraCasaGradazioneEdit');
-      var votoInput = document.getElementById('votoGradazioneEdit');
+      var casaSelect = document.getElementById('casaGradazioneStandalone');
+      var altraCasaInput = document.getElementById('altraCasaGradazioneStandalone');
+      var votoInput = document.getElementById('votoGradazioneStandalone');
       
       if (casaSelect) casaSelect.value = article.casa_gradazione || '';
-      gestisciAltraCasa(article.casa_gradazione || '', 'Edit');
+      gestisciAltraCasa(article.casa_gradazione || '', 'Standalone');
       if (altraCasaInput) altraCasaInput.value = article.altra_casa_gradazione || '';
       if (votoInput) votoInput.value = article.voto_gradazione || '';
     }, 50);
   }
   
-  // Carica immagini esistenti
-  loadExistingImages(article);
+  loadExistingImagesStandalone(article);
   
-  // Reset msg
-  var msg = document.getElementById('editMsg');
+  var msg = document.getElementById('editMsgStandalone');
   if (msg) {
     msg.style.display = 'none';
     msg.textContent = '';
@@ -480,35 +674,28 @@ async function apriModifica(articleId) {
   document.body.style.overflow = 'hidden';
 }
 
-// ========================================
-// CHIUDI MODAL
-// ========================================
 function closeEditModal() {
-  var modal = document.getElementById('modalEdit');
+  var modal = document.getElementById('modalEditStandalone');
   if (modal) {
-    modal.classList.remove('active');
-    document.body.style.overflow = '';
-    resetEditImages();
+    modal.classList.add('closing');
+    setTimeout(function() {
+      modal.classList.remove('active', 'closing');
+      document.body.style.overflow = '';
+      resetEditImagesStandalone();
+    }, 400);
   }
 }
 
-// ========================================
-// CALCOLO DELTA
-// ========================================
 function calcolaDeltaEdit() {
-  var valore = parseFloat(document.getElementById('editValoreAttuale').value) || 0;
-  var prezzo = parseFloat(document.getElementById('editPrezzoPagato').value) || 0;
+  var valore = parseFloat(document.getElementById('editValoreAttualeStandalone').value) || 0;
+  var prezzo = parseFloat(document.getElementById('editPrezzoPagatoStandalone').value) || 0;
   var delta = valore - prezzo;
-  
-  var deltaInput = document.getElementById('editDelta');
+  var deltaInput = document.getElementById('editDeltaStandalone');
   if (deltaInput) {
     deltaInput.value = delta.toFixed(2) + ' €';
   }
 }
 
-// ========================================
-// GESTIONE CARTE GRADATE
-// ========================================
 function gestisciCarteGradate(categoriaValue, prefix) {
   var casaGroup = document.getElementById('casaGradazioneGroup' + prefix);
   var votoGroup = document.getElementById('votoGradazioneGroup' + prefix);
@@ -527,14 +714,8 @@ function gestisciCarteGradate(categoriaValue, prefix) {
     casaGroup.style.display = 'none';
     votoGroup.style.display = 'none';
     if (altraCasaGroup) altraCasaGroup.style.display = 'none';
-    if (casaSelect) {
-      casaSelect.required = false;
-      casaSelect.value = '';
-    }
-    if (votoInput) {
-      votoInput.required = false;
-      votoInput.value = '';
-    }
+    if (casaSelect) { casaSelect.required = false; casaSelect.value = ''; }
+    if (votoInput) { votoInput.required = false; votoInput.value = ''; }
     var altraCasaInput = document.getElementById('altraCasaGradazione' + prefix);
     if (altraCasaInput) altraCasaInput.value = '';
   }
@@ -543,114 +724,81 @@ function gestisciCarteGradate(categoriaValue, prefix) {
 function gestisciAltraCasa(casaValue, prefix) {
   var altraCasaGroup = document.getElementById('altraCasaGradazioneGroup' + prefix);
   var altraCasaInput = document.getElementById('altraCasaGradazione' + prefix);
-  
   if (!altraCasaGroup) return;
-  
   if (casaValue === 'Altra casa') {
     altraCasaGroup.style.display = 'block';
     if (altraCasaInput) altraCasaInput.required = true;
   } else {
     altraCasaGroup.style.display = 'none';
-    if (altraCasaInput) {
-      altraCasaInput.required = false;
-      altraCasaInput.value = '';
-    }
+    if (altraCasaInput) { altraCasaInput.required = false; altraCasaInput.value = ''; }
   }
 }
 
-// ========================================
-// TOGGLE PREZZO VENDITA
-// ========================================
-function togglePrezzoVendita() {
-  var checkbox = document.getElementById('editInVetrina');
-  var prezzoGroup = document.getElementById('prezzoVenditaGroupEdit');
+function togglePrezzoVenditaStandalone() {
+  var checkbox = document.getElementById('editInVetrinaStandalone');
+  var prezzoGroup = document.getElementById('prezzoVenditaGroupStandalone');
   if (prezzoGroup) {
     prezzoGroup.style.display = checkbox.checked ? 'block' : 'none';
   }
 }
 
-// ========================================
-// GESTIONE IMMAGINI
-// ========================================
-function onEditImageSelect(input) {
+function onEditImageSelectStandalone(input) {
   var files = Array.from(input.files);
   var existingCount = editExistingUrls.filter(function(u) { return u; }).length;
-  
   if (existingCount + editImages.length + files.length > MAX_IMAGES) {
     alert('Massimo ' + MAX_IMAGES + ' foto!');
     input.value = '';
     return;
   }
-  
   files.forEach(function(file) {
     if (file.type.startsWith('image/')) {
       editImages.push(file);
     }
   });
-  
   input.value = '';
-  renderEditImages();
+  renderEditImagesStandalone();
 }
 
-function renderEditImages() {
-  var container = document.getElementById('editImagesContainer');
+function renderEditImagesStandalone() {
+  var container = document.getElementById('editImagesContainerStandalone');
   if (!container) return;
-  
   var existingCount = editExistingUrls.filter(function(u) { return u; }).length;
   var totalCount = existingCount + editImages.length;
-  
   var html = '<div class="img-grid">';
   var num = 1;
-  
-  // URL esistenti
   editExistingUrls.forEach(function(url, i) {
     if (url) {
-      html += '<div class="img-item">' +
-        '<img src="' + url + '">' +
-        '<button type="button" class="img-remove" onclick="removeExistingImage(' + i + ')">×</button>' +
-        '<span class="img-num">' + (num++) + '</span>' +
-      '</div>';
+      html += '<div class="img-item"><img src="' + url + '"><button type="button" class="img-remove" onclick="removeExistingImageStandalone(' + i + ')">×</button><span class="img-num">' + (num++) + '</span></div>';
     }
   });
-  
-  // Nuovi file
   editImages.forEach(function(file, i) {
-    html += '<div class="img-item">' +
-      '<img src="' + URL.createObjectURL(file) + '">' +
-      '<button type="button" class="img-remove" onclick="removeEditImage(' + i + ')">×</button>' +
-      '<span class="img-num">' + (num++) + '</span>' +
-    '</div>';
+    html += '<div class="img-item"><img src="' + URL.createObjectURL(file) + '"><button type="button" class="img-remove" onclick="removeEditImageStandalone(' + i + ')">×</button><span class="img-num">' + (num++) + '</span></div>';
   });
-  
   if (totalCount < MAX_IMAGES) {
-    html += '<label class="img-add" for="editImageInput">' +
-      '<i class="fas fa-plus"></i>' +
-      '<span>' + totalCount + '/' + MAX_IMAGES + '</span>' +
-    '</label>';
+    html += '<label class="img-add" for="editImageInputStandalone"><i class="fas fa-plus"></i><span>' + totalCount + '/' + MAX_IMAGES + '</span></label>';
   }
-  
   html += '</div>';
   container.innerHTML = html;
 }
 
-function removeEditImage(index) {
+function removeEditImageStandalone(index) {
   editImages.splice(index, 1);
-  renderEditImages();
+  renderEditImagesStandalone();
 }
 
-function removeExistingImage(index) {
+function removeExistingImageStandalone(index) {
   editExistingUrls[index] = null;
-  renderEditImages();
+  renderEditImagesStandalone();
 }
 
-function resetEditImages() {
+function resetEditImagesStandalone() {
   editImages = [];
   editExistingUrls = [];
-  var container = document.getElementById('editImagesContainer');
+  var container = document.getElementById('editImagesContainerStandalone');
   if (container) container.innerHTML = '';
 }
 
-function loadExistingImages(article) {
+function loadExistingImagesStandalone(article) {
   editImages = [];
   editExistingUrls = [
     article.foto_principale || article.image_url || null,
@@ -660,99 +808,61 @@ function loadExistingImages(article) {
     article.foto_5 || null,
     article.foto_6 || null
   ];
-  renderEditImages();
+  renderEditImagesStandalone();
 }
 
-// ========================================
-// UPLOAD IMMAGINE
-// ========================================
 async function uploadImageForEdit(file) {
   if (!file) return null;
-  
   var userId = localStorage.getItem('nodo_user_id');
   if (!userId) return null;
-  
   var fileName = userId + '/' + Date.now() + '_' + file.name;
-  
-  var result = await supabaseClient.storage
-    .from('product-images')
-    .upload(fileName, file);
-  
-  if (result.error) {
-    console.error('❌ Errore upload:', result.error);
-    return null;
-  }
-  
-  var urlResult = supabaseClient.storage
-    .from('product-images')
-    .getPublicUrl(fileName);
-  
+  var result = await supabaseClient.storage.from('product-images').upload(fileName, file);
+  if (result.error) { console.error('❌ Errore upload:', result.error); return null; }
+  var urlResult = supabaseClient.storage.from('product-images').getPublicUrl(fileName);
   return urlResult.data.publicUrl;
 }
 
-// ========================================
-// SALVA MODIFICA
-// ========================================
 async function salvaModifica(event) {
   event.preventDefault();
-  
-  if (window.NodoLoader) {
-    NodoLoader.showOperation('Salvataggio modifiche...');
-  }
-  
-  var id = document.getElementById('editId').value;
-  var msg = document.getElementById('editMsg');
+  if (window.NodoLoader) NodoLoader.showOperation('Salvataggio modifiche...');
+  var id = document.getElementById('editIdStandalone').value;
+  var msg = document.getElementById('editMsgStandalone');
   msg.className = 'msg';
   msg.textContent = '⏳ Salvataggio...';
   msg.style.display = 'block';
-  
-  // Combina URL esistenti + nuove immagini
   var finalUrls = [];
-  
-  editExistingUrls.forEach(function(url) {
-    if (url) finalUrls.push(url);
-  });
-  
-  // Carica nuove immagini
+  editExistingUrls.forEach(function(url) { if (url) finalUrls.push(url); });
   for (var i = 0; i < editImages.length; i++) {
     msg.textContent = '⏳ Caricamento foto ' + (i + 1) + '/' + editImages.length + '...';
     var url = await uploadImageForEdit(editImages[i]);
     if (url) finalUrls.push(url);
   }
-  
-  var valore = parseFloat(document.getElementById('editValoreAttuale').value) || 0;
-  var prezzo = parseFloat(document.getElementById('editPrezzoPagato').value) || 0;
-  var inVetrina = document.getElementById('editInVetrina').checked || false;
-  var prezzoVendita = inVetrina ? parseFloat(document.getElementById('editPrezzoVendita').value) || null : null;
-  var categoria = document.getElementById('editCategoria').value;
-  
-  // Campi gradazione
-  var casaGradazione = null;
-  var altraCasaGradazione = null;
-  var votoGradazione = null;
-  
+  var valore = parseFloat(document.getElementById('editValoreAttualeStandalone').value) || 0;
+  var prezzo = parseFloat(document.getElementById('editPrezzoPagatoStandalone').value) || 0;
+  var inVetrina = document.getElementById('editInVetrinaStandalone').checked || false;
+  var prezzoVendita = inVetrina ? parseFloat(document.getElementById('editPrezzoVenditaStandalone').value) || null : null;
+  var categoria = document.getElementById('editCategoriaStandalone').value;
+  var casaGradazione = null, altraCasaGradazione = null, votoGradazione = null;
   if (categoria === 'Carte gradate') {
-    var casaEl = document.getElementById('casaGradazioneEdit');
-    var altraCasaEl = document.getElementById('altraCasaGradazioneEdit');
-    var votoEl = document.getElementById('votoGradazioneEdit');
-    
+    var casaEl = document.getElementById('casaGradazioneStandalone');
+    var altraCasaEl = document.getElementById('altraCasaGradazioneStandalone');
+    var votoEl = document.getElementById('votoGradazioneStandalone');
     if (casaEl) casaGradazione = casaEl.value || null;
     if (casaGradazione === 'Altra casa' && altraCasaEl) altraCasaGradazione = altraCasaEl.value || null;
     if (votoEl) votoGradazione = parseFloat(votoEl.value) || null;
   }
-
   var articolo = {
-    Nome: document.getElementById('editNome').value,
-    Descrizione: document.getElementById('editDescrizione').value || null,
+    Nome: document.getElementById('editNomeStandalone').value,
+    Descrizione: document.getElementById('editDescrizioneStandalone').value || null,
     Categoria: categoria || null,
-    espansione: document.getElementById('editEspansione').value || null,
-    lingua: document.getElementById('editLingua').value || null,
-    condizione: document.getElementById('editCondizione').value || null,
+    espansione: document.getElementById('editEspansioneStandalone').value || null,
+    lingua: document.getElementById('editLinguaStandalone').value || null,
+    condizione: document.getElementById('editCondizioneStandalone').value || null,
     ValoreAttuale: valore,
     PrezzoPagato: prezzo,
     Delta: valore - prezzo,
-    ValutazioneStato: document.getElementById('editStato').value ? parseInt(document.getElementById('editStato').value) : null,
-    Presente: document.getElementById('editPresente').checked,
+    ValutazioneStato: document.getElementById('editStatoStandalone').value ? parseInt(document.getElementById('editStatoStandalone').value) : null,
+    Presente: document.getElementById('editPresenteStandalone').checked,
     image_url: finalUrls[0] || null,
     foto_principale: finalUrls[0] || null,
     foto_2: finalUrls[1] || null,
@@ -766,9 +876,7 @@ async function salvaModifica(event) {
     altra_casa_gradazione: altraCasaGradazione,
     voto_gradazione: votoGradazione
   };
-
   var result = await supabaseClient.from('Articoli').update(articolo).eq('id', id);
-
   if (result.error) {
     msg.className = 'msg error';
     msg.textContent = '❌ ERRORE: ' + result.error.message;
@@ -778,35 +886,21 @@ async function salvaModifica(event) {
     msg.className = 'msg success';
     msg.textContent = '✅ SALVATO!';
     msg.style.display = 'block';
-    
     setTimeout(function() {
       closeEditModal();
       if (window.NodoLoader) NodoLoader.hideOperation();
-      
-      // Ricarica articoli se la funzione esiste
-      if (typeof caricaArticoli === 'function') {
-        caricaArticoli();
-      } else {
-        // Altrimenti ricarica la pagina
-        window.location.reload();
-      }
+      if (typeof caricaArticoli === 'function') { caricaArticoli(); } else { window.location.reload(); }
     }, 1500);
   }
 }
 
-// ========================================
-// ELIMINA ARTICOLO
-// ========================================
 async function eliminaArticolo() {
-  var id = document.getElementById('editId').value;
-  var nome = document.getElementById('editNome').value;
+  var id = document.getElementById('editIdStandalone').value;
+  var nome = document.getElementById('editNomeStandalone').value;
   if (!confirm('⚠️ ELIMINARE "' + nome + '"?')) return;
-
   if (window.NodoLoader) NodoLoader.showOperation('Eliminazione...');
-
   var result = await supabaseClient.from('Articoli').delete().eq('id', id);
-  var msg = document.getElementById('editMsg');
-
+  var msg = document.getElementById('editMsgStandalone');
   if (result.error) {
     msg.className = 'msg error';
     msg.textContent = '❌ ERRORE: ' + result.error.message;
@@ -816,25 +910,14 @@ async function eliminaArticolo() {
     msg.className = 'msg success';
     msg.textContent = '✅ ELIMINATO!';
     msg.style.display = 'block';
-    
     setTimeout(function() {
       closeEditModal();
       if (window.NodoLoader) NodoLoader.hideOperation();
-      
-      // Ricarica articoli se la funzione esiste
-      if (typeof caricaArticoli === 'function') {
-        caricaArticoli();
-      } else {
-        // Altrimenti torna alla pagina negozio
-        window.location.href = 'il-tuo-negozio.html';
-      }
+      if (typeof caricaArticoli === 'function') { caricaArticoli(); } else { window.location.href = 'il-tuo-negozio.html'; }
     }, 1500);
   }
 }
 
-// ========================================
-// EXPORTS GLOBALI
-// ========================================
 window.apriModifica = apriModifica;
 window.closeEditModal = closeEditModal;
 window.salvaModifica = salvaModifica;
@@ -842,9 +925,9 @@ window.eliminaArticolo = eliminaArticolo;
 window.calcolaDeltaEdit = calcolaDeltaEdit;
 window.gestisciCarteGradate = gestisciCarteGradate;
 window.gestisciAltraCasa = gestisciAltraCasa;
-window.onEditImageSelect = onEditImageSelect;
-window.removeEditImage = removeEditImage;
-window.removeExistingImage = removeExistingImage;
-window.togglePrezzoVendita = togglePrezzoVendita;
+window.onEditImageSelectStandalone = onEditImageSelectStandalone;
+window.removeEditImageStandalone = removeEditImageStandalone;
+window.removeExistingImageStandalone = removeExistingImageStandalone;
+window.togglePrezzoVenditaStandalone = togglePrezzoVenditaStandalone;
 
-console.log('📝 Modifica-Articolo.js caricato');
+console.log('📝 Modifica-Articolo.js v2.0 caricato');
