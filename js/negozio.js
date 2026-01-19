@@ -16,12 +16,22 @@ let viewMode = 'grid'; // 'grid' o 'list'
 function toggleViewMode() {
   viewMode = viewMode === 'grid' ? 'list' : 'grid';
   
-  const toggleBtn = document.getElementById('viewToggleBtn');
-  if (toggleBtn) {
-    toggleBtn.innerHTML = viewMode === 'grid' 
-      ? '<i class="fas fa-list"></i>' 
-      : '<i class="fas fa-th-large"></i>';
-  }
+  // Aggiorna entrambi i bottoni (top e bottom)
+  const toggleBtns = [
+    document.getElementById('viewToggleBtn'),
+    document.getElementById('viewToggleBtnBottom')
+  ];
+  
+  toggleBtns.forEach(btn => {
+    if (btn) {
+      btn.innerHTML = viewMode === 'grid' 
+        ? '<i class="fas fa-list"></i>' 
+        : '<i class="fas fa-th-large"></i>';
+      
+      // Toggle classe active per mostrare stato
+      btn.classList.toggle('active', viewMode === 'list');
+    }
+  });
   
   renderArticles();
 }
