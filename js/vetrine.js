@@ -14,8 +14,7 @@ let currentFilters = {
   lingua: '',
   prezzoMin: '',
   prezzoMax: '',
-  disponibili: false,
-  ratingMin: 0
+  disponibili: false
 };
 let currentPage = 1;
 const itemsPerPage = 10;
@@ -277,19 +276,6 @@ function createFilterHtml() {
           </div>
           
           <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-star"></i> Valutazione Minima</div>
-            <select class="filter-select" id="filterRating">
-              <option value="0">Tutte</option>
-              <option value="5">5+ ⭐</option>
-              <option value="6">6+ ⭐</option>
-              <option value="7">7+ ⭐</option>
-              <option value="8">8+ ⭐</option>
-              <option value="9">9+ ⭐</option>
-              <option value="10">10 ⭐ (Perfetto)</option>
-            </select>
-          </div>
-          
-          <div class="filter-group">
             <div class="filter-label"><i class="fas fa-box"></i> Disponibilità</div>
             <div class="filter-checkboxes">
               <label class="filter-checkbox-item">
@@ -340,7 +326,6 @@ function getActiveFiltersCount() {
   if (currentFilters.prezzoMin !== '' && currentFilters.prezzoMin > 0) count++;
   if (currentFilters.prezzoMax !== '' && currentFilters.prezzoMax < 10000) count++;
   if (currentFilters.disponibili) count++;
-  if (currentFilters.ratingMin > 0) count++;
   return count;
 }
 
@@ -359,7 +344,6 @@ function applyFilters(closeFilter = true) {
   currentFilters.prezzoMin = document.getElementById('filterPrezzoMin').value;
   currentFilters.prezzoMax = document.getElementById('filterPrezzoMax').value;
   currentFilters.disponibili = document.getElementById('filterDisponibili').checked;
-  currentFilters.ratingMin = parseInt(document.getElementById('filterRating').value) || 0;
   
   // Reset pagina quando si applicano filtri
   currentPage = 1;
@@ -408,11 +392,6 @@ function applyFilters(closeFilter = true) {
       return false;
     }
     
-    // Filtro rating
-    if (currentFilters.ratingMin > 0 && (art.ValutazioneStato || 0) < currentFilters.ratingMin) {
-      return false;
-    }
-    
     return true;
   });
   
@@ -447,8 +426,7 @@ function resetFilters() {
     categoria: 'all',
     prezzoMin: '',
     prezzoMax: '',
-    disponibili: false,
-    ratingMin: 0
+    disponibili: false
   };
   
   // Reset pagina
@@ -461,7 +439,6 @@ function resetFilters() {
   document.getElementById('filterPrezzoMin').value = '';
   document.getElementById('filterPrezzoMax').value = '';
   document.getElementById('filterDisponibili').checked = false;
-  document.getElementById('filterRating').value = '0';
   
   // Mostra tutti gli articoli
   renderVetrine(allArticoli);
@@ -1209,18 +1186,6 @@ function createFilterHtmlNew() {
           </div>
           
           <div class="filter-group">
-            <div class="filter-label"><i class="fas fa-star"></i> Valutazione Minima</div>
-            <select class="filter-select" id="filterRating">
-              <option value="0">Tutte</option>
-              <option value="5">5+</option>
-              <option value="6">6+</option>
-              <option value="7">7+</option>
-              <option value="8">8+</option>
-              <option value="9">9+</option>
-            </select>
-          </div>
-          
-          <div class="filter-group">
             <div class="filter-label"><i class="fas fa-box"></i> Disponibilità</div>
             <div class="filter-checkboxes">
               <label class="filter-checkbox-item">
@@ -1382,7 +1347,6 @@ applyFilters = function(closeFilter = true) {
   currentFilters.prezzoMin = priceMin;
   currentFilters.prezzoMax = priceMax;
   currentFilters.disponibili = document.getElementById('filterDisponibili').checked;
-  currentFilters.ratingMin = parseInt(document.getElementById('filterRating').value) || 0;
   currentPage = 1;
   
   let articoliFiltrati = allArticoli.filter(art => {
@@ -1447,10 +1411,6 @@ applyFilters = function(closeFilter = true) {
       return false;
     }
     
-    if (currentFilters.ratingMin > 0 && (art.ValutazioneStato || 0) < currentFilters.ratingMin) {
-      return false;
-    }
-    
     return true;
   });
   
@@ -1488,8 +1448,7 @@ function resetFiltersNew() {
     lingua: '',
     prezzoMin: 0,
     prezzoMax: 1000,
-    disponibili: false,
-    ratingMin: 0
+    disponibili: false
   };
   currentPage = 1;
   
@@ -1500,7 +1459,6 @@ function resetFiltersNew() {
   document.getElementById('filterSet').value = 'all';
   document.getElementById('filterCategoria').value = 'all';
   document.getElementById('filterDisponibili').checked = false;
-  document.getElementById('filterRating').value = '0';
   
   // Reset condizione
   if (document.getElementById('filterCondizione')) {
