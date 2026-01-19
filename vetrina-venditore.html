@@ -909,38 +909,40 @@
       opacity: 0.5;
     }
 
-    /* MODAL LISTE (FOLLOWER/FOLLOWING) */
+    /* MODAL LISTE (FOLLOWER/FOLLOWING) - Stile simile a dettaglio-articolo */
     .user-list-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 14px;
-      background: #1a1a1a;
-      border-radius: 16px;
-      margin-bottom: 12px;
+      gap: 15px;
+      padding: 18px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+      border-radius: 20px;
+      margin-bottom: 14px;
       cursor: pointer;
       transition: all 0.2s ease;
-      border: 2px solid transparent;
+      border: 2px solid rgba(251, 191, 36, 0.15);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
     .user-list-item:active {
       transform: scale(0.97);
       border-color: #fbbf24;
-      background: #2a2a2a;
+      background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
     }
 
     .user-list-avatar {
-      width: 48px;
-      height: 48px;
-      min-width: 48px;
+      width: 60px;
+      height: 60px;
+      min-width: 60px;
       border-radius: 50%;
       background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      font-size: 22px;
       color: #fff;
       font-weight: 900;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
     }
 
     .user-list-info {
@@ -949,35 +951,38 @@
     }
 
     .user-list-username {
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 900;
       color: #fbbf24;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
     .user-list-meta {
-      font-size: 13px;
+      font-size: 14px;
       color: #6b7280;
       font-weight: 700;
     }
 
     .user-list-action {
-      padding: 8px 16px;
-      border-radius: 12px;
-      font-size: 13px;
+      padding: 12px 20px;
+      border-radius: 14px;
+      font-size: 14px;
       font-weight: 900;
       border: none;
       cursor: pointer;
       transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .user-list-action.primary {
       background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
       color: #fff;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
     }
 
     .user-list-action.secondary {
-      background: #1a1a1a;
+      background: rgba(251, 191, 36, 0.1);
       border: 2px solid #fbbf24;
       color: #fbbf24;
     }
