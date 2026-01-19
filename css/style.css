@@ -694,13 +694,14 @@ h1 {
 .pagination-info {
   font-weight: 700;
   color: #fbbf24;
-  font-size: 15px;
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 .pagination-info span {
-  font-size: 24px;
+  font-size: 16px;
   font-weight: 900;
-  margin: 0 6px;
+  margin: 0 3px;
 }
 
 .pagination-controls {
