@@ -296,8 +296,29 @@ function applyNodoFilters(values) {
       (p.Categoria && p.Categoria.toLowerCase().includes(values.nome)) ||
       (p.espansione && p.espansione.toLowerCase().includes(values.nome));
     
-    // Categoria
-    const matchCategoria = !values.categoria || p.Categoria === values.categoria;
+    // Categoria con supporto "Altro"
+    let matchCategoria = true;
+    if (values.categoria) {
+      if (values.categoria === 'Altro') {
+        // Se è selezionato "Altro", cerca nelle categorie personalizzate
+        const categoriePredefinite = ['ETB', 'Carte Singole', 'Carte gradate', 'Master Set', 'Booster Box', 'Collection Box', 'Box mini tin', 'Bustine', 'Poké Ball', 'Accessori'];
+        const isCustomCategory = !categoriePredefinite.includes(p.Categoria);
+        if (!isCustomCategory) return false;
+        
+        // Se c'è un testo specifico, filtra per quello
+        if (values.altroCategoria && values.altroCategoria !== '') {
+          const artCategoria = (p.Categoria || '').toLowerCase();
+          if (!artCategoria.includes(values.altroCategoria)) {
+            return false;
+          }
+        }
+      } else {
+        matchCategoria = p.Categoria === values.categoria;
+      }
+    }
+    
+    // Condizione
+    const matchCondizione = !values.condizione || p.condizione === values.condizione;
     
     // Lingua
     const matchLingua = !values.lingua || p.lingua === values.lingua;
@@ -324,7 +345,7 @@ function applyNodoFilters(values) {
       }
     }
     
-    return matchSearch && matchCategoria && matchLingua && matchPrezzo && matchRating && matchPresente && matchGraded;
+    return matchSearch && matchCategoria && matchCondizione && matchLingua && matchPrezzo && matchRating && matchPresente && matchGraded;
   });
 
   console.log('✅ Filtrati:', currentProducts.length, '/', allProducts.length);
