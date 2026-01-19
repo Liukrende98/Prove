@@ -10,6 +10,8 @@ let currentFilters = {
   set: 'all',
   categoria: 'all',
   altroCategoria: '',
+  casaGradazione: '',
+  votoGradazione: '',
   condizione: '',
   lingua: '',
   prezzoMin: '',
@@ -44,8 +46,16 @@ function selectLanguage(btn) {
 function gestisciFiltroAltro() {
   const categoria = document.getElementById('filterCategoria')?.value;
   const altroGroup = document.getElementById('filterAltroGroup');
+  const gradedSection = document.getElementById('filterGradedSection');
+  
+  // Mostra/nascondi campo "Altro"
   if (altroGroup) {
     altroGroup.style.display = categoria === 'Altro' ? 'block' : 'none';
+  }
+  
+  // Mostra/nascondi sezione Carte Gradate
+  if (gradedSection) {
+    gradedSection.style.display = categoria === 'Carte gradate' ? 'block' : 'none';
   }
 }
 
@@ -324,6 +334,8 @@ function getActiveFiltersCount() {
   if (currentFilters.set !== 'all') count++;
   if (currentFilters.categoria !== 'all') count++;
   if (currentFilters.altroCategoria !== '') count++;
+  if (currentFilters.casaGradazione !== '') count++;
+  if (currentFilters.votoGradazione !== '') count++;
   if (currentFilters.condizione !== '') count++;
   if (currentFilters.lingua !== '') count++;
   if (currentFilters.prezzoMin > 0) count++;
@@ -1112,6 +1124,30 @@ function createFilterHtmlNew() {
           <input type="text" class="filter-input" id="filterAltroCategoria" placeholder="es. Pokemon Plush, Figure...">
         </div>
         
+        <!-- Sezione Carte Gradate -->
+        <div id="filterGradedSection" style="display:none;">
+          <div class="filter-group">
+            <label><i class="fas fa-building"></i> Casa Gradazione</label>
+            <select class="filter-select" id="filterCasaGradazione">
+              <option value="">Tutte</option>
+              <option value="PSA">PSA</option>
+              <option value="GRAAD">GRAAD</option>
+              <option value="Altra casa">Altra</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label><i class="fas fa-star"></i> Voto Minimo</label>
+            <select class="filter-select" id="filterVotoGradazione">
+              <option value="">Tutti</option>
+              <option value="6">6+</option>
+              <option value="7">7+</option>
+              <option value="8">8+</option>
+              <option value="9">9+</option>
+              <option value="10">10</option>
+            </select>
+          </div>
+        </div>
+        
         <div class="filter-group">
           <label><i class="fas fa-certificate"></i> Condizione</label>
           <select class="filter-select" id="filterCondizione">
@@ -1388,6 +1424,8 @@ applyFilters = function(closeFilter = true) {
   currentFilters.set = document.getElementById('filterSet').value;
   currentFilters.categoria = document.getElementById('filterCategoria').value;
   currentFilters.altroCategoria = document.getElementById('filterAltroCategoria')?.value.toLowerCase().trim() || '';
+  currentFilters.casaGradazione = document.getElementById('filterCasaGradazione')?.value || '';
+  currentFilters.votoGradazione = document.getElementById('filterVotoGradazione')?.value || '';
   currentFilters.condizione = document.getElementById('filterCondizione')?.value || '';
   currentFilters.lingua = document.getElementById('filterLingua')?.value || '';
   currentFilters.prezzoMin = priceMin;
@@ -1433,6 +1471,22 @@ applyFilters = function(closeFilter = true) {
         }
       } else {
         if (art.Categoria !== currentFilters.categoria) {
+          return false;
+        }
+      }
+    }
+    
+    // Filtro carte gradate (casa e voto)
+    if (currentFilters.categoria === 'Carte gradate') {
+      // Filtro casa gradazione
+      if (currentFilters.casaGradazione !== '' && art.casa_gradazione !== currentFilters.casaGradazione) {
+        return false;
+      }
+      // Filtro voto minimo gradazione
+      if (currentFilters.votoGradazione !== '') {
+        const votoMinimo = parseFloat(currentFilters.votoGradazione);
+        const votoArticolo = parseFloat(art.voto_gradazione) || 0;
+        if (votoArticolo < votoMinimo) {
           return false;
         }
       }
@@ -1488,6 +1542,8 @@ function resetFiltersNew() {
     set: 'all',
     categoria: 'all',
     altroCategoria: '',
+    casaGradazione: '',
+    votoGradazione: '',
     condizione: '',
     lingua: '',
     prezzoMin: 0,
@@ -1515,6 +1571,17 @@ function resetFiltersNew() {
   }
   if (document.getElementById('filterAltroGroup')) {
     document.getElementById('filterAltroGroup').style.display = 'none';
+  }
+  
+  // Reset campi carte gradate e nascondili
+  if (document.getElementById('filterCasaGradazione')) {
+    document.getElementById('filterCasaGradazione').value = '';
+  }
+  if (document.getElementById('filterVotoGradazione')) {
+    document.getElementById('filterVotoGradazione').value = '';
+  }
+  if (document.getElementById('filterGradedSection')) {
+    document.getElementById('filterGradedSection').style.display = 'none';
   }
   
   // Reset lingua e bandierine
