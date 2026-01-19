@@ -327,10 +327,6 @@ function applyNodoFilters(values) {
     const prezzo = parseFloat(p.prezzo_vendita || 0);
     const matchPrezzo = prezzo >= values.valoreMin && prezzo <= values.valoreMax;
     
-    // Valutazione stato
-    const rating = p.ValutazioneStato || 0;
-    const matchRating = !values.statoMin || rating >= values.statoMin;
-    
     // Disponibilità (presente fisicamente)
     const matchPresente = (values.presenti && p.Presente) || (values.assenti && !p.Presente);
     
@@ -345,7 +341,7 @@ function applyNodoFilters(values) {
       }
     }
     
-    return matchSearch && matchCategoria && matchCondizione && matchLingua && matchPrezzo && matchRating && matchPresente && matchGraded;
+    return matchSearch && matchCategoria && matchCondizione && matchLingua && matchPrezzo && matchPresente && matchGraded;
   });
 
   console.log('✅ Filtrati:', currentProducts.length, '/', allProducts.length);
