@@ -1136,6 +1136,9 @@ async function showFollowingList(userId) {
   }
 }
 
+// Flag per tracciare modifiche follow nel modal
+var followChangesInModal = false;
+
 async function closeListModal() {
   const modal = document.getElementById('listModal');
   if (modal) {
@@ -1148,9 +1151,14 @@ async function closeListModal() {
     followChangesInModal = false; // Reset flag
     
     try {
-      // Recupera l'ID del venditore corrente dalla URL
+      // Recupera l'ID del venditore corrente dalla URL o usa l'utente corrente
       const urlParams = new URLSearchParams(window.location.search);
-      const vendorId = urlParams.get('id');
+      let vendorId = urlParams.get('id');
+      
+      // Se non c'è id nella URL, siamo sul nostro profilo
+      if (!vendorId) {
+        vendorId = getCurrentUserId();
+      }
       
       if (vendorId) {
         // Ricarica i contatori follower e following
@@ -1199,8 +1207,6 @@ async function closeListModal() {
 }
 
 // Toggle follow veloce dal modal (senza ricaricare tutta la pagina)
-var followChangesInModal = false; // Flag per tracciare modifiche
-
 async function quickToggleFollow(targetUserId, buttonElement) {
   const currentUserId = getCurrentUserId();
   if (!currentUserId) {
