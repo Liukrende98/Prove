@@ -80,6 +80,15 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
 .sim-box-sub{font-family:'DM Mono';font-size:9px;margin-top:2px}
 .sim-note{font-size:8px;color:var(--t3);text-align:center;margin-top:8px;line-height:1.4}
 
+/* ★ TRADE ROWS nel simulatore */
+.tr-row{display:flex;align-items:center;gap:4px;padding:7px 10px;border-bottom:1px solid rgba(30,30,53,.5);font-size:10px;font-family:'DM Mono'}
+.tr-row.win{border-left:2px solid var(--g)}.tr-row.loss{border-left:2px solid var(--r)}
+.tr-time{font-size:8px;color:var(--t3);min-width:44px}
+.tr-icon{font-size:11px;width:14px;text-align:center}
+.tr-dir{font-weight:600;font-size:9px;min-width:36px}
+.tr-move{font-size:9px;min-width:50px;text-align:right}
+.tr-bal{font-size:10px;font-weight:500;margin-left:auto;text-align:right}
+
 /* Chart */
 .cc{padding:8px 4px 4px}
 .cc-top{display:flex;align-items:center;justify-content:space-between;padding:0 8px 4px}
@@ -214,9 +223,29 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
         <div class="acc"><div class="acc-l">Tot.</div><div class="acc-v" id="aC">0</div></div>
     </div>
     <div class="c tc">
-        <div class="tbar"><button class="tb on" data-p="tpR">Analisi</button><button class="tb" data-p="tpH">Storico</button><button class="tb" data-p="tpE">Errori</button></div>
+        <div class="tbar"><button class="tb on" data-p="tpR">Analisi</button><button class="tb" data-p="tpH">Storico</button><button class="tb" data-p="tpSim">💰 Sim</button><button class="tb" data-p="tpE">Errori</button></div>
         <div class="tp on" id="tpR"><div class="rbox" id="reas">In attesa...</div></div>
         <div class="tp" id="tpH"><div class="hl" id="hL"><div style="color:var(--t3);font-size:10px;padding:16px;text-align:center">Righe oro = confidence ≥ 80%</div></div></div>
+        <div class="tp" id="tpSim">
+            <div style="padding:8px 10px;font-size:8px;color:var(--t3);text-align:center;border-bottom:1px solid var(--brd)">
+                Solo previsioni sicure (≥80%) · Reinvestimento composto dal capitale nel box sopra
+            </div>
+            <div class="sim-summary" id="simSummary" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;padding:8px">
+                <div style="background:var(--s2);border-radius:8px;padding:6px;text-align:center">
+                    <div style="font-size:7px;color:var(--t3);text-transform:uppercase">Vinte</div>
+                    <div style="font-family:'DM Mono';font-size:16px;color:var(--g)" id="simWins">0</div>
+                </div>
+                <div style="background:var(--s2);border-radius:8px;padding:6px;text-align:center">
+                    <div style="font-size:7px;color:var(--t3);text-transform:uppercase">Perse</div>
+                    <div style="font-family:'DM Mono';font-size:16px;color:var(--r)" id="simLosses">0</div>
+                </div>
+                <div style="background:var(--s2);border-radius:8px;padding:6px;text-align:center">
+                    <div style="font-size:7px;color:var(--t3);text-transform:uppercase">Saldo</div>
+                    <div style="font-family:'DM Mono';font-size:16px" id="simBalance">—</div>
+                </div>
+            </div>
+            <div class="hl" id="simList" style="max-height:280px"></div>
+        </div>
         <div class="tp" id="tpE"><div class="ecw"><canvas id="ec"></canvas></div></div>
     </div>
 </div>
@@ -230,7 +259,7 @@ let errChart,mCI=null,lastData=null,lastPredId=0,prevP=0,lc;
 const cache={};
 let sAll={ok:0,ko:0},sHi={ok:0,ko:0};
 // ★ Trade log per simulazione investimento
-let trades=[]; // {pctMove, dirCorrect, isHiConf}
+let trades=[]; // {ptsMove, pctMove, dirCorrect, isHiConf, time, predDir}
 
 // ═══ CANVAS LIVE CHART 45s ═══
 class LC{
@@ -320,12 +349,21 @@ function updStats(){
 function calcSim(){
     const cap = parseFloat(document.getElementById('simCap').value) || 1000;
     let balAll=cap, balHi=cap;
+    let winsHi=0, lossesHi=0;
+    const simRows=[];
+    
     trades.forEach(t=>{
-        // % profitto/perdita per ogni trade
         const pctGain = t.dirCorrect ? Math.abs(t.pctMove) : -Math.abs(t.pctMove);
         balAll *= (1 + pctGain);
-        if(t.isHiConf) balHi *= (1 + pctGain);
+        if(t.isHiConf) {
+            const before = balHi;
+            balHi *= (1 + pctGain);
+            const delta = balHi - before;
+            if(t.dirCorrect) winsHi++; else lossesHi++;
+            simRows.push({time:t.time, dir:t.predDir, ok:t.dirCorrect, pctGain, delta, balance:balHi, conf:t.conf});
+        }
     });
+    
     const fmtE = v => v.toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2})+'€';
     document.getElementById('simAll').textContent = fmtE(balAll);
     document.getElementById('simAll').style.color = balAll>=cap?'var(--g)':'var(--r)';
@@ -338,6 +376,35 @@ function calcSim(){
     const pctHi = ((balHi-cap)/cap*100);
     document.getElementById('simHiPct').textContent = (pctHi>=0?'+':'')+pctHi.toFixed(2)+'%';
     document.getElementById('simHiPct').style.color = pctHi>=0?'var(--g)':'var(--r)';
+    
+    // ★ Aggiorna tab Simulazione
+    document.getElementById('simWins').textContent = winsHi;
+    document.getElementById('simLosses').textContent = lossesHi;
+    const balEl = document.getElementById('simBalance');
+    balEl.textContent = fmtE(balHi);
+    balEl.style.color = balHi>=cap?'var(--g)':'var(--r)';
+    
+    // Ricostruisci lista trade
+    const list = document.getElementById('simList');
+    list.innerHTML = '';
+    if(simRows.length === 0){
+        list.innerHTML = '<div style="color:var(--t3);font-size:10px;padding:16px;text-align:center">Nessuna previsione sicura (≥80%) ancora</div>';
+        return;
+    }
+    // Mostra in ordine inverso (più recente in alto)
+    for(let i=simRows.length-1; i>=0; i--){
+        const r = simRows[i];
+        const el = document.createElement('div');
+        el.className = 'tr-row ' + (r.ok ? 'win' : 'loss');
+        const col = r.ok ? 'var(--g)' : 'var(--r)';
+        const sign = r.delta >= 0 ? '+' : '';
+        el.innerHTML = `<span class="tr-time">${r.time}</span>`+
+            `<span class="tr-icon">${r.ok?'✅':'❌'}</span>`+
+            `<span class="tr-dir" style="color:${col}">${r.dir} ★${r.conf}%</span>`+
+            `<span class="tr-move" style="color:${col}">${sign}${r.delta.toFixed(2)}€</span>`+
+            `<span class="tr-bal">${r.balance.toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2})}€</span>`;
+        list.appendChild(el);
+    }
 }
 
 // Ricalcola quando cambia il capitale
@@ -376,7 +443,7 @@ function addH(pred){const l=document.getElementById('hL');if(l.querySelector('[s
     const startP=pred.start_price||0, actP=pred.actual_price||0;
     const ptsMove=Math.abs(actP-startP);
     const pctMove=startP>0?Math.abs(actP-startP)/startP:0;
-    trades.push({ptsMove,pctMove,dirCorrect:!!ok,isHiConf:isHi});
+    trades.push({ptsMove,pctMove,dirCorrect:!!ok,isHiConf:isHi,time:t,predDir:pred.predicted_up?'SU':'GIÙ',conf});
     updStats();
     const el=document.createElement('div');el.className='hi'+(isHi?' gold':'');el.onclick=()=>openM(pred.id);
     el.innerHTML=`<span class="hi-t">${t}</span><span class="hi-i">${ic}</span><span class="hi-d" style="color:${col}">${pD} → ${aD}</span>${isHi?`<span class="hi-b">★${conf}%</span>`:''}<span class="hi-e" style="color:${col}">${err>=0?'+':''}${err.toFixed(1)}</span><span class="hi-a">›</span>`;
