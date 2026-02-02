@@ -2,912 +2,249 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Market Forecaster — Live Dashboard</title>
-    
-    <!-- Supabase JS Client -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0a0a1a">
+    <title>Market Forecaster</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <!-- Chart.js per i grafici -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-primary: #0a0a1a;
-            --bg-card: #12122a;
-            --bg-card-hover: #1a1a3a;
-            --border: #2a2a4a;
-            --text-primary: #e0e0f0;
-            --text-secondary: #808090;
-            --text-muted: #505060;
-            --green: #22c55e;
-            --green-bg: #22c55e15;
-            --red: #ef4444;
-            --red-bg: #ef444415;
-            --blue: #3b82f6;
-            --orange: #f59e0b;
-            --purple: #8b5cf6;
-            --cyan: #06b6d4;
-        }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Outfit', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        
-        /* ═══ HEADER ═══ */
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 24px;
-            border-bottom: 1px solid var(--border);
-            background: linear-gradient(180deg, #0f0f2a 0%, var(--bg-primary) 100%);
-        }
-        
-        .header h1 {
-            font-size: 20px;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--cyan), var(--purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .header .status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-        
-        .status-dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            background: var(--text-muted);
-            transition: background 0.3s;
-        }
-        
-        .status-dot.live {
-            background: var(--green);
-            box-shadow: 0 0 8px var(--green);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        /* ═══ LAYOUT ═══ */
-        .dashboard {
-            display: grid;
-            grid-template-columns: 220px 1fr 280px;
-            grid-template-rows: auto 1fr auto;
-            gap: 12px;
-            padding: 12px;
-            height: calc(100vh - 60px);
-        }
-        
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        .card:hover { border-color: #3a3a5a; }
-        
-        .card-title {
-            font-size: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-        }
-        
-        /* ═══ PRICE (grande) ═══ */
-        .price-section {
-            grid-column: 1;
-            grid-row: 1;
-        }
-        
-        .big-price {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 32px;
-            font-weight: 700;
-            line-height: 1.1;
-        }
-        
-        .price-change {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            margin-top: 4px;
-        }
-        
-        .up { color: var(--green); }
-        .down { color: var(--red); }
-        .flat { color: var(--orange); }
-        
-        /* ═══ INDICATORI (colonna sinistra) ═══ */
-        .indicators {
-            grid-column: 1;
-            grid-row: 2 / 4;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        
-        .indicator-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 4px 0;
-            border-bottom: 1px solid #1a1a2a;
-        }
-        
-        .indicator-label {
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-        
-        .indicator-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        
-        /* ═══ CHART (centro) ═══ */
-        .chart-area {
-            grid-column: 2;
-            grid-row: 1 / 3;
-            min-height: 0;
-        }
-        
-        .chart-container {
-            position: relative;
-            height: calc(100% - 30px);
-        }
-        
-        /* ═══ ERROR CHART ═══ */
-        .error-area {
-            grid-column: 2;
-            grid-row: 3;
-            min-height: 120px;
-        }
-        
-        .error-chart-container {
-            position: relative;
-            height: calc(100% - 30px);
-        }
-        
-        /* ═══ PREDICTION (colonna destra) ═══ */
-        .prediction-section {
-            grid-column: 3;
-            grid-row: 1;
-        }
-        
-        .prediction-price {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 24px;
-            font-weight: 700;
-        }
-        
-        .confidence-bar {
-            height: 6px;
-            background: #1a1a3a;
-            border-radius: 3px;
-            margin: 8px 0;
-            overflow: hidden;
-        }
-        
-        .confidence-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--purple), var(--cyan));
-            border-radius: 3px;
-            transition: width 0.5s ease;
-        }
-        
-        .prob-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 6px;
-            text-align: center;
-            margin-top: 10px;
-        }
-        
-        .prob-item {
-            padding: 6px;
-            border-radius: 6px;
-            font-size: 10px;
-        }
-        
-        .prob-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 18px;
-            font-weight: 700;
-        }
-        
-        /* ═══ REASONING ═══ */
-        .reasoning-section {
-            grid-column: 3;
-            grid-row: 2;
-            overflow-y: auto;
-        }
-        
-        .reasoning-text {
-            font-size: 11px;
-            line-height: 1.6;
-            color: #90c090;
-            white-space: pre-line;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        
-        /* ═══ HISTORY ═══ */
-        .history-section {
-            grid-column: 3;
-            grid-row: 3;
-            overflow-y: auto;
-        }
-        
-        .history-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 5px 0;
-            border-bottom: 1px solid #1a1a2a;
-            font-size: 11px;
-        }
-        
-        .history-time {
-            color: var(--text-muted);
-            font-family: 'JetBrains Mono', monospace;
-            min-width: 55px;
-        }
-        
-        .history-result {
-            font-weight: 600;
-        }
-        
-        .history-error {
-            margin-left: auto;
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-        }
-        
-        /* ═══ ACCURACY ═══ */
-        .accuracy-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-            margin-top: 8px;
-        }
-        
-        .accuracy-item {
-            text-align: center;
-            padding: 6px;
-            background: #0a0a1a;
-            border-radius: 6px;
-        }
-        
-        .accuracy-label {
-            font-size: 9px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-        
-        .accuracy-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        
-        /* ═══ DISCONNECTED STATE ═══ */
-        .disconnected-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            backdrop-filter: blur(4px);
-        }
-        
-        .disconnected-message {
-            text-align: center;
-            padding: 40px;
-        }
-        
-        .disconnected-message h2 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-        
-        .disconnected-message p {
-            color: var(--text-secondary);
-        }
-        
-        /* ═══ RESPONSIVE ═══ */
-        @media (max-width: 1024px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto;
-                height: auto;
-            }
-            .price-section, .indicators, .chart-area, .error-area,
-            .prediction-section, .reasoning-section, .history-section {
-                grid-column: 1;
-                grid-row: auto;
-            }
-            .chart-area { min-height: 300px; }
-            .error-area { min-height: 150px; }
-        }
+        :root{--bg:#0a0a1a;--card:#111128;--card2:#161636;--border:#222244;--t1:#e8e8f8;--t2:#888898;--t3:#555565;--green:#22c55e;--green-dim:#22c55e30;--red:#ef4444;--red-dim:#ef444430;--blue:#3b82f6;--orange:#f59e0b;--purple:#8b5cf6;--cyan:#06b6d4;--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+        body{font-family:'Outfit',-apple-system,sans-serif;background:var(--bg);color:var(--t1);min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-top:var(--safe-top);padding-bottom:var(--safe-bottom)}
+        .mono{font-family:'JetBrains Mono',monospace}
+        .up{color:var(--green)!important}.down{color:var(--red)!important}
+
+        .header{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(10,10,26,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+        .header h1{font-size:14px;font-weight:700;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap}
+        .status{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--t2)}
+        .status-dot{width:7px;height:7px;border-radius:50%;background:var(--t3);flex-shrink:0}
+        .status-dot.live{background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+        @keyframes slideIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
+        .app{padding:8px;display:flex;flex-direction:column;gap:8px;padding-bottom:calc(8px + var(--safe-bottom))}
+        .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px}
+        .card-title{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--t3);margin-bottom:8px}
+
+        .hero{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        .big-price{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;line-height:1;letter-spacing:-.5px;transition:color .3s}
+        .price-sub{display:flex;align-items:center;gap:6px;margin-top:4px}
+        .price-change{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600}
+        .symbol-tag{font-size:9px;color:var(--t3);background:var(--card2);padding:2px 6px;border-radius:4px}
+        .hero-forecast{text-align:right;display:flex;flex-direction:column;justify-content:center;align-items:flex-end}
+        .forecast-label{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:1px}
+        .forecast-price{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700}
+        .forecast-change{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;margin-top:2px}
+
+        .prob-bar{display:flex;height:26px;border-radius:8px;overflow:hidden;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;margin-top:10px}
+        .prob-up{background:var(--green-dim);color:var(--green);display:flex;align-items:center;justify-content:center;transition:width .5s}
+        .prob-flat{background:#f59e0b20;color:var(--orange);display:flex;align-items:center;justify-content:center;transition:width .5s}
+        .prob-down{background:var(--red-dim);color:var(--red);display:flex;align-items:center;justify-content:center;transition:width .5s}
+
+        .conf-row{display:flex;align-items:center;gap:8px;margin-top:6px}
+        .conf-bar-bg{flex:1;height:4px;background:#1a1a3a;border-radius:2px;overflow:hidden}
+        .conf-bar-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan));border-radius:2px;transition:width .8s}
+        .conf-label{font-size:10px;color:var(--t2);font-family:'JetBrains Mono',monospace}
+
+        .chart-wrap{height:200px;position:relative}
+        .chart-wrap canvas{width:100%!important;height:100%!important}
+
+        .ind-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+        .ind-item{background:var(--card2);border-radius:8px;padding:8px;text-align:center}
+        .ind-label{font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--t3)}
+        .ind-value{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;margin-top:2px;transition:color .3s}
+
+        .sr-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0}
+        .sr-label{font-size:11px;color:var(--t2)}
+        .sr-value{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600}
+
+        .acc-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
+        .acc-item{text-align:center;background:var(--card2);border-radius:8px;padding:8px 4px}
+        .acc-label{font-size:8px;text-transform:uppercase;letter-spacing:.8px;color:var(--t3)}
+        .acc-value{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;margin-top:2px}
+
+        .tabs{display:flex;gap:0;border-radius:8px;overflow:hidden;margin-bottom:8px;border:1px solid var(--border)}
+        .tab{flex:1;padding:8px;text-align:center;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--t3);background:var(--card);cursor:pointer;border:none;-webkit-appearance:none;font-family:inherit;transition:all .2s}
+        .tab.active{background:var(--card2);color:var(--t1)}
+        .tab-panel{display:none}.tab-panel.active{display:block}
+
+        .reasoning-text{font-size:10px;line-height:1.5;color:#80b080;white-space:pre-line;font-family:'JetBrains Mono',monospace;max-height:180px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+        .history-list{max-height:200px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+        .hist-item{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid #1a1a2a;font-size:11px;animation:slideIn .3s ease-out}
+        .hist-time{color:var(--t3);font-family:'JetBrains Mono',monospace;font-size:10px;min-width:48px}
+        .hist-dir{font-weight:600;font-size:10px}
+        .hist-err{margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11px}
+        .error-chart-wrap{height:100px;position:relative}
+
+        .overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+        .overlay-msg{text-align:center;padding:32px}
+        .overlay-msg h2{font-size:20px;margin-bottom:8px}
+        .overlay-msg p{color:var(--t2);font-size:13px}
+
+        @media(min-width:768px){.app{max-width:500px;margin:0 auto}.big-price{font-size:32px}.chart-wrap{height:280px}}
+        @media(min-width:1200px){.app{max-width:1200px;display:grid;grid-template-columns:1fr 1fr}.hero-card,.chart-card{grid-column:1/3}.chart-wrap{height:350px}}
     </style>
 </head>
 <body>
-
-<!-- ═══════ HEADER ═══════ -->
 <div class="header">
-    <h1>📊 Market Forecaster — Live Dashboard</h1>
-    <div class="status">
-        <div class="status-dot" id="statusDot"></div>
-        <span id="statusText">Disconnesso</span>
-        <span class="mono" id="lastUpdate" style="margin-left:12px; font-size:11px; color:var(--text-muted)"></span>
+    <h1>📊 Market Forecaster</h1>
+    <div class="status"><div class="status-dot" id="statusDot"></div><span id="statusText">...</span><span class="mono" style="font-size:10px;color:var(--t3)" id="lastUpdate"></span></div>
+</div>
+<div class="app">
+    <!-- HERO -->
+    <div class="card hero-card">
+        <div class="hero">
+            <div>
+                <div class="big-price" id="currentPrice">—</div>
+                <div class="price-sub"><span class="price-change" id="priceChange">—</span><span class="symbol-tag" id="symbolName">—</span></div>
+            </div>
+            <div class="hero-forecast">
+                <div class="forecast-label">Previsione 5min</div>
+                <div class="forecast-price" id="predictedPrice">—</div>
+                <div class="forecast-change" id="predictedChange">—</div>
+            </div>
+        </div>
+        <div class="prob-bar">
+            <div class="prob-up" id="probUpBar" style="width:33%"><span id="probUp">—</span></div>
+            <div class="prob-flat" id="probFlatBar" style="width:34%"><span id="probFlat">—</span></div>
+            <div class="prob-down" id="probDownBar" style="width:33%"><span id="probDown">—</span></div>
+        </div>
+        <div class="conf-row"><span class="conf-label">Confidence</span><div class="conf-bar-bg"><div class="conf-bar-fill" id="confidenceBar" style="width:0%"></div></div><span class="conf-label" id="confidence">—</span></div>
     </div>
+
+    <!-- CHART -->
+    <div class="card chart-card"><div class="card-title">Price & Forecast</div><div class="chart-wrap"><canvas id="priceChart"></canvas></div></div>
+
+    <!-- INDICATORI -->
+    <div class="card">
+        <div class="card-title">Indicatori</div>
+        <div class="ind-grid">
+            <div class="ind-item"><div class="ind-label">RSI</div><div class="ind-value" id="rsi">—</div></div>
+            <div class="ind-item"><div class="ind-label">MACD</div><div class="ind-value" id="macd">—</div></div>
+            <div class="ind-item"><div class="ind-label">Volatilità</div><div class="ind-value" id="volatility">—</div></div>
+            <div class="ind-item"><div class="ind-label">Slope 1m</div><div class="ind-value" id="trendSlope1m">—</div></div>
+            <div class="ind-item"><div class="ind-label">Slope 5m</div><div class="ind-value" id="trendSlope5m">—</div></div>
+            <div class="ind-item"><div class="ind-label">R²</div><div class="ind-value" id="trendR2">—</div></div>
+        </div>
+        <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px">
+            <div class="sr-row"><span class="sr-label">Supporto</span><span class="sr-value up" id="support">—</span></div>
+            <div class="sr-row"><span class="sr-label">Resistenza</span><span class="sr-value down" id="resistance">—</span></div>
+        </div>
+    </div>
+
+    <!-- ACCURACY -->
+    <div class="card">
+        <div class="card-title">Accuratezza</div>
+        <div class="acc-grid">
+            <div class="acc-item"><div class="acc-label">MAE</div><div class="acc-value" id="mae">—</div></div>
+            <div class="acc-item"><div class="acc-label">MAPE</div><div class="acc-value" id="mape">—</div></div>
+            <div class="acc-item"><div class="acc-label">Dir%</div><div class="acc-value" id="dirAccuracy">—</div></div>
+            <div class="acc-item"><div class="acc-label">N°</div><div class="acc-value" id="predCount">0</div></div>
+        </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="card">
+        <div class="tabs">
+            <button class="tab active" onclick="showTab(this,'reasoning')">📖 Analisi</button>
+            <button class="tab" onclick="showTab(this,'history')">📋 Storico</button>
+            <button class="tab" onclick="showTab(this,'errors')">📉 Errori</button>
+        </div>
+        <div class="tab-panel active" id="panel-reasoning"><div class="reasoning-text" id="reasoning">In attesa dei dati...</div></div>
+        <div class="tab-panel" id="panel-history"><div class="history-list" id="historyList"><div style="color:var(--t3);font-size:11px;font-style:italic">In attesa...</div></div></div>
+        <div class="tab-panel" id="panel-errors"><div class="error-chart-wrap"><canvas id="errorChart"></canvas></div></div>
+    </div>
+
+    <span id="tickTime" style="display:none"></span>
+    <span id="macdHist" style="display:none"></span>
+    <span id="atr" style="display:none"></span>
+    <span id="bullish" style="display:none"></span>
+    <span id="bearish" style="display:none"></span>
 </div>
 
-<!-- ═══════ DASHBOARD ═══════ -->
-<div class="dashboard">
-
-    <!-- PREZZO CORRENTE -->
-    <div class="card price-section">
-        <div class="card-title">Current Price</div>
-        <div class="big-price" id="currentPrice">—</div>
-        <div class="price-change" id="priceChange">—</div>
-        <div style="margin-top:10px; font-size:11px; color:var(--text-muted)">
-            <span id="symbolName">—</span> · <span id="tickTime">—</span>
-        </div>
-    </div>
-    
-    <!-- INDICATORI (sinistra) -->
-    <div class="indicators">
-        <!-- Trend -->
-        <div class="card">
-            <div class="card-title">Trend Analysis</div>
-            <div class="indicator-row">
-                <span class="indicator-label">Slope 1m</span>
-                <span class="indicator-value mono" id="trendSlope1m">—</span>
-            </div>
-            <div class="indicator-row">
-                <span class="indicator-label">Slope 5m</span>
-                <span class="indicator-value mono" id="trendSlope5m">—</span>
-            </div>
-            <div class="indicator-row">
-                <span class="indicator-label">R²</span>
-                <span class="indicator-value mono" id="trendR2">—</span>
-            </div>
-        </div>
-        
-        <!-- Momentum -->
-        <div class="card">
-            <div class="card-title">Momentum</div>
-            <div class="indicator-row">
-                <span class="indicator-label">RSI (14)</span>
-                <span class="indicator-value mono" id="rsi">—</span>
-            </div>
-            <div class="indicator-row">
-                <span class="indicator-label">MACD</span>
-                <span class="indicator-value mono" id="macd">—</span>
-            </div>
-            <div class="indicator-row">
-                <span class="indicator-label">Histogram</span>
-                <span class="indicator-value mono" id="macdHist">—</span>
-            </div>
-        </div>
-        
-        <!-- Volatility -->
-        <div class="card">
-            <div class="card-title">Volatility</div>
-            <div class="indicator-row">
-                <span class="indicator-label">Historical</span>
-                <span class="indicator-value mono" id="volatility">—</span>
-            </div>
-            <div class="indicator-row">
-                <span class="indicator-label">ATR</span>
-                <span class="indicator-value mono" id="atr">—</span>
-            </div>
-        </div>
-        
-        <!-- Support/Resistance -->
-        <div class="card">
-            <div class="card-title">Support / Resistance</div>
-            <div class="indicator-row">
-                <span class="indicator-label">Support</span>
-                <span class="indicator-value mono up" id="support">—</span>
-            </div>
-            <div class="indicator-row">
-                <span class="indicator-label">Resistance</span>
-                <span class="indicator-value mono down" id="resistance">—</span>
-            </div>
-        </div>
-        
-        <!-- Accuracy -->
-        <div class="card">
-            <div class="card-title">Prediction Accuracy</div>
-            <div class="accuracy-grid">
-                <div class="accuracy-item">
-                    <div class="accuracy-label">MAE</div>
-                    <div class="accuracy-value" id="mae">—</div>
-                </div>
-                <div class="accuracy-item">
-                    <div class="accuracy-label">MAPE</div>
-                    <div class="accuracy-value" id="mape">—</div>
-                </div>
-                <div class="accuracy-item">
-                    <div class="accuracy-label">Direction</div>
-                    <div class="accuracy-value" id="dirAccuracy">—</div>
-                </div>
-                <div class="accuracy-item">
-                    <div class="accuracy-label">Count</div>
-                    <div class="accuracy-value" id="predCount">0</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- CHART PRINCIPALE -->
-    <div class="card chart-area">
-        <div class="card-title">Price & Forecast</div>
-        <div class="chart-container">
-            <canvas id="priceChart"></canvas>
-        </div>
-    </div>
-    
-    <!-- ERROR CHART -->
-    <div class="card error-area">
-        <div class="card-title">Prediction Error Tracking</div>
-        <div class="error-chart-container">
-            <canvas id="errorChart"></canvas>
-        </div>
-    </div>
-    
-    <!-- PREVISIONE (destra) -->
-    <div class="card prediction-section">
-        <div class="card-title">5-Minute Forecast</div>
-        <div class="prediction-price" id="predictedPrice">—</div>
-        <div class="price-change" id="predictedChange">—</div>
-        
-        <div style="margin-top:10px">
-            <div style="display:flex; justify-content:space-between; font-size:11px">
-                <span style="color:var(--text-secondary)">Confidence</span>
-                <span class="mono" id="confidence">—</span>
-            </div>
-            <div class="confidence-bar">
-                <div class="confidence-fill" id="confidenceBar" style="width:0%"></div>
-            </div>
-        </div>
-        
-        <div class="prob-grid">
-            <div class="prob-item" style="background:var(--green-bg)">
-                <div style="color:var(--green); font-size:9px">▲ UP</div>
-                <div class="prob-value up" id="probUp">—</div>
-            </div>
-            <div class="prob-item" style="background:#f59e0b15">
-                <div style="color:var(--orange); font-size:9px">◆ FLAT</div>
-                <div class="prob-value flat" id="probFlat">—</div>
-            </div>
-            <div class="prob-item" style="background:var(--red-bg)">
-                <div style="color:var(--red); font-size:9px">▼ DOWN</div>
-                <div class="prob-value down" id="probDown">—</div>
-            </div>
-        </div>
-        
-        <!-- Sentiment -->
-        <div style="margin-top:12px">
-            <div class="card-title">Market Sentiment</div>
-            <div style="display:flex; justify-content:space-between">
-                <div style="text-align:center">
-                    <div style="font-size:9px; color:var(--green)">Bullish</div>
-                    <div class="mono" style="font-size:20px; font-weight:700; color:var(--green)" id="bullish">—</div>
-                </div>
-                <div style="text-align:center">
-                    <div style="font-size:9px; color:var(--red)">Bearish</div>
-                    <div class="mono" style="font-size:20px; font-weight:700; color:var(--red)" id="bearish">—</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- REASONING -->
-    <div class="card reasoning-section">
-        <div class="card-title">📖 Analisi & Reasoning</div>
-        <div class="reasoning-text" id="reasoning">In attesa dei dati...</div>
-    </div>
-    
-    <!-- HISTORY -->
-    <div class="card history-section">
-        <div class="card-title">📋 Storico Previsioni</div>
-        <div id="historyList">
-            <div style="color:var(--text-muted); font-size:11px; font-style:italic">In attesa della prima previsione...</div>
-        </div>
-    </div>
-
-</div>
-
-<!-- ═══════ DISCONNECTED OVERLAY ═══════ -->
-<div class="disconnected-overlay" id="disconnectedOverlay" style="display:none">
-    <div class="disconnected-message">
-        <h2>⏸ App non attiva</h2>
-        <p>Avvia Market Forecaster per vedere i dati in tempo reale</p>
-        <p style="margin-top:10px; font-size:12px" class="mono" id="lastSeen"></p>
-    </div>
+<div class="overlay" id="disconnectedOverlay" style="display:none">
+    <div class="overlay-msg"><h2>⏸ App non attiva</h2><p>Avvia Market Forecaster per i dati live</p><p class="mono" style="margin-top:8px;font-size:11px" id="lastSeen"></p></div>
 </div>
 
 <script>
-// ════════════════════════════════════════════════════════════
-// CONFIGURA QUI le tue credenziali Supabase
-// ════════════════════════════════════════════════════════════
+// ═══ CONFIGURA QUI ═══
 const SUPABASE_URL = 'https://xoagoblnzvdqnktpfhlk.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Uf5-1uzQzL-OqI6dA-tl_g_RHpYxNds';
 
-// ════════════════════════════════════════════════════════════
-// INIT
-// ════════════════════════════════════════════════════════════
-const { createClient } = window.supabase || window.Supabase || {};
+const { createClient } = window.supabase || {};
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+let priceChart, errorChart, lastDataTime = null, lastPredictionId = 0, prevPrice = 0;
 
-let priceChart, errorChart;
-let lastDataTime = null;
-let staleCheckInterval;
+function showTab(btn, name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + name).classList.add('active');
+    if (name === 'errors' && errorChart) setTimeout(() => errorChart.resize(), 50);
+}
 
-// ════════════════════════════════════════════════════════════
-// CHARTS SETUP
-// ════════════════════════════════════════════════════════════
 function initCharts() {
-    const commonOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: { duration: 200 },
-        plugins: { legend: { display: false } },
-        scales: {
-            x: {
-                type: 'category',
-                ticks: { color: '#505060', font: { family: 'JetBrains Mono', size: 9 }, maxTicksLimit: 8 },
-                grid: { color: '#1a1a2a' }
-            },
-            y: {
-                ticks: { color: '#505060', font: { family: 'JetBrains Mono', size: 9 } },
-                grid: { color: '#1a1a2a' }
-            }
-        }
-    };
-    
-    // Price chart
-    priceChart = new Chart(document.getElementById('priceChart'), {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [
-                {
-                    label: 'Price',
-                    data: [],
-                    borderColor: '#3b82f6',
-                    borderWidth: 1.5,
-                    pointRadius: 0,
-                    fill: false,
-                    tension: 0.1
-                },
-                {
-                    label: 'Prediction',
-                    data: [],
-                    borderColor: '#22c55e',
-                    borderWidth: 2,
-                    borderDash: [5, 3],
-                    pointRadius: 0,
-                    fill: false,
-                    tension: 0.3
-                }
-            ]
-        },
-        options: commonOptions
-    });
-    
-    // Error chart
-    errorChart = new Chart(document.getElementById('errorChart'), {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Error %',
-                data: [],
-                borderColor: '#ef4444',
-                borderWidth: 1.5,
-                pointRadius: 0,
-                fill: {
-                    target: 'origin',
-                    above: 'rgba(239,68,68,0.1)'
-                },
-                tension: 0.1
-            }]
-        },
-        options: commonOptions
-    });
+    const o = {responsive:true,maintainAspectRatio:false,animation:{duration:150},plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#404050',font:{family:'JetBrains Mono',size:8},maxTicksLimit:5,maxRotation:0},grid:{color:'#151530'}},y:{ticks:{color:'#404050',font:{family:'JetBrains Mono',size:9}},grid:{color:'#151530'}}}};
+    priceChart = new Chart(document.getElementById('priceChart'),{type:'line',data:{labels:[],datasets:[{label:'Price',data:[],borderColor:'#3b82f6',borderWidth:1.5,pointRadius:0,fill:false,tension:.1},{label:'Pred',data:[],borderColor:'#22c55e',borderWidth:2,borderDash:[4,3],pointRadius:0,fill:false,tension:.3}]},options:o});
+    errorChart = new Chart(document.getElementById('errorChart'),{type:'line',data:{labels:[],datasets:[{label:'Err',data:[],borderColor:'#ef4444',borderWidth:1.5,pointRadius:0,fill:{target:'origin',above:'rgba(239,68,68,.08)'},tension:.1}]},options:{...o,scales:{...o.scales,y:{...o.scales.y,ticks:{...o.scales.y.ticks,maxTicksLimit:4}}}}});
 }
 
-// ════════════════════════════════════════════════════════════
-// UPDATE UI FROM STATE
-// ════════════════════════════════════════════════════════════
-function updateDashboard(state) {
-    if (!state) return;
-    
-    lastDataTime = new Date();
-    
-    // Status
-    const isRunning = state.is_running;
-    document.getElementById('statusDot').className = isRunning ? 'status-dot live' : 'status-dot';
-    document.getElementById('statusText').textContent = isRunning ? 'Live' : 'Fermo';
-    document.getElementById('lastUpdate').textContent = state.last_tick_time || '';
-    document.getElementById('disconnectedOverlay').style.display = isRunning ? 'none' : 'flex';
-    
-    // Price
-    const price = state.current_price;
-    if (price > 0) {
-        document.getElementById('currentPrice').textContent = price.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    }
-    document.getElementById('symbolName').textContent = state.symbol || '—';
-    document.getElementById('tickTime').textContent = state.last_tick_time || '';
-    
-    // Price change
-    const change = state.predicted_change || 0;
-    const changePct = state.predicted_change_pct || 0;
-    const changeEl = document.getElementById('priceChange');
-    changeEl.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}  (${changePct >= 0 ? '+' : ''}${changePct.toFixed(2)}%)`;
-    changeEl.className = `price-change mono ${change >= 0 ? 'up' : 'down'}`;
-    
-    // Prediction
-    const pp = state.predicted_price;
-    if (pp > 0) {
-        const ppEl = document.getElementById('predictedPrice');
-        ppEl.textContent = pp.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        const pChange = state.predicted_change || 0;
-        const pChangePct = state.predicted_change_pct || 0;
-        const pcEl = document.getElementById('predictedChange');
-        pcEl.textContent = `${pChange >= 0 ? '+' : ''}${pChange.toFixed(2)}  (${pChangePct >= 0 ? '+' : ''}${pChangePct.toFixed(3)}%)`;
-        pcEl.className = `price-change mono ${pChange >= 0 ? 'up' : 'down'}`;
-    }
-    
-    // Confidence
-    const conf = state.prediction_confidence || 0;
-    document.getElementById('confidence').textContent = (conf * 100).toFixed(0) + '%';
-    document.getElementById('confidenceBar').style.width = (conf * 100) + '%';
-    
-    // Probabilities
-    document.getElementById('probUp').textContent = ((state.probability_up || 0) * 100).toFixed(0) + '%';
-    document.getElementById('probFlat').textContent = ((state.probability_flat || 0) * 100).toFixed(0) + '%';
-    document.getElementById('probDown').textContent = ((state.probability_down || 0) * 100).toFixed(0) + '%';
-    
-    // Sentiment
-    document.getElementById('bullish').textContent = (state.bullish_score || 0).toFixed(0);
-    document.getElementById('bearish').textContent = (state.bearish_score || 0).toFixed(0);
-    
-    // Indicators
-    document.getElementById('trendSlope1m').textContent = (state.trend_slope_1m || 0).toFixed(4);
-    document.getElementById('trendSlope5m').textContent = (state.trend_slope_5m || 0).toFixed(4);
-    document.getElementById('trendR2').textContent = ((state.trend_r_squared || 0) * 100).toFixed(1) + '%';
-    document.getElementById('rsi').textContent = (state.rsi || 0).toFixed(1);
-    document.getElementById('macd').textContent = (state.macd || 0).toFixed(6);
-    document.getElementById('macdHist').textContent = (state.macd_histogram || 0).toFixed(6);
-    document.getElementById('volatility').textContent = ((state.volatility || 0) * 100).toFixed(2) + '%';
-    document.getElementById('atr').textContent = (state.atr || 0).toFixed(2);
-    
-    // Support/Resistance
-    document.getElementById('support').textContent = (state.nearest_support || 0).toFixed(2);
-    document.getElementById('resistance').textContent = (state.nearest_resistance || 0).toFixed(2);
-    
-    // Accuracy
-    document.getElementById('mae').textContent = (state.mae || 0).toFixed(2);
-    document.getElementById('mape').textContent = (state.mape || 0).toFixed(2) + '%';
-    document.getElementById('dirAccuracy').textContent = ((state.direction_accuracy || 0) * 100).toFixed(1) + '%';
-    document.getElementById('predCount').textContent = state.prediction_count || 0;
-    
-    // Reasoning
-    if (state.prediction_reasoning) {
-        document.getElementById('reasoning').textContent = state.prediction_reasoning;
-    }
-    
-    // RSI color
-    const rsiVal = state.rsi || 50;
-    const rsiEl = document.getElementById('rsi');
-    rsiEl.style.color = rsiVal > 70 ? 'var(--red)' : rsiVal < 30 ? 'var(--green)' : 'var(--text-primary)';
-    
-    // Charts
-    updateCharts(state);
+function fmt(n){return n.toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function setChange(id,v,p){const e=document.getElementById(id);e.textContent=`${v>=0?'+':''}${v.toFixed(2)} (${p>=0?'+':''}${p.toFixed(2)}%)`;e.className=`price-change mono ${v>=0?'up':'down'}`}
+
+function updateDashboard(s) {
+    if(!s)return; lastDataTime=new Date();
+    const run=s.is_running;
+    document.getElementById('statusDot').className=run?'status-dot live':'status-dot';
+    document.getElementById('statusText').textContent=run?'Live':'Off';
+    document.getElementById('lastUpdate').textContent=s.last_tick_time||'';
+    document.getElementById('disconnectedOverlay').style.display=run?'none':'flex';
+
+    const p=s.current_price;
+    if(p>0){const el=document.getElementById('currentPrice');el.textContent=fmt(p);if(prevPrice>0&&p!==prevPrice){el.style.color=p>prevPrice?'var(--green)':'var(--red)';setTimeout(()=>el.style.color='',400)}prevPrice=p}
+    document.getElementById('symbolName').textContent=s.symbol||'—';
+    setChange('priceChange',s.predicted_change||0,s.predicted_change_pct||0);
+
+    if(s.predicted_price>0){document.getElementById('predictedPrice').textContent=fmt(s.predicted_price);setChange('predictedChange',s.predicted_change||0,s.predicted_change_pct||0);document.getElementById('predictedPrice').style.color=(s.predicted_change||0)>=0?'var(--green)':'var(--red)'}
+
+    const pu=Math.round((s.probability_up||0)*100),pf=Math.round((s.probability_flat||0)*100),pd=Math.round((s.probability_down||0)*100);
+    document.getElementById('probUp').textContent=`▲${pu}%`;document.getElementById('probFlat').textContent=`◆${pf}%`;document.getElementById('probDown').textContent=`▼${pd}%`;
+    document.getElementById('probUpBar').style.width=Math.max(pu,8)+'%';document.getElementById('probFlatBar').style.width=Math.max(pf,8)+'%';document.getElementById('probDownBar').style.width=Math.max(pd,8)+'%';
+
+    const conf=(s.prediction_confidence||0)*100;document.getElementById('confidence').textContent=conf.toFixed(0)+'%';document.getElementById('confidenceBar').style.width=conf+'%';
+
+    document.getElementById('rsi').textContent=(s.rsi||0).toFixed(1);document.getElementById('rsi').style.color=s.rsi>70?'var(--red)':s.rsi<30?'var(--green)':'';
+    document.getElementById('macd').textContent=(s.macd||0).toFixed(4);
+    document.getElementById('volatility').textContent=((s.volatility||0)*100).toFixed(1)+'%';
+    document.getElementById('trendSlope1m').textContent=(s.trend_slope_1m||0).toFixed(2);
+    document.getElementById('trendSlope5m').textContent=(s.trend_slope_5m||0).toFixed(2);
+    document.getElementById('trendR2').textContent=((s.trend_r_squared||0)*100).toFixed(0)+'%';
+    document.getElementById('support').textContent=(s.nearest_support||0).toFixed(2);
+    document.getElementById('resistance').textContent=(s.nearest_resistance||0).toFixed(2);
+    document.getElementById('mae').textContent=(s.mae||0).toFixed(2);
+    document.getElementById('mape').textContent=(s.mape||0).toFixed(1)+'%';
+    document.getElementById('dirAccuracy').textContent=((s.direction_accuracy||0)*100).toFixed(0)+'%';
+    document.getElementById('predCount').textContent=s.prediction_count||0;
+    if(s.prediction_reasoning)document.getElementById('reasoning').textContent=s.prediction_reasoning;
+
+    if(s.price_chart_data&&Array.isArray(s.price_chart_data)){const l=s.price_chart_data.map(p=>p.T||p.t),v=s.price_chart_data.map(p=>p.V||p.v);priceChart.data.labels=l;priceChart.data.datasets[0].data=v;if(s.prediction_line&&Array.isArray(s.prediction_line)){const pv=new Array(l.length).fill(null);for(const pr of s.prediction_line){const i=l.indexOf(pr.T||pr.t);if(i>=0)pv[i]=pr.V||pr.v}for(const pr of s.prediction_line){const t=pr.T||pr.t;if(!l.includes(t)){l.push(t);priceChart.data.datasets[0].data.push(null);pv.push(pr.V||pr.v)}}priceChart.data.datasets[1].data=pv}priceChart.update('none')}
+    if(s.error_chart_data&&Array.isArray(s.error_chart_data)){errorChart.data.labels=s.error_chart_data.map(p=>p.T||p.t);errorChart.data.datasets[0].data=s.error_chart_data.map(p=>p.V||p.v);errorChart.update('none')}
 }
 
-function updateCharts(state) {
-    // Price chart
-    if (state.price_chart_data && Array.isArray(state.price_chart_data)) {
-        const labels = state.price_chart_data.map(p => p.T || p.t);
-        const values = state.price_chart_data.map(p => p.V || p.v);
-        
-        priceChart.data.labels = labels;
-        priceChart.data.datasets[0].data = values;
-        
-        // Prediction line
-        if (state.prediction_line && Array.isArray(state.prediction_line)) {
-            // Merge prediction into same label space
-            const predLabels = state.prediction_line.map(p => p.T || p.t);
-            const predValues = new Array(labels.length).fill(null);
-            
-            // Fill prediction values at matching timestamps
-            for (const pred of state.prediction_line) {
-                const idx = labels.indexOf(pred.T || pred.t);
-                if (idx >= 0) predValues[idx] = pred.V || pred.v;
-            }
-            
-            // If prediction extends beyond current labels, append
-            for (const pred of state.prediction_line) {
-                const t = pred.T || pred.t;
-                if (!labels.includes(t)) {
-                    labels.push(t);
-                    priceChart.data.datasets[0].data.push(null);
-                    predValues.push(pred.V || pred.v);
-                }
-            }
-            
-            priceChart.data.datasets[1].data = predValues;
-        }
-        
-        priceChart.update('none');
-    }
-    
-    // Error chart
-    if (state.error_chart_data && Array.isArray(state.error_chart_data)) {
-        errorChart.data.labels = state.error_chart_data.map(p => p.T || p.t);
-        errorChart.data.datasets[0].data = state.error_chart_data.map(p => p.V || p.v);
-        errorChart.update('none');
-    }
-}
+function addHistoryItem(pred){const list=document.getElementById('historyList');if(list.querySelector('[style*="italic"]'))list.innerHTML='';const ok=pred.direction_correct,ic=ok?'✅':'❌',pD=pred.predicted_up?'▲SU':'▼GIÙ',aD=pred.actual_up?'▲SU':'▼GIÙ',c=ok?'var(--green)':'var(--red)',t=new Date(pred.prediction_time).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),el=document.createElement('div');el.className='hist-item';el.innerHTML=`<span class="hist-time">${t}</span><span>${ic}</span><span class="hist-dir" style="color:${c}">${pD}→${aD}</span><span class="hist-err" style="color:${c}">${(pred.error_amount||0)>=0?'+':''}${(pred.error_amount||0).toFixed(1)}</span>`;list.insertBefore(el,list.firstChild);while(list.children.length>30)list.removeChild(list.lastChild)}
 
-// ════════════════════════════════════════════════════════════
-// PREDICTION HISTORY
-// ════════════════════════════════════════════════════════════
-function addHistoryItem(pred) {
-    const list = document.getElementById('historyList');
-    
-    // Remove "waiting" message
-    if (list.querySelector('[style*="italic"]')) list.innerHTML = '';
-    
-    const icon = pred.direction_correct ? '✅' : '❌';
-    const predArrow = pred.predicted_up ? '▲' : '▼';
-    const actArrow = pred.actual_up ? '▲' : '▼';
-    const predDir = pred.predicted_up ? 'SU' : 'GIÙ';
-    const actDir = pred.actual_up ? 'SU' : 'GIÙ';
-    const errColor = pred.direction_correct ? 'var(--green)' : 'var(--red)';
-    const time = new Date(pred.prediction_time).toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-    
-    const item = document.createElement('div');
-    item.className = 'history-item';
-    item.innerHTML = `
-        <span class="history-time">${time}</span>
-        <span>${icon}</span>
-        <span class="history-result" style="color:${errColor}">${predArrow}${predDir} → ${actArrow}${actDir}</span>
-        <span class="history-error" style="color:${errColor}">${pred.error_amount >= 0 ? '+' : ''}${(pred.error_amount || 0).toFixed(2)}</span>
-    `;
-    
-    list.insertBefore(item, list.firstChild);
-    
-    // Max 50 items
-    while (list.children.length > 50) list.removeChild(list.lastChild);
-}
+async function pollState(){try{const{data}=await supabaseClient.from('market_state').select('*').eq('id','current').single();if(data)updateDashboard(data)}catch(e){}}
+async function pollPredictions(){try{let q=supabaseClient.from('prediction_log').select('*').order('id',{ascending:false}).limit(10);if(lastPredictionId>0)q=q.gt('id',lastPredictionId);const{data}=await q;if(data&&data.length>0)data.reverse().forEach(p=>{if(p.id>lastPredictionId){addHistoryItem(p);lastPredictionId=p.id}})}catch(e){}}
 
-// ════════════════════════════════════════════════════════════
-// SUPABASE REALTIME SUBSCRIPTIONS
-// ════════════════════════════════════════════════════════════
-// ════════════════════════════════════════════════════════════
-// POLLING OGNI SECONDO (più affidabile del Realtime)
-// ════════════════════════════════════════════════════════════
-let lastPredictionId = 0;
+async function init(){await pollState();const{data}=await supabaseClient.from('prediction_log').select('*').order('prediction_time',{ascending:false}).limit(30);if(data&&data.length>0){lastPredictionId=Math.max(...data.map(p=>p.id));data.reverse().forEach(p=>addHistoryItem(p))}setInterval(pollState,1000);setInterval(pollPredictions,3000)}
 
-async function pollMarketState() {
-    try {
-        const { data, error } = await supabaseClient
-            .from('market_state')
-            .select('*')
-            .eq('id', 'current')
-            .single();
-        
-        if (data && !error) {
-            updateDashboard(data);
-        }
-    } catch (e) {
-        console.warn('Poll state error:', e);
-    }
-}
+function checkStale(){if(lastDataTime&&(new Date()-lastDataTime)>10000){document.getElementById('disconnectedOverlay').style.display='flex';document.getElementById('statusDot').className='status-dot';document.getElementById('statusText').textContent='Off';document.getElementById('lastSeen').textContent='Ultimo: '+lastDataTime.toLocaleTimeString('it-IT')}}
 
-async function pollPredictions() {
-    try {
-        let query = supabaseClient
-            .from('prediction_log')
-            .select('*')
-            .order('id', { ascending: false })
-            .limit(10);
-        
-        if (lastPredictionId > 0) {
-            query = query.gt('id', lastPredictionId);
-        }
-        
-        const { data, error } = await query;
-        
-        if (data && !error && data.length > 0) {
-            // Aggiungi solo le nuove (dal più vecchio al più nuovo)
-            data.reverse().forEach(pred => {
-                if (pred.id > lastPredictionId) {
-                    addHistoryItem(pred);
-                    lastPredictionId = pred.id;
-                }
-            });
-        }
-    } catch (e) {
-        console.warn('Poll predictions error:', e);
-    }
-}
-
-async function initDashboard() {
-    // 1. Carica stato iniziale
-    await pollMarketState();
-    
-    // 2. Carica storico previsioni
-    const { data: historyData } = await supabaseClient
-        .from('prediction_log')
-        .select('*')
-        .order('prediction_time', { ascending: false })
-        .limit(50);
-    
-    if (historyData && historyData.length > 0) {
-        lastPredictionId = Math.max(...historyData.map(p => p.id));
-        historyData.reverse().forEach(pred => addHistoryItem(pred));
-    }
-    
-    // 3. Polling: stato ogni 1 secondo, previsioni ogni 3 secondi
-    setInterval(pollMarketState, 1000);
-    setInterval(pollPredictions, 3000);
-}
-
-// ════════════════════════════════════════════════════════════
-// STALE DATA CHECK (show overlay if no updates for 10 seconds)
-// ════════════════════════════════════════════════════════════
-function checkStale() {
-    if (lastDataTime && (new Date() - lastDataTime) > 10000) {
-        document.getElementById('disconnectedOverlay').style.display = 'flex';
-        document.getElementById('statusDot').className = 'status-dot';
-        document.getElementById('statusText').textContent = 'Nessun dato';
-        document.getElementById('lastSeen').textContent = 'Ultimo aggiornamento: ' + lastDataTime.toLocaleTimeString('it-IT');
-    }
-}
-
-// ════════════════════════════════════════════════════════════
-// BOOT
-// ════════════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
-    initCharts();
-    initDashboard();
-    setInterval(checkStale, 3000);
-});
+document.addEventListener('DOMContentLoaded',()=>{initCharts();init();setInterval(checkStale,3000)});
 </script>
 </body>
 </html>
