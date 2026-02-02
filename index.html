@@ -562,7 +562,7 @@
 // CONFIGURA QUI le tue credenziali Supabase
 // ════════════════════════════════════════════════════════════
 const SUPABASE_URL = 'https://xoagoblnzvdqnktpfhlk.supabase.co';
-const SUPABASE_KEY = ' sb_publishable_Uf5-1uzQzL-OqI6dA-tl_g_RHpYxNds';
+const SUPABASE_KEY = ' sb_publishable_Uf5-1uzQzL-OqI6dA-tl_g_RHpYxNds’;
 
 // ════════════════════════════════════════════════════════════
 // INIT
@@ -818,53 +818,74 @@ function addHistoryItem(pred) {
 // ════════════════════════════════════════════════════════════
 // SUPABASE REALTIME SUBSCRIPTIONS
 // ════════════════════════════════════════════════════════════
-async function initRealtime() {
-    // 1. Load initial state
-    const { data: stateData } = await supabaseClient
-        .from('market_state')
-        .select('*')
-        .eq('id', 'current')
-        .single();
+// ════════════════════════════════════════════════════════════
+// POLLING OGNI SECONDO (più affidabile del Realtime)
+// ════════════════════════════════════════════════════════════
+let lastPredictionId = 0;
+
+async function pollMarketState() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('market_state')
+            .select('*')
+            .eq('id', 'current')
+            .single();
+        
+        if (data && !error) {
+            updateDashboard(data);
+        }
+    } catch (e) {
+        console.warn('Poll state error:', e);
+    }
+}
+
+async function pollPredictions() {
+    try {
+        let query = supabaseClient
+            .from('prediction_log')
+            .select('*')
+            .order('id', { ascending: false })
+            .limit(10);
+        
+        if (lastPredictionId > 0) {
+            query = query.gt('id', lastPredictionId);
+        }
+        
+        const { data, error } = await query;
+        
+        if (data && !error && data.length > 0) {
+            // Aggiungi solo le nuove (dal più vecchio al più nuovo)
+            data.reverse().forEach(pred => {
+                if (pred.id > lastPredictionId) {
+                    addHistoryItem(pred);
+                    lastPredictionId = pred.id;
+                }
+            });
+        }
+    } catch (e) {
+        console.warn('Poll predictions error:', e);
+    }
+}
+
+async function initDashboard() {
+    // 1. Carica stato iniziale
+    await pollMarketState();
     
-    if (stateData) updateDashboard(stateData);
-    
-    // 2. Load recent predictions
+    // 2. Carica storico previsioni
     const { data: historyData } = await supabaseClient
         .from('prediction_log')
         .select('*')
         .order('prediction_time', { ascending: false })
         .limit(50);
     
-    if (historyData) {
-        // Reverse to add oldest first
+    if (historyData && historyData.length > 0) {
+        lastPredictionId = Math.max(...historyData.map(p => p.id));
         historyData.reverse().forEach(pred => addHistoryItem(pred));
     }
     
-    // 3. Subscribe to market_state changes (real-time!)
-    supabaseClient
-        .channel('market-state')
-        .on('postgres_changes', 
-            { event: 'UPDATE', schema: 'public', table: 'market_state', filter: 'id=eq.current' },
-            (payload) => {
-                updateDashboard(payload.new);
-            }
-        )
-        .subscribe((status) => {
-            console.log('State subscription:', status);
-        });
-    
-    // 4. Subscribe to new predictions
-    supabaseClient
-        .channel('predictions')
-        .on('postgres_changes',
-            { event: 'INSERT', schema: 'public', table: 'prediction_log' },
-            (payload) => {
-                addHistoryItem(payload.new);
-            }
-        )
-        .subscribe((status) => {
-            console.log('Predictions subscription:', status);
-        });
+    // 3. Polling: stato ogni 1 secondo, previsioni ogni 3 secondi
+    setInterval(pollMarketState, 1000);
+    setInterval(pollPredictions, 3000);
 }
 
 // ════════════════════════════════════════════════════════════
@@ -884,8 +905,8 @@ function checkStale() {
 // ════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
     initCharts();
-    initRealtime();
-    staleCheckInterval = setInterval(checkStale, 3000);
+    initDashboard();
+    setInterval(checkStale, 3000);
 });
 </script>
 </body>
