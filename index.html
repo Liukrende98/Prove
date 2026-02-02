@@ -59,6 +59,26 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
 .st-sep{font-size:14px;color:var(--t3);margin:0 1px}
 .st-ko{font-family:'DM Mono';font-size:22px;font-weight:500;color:var(--r)}
 .st-pct{font-family:'DM Mono';font-size:10px;font-weight:500;margin-top:2px}
+.st-pnl{font-family:'DM Mono';font-size:9px;font-weight:500;margin-top:3px;padding-top:3px;border-top:1px solid rgba(255,255,255,.06)}
+
+/* ★ SIMULATORE INVESTIMENTO */
+.sim{background:var(--s1);border:1px solid var(--brd);border-radius:14px;padding:12px}
+.sim-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--t3);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.sim-title::before{content:'💰'}
+.sim-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.sim-lbl{font-size:9px;color:var(--t2);min-width:60px}
+.sim-input{font-family:'DM Mono';font-size:14px;font-weight:500;background:var(--s2);border:1px solid var(--brd);border-radius:8px;color:var(--t1);padding:6px 10px;width:110px;text-align:right;-webkit-appearance:none;outline:none;transition:border-color .2s}
+.sim-input:focus{border-color:var(--bl)}
+.sim-input::placeholder{color:var(--t3)}
+.sim-eur{font-size:10px;color:var(--t3)}
+.sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sim-box{background:var(--s2);border-radius:10px;padding:10px;text-align:center}
+.sim-box.gold{background:rgba(227,179,65,.06);border:1px solid rgba(227,179,65,.2)}
+.sim-box-lbl{font-size:7px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--t3);margin-bottom:3px}
+.sim-box.gold .sim-box-lbl{color:var(--gold)}
+.sim-box-val{font-family:'DM Mono';font-size:20px;font-weight:500}
+.sim-box-sub{font-family:'DM Mono';font-size:9px;margin-top:2px}
+.sim-note{font-size:8px;color:var(--t3);text-align:center;margin-top:8px;line-height:1.4}
 
 /* Chart */
 .cc{padding:8px 4px 4px}
@@ -142,15 +162,40 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
     <!-- ★ CONTATORI -->
     <div class="stats">
         <div class="st hi">
-            <div class="st-lbl">★ Conf ≥ 80%</div>
+            <div class="st-lbl">★ Sicure (≥80%)</div>
             <div class="st-nums"><span class="st-ok" id="hiOk">0</span><span class="st-sep">/</span><span class="st-ko" id="hiKo">0</span></div>
             <div class="st-pct" id="hiPct" style="color:var(--gold)">—</div>
+            <div class="st-pnl" id="hiPnl">P&L: —</div>
         </div>
         <div class="st all">
-            <div class="st-lbl">Totale</div>
+            <div class="st-lbl">Tutte</div>
             <div class="st-nums"><span class="st-ok" id="allOk">0</span><span class="st-sep">/</span><span class="st-ko" id="allKo">0</span></div>
             <div class="st-pct" id="allPct">—</div>
+            <div class="st-pnl" id="allPnl">P&L: —</div>
         </div>
+    </div>
+
+    <!-- ★ SIMULATORE INVESTIMENTO -->
+    <div class="sim">
+        <div class="sim-title">Simulatore Investimento</div>
+        <div class="sim-row">
+            <span class="sim-lbl">Capitale:</span>
+            <input type="number" class="sim-input" id="simCap" value="1000" min="1" step="100" placeholder="1000">
+            <span class="sim-eur">€</span>
+        </div>
+        <div class="sim-grid">
+            <div class="sim-box">
+                <div class="sim-box-lbl">Tutte le prev.</div>
+                <div class="sim-box-val" id="simAll">—</div>
+                <div class="sim-box-sub" id="simAllPct">—</div>
+            </div>
+            <div class="sim-box gold">
+                <div class="sim-box-lbl">★ Solo sicure</div>
+                <div class="sim-box-val" id="simHi">—</div>
+                <div class="sim-box-sub" id="simHiPct">—</div>
+            </div>
+        </div>
+        <div class="sim-note">Reinvestimento composto: ogni previsione reinveste il totale.<br>Guadagno = % movimento reale se direzione corretta, perdita se sbagliata.</div>
     </div>
 
     <div class="c cc"><div class="cc-top"><span class="cc-lbl">Live 45s</span><div class="cc-leg"><span><div class="ld" style="background:var(--bl)"></div>Prezzo</span><span><div class="ld" style="background:var(--g);opacity:.7"></div>Prev.</span></div></div><div class="ca"><canvas id="lc"></canvas></div></div>
@@ -184,6 +229,8 @@ const{createClient}=window.supabase||{};const sb=createClient(SUPA_URL,SUPA_KEY)
 let errChart,mCI=null,lastData=null,lastPredId=0,prevP=0,lc;
 const cache={};
 let sAll={ok:0,ko:0},sHi={ok:0,ko:0};
+// ★ Trade log per simulazione investimento
+let trades=[]; // {pctMove, dirCorrect, isHiConf}
 
 // ═══ CANVAS LIVE CHART 45s ═══
 class LC{
@@ -241,6 +288,8 @@ const fmt=n=>n.toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDi
 function initEC(){errChart=new Chart(document.getElementById('ec'),{type:'line',data:{labels:[],datasets:[{data:[],borderColor:'#ff5252',borderWidth:1.2,pointRadius:0,fill:{target:'origin',above:'rgba(255,82,82,.06)'},tension:.2}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:100},plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#3a3a52',font:{family:'DM Mono',size:7},maxTicksLimit:5,maxRotation:0},grid:{color:'#151525'}},y:{ticks:{color:'#3a3a52',font:{family:'DM Mono',size:8},maxTicksLimit:4},grid:{color:'#151525'}}}}})}
 
 function getConf(pr){if(pr.volume_ratio!=null&&pr.volume_ratio>0&&pr.volume_ratio<=1)return Math.round(pr.volume_ratio*100);const r=pr.rsi_at_prediction||50;return Math.round(50+(Math.abs(r-50)/50)*50)}
+
+// ═══ P&L + SIMULATOR ═══
 function updStats(){
     document.getElementById('hiOk').textContent=sHi.ok;document.getElementById('hiKo').textContent=sHi.ko;
     const ht=sHi.ok+sHi.ko;document.getElementById('hiPct').textContent=ht?((sHi.ok/ht*100).toFixed(0)+'%'):'—';
@@ -248,7 +297,54 @@ function updStats(){
     document.getElementById('allOk').textContent=sAll.ok;document.getElementById('allKo').textContent=sAll.ko;
     const at=sAll.ok+sAll.ko;document.getElementById('allPct').textContent=at?((sAll.ok/at*100).toFixed(0)+'%'):'—';
     if(at)document.getElementById('allPct').style.color=(sAll.ok/at)>=.6?'var(--g)':(sAll.ok/at)>=.45?'var(--am)':'var(--r)';
+
+    // ── Calcola P&L cumulativo (somma punti) ──
+    let pnlAll=0, pnlHi=0;
+    trades.forEach(t=>{
+        const pts = t.dirCorrect ? Math.abs(t.ptsMove) : -Math.abs(t.ptsMove);
+        pnlAll += pts;
+        if(t.isHiConf) pnlHi += pts;
+    });
+    const fmtPnl = v => (v>=0?'+':'')+v.toFixed(1)+' pts';
+    const pnlAllEl = document.getElementById('allPnl');
+    pnlAllEl.textContent = 'P&L: '+fmtPnl(pnlAll);
+    pnlAllEl.style.color = pnlAll>=0?'var(--g)':'var(--r)';
+    const pnlHiEl = document.getElementById('hiPnl');
+    pnlHiEl.textContent = 'P&L: '+fmtPnl(pnlHi);
+    pnlHiEl.style.color = pnlHi>=0?'var(--g)':'var(--r)';
+
+    // ── Simulatore investimento ──
+    calcSim();
 }
+
+function calcSim(){
+    const cap = parseFloat(document.getElementById('simCap').value) || 1000;
+    let balAll=cap, balHi=cap;
+    trades.forEach(t=>{
+        // % profitto/perdita per ogni trade
+        const pctGain = t.dirCorrect ? Math.abs(t.pctMove) : -Math.abs(t.pctMove);
+        balAll *= (1 + pctGain);
+        if(t.isHiConf) balHi *= (1 + pctGain);
+    });
+    const fmtE = v => v.toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2})+'€';
+    document.getElementById('simAll').textContent = fmtE(balAll);
+    document.getElementById('simAll').style.color = balAll>=cap?'var(--g)':'var(--r)';
+    const pctAll = ((balAll-cap)/cap*100);
+    document.getElementById('simAllPct').textContent = (pctAll>=0?'+':'')+pctAll.toFixed(2)+'%';
+    document.getElementById('simAllPct').style.color = pctAll>=0?'var(--g)':'var(--r)';
+
+    document.getElementById('simHi').textContent = fmtE(balHi);
+    document.getElementById('simHi').style.color = balHi>=cap?'var(--g)':'var(--r)';
+    const pctHi = ((balHi-cap)/cap*100);
+    document.getElementById('simHiPct').textContent = (pctHi>=0?'+':'')+pctHi.toFixed(2)+'%';
+    document.getElementById('simHiPct').style.color = pctHi>=0?'var(--g)':'var(--r)';
+}
+
+// Ricalcola quando cambia il capitale
+document.addEventListener('DOMContentLoaded',()=>{
+    const inp=document.getElementById('simCap');
+    if(inp){inp.addEventListener('input',calcSim);inp.addEventListener('change',calcSim)}
+});
 
 function upd(s){
     if(!s)return;lastData=new Date();
@@ -275,7 +371,13 @@ function addH(pred){const l=document.getElementById('hL');if(l.querySelector('[s
     const ok=pred.direction_correct,ic=ok?'✅':'❌',pD=pred.predicted_up?'▲SU':'▼GIÙ',aD=pred.actual_up?'▲SU':'▼GIÙ',col=ok?'var(--g)':'var(--r)';
     const t=new Date(pred.prediction_time).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
     const err=pred.error_amount||0,conf=getConf(pred),isHi=conf>=80;
-    if(ok)sAll.ok++;else sAll.ko++;if(isHi){if(ok)sHi.ok++;else sHi.ko++}updStats();
+    if(ok)sAll.ok++;else sAll.ko++;if(isHi){if(ok)sHi.ok++;else sHi.ko++}
+    // ★ Registra trade per P&L e simulatore
+    const startP=pred.start_price||0, actP=pred.actual_price||0;
+    const ptsMove=Math.abs(actP-startP);
+    const pctMove=startP>0?Math.abs(actP-startP)/startP:0;
+    trades.push({ptsMove,pctMove,dirCorrect:!!ok,isHiConf:isHi});
+    updStats();
     const el=document.createElement('div');el.className='hi'+(isHi?' gold':'');el.onclick=()=>openM(pred.id);
     el.innerHTML=`<span class="hi-t">${t}</span><span class="hi-i">${ic}</span><span class="hi-d" style="color:${col}">${pD} → ${aD}</span>${isHi?`<span class="hi-b">★${conf}%</span>`:''}<span class="hi-e" style="color:${col}">${err>=0?'+':''}${err.toFixed(1)}</span><span class="hi-a">›</span>`;
     l.insertBefore(el,l.firstChild);while(l.children.length>60)l.removeChild(l.lastChild)}
@@ -307,7 +409,7 @@ async function pollS(){try{const{data}=await sb.from('market_state').select('*')
 async function pollP(){try{let q=sb.from('prediction_log').select('*').order('id',{ascending:false}).limit(15);if(lastPredId>0)q=q.gt('id',lastPredId);const{data}=await q;if(data&&data.length>0)data.reverse().forEach(p=>{if(p.id>lastPredId){addH(p);lastPredId=p.id}})}catch(e){}}
 function chk(){if(lastData&&(new Date()-lastData)>12000){document.getElementById('ovOff').style.display='flex';document.getElementById('dot').className='dot';document.getElementById('stLbl').textContent='Off';document.getElementById('lSeen').textContent='Ultimo: '+lastData.toLocaleTimeString('it-IT')}}
 let lf=0;function rLoop(ts){if(ts-lf>50){lc.draw();lf=ts}requestAnimationFrame(rLoop)}
-async function init(){lc=new LC('lc');initEC();await pollS();const{data}=await sb.from('prediction_log').select('*').order('prediction_time',{ascending:false}).limit(60);if(data&&data.length>0){lastPredId=Math.max(...data.map(p=>p.id));sAll={ok:0,ko:0};sHi={ok:0,ko:0};data.reverse().forEach(p=>addH(p))}setInterval(pollS,1000);setInterval(pollP,3000);setInterval(chk,4000);requestAnimationFrame(rLoop)}
+async function init(){lc=new LC('lc');initEC();await pollS();const{data}=await sb.from('prediction_log').select('*').order('prediction_time',{ascending:false}).limit(60);if(data&&data.length>0){lastPredId=Math.max(...data.map(p=>p.id));sAll={ok:0,ko:0};sHi={ok:0,ko:0};trades=[];data.reverse().forEach(p=>addH(p))}setInterval(pollS,1000);setInterval(pollP,3000);setInterval(chk,4000);requestAnimationFrame(rLoop)}
 document.addEventListener('DOMContentLoaded',init);
 let tsy=0;document.getElementById('mdl').addEventListener('touchstart',e=>{tsy=e.touches[0].clientY},{passive:true});document.getElementById('mdl').addEventListener('touchmove',e=>{if(e.touches[0].clientY-tsy>70&&document.getElementById('mdl').scrollTop<=0)closeM()},{passive:true});
 </script>
