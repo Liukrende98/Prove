@@ -3,1094 +3,889 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Market Forecaster - Real-Time Analysis</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <title>Market Forecaster — Live Dashboard</title>
+    
+    <!-- Supabase JS Client -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Chart.js per i grafici -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg-primary: #0a0a1a;
+            --bg-card: #12122a;
+            --bg-card-hover: #1a1a3a;
+            --border: #2a2a4a;
+            --text-primary: #e0e0f0;
+            --text-secondary: #808090;
+            --text-muted: #505060;
+            --green: #22c55e;
+            --green-bg: #22c55e15;
+            --red: #ef4444;
+            --red-bg: #ef444415;
+            --blue: #3b82f6;
+            --orange: #f59e0b;
+            --purple: #8b5cf6;
+            --cyan: #06b6d4;
         }
-
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1a1a2e;
-            color: white;
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
+            overflow-x: hidden;
         }
-
-        .container {
-            display: grid;
-            grid-template-rows: auto 1fr auto;
-            height: 100vh;
-            padding: 10px;
-            gap: 10px;
-        }
-
-        /* Header */
+        
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* ═══ HEADER ═══ */
         .header {
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background: #252542;
-            border-radius: 8px;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, #0f0f2a 0%, var(--bg-primary) 100%);
         }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #3B82F6, #8B5CF6);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        
+        .header h1 {
             font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-
-        .logo-text h1 {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .logo-text p {
-            font-size: 11px;
-            color: #a0a0c0;
-        }
-
-        .controls {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        select {
-            background: #3a3a5a;
-            color: white;
-            border: 1px solid #4a4a7a;
-            padding: 10px 15px;
-            border-radius: 6px;
-            font-size: 13px;
-            cursor: pointer;
-        }
-
-        .status {
+        
+        .header .status {
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #a0a0c0;
+            font-size: 13px;
+            color: var(--text-secondary);
         }
-
+        
         .status-dot {
-            width: 10px;
-            height: 10px;
+            width: 8px; height: 8px;
             border-radius: 50%;
-            background: #22c55e;
+            background: var(--text-muted);
+            transition: background 0.3s;
         }
-
-        .status-dot.disconnected {
-            background: #ef4444;
+        
+        .status-dot.live {
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+            animation: pulse 2s infinite;
         }
-
-        /* Main Content */
-        .main {
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* ═══ LAYOUT ═══ */
+        .dashboard {
             display: grid;
-            grid-template-columns: 280px 1fr 280px;
-            gap: 10px;
-            overflow: hidden;
+            grid-template-columns: 220px 1fr 280px;
+            grid-template-rows: auto 1fr auto;
+            gap: 12px;
+            padding: 12px;
+            height: calc(100vh - 60px);
         }
-
-        /* Cards */
+        
         .card {
-            background: #252542;
-            border-radius: 8px;
-            padding: 15px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            transition: border-color 0.3s;
         }
-
-        .card-header {
-            color: #a0a0c0;
-            font-size: 12px;
+        
+        .card:hover { border-color: #3a3a5a; }
+        
+        .card-title {
+            font-size: 10px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
             margin-bottom: 10px;
         }
-
-        /* Left Panel */
-        .left-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            overflow-y: auto;
+        
+        /* ═══ PRICE (grande) ═══ */
+        .price-section {
+            grid-column: 1;
+            grid-row: 1;
         }
-
-        .price-display {
+        
+        .big-price {
+            font-family: 'JetBrains Mono', monospace;
             font-size: 32px;
-            font-weight: bold;
+            font-weight: 700;
+            line-height: 1.1;
         }
-
+        
         .price-change {
+            font-family: 'JetBrains Mono', monospace;
             font-size: 14px;
-            margin-top: 5px;
+            margin-top: 4px;
         }
-
-        .price-change.positive { color: #22c55e; }
-        .price-change.negative { color: #ef4444; }
-
-        .last-update {
+        
+        .up { color: var(--green); }
+        .down { color: var(--red); }
+        .flat { color: var(--orange); }
+        
+        /* ═══ INDICATORI (colonna sinistra) ═══ */
+        .indicators {
+            grid-column: 1;
+            grid-row: 2 / 4;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .indicator-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            border-bottom: 1px solid #1a1a2a;
+        }
+        
+        .indicator-label {
             font-size: 11px;
-            color: #606080;
-            margin-top: 5px;
+            color: var(--text-secondary);
         }
-
-        .metric-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+        
+        .indicator-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
         }
-
-        .metric {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .metric-label {
-            font-size: 10px;
-            color: #808090;
-        }
-
-        .metric-value {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .metric-value.green { color: #22c55e; }
-        .metric-value.red { color: #ef4444; }
-
-        /* Center Panel */
-        .center-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .chart-container {
-            flex: 1;
+        
+        /* ═══ CHART (centro) ═══ */
+        .chart-area {
+            grid-column: 2;
+            grid-row: 1 / 3;
             min-height: 0;
         }
-
-        .chart-card {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .chart-wrapper {
-            flex: 1;
+        
+        .chart-container {
             position: relative;
-            min-height: 200px;
+            height: calc(100% - 30px);
         }
-
-        /* Right Panel */
-        .right-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            overflow-y: auto;
+        
+        /* ═══ ERROR CHART ═══ */
+        .error-area {
+            grid-column: 2;
+            grid-row: 3;
+            min-height: 120px;
         }
-
-        .forecast-value {
+        
+        .error-chart-container {
+            position: relative;
+            height: calc(100% - 30px);
+        }
+        
+        /* ═══ PREDICTION (colonna destra) ═══ */
+        .prediction-section {
+            grid-column: 3;
+            grid-row: 1;
+        }
+        
+        .prediction-price {
+            font-family: 'JetBrains Mono', monospace;
             font-size: 24px;
-            font-weight: bold;
+            font-weight: 700;
         }
-
-        .forecast-change {
-            font-size: 14px;
-        }
-
+        
         .confidence-bar {
             height: 6px;
-            background: #3a3a5a;
+            background: #1a1a3a;
             border-radius: 3px;
-            margin: 10px 0;
+            margin: 8px 0;
             overflow: hidden;
         }
-
+        
         .confidence-fill {
             height: 100%;
-            background: linear-gradient(90deg, #22c55e, #3B82F6);
+            background: linear-gradient(90deg, var(--purple), var(--cyan));
             border-radius: 3px;
-            transition: width 0.3s;
+            transition: width 0.5s ease;
         }
-
-        .probability-grid {
+        
+        .prob-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
             text-align: center;
             margin-top: 10px;
         }
-
-        .prob-label {
+        
+        .prob-item {
+            padding: 6px;
+            border-radius: 6px;
             font-size: 10px;
         }
-
+        
         .prob-value {
-            font-size: 14px;
-            font-weight: bold;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            font-weight: 700;
         }
-
-        .sentiment-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            text-align: center;
-        }
-
-        .sentiment-value {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        /* History Table */
-        .history-header {
-            display: grid;
-            grid-template-columns: 60px 1fr 1fr 55px;
-            font-size: 9px;
-            color: #606080;
-            padding: 5px 0;
-            border-bottom: 1px solid #3a3a5a;
-        }
-
-        .history-list {
-            max-height: 150px;
+        
+        /* ═══ REASONING ═══ */
+        .reasoning-section {
+            grid-column: 3;
+            grid-row: 2;
             overflow-y: auto;
         }
-
-        .history-row {
-            display: grid;
-            grid-template-columns: 60px 1fr 1fr 55px;
-            font-size: 10px;
-            padding: 4px 0;
-            border-bottom: 1px solid #2a2a4a;
+        
+        .reasoning-text {
+            font-size: 11px;
+            line-height: 1.6;
+            color: #90c090;
+            white-space: pre-line;
+            font-family: 'JetBrains Mono', monospace;
         }
-
-        .history-row .time { color: #a0a0c0; }
-        .history-row .predicted { color: #FFA500; }
-        .history-row .actual { color: #3B82F6; }
-        .history-row .error { font-weight: 600; text-align: right; }
-        .history-row .error.positive { color: #22c55e; }
-        .history-row .error.negative { color: #ef4444; }
-
-        .empty-message {
-            color: #606080;
-            font-size: 10px;
-            font-style: italic;
-            padding: 10px 0;
+        
+        /* ═══ HISTORY ═══ */
+        .history-section {
+            grid-column: 3;
+            grid-row: 3;
+            overflow-y: auto;
         }
-
-        /* Footer */
-        .footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background: #252542;
-            border-radius: 8px;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
+        
+        .history-item {
             display: flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.2s;
+            padding: 5px 0;
+            border-bottom: 1px solid #1a1a2a;
+            font-size: 11px;
         }
-
-        .btn-start {
-            background: #3B82F6;
-            color: white;
+        
+        .history-time {
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            min-width: 55px;
         }
-
-        .btn-start:hover {
-            background: #2563eb;
-        }
-
-        .btn-stop {
-            background: #8a4a4a;
-            color: white;
-        }
-
-        .btn-stop:hover {
-            background: #7a3a3a;
-        }
-
-        .btn-reset {
-            background: #4a4a6a;
-            color: white;
-        }
-
-        .btn-reset:hover {
-            background: #5a5a7a;
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .stats {
-            display: flex;
-            gap: 20px;
-            color: #a0a0c0;
-            font-size: 13px;
-        }
-
-        .stats span {
-            color: white;
+        
+        .history-result {
             font-weight: 600;
         }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
+        
+        .history-error {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
         }
-
-        ::-webkit-scrollbar-track {
-            background: #1a1a2e;
+        
+        /* ═══ ACCURACY ═══ */
+        .accuracy-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-top: 8px;
         }
-
-        ::-webkit-scrollbar-thumb {
-            background: #4a4a6a;
-            border-radius: 3px;
+        
+        .accuracy-item {
+            text-align: center;
+            padding: 6px;
+            background: #0a0a1a;
+            border-radius: 6px;
+        }
+        
+        .accuracy-label {
+            font-size: 9px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        
+        .accuracy-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        /* ═══ DISCONNECTED STATE ═══ */
+        .disconnected-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            backdrop-filter: blur(4px);
+        }
+        
+        .disconnected-message {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .disconnected-message h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .disconnected-message p {
+            color: var(--text-secondary);
+        }
+        
+        /* ═══ RESPONSIVE ═══ */
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+                height: auto;
+            }
+            .price-section, .indicators, .chart-area, .error-area,
+            .prediction-section, .reasoning-section, .history-section {
+                grid-column: 1;
+                grid-row: auto;
+            }
+            .chart-area { min-height: 300px; }
+            .error-area { min-height: 150px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div class="logo">
-                <div class="logo-icon">📈</div>
-                <div class="logo-text">
-                    <h1>Market Forecaster</h1>
-                    <p>Real-Time Analysis & Predictions</p>
-                </div>
+
+<!-- ═══════ HEADER ═══════ -->
+<div class="header">
+    <h1>📊 Market Forecaster — Live Dashboard</h1>
+    <div class="status">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Disconnesso</span>
+        <span class="mono" id="lastUpdate" style="margin-left:12px; font-size:11px; color:var(--text-muted)"></span>
+    </div>
+</div>
+
+<!-- ═══════ DASHBOARD ═══════ -->
+<div class="dashboard">
+
+    <!-- PREZZO CORRENTE -->
+    <div class="card price-section">
+        <div class="card-title">Current Price</div>
+        <div class="big-price" id="currentPrice">—</div>
+        <div class="price-change" id="priceChange">—</div>
+        <div style="margin-top:10px; font-size:11px; color:var(--text-muted)">
+            <span id="symbolName">—</span> · <span id="tickTime">—</span>
+        </div>
+    </div>
+    
+    <!-- INDICATORI (sinistra) -->
+    <div class="indicators">
+        <!-- Trend -->
+        <div class="card">
+            <div class="card-title">Trend Analysis</div>
+            <div class="indicator-row">
+                <span class="indicator-label">Slope 1m</span>
+                <span class="indicator-value mono" id="trendSlope1m">—</span>
             </div>
-            <div class="controls">
-                <select id="symbolSelect">
-                    <option value="SPY">S&P 500 (SPY)</option>
-                    <option value="QQQ">Nasdaq (QQQ)</option>
-                    <option value="DIA">Dow Jones (DIA)</option>
-                    <option value="IWM">Russell 2000 (IWM)</option>
-                </select>
-                <select id="providerSelect">
-                    <option value="simulated">Simulated</option>
-                </select>
-                <select id="horizonSelect">
-                    <option value="60">1 minuto</option>
-                    <option value="120">2 minuti</option>
-                    <option value="300" selected>5 minuti</option>
-                    <option value="600">10 minuti</option>
-                </select>
-                <div class="status">
-                    <div class="status-dot" id="statusDot"></div>
-                    <span id="statusText">Disconnected</span>
-                </div>
+            <div class="indicator-row">
+                <span class="indicator-label">Slope 5m</span>
+                <span class="indicator-value mono" id="trendSlope5m">—</span>
+            </div>
+            <div class="indicator-row">
+                <span class="indicator-label">R²</span>
+                <span class="indicator-value mono" id="trendR2">—</span>
             </div>
         </div>
-
-        <!-- Main Content -->
-        <div class="main">
-            <!-- Left Panel -->
-            <div class="left-panel">
-                <div class="card">
-                    <div class="card-header">CURRENT PRICE</div>
-                    <div class="price-display" id="currentPrice">--</div>
-                    <div class="price-change" id="priceChange">--</div>
-                    <div class="last-update">Last: <span id="lastUpdate">--</span></div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">TREND ANALYSIS</div>
-                    <div class="metric-grid">
-                        <div class="metric">
-                            <span class="metric-label">1m Slope</span>
-                            <span class="metric-value" id="slope1m">--</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">5m Slope</span>
-                            <span class="metric-value" id="slope5m">--</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">R² (Fit)</span>
-                            <span class="metric-value" id="r2">--</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Acceleration</span>
-                            <span class="metric-value" id="acceleration">--</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">MOMENTUM</div>
-                    <div class="metric-grid">
-                        <div class="metric">
-                            <span class="metric-label">RSI (14)</span>
-                            <span class="metric-value" id="rsi">--</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">MACD</span>
-                            <span class="metric-value" id="macd">--</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Signal</span>
-                            <span class="metric-value" id="signal">--</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Histogram</span>
-                            <span class="metric-value" id="histogram">--</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">VOLATILITY</div>
-                    <div class="metric-grid">
-                        <div class="metric">
-                            <span class="metric-label">Historical</span>
-                            <span class="metric-value" id="volatility">--</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">ATR</span>
-                            <span class="metric-value" id="atr">--</span>
-                        </div>
-                    </div>
-                </div>
+        
+        <!-- Momentum -->
+        <div class="card">
+            <div class="card-title">Momentum</div>
+            <div class="indicator-row">
+                <span class="indicator-label">RSI (14)</span>
+                <span class="indicator-value mono" id="rsi">—</span>
             </div>
-
-            <!-- Center Panel -->
-            <div class="center-panel">
-                <div class="card chart-card" style="flex: 2;">
-                    <div class="card-header">PRICE & FORECAST</div>
-                    <div class="chart-wrapper">
-                        <canvas id="priceChart"></canvas>
-                    </div>
-                </div>
-                <div class="card chart-card" style="flex: 1;">
-                    <div class="card-header">PREDICTION ERROR TRACKING</div>
-                    <div class="chart-wrapper">
-                        <canvas id="errorChart"></canvas>
-                    </div>
-                </div>
+            <div class="indicator-row">
+                <span class="indicator-label">MACD</span>
+                <span class="indicator-value mono" id="macd">—</span>
             </div>
-
-            <!-- Right Panel -->
-            <div class="right-panel">
-                <div class="card">
-                    <div class="card-header">5-MINUTE FORECAST</div>
-                    <div class="forecast-value" id="forecastValue">--</div>
-                    <div class="forecast-change" id="forecastChange">--</div>
-                    <div class="confidence-bar">
-                        <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 11px;">
-                        <span style="color: #808090;">Confidence</span>
-                        <span id="confidenceValue">0%</span>
-                    </div>
-                    <div class="probability-grid">
-                        <div>
-                            <div class="prob-label" style="color: #22c55e;">▲ UP</div>
-                            <div class="prob-value" style="color: #22c55e;" id="probUp">0%</div>
-                        </div>
-                        <div>
-                            <div class="prob-label" style="color: #FFC107;">◆ FLAT</div>
-                            <div class="prob-value" style="color: #FFC107;" id="probFlat">0%</div>
-                        </div>
-                        <div>
-                            <div class="prob-label" style="color: #ef4444;">▼ DOWN</div>
-                            <div class="prob-value" style="color: #ef4444;" id="probDown">0%</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">MARKET SENTIMENT</div>
-                    <div class="sentiment-grid">
-                        <div>
-                            <div style="color: #22c55e; font-size: 11px;">Bullish</div>
-                            <div class="sentiment-value" style="color: #22c55e;" id="bullish">--</div>
-                        </div>
-                        <div>
-                            <div style="color: #ef4444; font-size: 11px;">Bearish</div>
-                            <div class="sentiment-value" style="color: #ef4444;" id="bearish">--</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">PREDICTION ACCURACY</div>
-                    <div class="metric-grid">
-                        <div class="metric">
-                            <span class="metric-label">MAE</span>
-                            <span class="metric-value" id="mae">--</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">MAPE</span>
-                            <span class="metric-value" id="mape">--</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">RMSE</span>
-                            <span class="metric-value" id="rmse">--</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Direction %</span>
-                            <span class="metric-value" id="direction">--</span>
-                        </div>
-                    </div>
-                    <div class="metric" style="margin-top: 10px;">
-                        <span class="metric-label">Predictions Made</span>
-                        <span class="metric-value" id="predictionCount">0</span>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">SUPPORT / RESISTANCE</div>
-                    <div class="metric-grid">
-                        <div class="metric">
-                            <span class="metric-label" style="color: #22c55e;">Nearest Support</span>
-                            <span class="metric-value green" id="support">--</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label" style="color: #ef4444;">Nearest Resistance</span>
-                            <span class="metric-value red" id="resistance">--</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">📋 STORICO PREVISIONI</div>
-                    <div class="history-header">
-                        <div>Ora</div>
-                        <div>Previsto</div>
-                        <div>Reale</div>
-                        <div style="text-align: right;">Errore</div>
-                    </div>
-                    <div class="history-list" id="historyList">
-                        <div class="empty-message">In attesa della prima previsione...</div>
-                    </div>
-                </div>
+            <div class="indicator-row">
+                <span class="indicator-label">Histogram</span>
+                <span class="indicator-value mono" id="macdHist">—</span>
             </div>
         </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            <div class="btn-group">
-                <button class="btn btn-start" id="btnStart" onclick="start()">▶ Start</button>
-                <button class="btn btn-stop" id="btnStop" onclick="stop()" style="display: none;">⏹ Stop</button>
-                <button class="btn btn-reset" onclick="reset()">🔄 Reset</button>
+        
+        <!-- Volatility -->
+        <div class="card">
+            <div class="card-title">Volatility</div>
+            <div class="indicator-row">
+                <span class="indicator-label">Historical</span>
+                <span class="indicator-value mono" id="volatility">—</span>
             </div>
-            <div class="stats">
-                Data Points: <span id="dataPoints">0</span>
-                &nbsp;&nbsp;
-                Buffer: <span id="bufferFill">0%</span>
+            <div class="indicator-row">
+                <span class="indicator-label">ATR</span>
+                <span class="indicator-value mono" id="atr">—</span>
+            </div>
+        </div>
+        
+        <!-- Support/Resistance -->
+        <div class="card">
+            <div class="card-title">Support / Resistance</div>
+            <div class="indicator-row">
+                <span class="indicator-label">Support</span>
+                <span class="indicator-value mono up" id="support">—</span>
+            </div>
+            <div class="indicator-row">
+                <span class="indicator-label">Resistance</span>
+                <span class="indicator-value mono down" id="resistance">—</span>
+            </div>
+        </div>
+        
+        <!-- Accuracy -->
+        <div class="card">
+            <div class="card-title">Prediction Accuracy</div>
+            <div class="accuracy-grid">
+                <div class="accuracy-item">
+                    <div class="accuracy-label">MAE</div>
+                    <div class="accuracy-value" id="mae">—</div>
+                </div>
+                <div class="accuracy-item">
+                    <div class="accuracy-label">MAPE</div>
+                    <div class="accuracy-value" id="mape">—</div>
+                </div>
+                <div class="accuracy-item">
+                    <div class="accuracy-label">Direction</div>
+                    <div class="accuracy-value" id="dirAccuracy">—</div>
+                </div>
+                <div class="accuracy-item">
+                    <div class="accuracy-label">Count</div>
+                    <div class="accuracy-value" id="predCount">0</div>
+                </div>
             </div>
         </div>
     </div>
+    
+    <!-- CHART PRINCIPALE -->
+    <div class="card chart-area">
+        <div class="card-title">Price & Forecast</div>
+        <div class="chart-container">
+            <canvas id="priceChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- ERROR CHART -->
+    <div class="card error-area">
+        <div class="card-title">Prediction Error Tracking</div>
+        <div class="error-chart-container">
+            <canvas id="errorChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- PREVISIONE (destra) -->
+    <div class="card prediction-section">
+        <div class="card-title">5-Minute Forecast</div>
+        <div class="prediction-price" id="predictedPrice">—</div>
+        <div class="price-change" id="predictedChange">—</div>
+        
+        <div style="margin-top:10px">
+            <div style="display:flex; justify-content:space-between; font-size:11px">
+                <span style="color:var(--text-secondary)">Confidence</span>
+                <span class="mono" id="confidence">—</span>
+            </div>
+            <div class="confidence-bar">
+                <div class="confidence-fill" id="confidenceBar" style="width:0%"></div>
+            </div>
+        </div>
+        
+        <div class="prob-grid">
+            <div class="prob-item" style="background:var(--green-bg)">
+                <div style="color:var(--green); font-size:9px">▲ UP</div>
+                <div class="prob-value up" id="probUp">—</div>
+            </div>
+            <div class="prob-item" style="background:#f59e0b15">
+                <div style="color:var(--orange); font-size:9px">◆ FLAT</div>
+                <div class="prob-value flat" id="probFlat">—</div>
+            </div>
+            <div class="prob-item" style="background:var(--red-bg)">
+                <div style="color:var(--red); font-size:9px">▼ DOWN</div>
+                <div class="prob-value down" id="probDown">—</div>
+            </div>
+        </div>
+        
+        <!-- Sentiment -->
+        <div style="margin-top:12px">
+            <div class="card-title">Market Sentiment</div>
+            <div style="display:flex; justify-content:space-between">
+                <div style="text-align:center">
+                    <div style="font-size:9px; color:var(--green)">Bullish</div>
+                    <div class="mono" style="font-size:20px; font-weight:700; color:var(--green)" id="bullish">—</div>
+                </div>
+                <div style="text-align:center">
+                    <div style="font-size:9px; color:var(--red)">Bearish</div>
+                    <div class="mono" style="font-size:20px; font-weight:700; color:var(--red)" id="bearish">—</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- REASONING -->
+    <div class="card reasoning-section">
+        <div class="card-title">📖 Analisi & Reasoning</div>
+        <div class="reasoning-text" id="reasoning">In attesa dei dati...</div>
+    </div>
+    
+    <!-- HISTORY -->
+    <div class="card history-section">
+        <div class="card-title">📋 Storico Previsioni</div>
+        <div id="historyList">
+            <div style="color:var(--text-muted); font-size:11px; font-style:italic">In attesa della prima previsione...</div>
+        </div>
+    </div>
 
-    <script>
-        // ==================== CONFIGURATION ====================
-        const BUFFER_SIZE = 900;
-        const MAX_CHART_POINTS = 300;
+</div>
 
-        // ==================== STATE ====================
-        let isRunning = false;
-        let intervalId = null;
-        let currentPrice = 590;
-        let priceData = [];
-        let predictionData = [];
-        let futurePredictionData = [];
-        let errorData = [];
-        let historyData = [];
-        let dataPointCount = 0;
+<!-- ═══════ DISCONNECTED OVERLAY ═══════ -->
+<div class="disconnected-overlay" id="disconnectedOverlay" style="display:none">
+    <div class="disconnected-message">
+        <h2>⏸ App non attiva</h2>
+        <p>Avvia Market Forecaster per vedere i dati in tempo reale</p>
+        <p style="margin-top:10px; font-size:12px" class="mono" id="lastSeen"></p>
+    </div>
+</div>
 
-        // Prediction state
-        let currentPredictionStartTime = null;
-        let currentPredictionEndTime = null;
-        let currentPredictionStartPrice = 0;
-        let currentPredictionEndPrice = 0;
-        let currentPredictionPrices = [];
-        let predictionCount = 0;
+<script>
+// ════════════════════════════════════════════════════════════
+// CONFIGURA QUI le tue credenziali Supabase
+// ════════════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://TUO-PROGETTO.supabase.co';
+const SUPABASE_KEY = 'TUA-ANON-KEY';
 
-        // Charts
-        let priceChart = null;
-        let errorChart = null;
+// ════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // ==================== INITIALIZE CHARTS ====================
-        function initCharts() {
-            const priceCtx = document.getElementById('priceChart').getContext('2d');
-            const errorCtx = document.getElementById('errorChart').getContext('2d');
+let priceChart, errorChart;
+let lastDataTime = null;
+let staleCheckInterval;
 
-            priceChart = new Chart(priceCtx, {
-                type: 'line',
-                data: {
-                    datasets: [
-                        {
-                            label: 'Prezzo Reale',
-                            data: [],
-                            borderColor: '#3B82F6',
-                            borderWidth: 2,
-                            fill: false,
-                            pointRadius: 0,
-                            tension: 0
-                        },
-                        {
-                            label: 'Storico Previsioni',
-                            data: [],
-                            borderColor: '#FFA500',
-                            borderWidth: 2,
-                            fill: false,
-                            pointRadius: 0,
-                            tension: 0
-                        },
-                        {
-                            label: 'Previsione',
-                            data: [],
-                            borderColor: '#22c55e',
-                            borderWidth: 3,
-                            fill: false,
-                            pointRadius: 0,
-                            tension: 0
-                        }
-                    ]
+// ════════════════════════════════════════════════════════════
+// CHARTS SETUP
+// ════════════════════════════════════════════════════════════
+function initCharts() {
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 200 },
+        plugins: { legend: { display: false } },
+        scales: {
+            x: {
+                type: 'category',
+                ticks: { color: '#505060', font: { family: 'JetBrains Mono', size: 9 }, maxTicksLimit: 8 },
+                grid: { color: '#1a1a2a' }
+            },
+            y: {
+                ticks: { color: '#505060', font: { family: 'JetBrains Mono', size: 9 } },
+                grid: { color: '#1a1a2a' }
+            }
+        }
+    };
+    
+    // Price chart
+    priceChart = new Chart(document.getElementById('priceChart'), {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: 'Price',
+                    data: [],
+                    borderColor: '#3b82f6',
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    fill: false,
+                    tension: 0.1
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: false,
-                    scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                unit: 'second',
-                                displayFormats: {
-                                    second: 'HH:mm:ss'
-                                }
-                            },
-                            grid: { color: '#32324a' },
-                            ticks: { color: '#808090' }
-                        },
-                        y: {
-                            grid: { color: '#32324a' },
-                            ticks: { color: '#808090' }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false }
-                    }
+                {
+                    label: 'Prediction',
+                    data: [],
+                    borderColor: '#22c55e',
+                    borderWidth: 2,
+                    borderDash: [5, 3],
+                    pointRadius: 0,
+                    fill: false,
+                    tension: 0.3
                 }
-            });
-
-            errorChart = new Chart(errorCtx, {
-                type: 'line',
-                data: {
-                    datasets: [{
-                        label: 'Error %',
-                        data: [],
-                        borderColor: '#ef4444',
-                        borderWidth: 2,
-                        fill: false,
-                        pointRadius: 0,
-                        tension: 0.1
-                    }]
+            ]
+        },
+        options: commonOptions
+    });
+    
+    // Error chart
+    errorChart = new Chart(document.getElementById('errorChart'), {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Error %',
+                data: [],
+                borderColor: '#ef4444',
+                borderWidth: 1.5,
+                pointRadius: 0,
+                fill: {
+                    target: 'origin',
+                    above: 'rgba(239,68,68,0.1)'
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: false,
-                    scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                unit: 'second',
-                                displayFormats: {
-                                    second: 'HH:mm:ss'
-                                }
-                            },
-                            grid: { color: '#32324a' },
-                            ticks: { color: '#808090' }
-                        },
-                        y: {
-                            min: 0,
-                            grid: { color: '#32324a' },
-                            ticks: { color: '#808090' }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false }
-                    }
-                }
-            });
-        }
+                tension: 0.1
+            }]
+        },
+        options: commonOptions
+    });
+}
 
-        // ==================== SIMULATED DATA PROVIDER ====================
-        function generatePrice() {
-            // Random walk with mean reversion
-            const drift = (590 - currentPrice) * 0.001;
-            const volatility = 0.15;
-            const randomShock = (Math.random() - 0.5) * volatility;
-            currentPrice += drift + randomShock;
-            return currentPrice;
-        }
+// ════════════════════════════════════════════════════════════
+// UPDATE UI FROM STATE
+// ════════════════════════════════════════════════════════════
+function updateDashboard(state) {
+    if (!state) return;
+    
+    lastDataTime = new Date();
+    
+    // Status
+    const isRunning = state.is_running;
+    document.getElementById('statusDot').className = isRunning ? 'status-dot live' : 'status-dot';
+    document.getElementById('statusText').textContent = isRunning ? 'Live' : 'Fermo';
+    document.getElementById('lastUpdate').textContent = state.last_tick_time || '';
+    document.getElementById('disconnectedOverlay').style.display = isRunning ? 'none' : 'flex';
+    
+    // Price
+    const price = state.current_price;
+    if (price > 0) {
+        document.getElementById('currentPrice').textContent = price.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+    document.getElementById('symbolName').textContent = state.symbol || '—';
+    document.getElementById('tickTime').textContent = state.last_tick_time || '';
+    
+    // Price change
+    const change = state.predicted_change || 0;
+    const changePct = state.predicted_change_pct || 0;
+    const changeEl = document.getElementById('priceChange');
+    changeEl.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}  (${changePct >= 0 ? '+' : ''}${changePct.toFixed(2)}%)`;
+    changeEl.className = `price-change mono ${change >= 0 ? 'up' : 'down'}`;
+    
+    // Prediction
+    const pp = state.predicted_price;
+    if (pp > 0) {
+        const ppEl = document.getElementById('predictedPrice');
+        ppEl.textContent = pp.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        const pChange = state.predicted_change || 0;
+        const pChangePct = state.predicted_change_pct || 0;
+        const pcEl = document.getElementById('predictedChange');
+        pcEl.textContent = `${pChange >= 0 ? '+' : ''}${pChange.toFixed(2)}  (${pChangePct >= 0 ? '+' : ''}${pChangePct.toFixed(3)}%)`;
+        pcEl.className = `price-change mono ${pChange >= 0 ? 'up' : 'down'}`;
+    }
+    
+    // Confidence
+    const conf = state.prediction_confidence || 0;
+    document.getElementById('confidence').textContent = (conf * 100).toFixed(0) + '%';
+    document.getElementById('confidenceBar').style.width = (conf * 100) + '%';
+    
+    // Probabilities
+    document.getElementById('probUp').textContent = ((state.probability_up || 0) * 100).toFixed(0) + '%';
+    document.getElementById('probFlat').textContent = ((state.probability_flat || 0) * 100).toFixed(0) + '%';
+    document.getElementById('probDown').textContent = ((state.probability_down || 0) * 100).toFixed(0) + '%';
+    
+    // Sentiment
+    document.getElementById('bullish').textContent = (state.bullish_score || 0).toFixed(0);
+    document.getElementById('bearish').textContent = (state.bearish_score || 0).toFixed(0);
+    
+    // Indicators
+    document.getElementById('trendSlope1m').textContent = (state.trend_slope_1m || 0).toFixed(4);
+    document.getElementById('trendSlope5m').textContent = (state.trend_slope_5m || 0).toFixed(4);
+    document.getElementById('trendR2').textContent = ((state.trend_r_squared || 0) * 100).toFixed(1) + '%';
+    document.getElementById('rsi').textContent = (state.rsi || 0).toFixed(1);
+    document.getElementById('macd').textContent = (state.macd || 0).toFixed(6);
+    document.getElementById('macdHist').textContent = (state.macd_histogram || 0).toFixed(6);
+    document.getElementById('volatility').textContent = ((state.volatility || 0) * 100).toFixed(2) + '%';
+    document.getElementById('atr').textContent = (state.atr || 0).toFixed(2);
+    
+    // Support/Resistance
+    document.getElementById('support').textContent = (state.nearest_support || 0).toFixed(2);
+    document.getElementById('resistance').textContent = (state.nearest_resistance || 0).toFixed(2);
+    
+    // Accuracy
+    document.getElementById('mae').textContent = (state.mae || 0).toFixed(2);
+    document.getElementById('mape').textContent = (state.mape || 0).toFixed(2) + '%';
+    document.getElementById('dirAccuracy').textContent = ((state.direction_accuracy || 0) * 100).toFixed(1) + '%';
+    document.getElementById('predCount').textContent = state.prediction_count || 0;
+    
+    // Reasoning
+    if (state.prediction_reasoning) {
+        document.getElementById('reasoning').textContent = state.prediction_reasoning;
+    }
+    
+    // RSI color
+    const rsiVal = state.rsi || 50;
+    const rsiEl = document.getElementById('rsi');
+    rsiEl.style.color = rsiVal > 70 ? 'var(--red)' : rsiVal < 30 ? 'var(--green)' : 'var(--text-primary)';
+    
+    // Charts
+    updateCharts(state);
+}
 
-        // ==================== FEATURE CALCULATIONS ====================
-        function calculateFeatures(prices) {
-            if (prices.length < 20) return null;
-
-            const recent = prices.slice(-60);
-            const returns = [];
-            for (let i = 1; i < recent.length; i++) {
-                returns.push((recent[i].y - recent[i-1].y) / recent[i-1].y);
-            }
-
-            // Trend slope (simple linear regression)
-            const n = recent.length;
-            let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
-            for (let i = 0; i < n; i++) {
-                sumX += i;
-                sumY += recent[i].y;
-                sumXY += i * recent[i].y;
-                sumX2 += i * i;
-            }
-            const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+function updateCharts(state) {
+    // Price chart
+    if (state.price_chart_data && Array.isArray(state.price_chart_data)) {
+        const labels = state.price_chart_data.map(p => p.T || p.t);
+        const values = state.price_chart_data.map(p => p.V || p.v);
+        
+        priceChart.data.labels = labels;
+        priceChart.data.datasets[0].data = values;
+        
+        // Prediction line
+        if (state.prediction_line && Array.isArray(state.prediction_line)) {
+            // Merge prediction into same label space
+            const predLabels = state.prediction_line.map(p => p.T || p.t);
+            const predValues = new Array(labels.length).fill(null);
             
-            // R²
-            const meanY = sumY / n;
-            let ssTot = 0, ssRes = 0;
-            for (let i = 0; i < n; i++) {
-                const predicted = meanY + slope * (i - n/2);
-                ssTot += Math.pow(recent[i].y - meanY, 2);
-                ssRes += Math.pow(recent[i].y - predicted, 2);
+            // Fill prediction values at matching timestamps
+            for (const pred of state.prediction_line) {
+                const idx = labels.indexOf(pred.T || pred.t);
+                if (idx >= 0) predValues[idx] = pred.V || pred.v;
             }
-            const r2 = 1 - (ssRes / ssTot);
-
-            // RSI
-            let gains = 0, losses = 0;
-            for (let i = 0; i < returns.length; i++) {
-                if (returns[i] > 0) gains += returns[i];
-                else losses -= returns[i];
-            }
-            const avgGain = gains / 14;
-            const avgLoss = losses / 14 || 0.0001;
-            const rs = avgGain / avgLoss;
-            const rsi = 100 - (100 / (1 + rs));
-
-            // Volatility
-            const mean = returns.reduce((a, b) => a + b, 0) / returns.length;
-            const variance = returns.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / returns.length;
-            const volatility = Math.sqrt(variance) * 100;
-
-            // Support/Resistance
-            const sortedPrices = recent.map(p => p.y).sort((a, b) => a - b);
-            const support = sortedPrices[Math.floor(sortedPrices.length * 0.1)];
-            const resistance = sortedPrices[Math.floor(sortedPrices.length * 0.9)];
-
-            return {
-                slope1m: slope * 10000,
-                slope5m: slope * 10000 * 0.8,
-                r2: r2 * 100,
-                acceleration: slope * 1000,
-                rsi: rsi,
-                macd: slope * 100,
-                signal: slope * 80,
-                histogram: slope * 20,
-                volatility: volatility,
-                atr: volatility * currentPrice / 100,
-                support: support,
-                resistance: resistance,
-                bullish: Math.round(50 + slope * 5000),
-                bearish: Math.round(50 - slope * 5000)
-            };
-        }
-
-        // ==================== PREDICTION ====================
-        function makePrediction(features) {
-            const horizon = parseInt(document.getElementById('horizonSelect').value);
-            const trend = features.slope1m / 10000;
-            const momentum = (features.rsi - 50) / 100;
             
-            // Predict log return
-            let predictedReturn = trend * horizon * 0.5 + momentum * 0.001;
-            predictedReturn = Math.max(-0.05, Math.min(0.05, predictedReturn));
-
-            // Generate trajectory
-            const prices = [];
-            for (let t = 1; t <= horizon; t++) {
-                const timeRatio = t / horizon;
-                const easedRatio = timeRatio * timeRatio * (3 - 2 * timeRatio);
-                const partialReturn = predictedReturn * easedRatio;
-                prices.push(currentPrice * Math.exp(partialReturn));
-            }
-
-            return {
-                prices: prices,
-                confidence: Math.min(95, 20 + dataPointCount / 10),
-                probUp: predictedReturn > 0.0001 ? 60 + Math.random() * 30 : 10 + Math.random() * 20,
-                probDown: predictedReturn < -0.0001 ? 60 + Math.random() * 30 : 10 + Math.random() * 20
-            };
-        }
-
-        // ==================== UPDATE UI ====================
-        function updateUI(features, prediction) {
-            // Price
-            document.getElementById('currentPrice').textContent = currentPrice.toFixed(2);
-            const change = currentPrice - 590;
-            const changePercent = (change / 590) * 100;
-            const changeEl = document.getElementById('priceChange');
-            changeEl.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)} (${change >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)`;
-            changeEl.className = `price-change ${change >= 0 ? 'positive' : 'negative'}`;
-            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
-
-            if (features) {
-                // Trend
-                document.getElementById('slope1m').textContent = features.slope1m.toFixed(4);
-                document.getElementById('slope5m').textContent = features.slope5m.toFixed(4);
-                document.getElementById('r2').textContent = features.r2.toFixed(1) + '%';
-                document.getElementById('acceleration').textContent = features.acceleration.toFixed(4);
-
-                // Momentum
-                document.getElementById('rsi').textContent = features.rsi.toFixed(1);
-                document.getElementById('macd').textContent = features.macd.toFixed(4);
-                document.getElementById('signal').textContent = features.signal.toFixed(4);
-                document.getElementById('histogram').textContent = features.histogram.toFixed(4);
-
-                // Volatility
-                document.getElementById('volatility').textContent = features.volatility.toFixed(2) + '%';
-                document.getElementById('atr').textContent = features.atr.toFixed(4);
-
-                // Support/Resistance
-                document.getElementById('support').textContent = features.support.toFixed(2);
-                document.getElementById('resistance').textContent = features.resistance.toFixed(2);
-
-                // Sentiment
-                document.getElementById('bullish').textContent = Math.max(0, Math.min(100, features.bullish));
-                document.getElementById('bearish').textContent = Math.max(0, Math.min(100, features.bearish));
-            }
-
-            if (prediction) {
-                const predictedPrice = prediction.prices[prediction.prices.length - 1];
-                const predChange = predictedPrice - currentPrice;
-                const predChangePercent = (predChange / currentPrice) * 100;
-
-                document.getElementById('forecastValue').textContent = 
-                    `${predChange >= 0 ? '+' : ''}${predChange.toFixed(2)} (${predChange >= 0 ? '+' : ''}${predChangePercent.toFixed(2)}%)`;
-                document.getElementById('forecastValue').style.color = predChange >= 0 ? '#22c55e' : '#ef4444';
-
-                document.getElementById('confidenceFill').style.width = prediction.confidence + '%';
-                document.getElementById('confidenceValue').textContent = prediction.confidence.toFixed(0) + '%';
-
-                const probFlat = 100 - prediction.probUp - prediction.probDown;
-                document.getElementById('probUp').textContent = prediction.probUp.toFixed(0) + '%';
-                document.getElementById('probFlat').textContent = Math.max(0, probFlat).toFixed(0) + '%';
-                document.getElementById('probDown').textContent = prediction.probDown.toFixed(0) + '%';
-            }
-
-            // Stats
-            document.getElementById('dataPoints').textContent = dataPointCount;
-            document.getElementById('bufferFill').textContent = Math.min(100, (dataPointCount / BUFFER_SIZE * 100)).toFixed(0) + '%';
-            document.getElementById('predictionCount').textContent = predictionCount;
-        }
-
-        // ==================== UPDATE CHARTS ====================
-        function updateCharts() {
-            // Trim data
-            while (priceData.length > MAX_CHART_POINTS) priceData.shift();
-            while (predictionData.length > MAX_CHART_POINTS * 2) predictionData.shift();
-            while (errorData.length > MAX_CHART_POINTS) errorData.shift();
-
-            priceChart.data.datasets[0].data = priceData;
-            priceChart.data.datasets[1].data = predictionData;
-            priceChart.data.datasets[2].data = futurePredictionData;
-            priceChart.update('none');
-
-            errorChart.data.datasets[0].data = errorData;
-            errorChart.update('none');
-        }
-
-        // ==================== UPDATE HISTORY ====================
-        function addToHistory(timestamp, predicted, actual) {
-            const error = actual - predicted;
-            historyData.unshift({
-                time: timestamp.toLocaleTimeString(),
-                predicted: predicted.toFixed(2),
-                actual: actual.toFixed(2),
-                error: error,
-                errorFormatted: (error >= 0 ? '+' : '') + error.toFixed(2)
-            });
-
-            // Keep max 20
-            while (historyData.length > 20) historyData.pop();
-
-            // Render
-            const listEl = document.getElementById('historyList');
-            if (historyData.length === 0) {
-                listEl.innerHTML = '<div class="empty-message">In attesa della prima previsione...</div>';
-            } else {
-                listEl.innerHTML = historyData.map(h => `
-                    <div class="history-row">
-                        <div class="time">${h.time}</div>
-                        <div class="predicted">${h.predicted}</div>
-                        <div class="actual">${h.actual}</div>
-                        <div class="error ${h.error >= 0 ? 'positive' : 'negative'}">${h.errorFormatted}</div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        // ==================== MAIN TICK ====================
-        function tick() {
-            const now = new Date();
-            const price = generatePrice();
-            dataPointCount++;
-
-            // Add to price data
-            priceData.push({ x: now, y: price });
-
-            // Calculate features
-            const features = calculateFeatures(priceData);
-
-            // Handle predictions
-            const horizon = parseInt(document.getElementById('horizonSelect').value);
-            let prediction = null;
-
-            if (features && dataPointCount >= 20) {
-                // Check if need new prediction
-                let needNewPrediction = false;
-
-                if (!currentPredictionEndTime) {
-                    needNewPrediction = true;
-                } else if (now >= currentPredictionEndTime) {
-                    // Prediction expired - save to history
-                    addToHistory(currentPredictionEndTime, currentPredictionEndPrice, price);
-                    
-                    // Add to orange line
-                    predictionData.push({ x: currentPredictionStartTime, y: currentPredictionStartPrice });
-                    predictionData.push({ x: currentPredictionEndTime, y: currentPredictionEndPrice });
-
-                    needNewPrediction = true;
+            // If prediction extends beyond current labels, append
+            for (const pred of state.prediction_line) {
+                const t = pred.T || pred.t;
+                if (!labels.includes(t)) {
+                    labels.push(t);
+                    priceChart.data.datasets[0].data.push(null);
+                    predValues.push(pred.V || pred.v);
                 }
-
-                if (needNewPrediction) {
-                    prediction = makePrediction(features);
-                    
-                    currentPredictionStartTime = now;
-                    currentPredictionEndTime = new Date(now.getTime() + horizon * 1000);
-                    currentPredictionStartPrice = price;
-                    currentPredictionEndPrice = prediction.prices[prediction.prices.length - 1];
-                    currentPredictionPrices = prediction.prices;
-                    predictionCount++;
-                }
-
-                // Rebuild green line
-                futurePredictionData = [{ x: currentPredictionStartTime, y: currentPredictionStartPrice }];
-                for (let i = 0; i < currentPredictionPrices.length; i++) {
-                    const t = new Date(currentPredictionStartTime.getTime() + (i + 1) * 1000);
-                    futurePredictionData.push({ x: t, y: currentPredictionPrices[i] });
-                }
-
-                // Calculate real-time error
-                const elapsed = Math.floor((now - currentPredictionStartTime) / 1000);
-                if (elapsed >= 0 && elapsed < currentPredictionPrices.length) {
-                    const predictedNow = elapsed === 0 ? currentPredictionStartPrice : currentPredictionPrices[elapsed - 1];
-                    const errorPercent = Math.abs((predictedNow - price) / price) * 100;
-                    errorData.push({ x: now, y: errorPercent });
-                }
-
-                prediction = prediction || { 
-                    prices: currentPredictionPrices, 
-                    confidence: Math.min(95, 20 + dataPointCount / 10),
-                    probUp: 50,
-                    probDown: 50
-                };
             }
-
-            updateUI(features, prediction);
-            updateCharts();
+            
+            priceChart.data.datasets[1].data = predValues;
         }
+        
+        priceChart.update('none');
+    }
+    
+    // Error chart
+    if (state.error_chart_data && Array.isArray(state.error_chart_data)) {
+        errorChart.data.labels = state.error_chart_data.map(p => p.T || p.t);
+        errorChart.data.datasets[0].data = state.error_chart_data.map(p => p.V || p.v);
+        errorChart.update('none');
+    }
+}
 
-        // ==================== CONTROLS ====================
-        function start() {
-            if (isRunning) return;
-            isRunning = true;
+// ════════════════════════════════════════════════════════════
+// PREDICTION HISTORY
+// ════════════════════════════════════════════════════════════
+function addHistoryItem(pred) {
+    const list = document.getElementById('historyList');
+    
+    // Remove "waiting" message
+    if (list.querySelector('[style*="italic"]')) list.innerHTML = '';
+    
+    const icon = pred.direction_correct ? '✅' : '❌';
+    const predArrow = pred.predicted_up ? '▲' : '▼';
+    const actArrow = pred.actual_up ? '▲' : '▼';
+    const predDir = pred.predicted_up ? 'SU' : 'GIÙ';
+    const actDir = pred.actual_up ? 'SU' : 'GIÙ';
+    const errColor = pred.direction_correct ? 'var(--green)' : 'var(--red)';
+    const time = new Date(pred.prediction_time).toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    item.innerHTML = `
+        <span class="history-time">${time}</span>
+        <span>${icon}</span>
+        <span class="history-result" style="color:${errColor}">${predArrow}${predDir} → ${actArrow}${actDir}</span>
+        <span class="history-error" style="color:${errColor}">${pred.error_amount >= 0 ? '+' : ''}${(pred.error_amount || 0).toFixed(2)}</span>
+    `;
+    
+    list.insertBefore(item, list.firstChild);
+    
+    // Max 50 items
+    while (list.children.length > 50) list.removeChild(list.lastChild);
+}
 
-            document.getElementById('btnStart').style.display = 'none';
-            document.getElementById('btnStop').style.display = 'inline-flex';
-            document.getElementById('statusDot').classList.remove('disconnected');
-            document.getElementById('statusText').textContent = 'Connected';
-
-            intervalId = setInterval(tick, 1000);
-        }
-
-        function stop() {
-            if (!isRunning) return;
-            isRunning = false;
-
-            clearInterval(intervalId);
-            intervalId = null;
-
-            document.getElementById('btnStart').style.display = 'inline-flex';
-            document.getElementById('btnStop').style.display = 'none';
-            document.getElementById('statusDot').classList.add('disconnected');
-            document.getElementById('statusText').textContent = 'Stopped';
-        }
-
-        function reset() {
-            stop();
-
-            currentPrice = 590;
-            priceData = [];
-            predictionData = [];
-            futurePredictionData = [];
-            errorData = [];
-            historyData = [];
-            dataPointCount = 0;
-            predictionCount = 0;
-
-            currentPredictionStartTime = null;
-            currentPredictionEndTime = null;
-            currentPredictionStartPrice = 0;
-            currentPredictionEndPrice = 0;
-            currentPredictionPrices = [];
-
-            document.getElementById('historyList').innerHTML = '<div class="empty-message">In attesa della prima previsione...</div>';
-            document.getElementById('currentPrice').textContent = '--';
-            document.getElementById('priceChange').textContent = '--';
-            document.getElementById('dataPoints').textContent = '0';
-            document.getElementById('bufferFill').textContent = '0%';
-            document.getElementById('predictionCount').textContent = '0';
-            document.getElementById('statusText').textContent = 'Disconnected';
-
-            updateCharts();
-        }
-
-        // ==================== INIT ====================
-        document.addEventListener('DOMContentLoaded', () => {
-            initCharts();
+// ════════════════════════════════════════════════════════════
+// SUPABASE REALTIME SUBSCRIPTIONS
+// ════════════════════════════════════════════════════════════
+async function initRealtime() {
+    // 1. Load initial state
+    const { data: stateData } = await supabase
+        .from('market_state')
+        .select('*')
+        .eq('id', 'current')
+        .single();
+    
+    if (stateData) updateDashboard(stateData);
+    
+    // 2. Load recent predictions
+    const { data: historyData } = await supabase
+        .from('prediction_log')
+        .select('*')
+        .order('prediction_time', { ascending: false })
+        .limit(50);
+    
+    if (historyData) {
+        // Reverse to add oldest first
+        historyData.reverse().forEach(pred => addHistoryItem(pred));
+    }
+    
+    // 3. Subscribe to market_state changes (real-time!)
+    supabase
+        .channel('market-state')
+        .on('postgres_changes', 
+            { event: 'UPDATE', schema: 'public', table: 'market_state', filter: 'id=eq.current' },
+            (payload) => {
+                updateDashboard(payload.new);
+            }
+        )
+        .subscribe((status) => {
+            console.log('State subscription:', status);
         });
-    </script>
+    
+    // 4. Subscribe to new predictions
+    supabase
+        .channel('predictions')
+        .on('postgres_changes',
+            { event: 'INSERT', schema: 'public', table: 'prediction_log' },
+            (payload) => {
+                addHistoryItem(payload.new);
+            }
+        )
+        .subscribe((status) => {
+            console.log('Predictions subscription:', status);
+        });
+}
+
+// ════════════════════════════════════════════════════════════
+// STALE DATA CHECK (show overlay if no updates for 10 seconds)
+// ════════════════════════════════════════════════════════════
+function checkStale() {
+    if (lastDataTime && (new Date() - lastDataTime) > 10000) {
+        document.getElementById('disconnectedOverlay').style.display = 'flex';
+        document.getElementById('statusDot').className = 'status-dot';
+        document.getElementById('statusText').textContent = 'Nessun dato';
+        document.getElementById('lastSeen').textContent = 'Ultimo aggiornamento: ' + lastDataTime.toLocaleTimeString('it-IT');
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// BOOT
+// ════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+    initCharts();
+    initRealtime();
+    staleCheckInterval = setInterval(checkStale, 3000);
+});
+</script>
 </body>
 </html>
