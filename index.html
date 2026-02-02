@@ -81,7 +81,8 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
 .sim-note{font-size:8px;color:var(--t3);text-align:center;margin-top:8px;line-height:1.4}
 
 /* ★ TRADE ROWS nel simulatore */
-.tr-row{display:flex;align-items:center;gap:4px;padding:7px 10px;border-bottom:1px solid rgba(30,30,53,.5);font-size:10px;font-family:'DM Mono'}
+.tr-row{display:flex;align-items:center;gap:4px;padding:7px 10px;border-bottom:1px solid rgba(30,30,53,.5);font-size:10px;font-family:'DM Mono';cursor:pointer;transition:background .15s}
+.tr-row:active{background:rgba(255,255,255,.04)}
 .tr-row.win{border-left:2px solid var(--g)}.tr-row.loss{border-left:2px solid var(--r)}
 .tr-time{font-size:8px;color:var(--t3);min-width:44px}
 .tr-icon{font-size:11px;width:14px;text-align:center}
@@ -120,7 +121,7 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
 .rbox{font-family:'DM Mono';font-size:10px;line-height:1.6;color:#6ec96e;padding:12px;max-height:140px;overflow-y:auto;-webkit-overflow-scrolling:touch;white-space:pre-line}
 
 /* History */
-.hl{max-height:320px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.hl{overflow-y:auto;-webkit-overflow-scrolling:touch}
 .hi{display:flex;align-items:center;gap:5px;padding:9px 10px;border-bottom:1px solid rgba(30,30,53,.5);font-size:11px;cursor:pointer;transition:background .1s;animation:fu .2s ease-out}
 .hi:active{background:var(--s3)}
 @keyframes fu{from{opacity:0;transform:translateY(-3px)}}
@@ -244,7 +245,7 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
                     <div style="font-family:'DM Mono';font-size:16px" id="simBalance">—</div>
                 </div>
             </div>
-            <div class="hl" id="simList" style="max-height:280px"></div>
+            <div class="hl" id="simList"></div>
         </div>
         <div class="tp" id="tpE"><div class="ecw"><canvas id="ec"></canvas></div></div>
     </div>
@@ -360,7 +361,7 @@ function calcSim(){
             balHi *= (1 + pctGain);
             const delta = balHi - before;
             if(t.dirCorrect) winsHi++; else lossesHi++;
-            simRows.push({time:t.time, dir:t.predDir, ok:t.dirCorrect, pctGain, delta, balance:balHi, conf:t.conf});
+            simRows.push({time:t.time, dir:t.predDir, ok:t.dirCorrect, pctGain, delta, balance:balHi, conf:t.conf, predId:t.predId});
         }
     });
     
@@ -396,13 +397,15 @@ function calcSim(){
         const r = simRows[i];
         const el = document.createElement('div');
         el.className = 'tr-row ' + (r.ok ? 'win' : 'loss');
+        if(r.predId) el.onclick = () => openM(r.predId);
         const col = r.ok ? 'var(--g)' : 'var(--r)';
         const sign = r.delta >= 0 ? '+' : '';
         el.innerHTML = `<span class="tr-time">${r.time}</span>`+
             `<span class="tr-icon">${r.ok?'✅':'❌'}</span>`+
             `<span class="tr-dir" style="color:${col}">${r.dir} ★${r.conf}%</span>`+
             `<span class="tr-move" style="color:${col}">${sign}${r.delta.toFixed(2)}€</span>`+
-            `<span class="tr-bal">${r.balance.toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2})}€</span>`;
+            `<span class="tr-bal">${r.balance.toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2})}€</span>`+
+            `<span class="hi-a">›</span>`;
         list.appendChild(el);
     }
 }
@@ -443,11 +446,11 @@ function addH(pred){const l=document.getElementById('hL');if(l.querySelector('[s
     const startP=pred.start_price||0, actP=pred.actual_price||0;
     const ptsMove=Math.abs(actP-startP);
     const pctMove=startP>0?Math.abs(actP-startP)/startP:0;
-    trades.push({ptsMove,pctMove,dirCorrect:!!ok,isHiConf:isHi,time:t,predDir:pred.predicted_up?'SU':'GIÙ',conf});
+    trades.push({ptsMove,pctMove,dirCorrect:!!ok,isHiConf:isHi,time:t,predDir:pred.predicted_up?'SU':'GIÙ',conf,predId:pred.id});
     updStats();
     const el=document.createElement('div');el.className='hi'+(isHi?' gold':'');el.onclick=()=>openM(pred.id);
     el.innerHTML=`<span class="hi-t">${t}</span><span class="hi-i">${ic}</span><span class="hi-d" style="color:${col}">${pD} → ${aD}</span>${isHi?`<span class="hi-b">★${conf}%</span>`:''}<span class="hi-e" style="color:${col}">${err>=0?'+':''}${err.toFixed(1)}</span><span class="hi-a">›</span>`;
-    l.insertBefore(el,l.firstChild);while(l.children.length>60)l.removeChild(l.lastChild)}
+    l.insertBefore(el,l.firstChild)}
 
 function openM(id){const pr=cache[id];if(!pr)return;document.getElementById('mbg').classList.add('open');document.body.style.overflow='hidden';
     const t=new Date(pr.prediction_time).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -476,7 +479,7 @@ async function pollS(){try{const{data}=await sb.from('market_state').select('*')
 async function pollP(){try{let q=sb.from('prediction_log').select('*').order('id',{ascending:false}).limit(15);if(lastPredId>0)q=q.gt('id',lastPredId);const{data}=await q;if(data&&data.length>0)data.reverse().forEach(p=>{if(p.id>lastPredId){addH(p);lastPredId=p.id}})}catch(e){}}
 function chk(){if(lastData&&(new Date()-lastData)>12000){document.getElementById('ovOff').style.display='flex';document.getElementById('dot').className='dot';document.getElementById('stLbl').textContent='Off';document.getElementById('lSeen').textContent='Ultimo: '+lastData.toLocaleTimeString('it-IT')}}
 let lf=0;function rLoop(ts){if(ts-lf>50){lc.draw();lf=ts}requestAnimationFrame(rLoop)}
-async function init(){lc=new LC('lc');initEC();await pollS();const{data}=await sb.from('prediction_log').select('*').order('prediction_time',{ascending:false}).limit(60);if(data&&data.length>0){lastPredId=Math.max(...data.map(p=>p.id));sAll={ok:0,ko:0};sHi={ok:0,ko:0};trades=[];data.reverse().forEach(p=>addH(p))}setInterval(pollS,1000);setInterval(pollP,3000);setInterval(chk,4000);requestAnimationFrame(rLoop)}
+async function init(){lc=new LC('lc');initEC();await pollS();const{data}=await sb.from('prediction_log').select('*').order('prediction_time',{ascending:false}).limit(500);if(data&&data.length>0){lastPredId=Math.max(...data.map(p=>p.id));sAll={ok:0,ko:0};sHi={ok:0,ko:0};trades=[];data.reverse().forEach(p=>addH(p))}setInterval(pollS,1000);setInterval(pollP,3000);setInterval(chk,4000);requestAnimationFrame(rLoop)}
 document.addEventListener('DOMContentLoaded',init);
 let tsy=0;document.getElementById('mdl').addEventListener('touchstart',e=>{tsy=e.touches[0].clientY},{passive:true});document.getElementById('mdl').addEventListener('touchmove',e=>{if(e.touches[0].clientY-tsy>70&&document.getElementById('mdl').scrollTop<=0)closeM()},{passive:true});
 </script>
