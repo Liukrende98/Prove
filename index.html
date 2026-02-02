@@ -6,7 +6,7 @@
     <title>Market Forecaster — Live Dashboard</title>
     
     <!-- Supabase JS Client -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <!-- Chart.js per i grafici -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
@@ -567,7 +567,8 @@ const SUPABASE_KEY = 'TUA-ANON-KEY';
 // ════════════════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════════════════
-const supabaseClient = window.supabaseClient.createClient(SUPABASE_URL, SUPABASE_KEY);
+const { createClient } = window.supabase || window.Supabase || {};
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let priceChart, errorChart;
 let lastDataTime = null;
