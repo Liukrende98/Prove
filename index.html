@@ -561,13 +561,13 @@
 // ════════════════════════════════════════════════════════════
 // CONFIGURA QUI le tue credenziali Supabase
 // ════════════════════════════════════════════════════════════
-const SUPABASE_URL = 'https://xoagoblnzvdqnktpfhlk.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_Uf5-1uzQzL-OqI6dA-tl_g_RHpYxNds';
+const SUPABASE_URL = 'https://TUO-PROGETTO.supabase.co';
+const SUPABASE_KEY = 'TUA-ANON-KEY';
 
 // ════════════════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════════════════
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = window.supabaseClient.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let priceChart, errorChart;
 let lastDataTime = null;
@@ -819,7 +819,7 @@ function addHistoryItem(pred) {
 // ════════════════════════════════════════════════════════════
 async function initRealtime() {
     // 1. Load initial state
-    const { data: stateData } = await supabase
+    const { data: stateData } = await supabaseClient
         .from('market_state')
         .select('*')
         .eq('id', 'current')
@@ -828,7 +828,7 @@ async function initRealtime() {
     if (stateData) updateDashboard(stateData);
     
     // 2. Load recent predictions
-    const { data: historyData } = await supabase
+    const { data: historyData } = await supabaseClient
         .from('prediction_log')
         .select('*')
         .order('prediction_time', { ascending: false })
@@ -840,7 +840,7 @@ async function initRealtime() {
     }
     
     // 3. Subscribe to market_state changes (real-time!)
-    supabase
+    supabaseClient
         .channel('market-state')
         .on('postgres_changes', 
             { event: 'UPDATE', schema: 'public', table: 'market_state', filter: 'id=eq.current' },
@@ -853,7 +853,7 @@ async function initRealtime() {
         });
     
     // 4. Subscribe to new predictions
-    supabase
+    supabaseClient
         .channel('predictions')
         .on('postgres_changes',
             { event: 'INSERT', schema: 'public', table: 'prediction_log' },
