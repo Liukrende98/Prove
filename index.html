@@ -373,10 +373,11 @@ body {
 .table-card.status-libero::before { background: var(--border); }
 
 .table-number {
-  font-family: 'Syne', sans-serif;
+  font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
   font-size: 22px;
-  font-weight: 800;
+  font-weight: 700;
   margin-bottom: 4px;
+  letter-spacing: -0.5px;
 }
 .table-room { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
 .table-status-badge {
@@ -2597,8 +2598,48 @@ input[type="range"]::-webkit-slider-thumb {
   /* ─── CASSA ──────────────────────────────────────── */
   .cassa-layout { grid-template-columns: 1fr !important; }
   .cassa-sidebar { display: none !important; }
-  #phone-orders-panel { font-size: 14px; }
-  #phone-orders-list { flex-direction: column !important; }
+  /* Phone orders — header sopra, cards scrollabili sotto */
+  #phone-orders-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    background: var(--bg2) !important;
+    border-bottom: 2px solid var(--border) !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    flex-shrink: 0 !important;
+  }
+  /* Header: icona + label + contatore + pulsante Nuovo */
+  #phone-orders-panel > div:first-child {
+    display: flex !important;
+    align-items: center !important;
+    padding: 10px 14px !important;
+    gap: 10px !important;
+    border-bottom: 1px solid var(--border) !important;
+    flex-shrink: 0 !important;
+  }
+  #phone-panel-toggle-icon { display: none !important; }
+  /* Cards area: scrollabile orizzontalmente, altezza fissa */
+  #phone-orders-body {
+    display: block !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    height: 140px !important;
+    padding: 10px 14px !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  #phone-orders-list {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 10px !important;
+    flex-wrap: nowrap !important;
+    height: 100% !important;
+    align-items: stretch !important;
+  }
+  /* Hide "Gestione Tavoli" title on mobile */
+  .section-header .section-title { display: none !important; }
+  .section-header .section-subtitle { display: none !important; }
+  .section-header { padding: 8px 12px !important; }
+  .tables-filters { padding: 0 12px 8px !important; gap: 6px !important; overflow-x: auto; flex-wrap: nowrap !important; }
   .cassa-main { padding: 0 !important; }
   .tables-grid-section { width: 100% !important; padding: 12px !important; }
   .tables-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
@@ -2608,18 +2649,20 @@ input[type="range"]::-webkit-slider-thumb {
 
   /* ─── ORDER PANEL SLIDE-UP ───────────────────────── */
   #mob-cassa-order-panel {
-    position: fixed; bottom: 0; left: 0; right: 0;
+    position: fixed;
+    top: 56px !important;
+    bottom: 68px !important;
+    left: 0; right: 0;
     background: var(--bg2);
     border-top: 2px solid var(--amber);
-    border-radius: 20px 20px 0 0;
+    border-radius: 0;
     z-index: 8200;
-    transform: translateY(100%);
+    transform: translateY(100vh);
     transition: transform .3s cubic-bezier(.32,.72,0,1);
-    max-height: 80dvh;
     display: flex !important; flex-direction: column;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   #mob-cassa-order-panel.open { transform: translateY(0); }
+  #mob-panel-drag-handle { display: none !important; }
 
   /* ─── CUCINE ─────────────────────────────────────── */
   .cucine-tabs-bar { overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
@@ -4538,6 +4581,7 @@ let _phoneOrderItems = []; // {id, menuItemId, qty}
 let _editingPhoneOrderId = null;
 
 function togglePhonePanel() {
+  if(isMobile && isMobile()) { renderPhoneOrdersList(); return; } // always open on mobile
   _phonePanelOpen = !_phonePanelOpen;
   const body = document.getElementById('phone-orders-body');
   const icon = document.getElementById('phone-panel-toggle-icon');
@@ -4550,6 +4594,11 @@ function renderPhoneOrdersList() {
   const container = document.getElementById('phone-orders-list');
   const countEl   = document.getElementById('phone-orders-count');
   if(!container) return;
+  // On mobile always show the body
+  if(isMobile && isMobile()) {
+    const body = document.getElementById('phone-orders-body');
+    if(body) body.style.display = '';
+  }
   const orders = (state.phoneOrders || []).filter(o => o.status !== 'closed');
   if(countEl) countEl.textContent = orders.length ? orders.length + ' attiv' + (orders.length===1?'o':'i') : 'Nessun ordine attivo';
 
@@ -4567,7 +4616,7 @@ function renderPhoneOrdersList() {
     const sc = colors[o.kitchenStatus]||'var(--text3)';
     const sl = labels[o.kitchenStatus]||o.kitchenStatus;
     const np = o.items.length;
-    let h = '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 14px;min-width:220px;max-width:280px;flex-shrink:0">';
+    let h = '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:10px 14px;min-width:200px;max-width:260px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between">';
     h += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">';
     h += '<span style="font-size:13px;font-weight:700;flex:1">'+(o.customerName||'Cliente')+'</span>';
     h += '<span style="font-size:10px;font-weight:700;color:'+sc+';background:'+sc+'33;padding:2px 8px;border-radius:20px">'+sl+'</span>';
@@ -5295,6 +5344,7 @@ function switchTab(tab, btn) {
       }, 50);
     }
   }
+  if(tab === 'cassa') { if(isMobile&&isMobile()) { renderTablesGrid(); renderPhoneOrdersList(); } }
   if(tab === 'cucine') renderCucine();
   if(tab === 'cruscotti') renderCruscotti();
 }
