@@ -178,6 +178,86 @@ body {
 .quick-user-btn .qu-role { font-size: 11px; color: var(--text3); }
 
 /* ===== MAIN APP ===== */
+
+/* ─── CASSA ROOM PILLS ─────────────────────────── */
+.cassa-room-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  background: var(--bg3);
+  color: var(--text2);
+  transition: all 0.15s;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.cassa-room-pill.active {
+  border-color: var(--amber);
+  background: var(--amber-dim);
+  color: var(--amber);
+}
+.crp-count {
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--bg4);
+  color: var(--text3);
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+.cassa-room-pill.active .crp-count {
+  background: rgba(245,158,11,0.2);
+  color: var(--amber);
+}
+.crp-occ {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+/* ─── TABLE CARD TIMER ─────────────────────────── */
+.tc-timer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 4px 0 2px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: 6px;
+  width: fit-content;
+  max-width: 100%;
+}
+.tc-timer.t-ok   { background: rgba(34,197,94,0.12);  color: var(--green); }
+.tc-timer.t-warn { background: rgba(245,158,11,0.15); color: var(--amber); }
+.tc-timer.t-late { background: rgba(239,68,68,0.15);  color: var(--red);   }
+
+/* ─── MOB CASSA ACTION SHEET ───────────────────── */
+#mob-cassa-action-sheet.open { transform: translateY(0) !important; }
+.mob-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  width: 100%;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity .15s;
+}
+.mob-action-btn:active { opacity: 0.75; }
+.mob-action-btn .ma-icon { font-size: 22px; width: 36px; text-align: center; flex-shrink: 0; }
+.mob-action-btn .ma-sub { font-size: 12px; font-weight: 400; opacity: 0.75; display: block; margin-top: 1px; }
 #app { display: none; flex-direction: column; min-height: 100vh; }
 
 /* HEADER */
@@ -2464,7 +2544,8 @@ input[type="range"]::-webkit-slider-thumb {
 #mob-header,
 #mob-tab-bar,
 #mob-order-fab,
-#mob-cassa-order-panel { display: none; }
+#mob-cassa-order-panel,
+#mob-cassa-action-sheet { display: none; }
 #mob-order-fab { display: none !important; }
 
 @media (max-width: 767px) {
@@ -3128,7 +3209,7 @@ input[type="range"]::-webkit-slider-thumb {
     <div id="mob-panel-order-body" style="flex:1;overflow-y:auto;padding:0 14px;-webkit-overflow-scrolling:touch"></div>
     <!-- Panel footer: action buttons -->
     <div id="mob-panel-footer" style="padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:8px">
-      <button class="btn btn-success" style="font-size:15px;font-weight:800;padding:14px;background:var(--green);color:#fff;border-color:var(--green);border-radius:12px;justify-content:center" onclick="sendOrderToKitchen();closeMobOrderPanel()">🚀 Invia in Cucina</button>
+      <button id="mob-send-kitchen-btn" class="btn btn-success" style="font-size:15px;font-weight:800;padding:14px;background:var(--green);color:#fff;border-color:var(--green);border-radius:12px;justify-content:center;display:none" onclick="sendOrderToKitchen();closeMobOrderPanel()">🚀 Invia in Cucina</button>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
         <button class="btn btn-primary" style="font-size:13px;font-weight:700;padding:12px 6px;justify-content:center;border-radius:12px" onclick="openOrderModal()">➕ Ordina</button>
         <button class="btn btn-secondary" style="font-size:13px;font-weight:700;padding:12px 6px;justify-content:center;border-radius:12px" onclick="confirmOrderAndSend()">➕🚀 +Invia</button>
@@ -3139,6 +3220,29 @@ input[type="range"]::-webkit-slider-thumb {
 
   <!-- ═══ MOBILE FAB (Cassa) ═══ -->
   <button id="mob-order-fab" class="hidden" onclick="openMobOrderPanel()">📋</button>
+
+  <!-- ═══ MOBILE CASSA TABLE ACTION SHEET ═══ -->
+  <div id="mob-cassa-action-sheet" style="
+    position:fixed;bottom:0;left:0;right:0;
+    background:var(--bg2);
+    border-top:2px solid var(--border);
+    border-radius:20px 20px 0 0;
+    z-index:8500;
+    transform:translateY(100%);
+    transition:transform .3s cubic-bezier(.32,.72,0,1);
+    display:flex;flex-direction:column;
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    max-height:50dvh;
+  ">
+    <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:10px auto 0;flex-shrink:0"></div>
+    <div style="padding:12px 18px 10px;display:flex;align-items:center;gap:10px;flex-shrink:0">
+      <div id="mob-action-sheet-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;flex:1"></div>
+      <div id="mob-action-sheet-status" style="font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px"></div>
+      <button onclick="closeMobCassaActionSheet()" style="background:none;border:none;color:var(--text3);font-size:22px;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+    <div id="mob-action-sheet-timer" style="padding:0 18px 10px;font-size:13px;color:var(--text3)"></div>
+    <div id="mob-action-sheet-body" style="padding:0 16px 16px;display:flex;flex-direction:column;gap:10px;overflow-y:auto"></div>
+  </div>
 
   <!-- HEADER -->
   <header class="app-header">
@@ -3218,7 +3322,10 @@ input[type="range"]::-webkit-slider-thumb {
             <div id="phone-orders-list" style="display:flex;gap:10px;padding:4px 0 2px;min-width:0"></div>
           </div>
         </div>
-          <div class="section-header">
+          <!-- Room Pills Strip (desktop + mobile) -->
+          <div id="cassa-room-pills-bar" style="display:flex;overflow-x:auto;gap:8px;padding:10px 16px;border-bottom:1px solid var(--border);flex-shrink:0;scrollbar-width:none;-webkit-overflow-scrolling:touch;background:var(--bg2)"></div>
+
+          <div class="section-header" style="display:none" id="cassa-section-header-old">
             <div>
               <div class="section-title">Gestione Tavoli</div>
               <div class="section-subtitle" id="cassa-room-name">Tutti i tavoli</div>
@@ -3230,13 +3337,17 @@ input[type="range"]::-webkit-slider-thumb {
               <button class="btn btn-primary btn-sm" onclick="openAddTableModal()">+ Tavolo</button>
             </div>
           </div>
-          <div class="tables-filters">
+          <div class="tables-filters" style="background:var(--bg);border-bottom:1px solid var(--border);margin:0;padding:8px 14px;flex-shrink:0">
             <div class="filter-chip active" onclick="filterTables('all', this)">Tutti</div>
-            <div class="filter-chip" onclick="filterTables('libero', this)">Liberi</div>
-            <div class="filter-chip" onclick="filterTables('occupato', this)">Occupati</div>
-            <div class="filter-chip" onclick="filterTables('sporco', this)">Da pulire</div>
+            <div class="filter-chip" onclick="filterTables('libero', this)">🟢 Liberi</div>
+            <div class="filter-chip" onclick="filterTables('occupato', this)">🔵 Occupati</div>
+            <div class="filter-chip" onclick="filterTables('sporco', this)">🟡 Da pulire</div>
           </div>
-          <div class="tables-grid" id="tables-grid"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px 0;flex-shrink:0">
+            <div id="cassa-room-name" style="font-size:12px;color:var(--text3)">Tutti i tavoli</div>
+            <button class="btn btn-primary btn-sm" onclick="openAddTableModal()">+ Tavolo</button>
+          </div>
+          <div class="tables-grid" id="tables-grid" style="padding:10px 14px 20px"></div>
         </div>
         <!-- Sidebar -->
         <div class="cassa-sidebar" id="cassa-sidebar">
@@ -5664,11 +5775,49 @@ function switchSettings(section, el) {
 // =============================================
 
 function renderCassaRoomFilter() {
+  // Legacy: keep select updated for compatibility
   const sel = document.getElementById('cassa-room-filter');
-  sel.innerHTML = '<option value="all">Tutte le sale</option>';
-  state.rooms.forEach(r => {
-    sel.innerHTML += `<option value="${r.id}">${r.name}</option>`;
+  if(sel) {
+    sel.innerHTML = '<option value="all">Tutte le sale</option>';
+    state.rooms.forEach(r => { sel.innerHTML += `<option value="${r.id}">${r.name}</option>`; });
+  }
+  renderCassaRoomPills();
+}
+
+function renderCassaRoomPills() {
+  const bar = document.getElementById('cassa-room-pills-bar');
+  if(!bar) return;
+  const rooms = state.rooms;
+  let html = `<div class="cassa-room-pill ${cassaRoomFilter==='all'?'active':''}" onclick="filterCassaRoom('all')" style="flex-shrink:0">
+    <span style="font-size:13px">🏠</span>
+    <span>Tutte</span>
+    <span class="crp-count">${state.tables.length}</span>
+  </div>`;
+  rooms.forEach(r => {
+    const total = state.tables.filter(t => t.room === r.id).length;
+    const occ   = state.tables.filter(t => t.room === r.id && t.status === 'occupato').length;
+    const dirty = state.tables.filter(t => t.room === r.id && t.status === 'sporco').length;
+    const isActive = cassaRoomFilter === r.id;
+    html += `<div class="cassa-room-pill ${isActive?'active':''}" onclick="filterCassaRoom('${r.id}')"
+      style="flex-shrink:0;${isActive?`border-color:${r.color};background:${r.color}18;color:${r.color}`:''}">
+      <span style="width:8px;height:8px;border-radius:50%;background:${r.color};display:inline-block;flex-shrink:0"></span>
+      <span>${r.name}</span>
+      ${occ>0?`<span class="crp-occ" style="background:var(--blue);color:#fff">${occ} occ</span>`:''}
+      ${dirty>0?`<span class="crp-occ" style="background:var(--amber);color:#000">${dirty} 🧹</span>`:''}
+      <span class="crp-count">${total}</span>
+    </div>`;
   });
+  bar.innerHTML = html;
+  // Update subtitle
+  const nameEl = document.getElementById('cassa-room-name');
+  if(nameEl) {
+    if(cassaRoomFilter === 'all') { nameEl.textContent = `${state.tables.length} tavoli totali`; }
+    else {
+      const r = rooms.find(r=>r.id===cassaRoomFilter);
+      const t = state.tables.filter(t=>t.room===cassaRoomFilter);
+      nameEl.textContent = `${r?.name||''} — ${t.length} tavoli`;
+    }
+  }
 }
 
 let cassaRoomFilter = 'all';
@@ -5692,56 +5841,65 @@ function renderTablesGrid() {
   if(cassaRoomFilter !== 'all') tables = tables.filter(t => t.room === cassaRoomFilter);
   if(cassaStatusFilter !== 'all') tables = tables.filter(t => t.status === cassaStatusFilter);
 
+  // Refresh room pills counts
+  renderCassaRoomPills();
+
   if(tables.length === 0) {
     grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6z"/></svg><h3>Nessun tavolo</h3><p>Prova a cambiare filtro</p></div>`;
     return;
   }
 
+  const now = Date.now();
   grid.innerHTML = tables.map(t => {
     const room = state.rooms.find(r => r.id === t.room);
     const order = state.orders.find(o => o.tableId === t.id && o.status !== 'closed');
     const statusLabels = {libero:'Libero',occupato:'Occupato',sporco:'Da pulire',pagato:'Pagato ✓',pronto:'Pronto'};
     const totalAmount = order ? calcOrderTotal(order) : 0;
-    // Seats pips (max 8 shown)
-    const maxPips = Math.min(t.seats || 0, 10);
-    const pips = t.seats > 0
-      ? Array.from({length: maxPips}, (_,i) => `<div class="seat-pip filled"></div>`).join('') +
-        (t.seats > 10 ? `<span style="font-size:9px;color:var(--blue)">+${t.seats-10}</span>` : '')
-      : '';
-    // Arrival time + elapsed
-    let arrivalHtml = '';
+    const hasReady = order?.items.some(i => i.status === 'ready');
+    const pendingCount = order?.items.filter(i => i.status === 'pending').length || 0;
+
+    // Timer display
+    let timerHtml = '';
     if(t.arrivedAt && t.status !== 'libero') {
-      const arrDate = new Date(t.arrivedAt);
-      const hh = arrDate.getHours().toString().padStart(2,'0');
-      const mm = arrDate.getMinutes().toString().padStart(2,'0');
-      const elMin = Math.floor((Date.now() - arrDate.getTime()) / 60000);
-      const elStr = elMin >= 60 ? `${Math.floor(elMin/60)}h ${elMin%60}m` : `${elMin}m`;
-      const isLong = elMin > 120;
-      const noOrder = t.status === 'occupato' && (!order || order.items.filter(i=>i.status!=='cancelled').length === 0);
-      arrivalHtml = `<div class="tc-arrival">
-        <span style="color:var(--text3);font-size:9px">⏱ ${hh}:${mm}</span>
-        <span style="color:${isLong?'var(--red)':'var(--text3)'};font-size:9px;margin-left:4px">${elStr}</span>
-        ${noOrder ? '<span style="color:var(--amber);font-size:9px;margin-left:4px">⚡ no ordine</span>' : ''}
-      </div>`;
+      const elMs  = now - new Date(t.arrivedAt).getTime();
+      const elMin = Math.floor(elMs / 60000);
+      const hh = Math.floor(elMin / 60);
+      const mm = elMin % 60;
+      const elStr = hh > 0 ? `${hh}h ${mm}m` : `${elMin}m`;
+      const cls = elMin < 60 ? 't-ok' : elMin < 120 ? 't-warn' : 't-late';
+      const icon = elMin < 60 ? '🕐' : elMin < 120 ? '⚠️' : '🔴';
+      timerHtml = `<div class="tc-timer ${cls}">${icon} ${elStr}</div>`;
     }
-    // Notif badges on card
-    const hasReady = order?.items.some(i=>i.status==='ready');
+    if(t.status === 'sporco') {
+      timerHtml = `<div class="tc-timer t-warn">🧹 Da pulire</div>`;
+    }
+
+    // Seats
+    const maxPips = Math.min(t.seats || 0, 8);
+    const pips = t.seats > 0
+      ? Array.from({length: maxPips}, () => `<div class="seat-pip filled"></div>`).join('') +
+        (t.seats > 8 ? `<span style="font-size:9px;color:var(--blue)">+${t.seats-8}</span>` : '')
+      : '';
+
+    const noOrder = t.status === 'occupato' && (!order || order.items.filter(i=>i.status!=='cancelled').length === 0);
+
     return `
       <div class="table-card status-${t.status} ${selectedTableId === t.id ? 'active-selection' : ''}" onclick="selectTable('${t.id}')">
         <div class="table-number">${t.number}</div>
         <div class="table-room">${room?.name || 'Sala'}</div>
         <div class="table-status-badge"><span>${statusLabels[t.status]}</span></div>
-        ${arrivalHtml}
+        ${timerHtml}
         <div class="table-seats-row">
           ${t.seats > 0 ? `
             <div class="table-seats-count">${t.seats}</div>
             <div style="font-size:10px;color:var(--text3)">cop.</div>
             <div class="table-seats-pips">${pips}</div>
-          ` : `<div style="font-size:11px;color:var(--text3)">Nessun coperto</div>`}
+          ` : `<div style="font-size:11px;color:var(--text3)">—</div>`}
         </div>
         <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
           ${totalAmount > 0 ? `<div style="font-family:monospace;font-size:12px;color:var(--amber);flex:1">€ ${totalAmount.toFixed(2)}</div>` : '<div style="flex:1"></div>'}
           ${hasReady ? `<div style="background:var(--green);color:#000;font-size:9px;font-weight:800;padding:2px 6px;border-radius:6px">✓ PRONTO</div>` : ''}
+          ${noOrder ? `<div style="background:var(--amber-dim);color:var(--amber);font-size:9px;font-weight:700;padding:2px 6px;border-radius:6px">⚡</div>` : ''}
         </div>
       </div>
     `;
@@ -5752,14 +5910,14 @@ function selectTable(tableId) {
   selectedTableId = tableId;
   renderTablesGrid();
   renderCassaSidebar();
-  // Mobile: update FAB & open order panel for occupied tables
   if(isMobile()) {
     const table = state.tables.find(t=>t.id===tableId);
+    if(!table) return;
     mobUpdateFab();
-    if(tableId && table?.status === 'occupato') openMobOrderPanel();
-    else if(tableId) {
-      // For non-occupied tables, open arrival modal automatically
-      // (already handled by action card click in sidebar — no action needed)
+    if(table.status === 'occupato') {
+      openMobOrderPanel();
+    } else {
+      openMobCassaActionSheet(tableId);
     }
   }
 }
@@ -9671,6 +9829,77 @@ function closeMobOrderPanel() {
   if(!anyOpen) _unlockBodyScroll();
 }
 
+/* ═══ CASSA ACTION SHEET (non-occupato tables) ═══ */
+function openMobCassaActionSheet(tableId) {
+  const table = state.tables.find(t=>t.id===tableId);
+  if(!table) return;
+  const room = state.rooms.find(r=>r.id===table.room);
+  const statusLabels = {libero:'Libero',sporco:'Da pulire',pagato:'Pagato ✓',pronto:'Pronto'};
+  const statusColors  = {libero:'var(--text3)',sporco:'var(--amber)',pagato:'var(--green)',pronto:'var(--green)'};
+
+  document.getElementById('mob-action-sheet-title').textContent = `Tavolo ${table.number}`;
+  const statusBadge = document.getElementById('mob-action-sheet-status');
+  statusBadge.textContent  = statusLabels[table.status] || table.status;
+  statusBadge.style.background = statusColors[table.status] || 'var(--bg4)';
+  statusBadge.style.color      = table.status === 'sporco' ? '#000' : '#fff';
+
+  // Timer
+  const timerEl = document.getElementById('mob-action-sheet-timer');
+  if(table.arrivedAt && table.status !== 'libero') {
+    const elMin = Math.floor((Date.now() - new Date(table.arrivedAt).getTime()) / 60000);
+    const hh = Math.floor(elMin/60), mm = elMin%60;
+    const elStr = hh>0 ? `${hh}h ${mm}m` : `${elMin}m`;
+    timerEl.textContent = `⏱ Al tavolo da ${elStr}  ·  ${room?.name||''}`;
+  } else {
+    timerEl.textContent = room?.name || '';
+  }
+
+  // Context buttons based on status
+  const body = document.getElementById('mob-action-sheet-body');
+  let btns = '';
+  if(table.status === 'libero') {
+    btns += `<button class="mob-action-btn" style="background:rgba(34,197,94,0.12);color:var(--green)" onclick="closeMobCassaActionSheet();openArrivalModal()">
+      <span class="ma-icon">🧑‍🍴</span>
+      <div><span>Nuovi Clienti</span><span class="ma-sub">Registra arrivo e coperti</span></div>
+    </button>`;
+  }
+  if(table.status === 'sporco') {
+    btns += `<button class="mob-action-btn" style="background:rgba(34,197,94,0.12);color:var(--green)" onclick="closeMobCassaActionSheet();markTableFree();showToast('Tavolo pulito ✓','success')">
+      <span class="ma-icon">✅</span>
+      <div><span>Tavolo Pulito</span><span class="ma-sub">Segna come libero e disponibile</span></div>
+    </button>`;
+    btns += `<button class="mob-action-btn" style="background:rgba(245,158,11,0.12);color:var(--amber)" onclick="closeMobCassaActionSheet();openArrivalModal()">
+      <span class="ma-icon">🧑‍🍴</span>
+      <div><span>Nuovi Clienti Subito</span><span class="ma-sub">Segna pulito e registra arrivo</span></div>
+    </button>`;
+  }
+  if(table.status === 'pagato') {
+    btns += `<button class="mob-action-btn" style="background:rgba(245,158,11,0.12);color:var(--amber)" onclick="closeMobCassaActionSheet();markTableDirty();showToast('Tavolo da pulire segnato','info')">
+      <span class="ma-icon">🧹</span>
+      <div><span>Segna Da Pulire</span><span class="ma-sub">Il tavolo è stato pagato</span></div>
+    </button>`;
+  }
+  btns += `<button class="mob-action-btn" style="background:var(--bg4);color:var(--text2)" onclick="closeMobCassaActionSheet()">
+    <span class="ma-icon">✕</span>
+    <span>Chiudi</span>
+  </button>`;
+  body.innerHTML = btns;
+
+  const sheet = document.getElementById('mob-cassa-action-sheet');
+  sheet.style.display = 'flex';
+  requestAnimationFrame(()=>{ sheet.classList.add('open'); });
+  _lockBodyScroll();
+}
+function closeMobCassaActionSheet() {
+  const sheet = document.getElementById('mob-cassa-action-sheet');
+  sheet.classList.remove('open');
+  setTimeout(()=>{ sheet.style.display='none'; }, 320);
+  var anyOpen = document.querySelectorAll('.modal-overlay.open').length > 0;
+  if(!anyOpen) _unlockBodyScroll();
+}
+
+
+
 function mobRenderOrderPanel() {
   const body = document.getElementById('mob-panel-order-body');
   const title = document.getElementById('mob-panel-table-title');
@@ -9734,6 +9963,14 @@ function mobRenderOrderPanel() {
   html += '</div>';
 
   body.innerHTML = html;
+
+  // Show "Invia in Cucina" only if there are pending items
+  const kitchenBtn = document.getElementById('mob-send-kitchen-btn');
+  if(kitchenBtn) {
+    const pendingCount = active.filter(i=>i.status==='pending').length;
+    kitchenBtn.style.display = pendingCount > 0 ? 'flex' : 'none';
+    kitchenBtn.textContent = pendingCount > 0 ? `🚀 Invia in Cucina (${pendingCount})` : '';
+  }
 }
 
 // Called when table selected on mobile cassa
