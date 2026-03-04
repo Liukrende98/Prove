@@ -2932,7 +2932,7 @@ input[type="range"]::-webkit-slider-thumb {
             <span id="phone-panel-toggle-icon" style="color:var(--text3);font-size:14px;transition:transform .2s">▼</span>
           </div>
           <!-- Body (collapsed by default) -->
-          <div id="phone-orders-body" style="display:none;padding:0 16px 12px;overflow-x:auto">
+          <div id="phone-orders-body" style="padding:0 16px 12px;overflow-x:auto">
             <div id="phone-orders-list" style="display:flex;gap:10px;padding:4px 0 2px;min-width:0"></div>
           </div>
         </div>
@@ -4887,6 +4887,7 @@ function initApp() {
   }, 5000);
   updateAllNotifs();
   applyRestaurantLogo();
+  renderPhoneOrdersList();
   mobInit();
 }
 
