@@ -2468,55 +2468,63 @@ input[type="range"]::-webkit-slider-thumb {
 
 @media (max-width: 767px) {
 
-  /* ─── Hide desktop chrome ─────────────────────── */
-  .app-header { display: none !important; }
-  .nodo-footer { display: none !important; }
+  /* ─── GLOBAL ─────────────────────────────────────── */
+  * { -webkit-tap-highlight-color: transparent; }
+  input, select, textarea { font-size: 16px !important; }
+  * { scrollbar-width: none; }
+  *::-webkit-scrollbar { display: none; }
 
-  /* ─── Mobile header (56px, fixed top) ─────────── */
+  /* ─── HIDE DESKTOP CHROME ─────────────────────────── */
+  .app-header { display: none !important; }
+
+  /* ─── APP SHELL ───────────────────────────────────── */
+  #app {
+    padding-top: 56px !important;
+    padding-bottom: 68px !important;
+  }
+  .tab-panel {
+    padding: 0 !important;
+    height: calc(100dvh - 56px - 68px) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    display: none !important;
+  }
+  .tab-panel.active {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  /* ─── MOBILE HEADER ──────────────────────────────── */
   #mob-header {
-    position: fixed;
-    top: 0; left: 0; right: 0; height: 56px;
+    position: fixed; top: 0; left: 0; right: 0; z-index: 9200;
+    height: 56px;
     background: var(--bg2);
     border-bottom: 1px solid var(--border);
     display: flex !important;
     align-items: center;
-    padding: 0 14px;
-    gap: 10px;
-    z-index: 9000;
+    padding: 0 16px;
+    gap: 12px;
   }
   #mob-header-logo {
     font-family: 'Syne', sans-serif;
-    font-weight: 800; font-size: 19px; letter-spacing: -.5px;
-    flex: 1; color: var(--text);
+    font-size: 20px; font-weight: 800;
+    flex: 1; color: #fff;
   }
   #mob-header-logo span { color: var(--amber); }
   .mob-avatar {
-    width: 32px; height: 32px; border-radius: 50%;
+    width: 34px; height: 34px; border-radius: 50%;
     background: var(--amber); color: #000;
-    font-weight: 800; font-size: 13px;
+    font-weight: 800; font-size: 14px;
     display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
   }
 
-  /* ─── All panels: below header, above tab bar ──── */
-  .tab-panel {
-    margin-top: 56px !important;
-    height: calc(100dvh - 56px - 68px) !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch;
-    display: none; flex-direction: column;
-  }
-  .tab-panel.active { display: flex !important; }
-
-  /* ─── Bottom tab bar (68px) ────────────────────── */
+  /* ─── BOTTOM TAB BAR ─────────────────────────────── */
   #mob-tab-bar {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    height: 68px;
-    background: var(--bg2);
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: 68px; background: var(--bg2);
     border-top: 1px solid var(--border);
-    display: flex !important;
-    align-items: center;
+    display: flex !important; align-items: center;
     justify-content: space-around;
     padding: 0 4px;
     padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -2527,11 +2535,10 @@ input[type="range"]::-webkit-slider-thumb {
     padding: 6px 10px; background: none; border: none;
     color: var(--text3); cursor: pointer; position: relative;
     border-radius: 12px; min-width: 52px;
-    -webkit-tap-highlight-color: transparent;
     transition: color .15s, background .15s;
   }
-  .mob-tab-btn.active { color: #fff; background: rgba(245,158,11,0.12); }
-  .mob-tab-btn svg { width: 22px; height: 22px; stroke: currentColor; }
+  .mob-tab-btn.active { color: var(--amber); }
+  .mob-tab-btn svg { width: 24px; height: 24px; stroke: currentColor; }
   .mob-tab-label { font-size: 10px; font-weight: 600; color: inherit; }
   .mob-tab-badge {
     position: absolute; top: 2px; right: 4px;
@@ -2542,138 +2549,149 @@ input[type="range"]::-webkit-slider-thumb {
     border: 2px solid var(--bg2);
   }
 
-  /* ─── FAB (Cassa: aggiungi ordine) ────────────── */
-  /* FAB removed — tap sul tavolo apre il pannello */
+  /* ─── MODAL: bottom sheet ────────────────────────── */
+  .modal-overlay {
+    align-items: flex-end !important;
+    padding: 0 !important;
+    z-index: 9500 !important;
+  }
+  .modal {
+    border-radius: 20px 20px 0 0 !important;
+    max-width: 100% !important; width: 100% !important;
+    max-height: 88dvh !important;
+    margin: 0 !important;
+    display: flex !important; flex-direction: column !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .modal-header {
+    flex-shrink: 0 !important;
+    padding: 16px 16px 12px !important;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-title { font-size: 17px !important; font-weight: 800 !important; }
+  .modal-body {
+    flex: 1 !important; overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 14px 16px !important;
+  }
+  .modal-footer {
+    flex-shrink: 0 !important;
+    padding: 12px 16px !important;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+    display: flex !important; flex-direction: column !important;
+    gap: 8px !important;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  .modal-footer .btn {
+    width: 100% !important; padding: 15px !important;
+    font-size: 15px !important; font-weight: 700 !important;
+    border-radius: 12px !important;
+  }
+  #order-menu-grid { max-height: 190px !important; grid-template-columns: repeat(2,1fr) !important; gap: 8px !important; }
+  #notif-bell-btn { display: none !important; }
+  .notif-panel { left: 8px !important; right: 8px !important; width: auto !important; max-height: 70dvh !important; }
 
-  /* ─── Order slide panel ────────────────────────── */
+  /* ─── CASSA ──────────────────────────────────────── */
+  .cassa-layout { grid-template-columns: 1fr !important; }
+  .cassa-sidebar { display: none !important; }
+  #phone-orders-panel { font-size: 14px; }
+  #phone-orders-list { flex-direction: column !important; }
+  .cassa-main { padding: 0 !important; }
+  .tables-grid-section { width: 100% !important; padding: 12px !important; }
+  .tables-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
+  .table-card { padding: 12px 6px !important; border-radius: 14px !important; }
+  .tc-number { font-size: 24px !important; }
+  .tc-status, .table-room { font-size: 9px !important; }
+
+  /* ─── ORDER PANEL SLIDE-UP ───────────────────────── */
   #mob-cassa-order-panel {
-    position: fixed; bottom: 68px; left: 0; right: 0;
+    position: fixed; bottom: 0; left: 0; right: 0;
     background: var(--bg2);
     border-top: 2px solid var(--amber);
     border-radius: 20px 20px 0 0;
     z-index: 8200;
     transform: translateY(100%);
     transition: transform .3s cubic-bezier(.32,.72,0,1);
-    max-height: 74dvh;
+    max-height: 80dvh;
     display: flex !important; flex-direction: column;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   #mob-cassa-order-panel.open { transform: translateY(0); }
-  #mob-panel-drag-handle {
-    width: 40px; height: 4px; background: var(--border2);
-    border-radius: 2px; margin: 10px auto 4px; flex-shrink: 0;
-  }
-
-  /* ─── Modals: slide from bottom ────────────────── */
-  .modal-overlay {
-    align-items: flex-end !important;
-    padding: 0 !important;
-    padding-bottom: 68px !important; /* tab bar height */
-  }
-  .modal {
-    border-radius: 20px 20px 0 0 !important;
-    max-width: 100% !important; width: 100% !important;
-    max-height: calc(100dvh - 56px - 68px) !important;
-    margin: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-  }
-  .modal-body {
-    flex: 1 !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch;
-  }
-  .modal-footer {
-    flex-shrink: 0 !important;
-    padding: 10px 14px !important;
-    flex-direction: column !important;
-    gap: 8px !important;
-  }
-  .modal-footer .btn {
-    width: 100% !important;
-    padding: 13px !important;
-    font-size: 14px !important;
-    font-weight: 700 !important;
-  }
-  /* Order modal: piatti grid 2 cols, max-height smaller so footer visible */
-  #order-menu-grid { max-height: 200px !important; }
-
-  /* ─── CASSA ─────────────────────────────────────── */
-  .cassa-layout { grid-template-columns: 1fr !important; }
-  .cassa-sidebar { display: none !important; }
-  /* Phone orders: compact on mobile */
-  #phone-orders-panel { font-size: 14px; }
-  #phone-orders-list { flex-direction: column !important; }
-  .cassa-main { padding: 10px !important; }
-  /* Make tables grid section take full width */
-  .tables-grid-section { width: 100% !important; padding: 10px !important; }
-  .tables-grid {
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 8px !important;
-  }
-  .table-card { padding: 10px 6px !important; border-radius: 12px !important; }
-  .tc-number { font-size: 22px !important; }
-  .tc-status, .table-room { font-size: 9px !important; }
-  #order-menu-grid { grid-template-columns: repeat(2,1fr) !important; gap: 8px !important; }
 
   /* ─── CUCINE ─────────────────────────────────────── */
-  .kitchen-layout { grid-template-columns: 1fr !important; gap: 10px !important; }
-  .kitchen-station { border-radius: 12px !important; }
-  .kitchen-item { padding: 14px !important; border-radius: 10px !important; }
+  .cucine-tabs-bar { overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+  .kitchen-layout { grid-template-columns: 1fr !important; gap: 10px !important; padding: 12px !important; }
+  .kitchen-station { border-radius: 14px !important; }
+  .kitchen-item { padding: 14px !important; border-radius: 12px !important; }
   .ki-finish-btn {
     padding: 16px !important; font-size: 16px !important;
-    font-weight: 700 !important; border-radius: 12px !important;
-    background: var(--amber) !important; color: #000 !important;
-    width: 100%; margin-top: 10px;
+    font-weight: 800 !important; border-radius: 12px !important;
+    background: var(--green) !important; color: #000 !important;
+    width: 100%; margin-top: 12px; border: none;
   }
-  .ks-header { padding: 12px 14px !important; }
+  .ks-header { padding: 14px 16px !important; }
 
-  /* ─── SALA MOBILE: solo lista, nessun toggle ── */
+  /* ─── SALA MOBILE ────────────────────────────────── */
   #mob-sala-toggle { display: none !important; }
-
-  /* Nascondi tutto il contenuto desktop della sala su mobile */
   #tab-sala .sala-layout { display: none !important; }
-
-  /* sala toolbar nascosta */
   .sala-toolbar { display: none !important; }
   .sala-delivery-panel { display: none !important; }
-
-  /* Pannello slide tavolo su mobile */
+  .sala-canvas-wrapper { display: none !important; }
+  .sala-side-panel { display: none !important; }
   #mob-sala-table-sheet {
-    position: fixed;
-    bottom: 68px; left: 0; right: 0;
+    position: fixed; bottom: 0; left: 0; right: 0;
     background: var(--bg2);
     border-top: 2px solid var(--amber);
     border-radius: 20px 20px 0 0;
     z-index: 8700;
     transform: translateY(100%);
     transition: transform .3s cubic-bezier(.32,.72,0,1);
-    max-height: 78dvh;
-    display: flex !important;
-    flex-direction: column;
+    max-height: 85dvh;
+    display: flex !important; flex-direction: column;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   #mob-sala-table-sheet.open { transform: translateY(0); }
 
-  /* ─── MENU ───────────────────────────────────────── */
-  .menu-list-grid { grid-template-columns: 1fr !important; }
+  /* ─── MENU: sub-tabs always visible, horiz scroll ── */
+  /* #tab-menu uses normal tab-panel active/inactive display — no override needed */
+  .sub-tabs-bar {
+    overflow-x: auto !important; overflow-y: hidden !important;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 10px 12px !important; gap: 8px !important;
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+    flex-shrink: 0 !important; display: flex !important;
+    scrollbar-width: none;
+  }
+  .sub-tab-btn {
+    flex-shrink: 0 !important; white-space: nowrap !important;
+    font-size: 13px !important; font-weight: 600 !important;
+    padding: 9px 16px !important; border-radius: 20px !important;
+    border: 1px solid var(--border) !important;
+    background: var(--bg3) !important; color: var(--text2) !important;
+    min-height: 38px !important;
+  }
+  .sub-tab-btn.active {
+    background: var(--amber) !important; color: #000 !important;
+    border-color: var(--amber) !important; font-weight: 700 !important;
+  }
+  .tabs-content { flex: 1 !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
+  .sub-panel { padding: 12px !important; }
+  .menu-list-grid { grid-template-columns: 1fr !important; gap: 8px !important; }
   .scorte-grid { grid-template-columns: 1fr !important; }
   .scorte-layout { flex-direction: column !important; }
   .ing-side-panel { width: 100% !important; min-width: 100% !important; border-left: none !important; border-top: 1px solid var(--border) !important; max-height: 50vh; }
   .section-header { flex-wrap: wrap !important; gap: 10px !important; }
-  .sub-tabs-bar { overflow-x: auto !important; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch; }
-  .sub-tab-btn { flex-shrink: 0 !important; white-space: nowrap !important; font-size: 12px !important; }
 
   /* ─── CRUSCOTTI ──────────────────────────────────── */
-  .kpi-row {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 8px !important; padding: 12px !important;
-  }
+  .kpi-row { grid-template-columns: 1fr 1fr !important; gap: 8px !important; padding: 12px !important; }
   .kpi-card { padding: 12px !important; }
-  .kpi-value { font-size: 24px !important; }
+  .kpi-value { font-size: 22px !important; }
   .kpi-label { font-size: 10px !important; }
   .dashboard-grid { grid-template-columns: 1fr !important; padding: 0 12px 12px !important; }
-  /* McDonalds monitor */
   .mcdo-layout { grid-template-columns: 1fr !important; }
-  .mcdo-table-card { padding: 10px !important; }
 
   /* ─── IMPOSTAZIONI ───────────────────────────────── */
   .settings-layout { grid-template-columns: 1fr !important; }
@@ -2682,15 +2700,35 @@ input[type="range"]::-webkit-slider-thumb {
   .settings-card { padding: 14px !important; }
   .grid-2 { grid-template-columns: 1fr !important; }
 
-  /* ─── GLOBAL TOUCH ───────────────────────────────── */
-  input, select, textarea { font-size: 16px !important; } /* prevent iOS zoom */
-  .btn { min-height: 40px; }
-  .btn-sm { min-height: 36px; }
-  * { scrollbar-width: none; }
-  *::-webkit-scrollbar { display: none; }
-  #notif-bell-btn { display: none !important; }
-  .notif-panel { left: 8px !important; right: 8px !important; width: auto !important; }
+  /* ─── TOUCH ──────────────────────────────────────── */
+  .btn { min-height: 44px; }
+  .btn-sm { min-height: 38px !important; }
   .panel-body { padding: 12px !important; }
+  /* ─── NODO FOOTER: hidden on mobile, shown in header ─ */
+  .nodo-footer { display: none !important; }
+  #mob-header-logo {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0 !important;
+    line-height: 1 !important;
+  }
+  #mob-header-logo .mob-logo-sub {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 9px !important;
+    font-weight: 400 !important;
+    color: var(--text3) !important;
+    letter-spacing: 0.3px !important;
+    margin-top: 1px !important;
+    align-self: flex-end !important;
+    margin-right: 2px !important;
+  }
+  #mob-header-logo .mob-logo-sub a {
+    color: var(--amber) !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+  }
+
 }
 
 
@@ -2746,7 +2784,7 @@ input[type="range"]::-webkit-slider-thumb {
 
   <!-- ═══ MOBILE HEADER ═══ -->
   <div id="mob-header">
-    <div id="mob-header-logo">Risto<span>Cloud</span></div>
+    <div id="mob-header-logo">Risto<span>Cloud</span><span class="mob-logo-sub">un prodotto <a href="https://nodoitalia.it" target="_blank">Nodo Italia</a></span></div>
     <div id="mob-header-user">
       <div class="mob-avatar" id="mob-avatar-initials">A</div>
     </div>
@@ -4270,6 +4308,7 @@ function mobSalaOpenTable(tableId) {
   if(footer) footer.innerHTML = footerBtns.join('');
 
   // Open sheet
+  window._mobSheetTableId = tableId;
   document.getElementById('mob-sala-table-sheet')?.classList.add('open');
 }
 
@@ -8411,7 +8450,8 @@ function issueUndoDelivery() {
     };
     order.items.push(restored);
   }
-  saveState(); closeModal('modal-dish-issue'); renderSalaDelivery(); if(salaPanelTableId) renderSalaPanel(); if(isMobile&&isMobile()) renderMobSalaList();
+  saveState(); closeModal('modal-dish-issue'); renderSalaDelivery(); if(salaPanelTableId) renderSalaPanel();
+  if(isMobile&&isMobile()) { renderMobSalaList(); if(document.getElementById('mob-sala-table-sheet')?.classList.contains('open') && typeof _mobSheetTableId !== 'undefined') mobSalaOpenTable(_mobSheetTableId); }
   showToast(`${undoQty > 1 ? undoQty + 'x ' : ''}Consegna annullata — rimessa in "pronto"`, 'info');
 }
 
@@ -8438,7 +8478,8 @@ function issueMakeDuplicate() {
   };
   order.items.push(newItem);
   order.sentAt = order.sentAt || new Date().toISOString();
-  saveState(); closeModal('modal-dish-issue'); renderSalaDelivery(); if(salaPanelTableId) renderSalaPanel(); if(isMobile&&isMobile()) renderMobSalaList(); renderCucine();
+  saveState(); closeModal('modal-dish-issue'); renderSalaDelivery(); if(salaPanelTableId) renderSalaPanel();
+  if(isMobile&&isMobile()) { renderMobSalaList(); if(document.getElementById('mob-sala-table-sheet')?.classList.contains('open') && typeof _mobSheetTableId !== 'undefined') mobSalaOpenTable(_mobSheetTableId); } renderCucine();
   showToast(`${redoQty > 1 ? redoQty + 'x ' : ''}${dish?.name||'Piatto'}: rifacimento → cucina 🔁`, 'success');
 }
 
@@ -8496,7 +8537,8 @@ function confirmCancelDish() {
     durationSec: 0, note: reason
   });
 
-  saveState(); closeModal('modal-dish-issue'); renderSalaDelivery(); if(salaPanelTableId) renderSalaPanel(); if(isMobile&&isMobile()) renderMobSalaList(); renderCassaSidebar();
+  saveState(); closeModal('modal-dish-issue'); renderSalaDelivery(); if(salaPanelTableId) renderSalaPanel();
+  if(isMobile&&isMobile()) { renderMobSalaList(); if(document.getElementById('mob-sala-table-sheet')?.classList.contains('open') && typeof _mobSheetTableId !== 'undefined') mobSalaOpenTable(_mobSheetTableId); } renderCassaSidebar();
   showToast(`${cancelQty > 1 ? cancelQty + 'x ' : ''}${dish?.name||'Piatto'} rimosso — ${reason}`, 'info');
 }
 
@@ -9112,16 +9154,39 @@ function saveAccountSettings() {
 
 function openModal(id) {
   document.getElementById(id).classList.add('open');
+  _lockBodyScroll();
 }
-
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
+  var anyOpen = document.querySelectorAll('.modal-overlay.open').length > 0;
+  if(!anyOpen) _unlockBodyScroll();
+}
+function _lockBodyScroll() {
+  if(!isMobile || !isMobile()) return;
+  if(document.body.dataset.locked) return;
+  document.body.dataset.locked = '1';
+  document.body.dataset.scrollY = window.scrollY;
+  document.body.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.top = '-' + window.scrollY + 'px';
+  document.body.style.width = '100%';
+}
+function _unlockBodyScroll() {
+  if(!document.body.dataset.locked) return;
+  var scrollY = parseInt(document.body.dataset.scrollY || '0');
+  delete document.body.dataset.locked;
+  delete document.body.dataset.scrollY;
+  document.body.style.overflow = '';
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.width = '';
+  window.scrollTo(0, scrollY);
 }
 
 // Close modal on overlay click
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
   overlay.addEventListener('click', (e) => {
-    if(e.target === overlay) overlay.classList.remove('open');
+    if(e.target === overlay) { overlay.classList.remove('open'); var ao=document.querySelectorAll('.modal-overlay.open').length; if(ao===0) typeof _unlockBodyScroll!=='undefined'&&_unlockBodyScroll(); }
   });
 });
 
@@ -9271,10 +9336,12 @@ function openMobOrderPanel() {
   if(!selectedTableId) return;
   mobRenderOrderPanel();
   document.getElementById('mob-cassa-order-panel')?.classList.add('open');
+  _lockBodyScroll();
 }
-
 function closeMobOrderPanel() {
   document.getElementById('mob-cassa-order-panel')?.classList.remove('open');
+  var anyOpen = document.querySelectorAll('.modal-overlay.open').length > 0;
+  if(!anyOpen) _unlockBodyScroll();
 }
 
 function mobRenderOrderPanel() {
