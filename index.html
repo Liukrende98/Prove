@@ -625,8 +625,7 @@ body {
 }
 .sala-canvas-wrapper {
   flex: 1;
-  position: relative;
-  overflow: hidden;
+  overflow: auto;
   background: var(--bg);
   background-image:
     linear-gradient(var(--border) 1px, transparent 1px),
@@ -634,9 +633,9 @@ body {
   background-size: 40px 40px;
 }
 #sala-canvas {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  position: relative;
+  width: 2000px;
+  height: 1400px;
 }
 .floor-table {
   position: absolute;
@@ -1928,14 +1927,14 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .sala-canvas-wrapper {
   flex: 1;
-  position: relative;
-  overflow: hidden;
+  overflow: auto;
   background: var(--bg);
   background-image:
     linear-gradient(var(--border) 1px, transparent 1px),
     linear-gradient(90deg, var(--border) 1px, transparent 1px);
   background-size: 40px 40px;
   transition: margin-right 0.3s ease;
+  -webkit-overflow-scrolling: touch;
 }
 .sala-side-panel {
   width: 0;
@@ -2465,6 +2464,7 @@ input[type="range"]::-webkit-slider-thumb {
 #mob-tab-bar,
 #mob-order-fab,
 #mob-cassa-order-panel { display: none; }
+#mob-order-fab { display: none !important; }
 
 @media (max-width: 767px) {
 
@@ -2543,20 +2543,7 @@ input[type="range"]::-webkit-slider-thumb {
   }
 
   /* ─── FAB (Cassa: aggiungi ordine) ────────────── */
-  #mob-order-fab {
-    position: fixed; bottom: 80px; right: 16px;
-    background: var(--amber); color: #000;
-    border: none; border-radius: 50%;
-    width: 56px; height: 56px; font-size: 26px;
-    display: flex !important;
-    align-items: center; justify-content: center;
-    box-shadow: 0 4px 18px rgba(245,158,11,.5);
-    cursor: pointer; z-index: 8500;
-    transition: transform .15s;
-    -webkit-tap-highlight-color: transparent;
-  }
-  #mob-order-fab.hidden { display: none !important; }
-  #mob-order-fab:active { transform: scale(.9); }
+  /* FAB removed — tap sul tavolo apre il pannello */
 
   /* ─── Order slide panel ────────────────────────── */
   #mob-cassa-order-panel {
@@ -2577,17 +2564,48 @@ input[type="range"]::-webkit-slider-thumb {
   }
 
   /* ─── Modals: slide from bottom ────────────────── */
-  .modal-overlay { align-items: flex-end !important; padding: 0 !important; }
+  .modal-overlay {
+    align-items: flex-end !important;
+    padding: 0 !important;
+    padding-bottom: 68px !important; /* tab bar height */
+  }
   .modal {
     border-radius: 20px 20px 0 0 !important;
     max-width: 100% !important; width: 100% !important;
-    max-height: 90dvh !important; margin: 0 !important;
+    max-height: calc(100dvh - 56px - 68px) !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
+  .modal-body {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .modal-footer {
+    flex-shrink: 0 !important;
+    padding: 10px 14px !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  .modal-footer .btn {
+    width: 100% !important;
+    padding: 13px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+  }
+  /* Order modal: piatti grid 2 cols, max-height smaller so footer visible */
+  #order-menu-grid { max-height: 200px !important; }
 
   /* ─── CASSA ─────────────────────────────────────── */
   .cassa-layout { grid-template-columns: 1fr !important; }
   .cassa-sidebar { display: none !important; }
+  /* Phone orders: compact on mobile */
+  #phone-orders-panel { font-size: 14px; }
+  #phone-orders-list { flex-direction: column !important; }
   .cassa-main { padding: 10px !important; }
+  /* Make tables grid section take full width */
+  .tables-grid-section { width: 100% !important; padding: 10px !important; }
   .tables-grid {
     grid-template-columns: repeat(3, 1fr) !important;
     gap: 8px !important;
@@ -2609,11 +2627,15 @@ input[type="range"]::-webkit-slider-thumb {
   }
   .ks-header { padding: 12px 14px !important; }
 
-  /* ─── SALA MOBILE: tutto nascosto, gestito da mobSalaView() ── */
-  #mob-sala-toggle { display: flex !important; }
+  /* ─── SALA MOBILE: solo lista, nessun toggle ── */
+  #mob-sala-toggle { display: none !important; }
 
   /* Nascondi tutto il contenuto desktop della sala su mobile */
   #tab-sala .sala-layout { display: none !important; }
+
+  /* sala toolbar nascosta */
+  .sala-toolbar { display: none !important; }
+  .sala-delivery-panel { display: none !important; }
 
   /* Pannello slide tavolo su mobile */
   #mob-sala-table-sheet {
@@ -2751,8 +2773,9 @@ input[type="range"]::-webkit-slider-thumb {
     <div id="mob-panel-order-body" style="flex:1;overflow-y:auto;padding:0 14px;-webkit-overflow-scrolling:touch"></div>
     <!-- Panel footer: action buttons -->
     <div style="padding:10px 14px 12px;border-top:1px solid var(--border);flex-shrink:0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <button class="btn btn-success" style="font-size:14px;font-weight:800;padding:12px 6px;grid-column:1/-1;background:var(--green);color:#fff;border-color:var(--green)" onclick="sendOrderToKitchen();closeMobOrderPanel()">🚀 Invia in Cucina</button>
       <button class="btn btn-primary" style="font-size:13px;font-weight:700;padding:10px 6px" onclick="openOrderModal()">➕ Ordina</button>
-      <button class="btn btn-success" style="font-size:13px;font-weight:700;padding:10px 6px" onclick="sendOrderToKitchen();closeMobOrderPanel()">🚀 Cucina</button>
+      <button class="btn btn-secondary" style="font-size:13px;font-weight:700;padding:10px 6px" onclick="confirmOrderAndSend()">➕🚀 Ordina+Invia</button>
       <button class="btn btn-danger" style="font-size:13px;font-weight:700;padding:10px 6px" onclick="tablePayment()">💳 Paga</button>
     </div>
   </div>
@@ -2820,6 +2843,24 @@ input[type="range"]::-webkit-slider-thumb {
       <div class="cassa-layout">
         <!-- Tables Grid -->
         <div class="tables-grid-section">
+
+        <!-- ══ ORDINI TELEFONICI ══ -->
+        <div id="phone-orders-panel" style="border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0">
+          <!-- Header collapsible -->
+          <div onclick="togglePhonePanel()" style="display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent">
+            <span style="font-size:18px">📞</span>
+            <div style="flex:1">
+              <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px">Ordini Telefonici</span>
+              <span id="phone-orders-count" style="font-size:11px;color:var(--text3);margin-left:8px">Nessun ordine attivo</span>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();openNewPhoneOrder()" style="font-size:12px;font-weight:700">+ Nuovo</button>
+            <span id="phone-panel-toggle-icon" style="color:var(--text3);font-size:14px;transition:transform .2s">▼</span>
+          </div>
+          <!-- Body (collapsed by default) -->
+          <div id="phone-orders-body" style="display:none;padding:0 16px 12px;overflow-x:auto">
+            <div id="phone-orders-list" style="display:flex;gap:10px;padding:4px 0 2px;min-width:0"></div>
+          </div>
+        </div>
           <div class="section-header">
             <div>
               <div class="section-title">Gestione Tavoli</div>
@@ -3001,7 +3042,7 @@ input[type="range"]::-webkit-slider-thumb {
         <button class="btn btn-ghost btn-sm" id="mob-sala-list-btn" onclick="mobSalaView('list')" style="flex:1">📋 Lista</button>
       </div>
       <!-- Mobile sala list view (hidden on desktop) -->
-      <div id="mob-sala-list" style="display:none;flex:1;overflow-y:auto;padding:10px 12px"></div>
+      <div id="mob-sala-list" style="display:none;flex:1;overflow-y:auto;padding:10px 12px;-webkit-overflow-scrolling:touch"></div>
 
       <!-- Mobile sala map view wrapper -->
       <div id="mob-sala-map" style="display:none;flex:1;overflow:hidden;flex-direction:column;position:relative">
@@ -3061,7 +3102,7 @@ input[type="range"]::-webkit-slider-thumb {
         <!-- Canvas + Side Panel -->
         <div class="sala-main-area">
           <div class="sala-canvas-wrapper" id="sala-canvas-wrapper">
-            <div id="sala-canvas"></div>
+            <div id="sala-canvas" style="position:relative;width:2000px;height:1400px;"></div>
             <div class="sala-legend">
               <div class="legend-item"><div class="legend-dot" style="background:var(--text3)"></div> Libero</div>
               <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div> Occupato</div>
@@ -3645,7 +3686,8 @@ input[type="range"]::-webkit-slider-thumb {
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-order')">Annulla</button>
-      <button class="btn btn-primary" onclick="confirmOrder()">Aggiungi all'ordine</button>
+      <button class="btn btn-secondary" onclick="confirmOrder()" id="order-btn-add">✓ Aggiungi</button>
+      <button class="btn btn-success" onclick="confirmOrderAndSend()" id="order-btn-send" style="font-weight:700">🚀 Aggiungi + Invia Cucina</button>
     </div>
   </div>
 </div>
@@ -3838,6 +3880,7 @@ const DEFAULT_STATE = {
   operationsLog: [],
   menuFissi: [],  // {id,name,description,pricePerPerson,color,active,limits:[{category,maxQty}],includedCategories:[]}  — TARIFFA FISSA (all you can eat, menu del giorno, ecc.)
   ingredientLog: [],
+  phoneOrders: [], // [{id,customerName,customerTel,note,items,kitchenStatus,status,createdAt}]
   notifRules: [
     {id:'tavolo_sporco',       label:'Tavolo da pulire',           icon:'🧹', color:'#ef4444', roles:['admin','manager','waiter'], enabled:true,  tabTarget:'sala'},
     {id:'tavolo_attesa_ordine',label:'Cliente seduto senza ordine', icon:'🪑', color:'#f59e0b', roles:['admin','manager','waiter'], enabled:true,  tabTarget:'cassa'},
@@ -4028,10 +4071,10 @@ function renderMobSalaList() {
     return `<div style="margin-bottom:14px">
       <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:8px">${room.name}</div>
       ${tables.map(t => {
-        const order = state.orders.find(o=>o.tableId===t.id&&o.status!=='closed');
+        const order = state.orders.find(function(o){return o.tableId===t.id&&o.status!=='closed';});
         const total = order ? calcOrderTotal(order) : 0;
-        const hasReady = order?.items.some(i=>i.status==='ready');
-        const cookingCount = order?.items.filter(i=>i.status==='cooking'||i.status==='pending').length||0;
+        const hasReady = order && order.items.some(function(i){return i.status==='ready';});
+        const cookingCount = order ? order.items.filter(function(i){return i.status==='cooking'||i.status==='pending';}).length : 0;
         const col = statusColors[t.status]||'#606078';
         const arrMin = t.arrivedAt&&t.status!=='libero' ? Math.floor((Date.now()-new Date(t.arrivedAt).getTime())/60000) : null;
         return `<div onclick="mobSalaOpenTable('${t.id}')"
@@ -4052,7 +4095,7 @@ function renderMobSalaList() {
             ${cookingCount>0?`<div style="font-size:10px;color:var(--amber)">🍳 ${cookingCount} in cucina</div>`:''}
           </div>
           <div style="text-align:right;flex-shrink:0">
-            ${total>0?`<div style="font-family:'DM Mono',monospace;font-size:13px;color:var(--amber);font-weight:700">€${total.toFixed(2)}</div>`:''}
+            ${total>0?`<div style="font-family:monospace;font-size:13px;color:var(--amber);font-weight:700">€${total.toFixed(2)}</div>`:''}
             ${hasReady?`<div style="font-size:10px;font-weight:700;color:var(--green)">✓ PRONTO</div>`:''}
           </div>
           <div style="color:var(--text3);font-size:18px;flex-shrink:0">›</div>
@@ -4156,24 +4199,24 @@ function mobSalaOpenTable(tableId) {
   }
 
   // Order items
-  if(order && order.items.filter(i=>i.status!=='cancelled').length > 0) {
+  if(order && order.items.filter(function(i){return i.status!=='cancelled';}).length > 0) {
     const icons = {pending:'🕐',cooking:'🍳',ready:'✅',served:'✔️'};
-    const items = order.items.filter(i=>i.status!=='cancelled');
-    bodyHtml += items.map(item=>{
-      const dish = state.menuItems.find(m=>m.id===item.menuItemId);
-      if(!dish) return '';
-      return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
-        <div style="font-size:18px">${icons[item.status]||'•'}</div>
-        <div style="flex:1;font-size:13px;font-weight:500">${item.qty>1?item.qty+'× ':''}${dish.name}</div>
-        ${item.status==='ready'?`<button onclick="mobDeliverItem('${order.id}','${item.id}')" class="btn btn-success btn-sm" style="padding:4px 10px;font-size:11px">Consegna</button>`:''}
-        <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--amber)">${item.extraCharge?'+ ':''}€${((dish.price||0)*item.qty).toFixed(2)}</div>
-      </div>`;
-    }).join('');
+    const items = order.items.filter(function(i){return i.status!=='cancelled';});
+    items.forEach(function(item) {
+      const dish = state.menuItems.find(function(m){return m.id===item.menuItemId;});
+      if(!dish) return;
+      bodyHtml += '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">';
+      bodyHtml += '<div style="font-size:18px">' + (icons[item.status]||'•') + '</div>';
+      bodyHtml += '<div style="flex:1;font-size:13px;font-weight:500">' + (item.qty>1?item.qty+'× ':'') + dish.name + '</div>';
+      if(item.status==='ready') bodyHtml += '<button onclick="mobDeliverItem(\'' + order.id + '\',\'' + item.id + '\')" class="btn btn-success btn-sm" style="padding:4px 10px;font-size:11px">Consegna</button>';
+      bodyHtml += '<div style="font-family:monospace;font-size:12px;color:var(--amber)">' + (item.extraCharge ? '+ ' : '') + '€' + ((dish.price||0)*item.qty).toFixed(2) + '</div>';
+      bodyHtml += '</div>';
+    });
     const total = calcOrderTotal(order);
-    bodyHtml += `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;font-size:16px;font-weight:800">
-      <span>TOTALE</span>
-      <span style="color:var(--amber);font-family:'DM Mono',monospace">€ ${total.toFixed(2)}</span>
-    </div>`;
+    bodyHtml += '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;font-size:16px;font-weight:800">';
+    bodyHtml += '<span>TOTALE</span>';
+    bodyHtml += '<span style="color:var(--amber);font-family:monospace">€ ' + total.toFixed(2) + '</span>';
+    bodyHtml += '</div>';
   } else if(table.status === 'occupato') {
     bodyHtml += `<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">Nessun ordine.<br>Aggiungi piatti dalla Cassa.</div>`;
   }
@@ -4181,23 +4224,47 @@ function mobSalaOpenTable(tableId) {
 
   // Footer buttons based on status
   const footerBtns = [];
+  const tid = tableId; // alias for clarity in string concat
   if(table.status === 'libero' || table.status === 'sporco') {
-    footerBtns.push(`<button class="btn btn-success" style="flex:1;font-size:13px" onclick="mobSalaArrivo('${tableId}')">👥 Arrivo clienti</button>`);
+    footerBtns.push('<button class="btn btn-success" style="flex:1;font-size:14px;font-weight:700;padding:12px;grid-column:1/-1" onclick="mobSalaArrivo(\''+tid+'\')">👥 Arrivo clienti</button>');
   }
   if(table.status === 'occupato') {
-    footerBtns.push(`<button class="btn btn-primary" style="flex:1;font-size:13px" onclick="selectedTableId='${tableId}';closeMobSalaSheet();setTimeout(()=>{mobSwitchTab('cassa');selectTable('${tableId}')},150)">🧾 Vai a Cassa</button>`);
-    footerBtns.push(`<button class="btn btn-success" style="font-size:13px;flex:1" onclick="selectedTableId='${tableId}';tablePayment()">💳 Paga</button>`);
+    const pendingCount = order ? order.items.filter(function(i){return i.status==='pending';}).length : 0;
+    if(pendingCount > 0) {
+      footerBtns.push('<button class="btn btn-success" style="grid-column:1/-1;font-size:14px;font-weight:800;padding:12px" onclick="selectedTableId=\''+tid+'\';sspSendToKitchen();closeMobSalaSheet()">🚀 Invia in Cucina ('+pendingCount+')</button>');
+    }
+    footerBtns.push('<button class="btn btn-primary" style="flex:1;font-size:13px;font-weight:700;padding:11px" onclick="mobSalaAddOrder(\''+tid+'\')">➕ Aggiungi ordine</button>');
+    footerBtns.push('<button class="btn btn-danger" style="font-size:13px;font-weight:700;padding:11px" onclick="selectedTableId=\''+tid+'\';tablePayment()">💳 Paga</button>');
   }
   if(table.status === 'pagato') {
-    footerBtns.push(`<button class="btn btn-secondary" style="flex:1;font-size:13px" onclick="mobMarkDirty('${tableId}')">🧹 Da pulire</button>`);
+    footerBtns.push('<button class="btn btn-secondary" style="flex:1;font-size:13px" onclick="mobMarkDirty(\''+tid+'\')">🧹 Da pulire</button>');
+    footerBtns.push('<button class="btn btn-danger" style="font-size:13px" onclick="selectedTableId=\''+tid+'\';tablePayment()">💳 Ricassa</button>');
   }
   if(table.status === 'sporco') {
-    footerBtns.push(`<button class="btn btn-secondary" style="flex:1;font-size:13px" onclick="mobMarkFree('${tableId}')">✓ Pulito / Libero</button>`);
+    footerBtns.push('<button class="btn btn-success" style="flex:1;font-size:13px;font-weight:700" onclick="mobMarkFree(\''+tid+'\')">✓ Pulito / Libero</button>');
+    footerBtns.push('<button class="btn btn-success" style="font-size:13px;font-weight:700" onclick="mobSalaArrivo(\''+tid+'\')">👥 Nuovo arrivo</button>');
   }
+  if(footer) footer.style.cssText = 'padding:10px 14px;border-top:1px solid var(--border);flex-shrink:0;display:grid;grid-template-columns:1fr 1fr;gap:8px;flex-wrap:wrap';
   if(footer) footer.innerHTML = footerBtns.join('');
 
   // Open sheet
   document.getElementById('mob-sala-table-sheet')?.classList.add('open');
+}
+
+function mobSalaAddOrder(tableId) {
+  selectedTableId = tableId;
+  salaPanelTableId = tableId;
+  closeMobSalaSheet();
+  // Small delay so sheet closes cleanly then modal opens
+  setTimeout(function() {
+    currentOrderItems = [];
+    renderOrderMenuGrid();
+    renderCurrentOrderItems();
+    const t = state.tables.find(function(t){return t.id===tableId;});
+    document.getElementById('order-modal-title').textContent = 'Ordine — Tavolo ' + (t?.number||'?');
+    document.getElementById('order-search').value = '';
+    openModal('modal-order');
+  }, 250);
 }
 
 function closeMobSalaSheet() {
@@ -4387,7 +4454,237 @@ function debugStation(stationId) {
 // =============================================
 // STATE REPAIR — fix items stuck from old bugs
 // =============================================
+// ═══════════════════════════════════════════════════════════
+// PHONE ORDERS (Ordini Telefonici)
+// ═══════════════════════════════════════════════════════════
+
+let _phonePanelOpen = false;
+let _phoneOrderItems = []; // {id, menuItemId, qty}
+let _editingPhoneOrderId = null;
+
+function togglePhonePanel() {
+  _phonePanelOpen = !_phonePanelOpen;
+  const body = document.getElementById('phone-orders-body');
+  const icon = document.getElementById('phone-panel-toggle-icon');
+  if(body) body.style.display = _phonePanelOpen ? 'block' : 'none';
+  if(icon) icon.style.transform = _phonePanelOpen ? 'rotate(180deg)' : '';
+  if(_phonePanelOpen) renderPhoneOrdersList();
+}
+
+function renderPhoneOrdersList() {
+  const container = document.getElementById('phone-orders-list');
+  const countEl   = document.getElementById('phone-orders-count');
+  if(!container) return;
+  const orders = (state.phoneOrders || []).filter(o => o.status !== 'closed');
+  if(countEl) countEl.textContent = orders.length ? orders.length + ' attiv' + (orders.length===1?'o':'i') : 'Nessun ordine attivo';
+
+  if(!orders.length) {
+    container.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0">Nessun ordine telefonico attivo. Premi "+ Nuovo" per aggiungerne uno.</div>';
+    return;
+  }
+  container.innerHTML = orders.map(function(o) {
+    const total = o.items.reduce(function(s,i) {
+      const d = state.menuItems.find(function(m){return m.id===i.menuItemId;});
+      return s + (d?d.price||0:0)*i.qty;
+    }, 0);
+    const colors = {attesa:'var(--amber)',cucina:'var(--blue)',pronto:'var(--green)'};
+    const labels = {attesa:'In attesa',cucina:'In cucina',pronto:'Pronto'};
+    const sc = colors[o.kitchenStatus]||'var(--text3)';
+    const sl = labels[o.kitchenStatus]||o.kitchenStatus;
+    const np = o.items.length;
+    let h = '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 14px;min-width:220px;max-width:280px;flex-shrink:0">';
+    h += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">';
+    h += '<span style="font-size:13px;font-weight:700;flex:1">'+(o.customerName||'Cliente')+'</span>';
+    h += '<span style="font-size:10px;font-weight:700;color:'+sc+';background:'+sc+'33;padding:2px 8px;border-radius:20px">'+sl+'</span>';
+    h += '</div>';
+    if(o.customerTel) h += '<div style="font-size:11px;color:var(--text3);margin-bottom:4px">📞 '+o.customerTel+'</div>';
+    if(o.note) h += '<div style="font-size:11px;color:var(--text3);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">📝 '+o.note+'</div>';
+    h += '<div style="font-size:11px;color:var(--text2);margin-bottom:8px">'+np+' piatt'+(np===1?'o':'i')+' — <span style="color:var(--amber);font-family:\'DM Mono\',monospace;font-weight:700">€'+total.toFixed(2)+'</span></div>';
+    h += '<div style="display:flex;gap:6px;flex-wrap:wrap">';
+    h += '<button onclick="editPhoneOrder(\''+o.id+'\')" class="btn btn-ghost btn-sm" style="font-size:11px;padding:4px 8px">✏️ Modifica</button>';
+    if(o.kitchenStatus==='attesa') h += '<button onclick="sendPhoneOrderToKitchen(\''+o.id+'\')" class="btn btn-success btn-sm" style="font-size:11px;padding:4px 8px;font-weight:700">🚀 Cucina</button>';
+    if(o.kitchenStatus==='pronto') h += '<button onclick="closePhoneOrder(\''+o.id+'\')" class="btn btn-success btn-sm" style="font-size:11px;padding:4px 8px;font-weight:700">✓ Consegnato</button>';
+    h += '<button onclick="closePhoneOrder(\''+o.id+'\')" class="btn btn-ghost btn-sm" style="font-size:11px;padding:4px 8px;color:var(--red)">✕</button>';
+    h += '</div></div>';
+    return h;
+  }).join('');
+}
+
+function openNewPhoneOrder() {
+  _editingPhoneOrderId = null;
+  _phoneOrderItems = [];
+  document.getElementById('phone-customer-name').value = '';
+  document.getElementById('phone-customer-tel').value  = '';
+  document.getElementById('phone-order-note').value    = '';
+  document.getElementById('phone-order-search').value  = '';
+  document.getElementById('phone-modal-title').textContent = '📞 Nuovo Ordine Telefonico';
+  document.getElementById('phone-save-btn').textContent = '💾 Salva';
+  renderPhoneOrderMenuGrid();
+  renderPhoneOrderItems();
+  openModal('modal-phone-order');
+}
+
+function editPhoneOrder(orderId) {
+  const o = (state.phoneOrders||[]).find(o=>o.id===orderId);
+  if(!o) return;
+  _editingPhoneOrderId = orderId;
+  _phoneOrderItems = JSON.parse(JSON.stringify(o.items));
+  document.getElementById('phone-customer-name').value = o.customerName||'';
+  document.getElementById('phone-customer-tel').value  = o.customerTel||'';
+  document.getElementById('phone-order-note').value    = o.note||'';
+  document.getElementById('phone-order-search').value  = '';
+  document.getElementById('phone-modal-title').textContent = '📞 Modifica — ' + (o.customerName||'Cliente');
+  document.getElementById('phone-save-btn').textContent = '💾 Aggiorna';
+  renderPhoneOrderMenuGrid();
+  renderPhoneOrderItems();
+  openModal('modal-phone-order');
+}
+
+function filterPhoneOrderMenu() {
+  renderPhoneOrderMenuGrid(document.getElementById('phone-order-search').value);
+}
+
+function renderPhoneOrderMenuGrid(search) {
+  const grid = document.getElementById('phone-order-menu-grid');
+  if(!grid) return;
+  let items = state.menuItems;
+  if(search) {
+    const q = search.toLowerCase();
+    items = items.filter(m => m.name.toLowerCase().includes(q) || (m.category||'').toLowerCase().includes(q));
+  }
+  grid.innerHTML = items.map(function(m) {
+    const inOrder = _phoneOrderItems.find(function(i){return i.menuItemId===m.id;});
+    const bg = inOrder ? 'var(--amber-dim)' : 'var(--bg3)';
+    const bd = inOrder ? 'var(--amber)' : 'var(--border)';
+    let h = '<div onclick="addPhoneOrderItem(\''+m.id+'\')" style="background:'+bg+';border:1px solid '+bd+';border-radius:10px;padding:10px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:.15s">';
+    h += '<div style="font-size:13px;font-weight:600;margin-bottom:2px">'+m.name+'</div>';
+    h += '<div style="font-size:11px;color:var(--text3)">'+(m.category||'')+'</div>';
+    h += '<div style="font-family:\'DM Mono\',monospace;font-size:13px;color:var(--amber);margin-top:4px;font-weight:700">€'+(m.price||0).toFixed(2)+'</div>';
+    if(inOrder) h += '<div style="font-size:10px;color:var(--amber);font-weight:700;margin-top:3px">✓ Qt: '+inOrder.qty+'</div>';
+    h += '</div>';
+    return h;
+  }).join('');
+}
+
+function addPhoneOrderItem(menuItemId) {
+  const existing = _phoneOrderItems.find(i=>i.menuItemId===menuItemId);
+  if(existing) { existing.qty++; }
+  else { _phoneOrderItems.push({id:uid(), menuItemId, qty:1}); }
+  renderPhoneOrderMenuGrid(document.getElementById('phone-order-search')?.value||'');
+  renderPhoneOrderItems();
+}
+
+function changePhoneItemQty(menuItemId, delta) {
+  const item = _phoneOrderItems.find(i=>i.menuItemId===menuItemId);
+  if(!item) return;
+  item.qty = Math.max(0, item.qty + delta);
+  if(item.qty === 0) _phoneOrderItems = _phoneOrderItems.filter(i=>i.menuItemId!==menuItemId);
+  renderPhoneOrderMenuGrid(document.getElementById('phone-order-search')?.value||'');
+  renderPhoneOrderItems();
+}
+
+function renderPhoneOrderItems() {
+  const container = document.getElementById('phone-order-items');
+  const totalEl   = document.getElementById('phone-order-total');
+  if(!container) return;
+  if(!_phoneOrderItems.length) {
+    container.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:8px 0">Nessun piatto selezionato.</div>';
+    if(totalEl) totalEl.textContent = '€ 0.00';
+    return;
+  }
+  let total = 0;
+  const rows = [];
+  _phoneOrderItems.forEach(function(item) {
+    const dish = state.menuItems.find(function(m){return m.id===item.menuItemId;});
+    if(!dish) return;
+    const lt = (dish.price||0) * item.qty;
+    total += lt;
+    const mid = item.menuItemId;
+    let h = '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">';
+    h += '<div style="flex:1;font-size:13px;font-weight:500">'+dish.name+'</div>';
+    h += '<div style="display:flex;align-items:center;gap:6px">';
+    h += '<button onclick="changePhoneItemQty(\''+mid+'\',-1)" style="background:var(--bg4);border:none;color:var(--text);width:26px;height:26px;border-radius:6px;cursor:pointer;font-size:14px">−</button>';
+    h += '<span style="font-size:13px;font-weight:700;min-width:20px;text-align:center">'+item.qty+'</span>';
+    h += '<button onclick="changePhoneItemQty(\''+mid+'\',1)" style="background:var(--bg4);border:none;color:var(--text);width:26px;height:26px;border-radius:6px;cursor:pointer;font-size:14px">+</button>';
+    h += '</div>';
+    h += '<div style="font-family:\'DM Mono\',monospace;font-size:13px;color:var(--amber);min-width:60px;text-align:right">€'+lt.toFixed(2)+'</div>';
+    h += '<button onclick="changePhoneItemQty(\''+mid+'\',-999)" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:0 2px">✕</button>';
+    h += '</div>';
+    rows.push(h);
+  });
+  container.innerHTML = rows.join('');
+  if(totalEl) totalEl.textContent = '€ ' + total.toFixed(2);
+}
+
+function savePhoneOrder(sendToKitchen) {
+  const name = document.getElementById('phone-customer-name').value.trim();
+  if(!name) { showToast('Inserisci il nome del cliente', 'warning'); return; }
+  if(!_phoneOrderItems.length) { showToast('Aggiungi almeno un piatto', 'warning'); return; }
+
+  if(!state.phoneOrders) state.phoneOrders = [];
+  const now = new Date().toISOString();
+
+  if(_editingPhoneOrderId) {
+    const o = state.phoneOrders.find(o=>o.id===_editingPhoneOrderId);
+    if(o) {
+      o.customerName = name;
+      o.customerTel  = document.getElementById('phone-customer-tel').value.trim();
+      o.note         = document.getElementById('phone-order-note').value.trim();
+      o.items        = JSON.parse(JSON.stringify(_phoneOrderItems));
+      o.updatedAt    = now;
+      if(sendToKitchen) { o.kitchenStatus = 'cucina'; o.sentAt = now; }
+    }
+  } else {
+    const newOrder = {
+      id: uid(),
+      customerName: name,
+      customerTel:  document.getElementById('phone-customer-tel').value.trim(),
+      note:         document.getElementById('phone-order-note').value.trim(),
+      items:        JSON.parse(JSON.stringify(_phoneOrderItems)),
+      kitchenStatus: sendToKitchen ? 'cucina' : 'attesa',
+      status: 'open',
+      createdAt: now,
+      sentAt: sendToKitchen ? now : null,
+    };
+    state.phoneOrders.push(newOrder);
+  }
+
+  saveState();
+  closeModal('modal-phone-order');
+  renderPhoneOrdersList();
+  updatePhoneOrdersCount();
+  showToast(sendToKitchen ? 'Ordine inviato in cucina 🚀' : 'Ordine salvato ✓', 'success');
+}
+
+function sendPhoneOrderToKitchen(orderId) {
+  const o = (state.phoneOrders||[]).find(o=>o.id===orderId);
+  if(!o) return;
+  o.kitchenStatus = 'cucina';
+  o.sentAt = new Date().toISOString();
+  saveState();
+  renderPhoneOrdersList();
+  showToast('Ordine inviato in cucina 🚀', 'success');
+}
+
+function closePhoneOrder(orderId) {
+  const o = (state.phoneOrders||[]).find(o=>o.id===orderId);
+  if(!o) return;
+  o.status = 'closed';
+  o.closedAt = new Date().toISOString();
+  saveState();
+  renderPhoneOrdersList();
+  updatePhoneOrdersCount();
+}
+
+function updatePhoneOrdersCount() {
+  const countEl = document.getElementById('phone-orders-count');
+  if(!countEl) return;
+  const n = (state.phoneOrders||[]).filter(o=>o.status!=='closed').length;
+  countEl.textContent = n ? n + ' attiv' + (n===1?'o':'i') : 'Nessun ordine attivo';
+}
+
 function repairKitchenState() {
+  if(!state.phoneOrders) state.phoneOrders = [];
   // Migrate: ensure notifRules exists on old saves
   if(!state.notifRules || state.notifRules.length === 0) {
     state.notifRules = JSON.parse(JSON.stringify(DEFAULT_STATE.notifRules));
@@ -4460,6 +4757,7 @@ function initApp() {
     // Only re-render cucine if on that tab (expensive)
     const cucinePanelActive = document.querySelector('#tab-cucine.active');
     if(cucinePanelActive) renderCucine();
+    updatePhoneOrdersCount();
     // Refresh mobile order panel if open
     if(isMobile && isMobile()) { if(document.getElementById('mob-cassa-order-panel')?.classList.contains('open')) mobRenderOrderPanel(); if(_mobSalaCurrentView==='list' && document.querySelector('#tab-sala.active')) renderMobSalaList(); }
   }, 5000);
@@ -4550,15 +4848,51 @@ const NOTIF_CONFIGS = [
     level: 'info',
     icon: '👨‍🍳',
     getItems() {
-      let total = 0;
-      state.orders.forEach(o => { if(o.status!=='closed') o.items.forEach(i=>{ if(i.status==='cooking') total++; }); });
-      if(!total) return [];
-      return [{
-        title: `${total} piatt${total===1?'o':'i'} in preparazione`,
-        sub: 'In cucina in questo momento',
-        tab: 'cucine',
-        action: null
-      }];
+      const items = [];
+      state.kitchens.forEach(function(k) {
+        // Count cooking items routed to this kitchen
+        let count = 0;
+        const stationIds = new Set(k.stations.map(function(s){return s.id;}));
+        state.orders.forEach(function(o) {
+          if(o.status==='closed') return;
+          o.items.forEach(function(item) {
+            if(item.status!=='cooking') return;
+            const dish = state.menuItems.find(function(m){return m.id===item.menuItemId;});
+            if(!dish) return;
+            if(dish.workflow && dish.workflow.length > 0) {
+              const stepsDone = item.stepsDone||[];
+              const hasStepHere = dish.workflow.some(function(step,idx) {
+                if(!stationIds.has(step.station)) return false;
+                if(stepsDone.includes(step.station)) return false;
+                return dish.workflow.slice(0,idx).every(function(prev){return stepsDone.includes(prev.station);});
+              });
+              if(hasStepHere) count++;
+            } else {
+              // no workflow: falls to first kitchen
+              if(k.id === state.kitchens[0]?.id) count++;
+            }
+          });
+        });
+        if(count === 0) return;
+        const kid = k.id;
+        items.push({
+          title: k.name + ': ' + count + ' piatt' + (count===1?'o':'i') + ' in preparazione',
+          sub: 'Tocca per aprire questa cucina',
+          tab: 'cucine',
+          action: function() {
+            // Set pending tab so renderCucine picks it up when it re-renders
+            window._pendingCucinaTab = kid;
+            renderCucine();
+          }
+        });
+      });
+      // If no kitchen breakdown, show generic
+      if(!items.length) {
+        let total = 0;
+        state.orders.forEach(function(o){ if(o.status!=='closed') o.items.forEach(function(i){ if(i.status==='cooking') total++; }); });
+        if(total) items.push({ title: total + ' piatt' + (total===1?'o':'i') + ' in preparazione', sub: 'In cucina', tab: 'cucine', action: null });
+      }
+      return items;
     }
   }
 ];
@@ -4862,7 +5196,7 @@ function switchTab(tab, btn) {
   document.getElementById('tab-' + tab)?.classList.add('active');
   if(btn) btn.classList.add('active');
 
-  if(tab === 'sala') { renderSalaFloor(); renderSalaDelivery(); if(isMobile&&isMobile()) { setTimeout(()=>mobSalaView('list'),50); } }
+  if(tab === 'sala') { renderSalaFloor(); renderSalaDelivery(); if(isMobile&&isMobile()) { setTimeout(function(){ var l=document.getElementById('mob-sala-list'); if(l){l.style.display='block';} var m=document.getElementById('mob-sala-map'); if(m)m.style.display='none'; renderMobSalaList(); },50); } }
   if(tab === 'cucine') renderCucine();
   if(tab === 'cruscotti') renderCruscotti();
 }
@@ -4975,7 +5309,7 @@ function renderTablesGrid() {
           ` : `<div style="font-size:11px;color:var(--text3)">Nessun coperto</div>`}
         </div>
         <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
-          ${totalAmount > 0 ? `<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--amber);flex:1">€ ${totalAmount.toFixed(2)}</div>` : '<div style="flex:1"></div>'}
+          ${totalAmount > 0 ? `<div style="font-family:monospace;font-size:12px;color:var(--amber);flex:1">€ ${totalAmount.toFixed(2)}</div>` : '<div style="flex:1"></div>'}
           ${hasReady ? `<div style="background:var(--green);color:#000;font-size:9px;font-weight:800;padding:2px 6px;border-radius:6px">✓ PRONTO</div>` : ''}
         </div>
       </div>
@@ -5175,7 +5509,7 @@ function renderOrderMenuGrid() {
     return `<div onclick="addToCurrentOrder('${m.id}')" style="background:var(--bg3);border:1px solid ${inOrder?'var(--amber)':'var(--border)'};border-radius:8px;padding:12px;cursor:pointer;transition:all 0.15s">
       <div style="font-size:13px;font-weight:600;margin-bottom:4px">${m.name}</div>
       <div style="font-size:11px;color:var(--text3);margin-bottom:6px">${m.category}</div>
-      <div style="font-family:'DM Mono',monospace;font-size:13px;color:var(--amber)">€ ${m.price.toFixed(2)}</div>
+      <div style="font-family:monospace;font-size:13px;color:var(--amber)">€ ${m.price.toFixed(2)}</div>
       ${inOrder ? `<div style="font-size:10px;color:var(--amber);margin-top:4px">✓ Qt: ${inOrder.qty}</div>` : ''}
     </div>`;
   }).join('');
@@ -5209,9 +5543,9 @@ function renderCurrentOrderItems() {
     return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">
       <div style="flex:1;font-size:13px">${dish?.name}</div>
       <button onclick="changeQty('${item.id}',-1)" class="btn btn-ghost btn-sm" style="padding:4px 8px;min-width:28px">−</button>
-      <span style="font-family:'DM Mono',monospace;font-size:13px;width:20px;text-align:center">${item.qty}</span>
+      <span style="font-family:monospace;font-size:13px;width:20px;text-align:center">${item.qty}</span>
       <button onclick="changeQty('${item.id}',1)" class="btn btn-ghost btn-sm" style="padding:4px 8px;min-width:28px">+</button>
-      <div style="font-family:'DM Mono',monospace;font-size:13px;color:var(--amber);width:60px;text-align:right">€${itemTotal.toFixed(2)}</div>
+      <div style="font-family:monospace;font-size:13px;color:var(--amber);width:60px;text-align:right">€${itemTotal.toFixed(2)}</div>
       <div onclick="removeFromCurrentOrder('${item.id}')" style="cursor:pointer;color:var(--text3);padding:4px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">✕</div>
     </div>`;
   }).join('');
@@ -5257,6 +5591,18 @@ function confirmOrder() {
     setTimeout(function(){ openMobOrderPanel(); mobRenderOrderPanel(); }, 150);
   }
   showToast('Ordine aggiunto ✓', 'success');
+}
+
+function confirmOrderAndSend() {
+  if(currentOrderItems.length === 0) { showToast('Nessun articolo selezionato', 'warning'); return; }
+  confirmOrder();
+  // After confirmOrder closes modal and saves, send to kitchen
+  setTimeout(function() {
+    sendOrderToKitchen();
+    if(isMobile && isMobile()) {
+      setTimeout(function(){ openMobOrderPanel(); mobRenderOrderPanel(); }, 100);
+    }
+  }, 100);
 }
 
 function sendOrderToKitchen() {
@@ -5909,7 +6255,7 @@ function renderSmartOrders() {
           <div class="sor-qty" style="color:var(--amber)">${qty} ${ing.unit}</div>
           <div class="sor-supplier">${supplier?.name || 'N/D'}</div>
           <div class="sor-days">${pref?.deliveryDays||'?'}gg</div>
-          ${cost > 0 ? `<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--red)">€${cost.toFixed(2)}</div>` : ''}
+          ${cost > 0 ? `<div style="font-family:monospace;font-size:12px;color:var(--red)">€${cost.toFixed(2)}</div>` : ''}
           <button class="btn btn-success btn-sm" onclick="quickReorder('${ing.id}')">Riordina</button>
         </div>`;
       }).join('')}
@@ -6165,14 +6511,17 @@ function renderCucine() {
   if(!tabsBar || !content) return;
 
   // ── Preserve currently active kitchen tab ─────────────────────────────
-  let activeKitchenId = null;
-  const activePanel = content.querySelector('.sub-panel.active');
-  if(activePanel) {
-    const m = activePanel.id.match(/^cucina-panel-(.+)$/);
-    if(m) activeKitchenId = m[1];
+  let activeKitchenId = window._pendingCucinaTab || null;
+  if(!activeKitchenId) {
+    const activePanel = content.querySelector('.sub-panel.active');
+    if(activePanel) {
+      const m = activePanel.id.match(/^cucina-panel-(.+)$/);
+      if(m) activeKitchenId = m[1];
+    }
   }
+  window._pendingCucinaTab = null; // consume
   // Fallback to first kitchen
-  if(!activeKitchenId || !state.kitchens.find(k=>k.id===activeKitchenId)) {
+  if(!activeKitchenId || !state.kitchens.find(function(k){return k.id===activeKitchenId;})) {
     activeKitchenId = state.kitchens[0]?.id;
   }
 
@@ -6222,23 +6571,23 @@ function renderCucine() {
 function getCucinaItemCount(kitchenId) {
   const kitchen = state.kitchens.find(k => k.id === kitchenId);
   if(!kitchen) return 0;
-  const stationIds = new Set(kitchen.stations.map(s => s.id));
+  const stationIds = new Set(kitchen.stations.map(function(s){return s.id;}));
   let count = 0;
-  state.orders.forEach(order => {
+
+  // Regular table orders
+  state.orders.forEach(function(order) {
     if(order.status === 'closed') return;
-    order.items.forEach(item => {
+    order.items.forEach(function(item) {
       if(['cancelled','ready','served'].includes(item.status)) return;
       if(!item.menuItemId) return;
-      const dish = state.menuItems.find(m => m.id === item.menuItemId);
+      const dish = state.menuItems.find(function(m){return m.id===item.menuItemId;});
       if(!dish) return;
       if(dish.workflow && dish.workflow.length > 0) {
-        // Count item if any of its PENDING steps (not yet done) belong to this kitchen
         const stepsDone = item.stepsDone || [];
-        const hasPendingStepHere = dish.workflow.some((step, idx) => {
+        const hasPendingStepHere = dish.workflow.some(function(step, idx) {
           if(!stationIds.has(step.station)) return false;
           if(stepsDone.includes(step.station)) return false;
-          // all previous steps done
-          return dish.workflow.slice(0, idx).every(prev => stepsDone.includes(prev.station));
+          return dish.workflow.slice(0, idx).every(function(prev){return stepsDone.includes(prev.station);});
         });
         if(hasPendingStepHere) count++;
       } else {
@@ -6246,6 +6595,29 @@ function getCucinaItemCount(kitchenId) {
       }
     });
   });
+
+  // Phone orders in cucina
+  (state.phoneOrders||[]).forEach(function(po) {
+    if(po.status==='closed' || po.kitchenStatus!=='cucina') return;
+    po.items.forEach(function(item) {
+      if(item.phoneServed) return;
+      if(!item.menuItemId) return;
+      const dish = state.menuItems.find(function(m){return m.id===item.menuItemId;});
+      if(!dish) return;
+      if(dish.workflow && dish.workflow.length > 0) {
+        const stepsDone = item.stepsDone||[];
+        const hasPendingStepHere = dish.workflow.some(function(step,idx) {
+          if(!stationIds.has(step.station)) return false;
+          if(stepsDone.includes(step.station)) return false;
+          return dish.workflow.slice(0,idx).every(function(prev){return stepsDone.includes(prev.station);});
+        });
+        if(hasPendingStepHere) count++;
+      } else {
+        if(kitchenId === state.kitchens[0]?.id) count++;
+      }
+    });
+  });
+
   return count;
 }
 
@@ -6468,7 +6840,53 @@ function getStationItems(stationId) {
       });
     });
   });
-  return items.sort((a,b) => (b.inProgress ? 1 : 0) - (a.inProgress ? 1 : 0));
+  // Add phone orders in cucina (no workflow → show in first kitchen only via stationId check)
+  (state.phoneOrders||[]).forEach(function(po) {
+    if(po.status==='closed' || po.kitchenStatus!=='cucina') return;
+    po.items.forEach(function(item) {
+      if(item.phoneServed) return;
+      if(!item.menuItemId) return;
+      const dish = state.menuItems.find(function(m){return m.id===item.menuItemId;});
+      if(!dish) return;
+      // Use workflow if available
+      if(dish.workflow && dish.workflow.length > 0) {
+        const stepIdx = dish.workflow.findIndex(function(w){return w.station===stationId;});
+        if(stepIdx < 0) return;
+        const stepsDone = item.stepsDone||[];
+        if(stepsDone.includes(stationId)) return;
+        const prevOk = dish.workflow.slice(0,stepIdx).every(function(p){return stepsDone.includes(p.station);});
+        if(!prevOk) return;
+        const step = dish.workflow[stepIdx];
+        const inProg = !!(item.stepsInProgress||{})[stationId];
+        items.push({
+          orderId: 'phone_'+po.id, itemId: item.id,
+          tableNumber: '📞'+po.customerName.slice(0,6),
+          dishName: dish.name, qty: item.qty||1,
+          stepDesc: step.desc, stepNum: stepIdx+1, totalSteps: dish.workflow.length,
+          inProgress: inProg, startedAt: inProg?(item.stepsInProgress||{})[stationId]:null,
+          elapsed: inProg?getElapsed((item.stepsInProgress||{})[stationId]):'--:--',
+          durationStr: '--', priority: 'normal', isPhoneOrder: true, phoneOrderId: po.id
+        });
+      } else {
+        // No workflow: show in first station of first kitchen
+        const firstKitchen = state.kitchens[0];
+        if(!firstKitchen) return;
+        const firstStation = firstKitchen.stations[0];
+        if(!firstStation || firstStation.id !== stationId) return;
+        items.push({
+          orderId: 'phone_'+po.id, itemId: item.id,
+          tableNumber: '📞 '+po.customerName.slice(0,8),
+          dishName: dish.name, qty: item.qty||1,
+          stepDesc: 'Preparazione', stepNum: 1, totalSteps: 1,
+          inProgress: !!item.phoneInProgress, startedAt: item.phoneStartedAt||null,
+          elapsed: item.phoneStartedAt?getElapsed(item.phoneStartedAt):'--:--',
+          durationStr: '--', priority: 'normal', isPhoneOrder: true, phoneOrderId: po.id
+        });
+      }
+    });
+  });
+
+  return items.sort(function(a,b){ return (b.inProgress?1:0)-(a.inProgress?1:0); });
 }
 
 function formatDuration(sec) {
@@ -6477,26 +6895,63 @@ function formatDuration(sec) {
 }
 
 function startKitchenStep(orderId, itemId, stationId, kitchenId) {
-  const order = state.orders.find(o => o.id === orderId);
+  // Phone order?
+  if(orderId.startsWith('phone_')) {
+    const poId = orderId.replace('phone_','');
+    const po = (state.phoneOrders||[]).find(function(p){return p.id===poId;});
+    if(!po) return;
+    const item = po.items.find(function(i){return i.id===itemId;});
+    if(!item) return;
+    if(!item.stepsInProgress) item.stepsInProgress = {};
+    item.stepsInProgress[stationId] = new Date().toISOString();
+    item.phoneInProgress = true;
+    item.phoneStartedAt = new Date().toISOString();
+    saveState(); renderCucine();
+    startLiveTimer(orderId, itemId, stationId);
+    return;
+  }
+  const order = state.orders.find(function(o){return o.id===orderId;});
   if(!order) return;
-  const item = order.items.find(i => i.id === itemId);
+  const item = order.items.find(function(i){return i.id===itemId;});
   if(!item) return;
   if(!item.stepsInProgress) item.stepsInProgress = {};
   if(!item.stepsDone) item.stepsDone = [];
   if(item.currentStep === undefined || item.currentStep === null) item.currentStep = 0;
   item.stepsInProgress[stationId] = new Date().toISOString();
   if(!item.startedAt) item.startedAt = new Date().toISOString();
-  item.status = 'cooking'; // promote from pending
+  item.status = 'cooking';
   saveState();
   renderCucine();
-  // start live timer
   startLiveTimer(orderId, itemId, stationId);
 }
 
 function finishKitchenStep(orderId, itemId, stationId, kitchenId) {
-  const order = state.orders.find(o => o.id === orderId);
+  // Phone order?
+  if(orderId.startsWith('phone_')) {
+    const poId = orderId.replace('phone_','');
+    const po = (state.phoneOrders||[]).find(function(p){return p.id===poId;});
+    if(!po) return;
+    const item = po.items.find(function(i){return i.id===itemId;});
+    if(!item) return;
+    const dish = state.menuItems.find(function(m){return m.id===item.menuItemId;});
+    const now2 = new Date().toISOString();
+    if(!item.stepsDone) item.stepsDone = [];
+    if(!item.stepsInProgress) item.stepsInProgress = {};
+    if(!item.stepsDone.includes(stationId)) item.stepsDone.push(stationId);
+    delete item.stepsInProgress[stationId];
+    item.phoneInProgress = false;
+    const totalSteps = dish?.workflow?.length || 0;
+    if(!totalSteps || item.stepsDone.length >= totalSteps) {
+      item.phoneServed = true; // mark done
+      po.kitchenStatus = 'pronto';
+      showToast((dish?.name||'Piatto')+' — 📞 '+po.customerName+': PRONTO! 🍽️', 'success');
+    }
+    saveState(); renderCucine(); updateAllNotifs(); renderPhoneOrdersList();
+    return;
+  }
+  const order = state.orders.find(function(o){return o.id===orderId;});
   if(!order) return;
-  const item = order.items.find(i => i.id === itemId);
+  const item = order.items.find(function(i){return i.id===itemId;});
   if(!item) return;
   const dish = state.menuItems.find(m => m.id === item.menuItemId);
   const startedAt = item.stepsInProgress?.[stationId];
@@ -6673,6 +7128,14 @@ function renderSalaFloor() {
   if(!canvas) return;
   const roomTables = state.tables.filter(t => t.room === currentSalaRoom);
 
+  // Default missing positions only
+  roomTables.forEach(function(t) {
+    if(t.x === undefined || t.x === null) t.x = 20;
+    if(t.y === undefined || t.y === null) t.y = 20;
+    if(!t.w) t.w = t.shape==='round'?80:110;
+    if(!t.h) t.h = t.shape==='round'?80:70;
+  });
+
   canvas.innerHTML = roomTables.map(t => {
     // Count ready items for this table
     const order = state.orders.find(o => o.tableId === t.id && o.status !== 'closed');
@@ -6681,6 +7144,7 @@ function renderSalaFloor() {
       id="ft-${t.id}"
       style="left:${t.x}px;top:${t.y}px;width:${t.w}px;height:${t.h}px;border-radius:${t.shape==='round'?'50%':t.shape==='square'?'8px':'8px'}"
       onmousedown="onFloorTableMouseDown(event, '${t.id}')"
+      ontouchstart="onFloorTableTouchStart(event, '${t.id}')"
       onclick="onFloorTableClick('${t.id}')">
       ${readyCount > 0 && !salaEditMode ? `<div class="ft-ready-badge">${readyCount}</div>` : ''}
       <div class="floor-table-inner" style="border-radius:${t.shape==='round'?'50%':t.shape==='square'?'6px':'6px'}">
@@ -6705,14 +7169,24 @@ function toggleSalaEdit() {
 }
 
 function addFloorTable(shape) {
+  const w = shape === 'round' ? 80 : shape === 'square' ? 80 : 110;
+  const h = shape === 'round' ? 80 : shape === 'square' ? 80 : 70;
+  // Auto-find free position (scan grid left-to-right, top-to-bottom)
+  const existing = state.tables.filter(t => t.room === currentSalaRoom);
+  const STEP = 10, PAD = 10;
+  let bestX = PAD, bestY = PAD;
+  outer:
+  for(let y = PAD; y < 800; y += STEP) {
+    for(let x = PAD; x < 1000; x += STEP) {
+      const collides = existing.some(t => !(x+w+PAD <= t.x || x >= t.x+t.w+PAD || y+h+PAD <= t.y || y >= t.y+t.h+PAD));
+      if(!collides) { bestX = x; bestY = y; break outer; }
+    }
+  }
   const newTable = {
     id: uid(),
-    number: Math.max(...state.tables.map(t=>t.number), 0) + 1,
+    number: Math.max(0, ...state.tables.map(t=>t.number)) + 1,
     room: currentSalaRoom,
-    shape,
-    x: 50, y: 50,
-    w: shape === 'round' ? 80 : shape === 'square' ? 80 : 110,
-    h: shape === 'round' ? 80 : shape === 'square' ? 80 : 70,
+    shape, x: bestX, y: bestY, w, h,
     status: 'libero', seats: 0, notes: ''
   };
   state.tables.push(newTable);
@@ -6772,6 +7246,7 @@ function onFloorTableMouseDown(e, tableId) {
       if(el) el.classList.add('dragging');
     }
     if(!ftDragging) return;
+    // No upper bound — canvas is scrollable, tables can go anywhere
     const newX = Math.max(0, Math.round((ftDragOrigX + dx) / SNAP) * SNAP);
     const newY = Math.max(0, Math.round((ftDragOrigY + dy) / SNAP) * SNAP);
     t.x = newX; t.y = newY;
@@ -6838,6 +7313,39 @@ function onResizeStart(e, tableId) {
   };
   document.addEventListener('mousemove', onMove);
   document.addEventListener('mouseup', onUp);
+}
+
+// Touch support for floor plan
+function onFloorTableTouchStart(e, tableId) {
+  if(!salaEditMode) { onFloorTableClick(tableId); return; }
+  const touch = e.touches[0];
+  const t = state.tables.find(t=>t.id===tableId);
+  if(!t) return;
+  e.preventDefault();
+  const el = document.getElementById('ft-'+tableId);
+  const startX = touch.clientX, startY = touch.clientY;
+  const origX = t.x, origY = t.y;
+  let moved = false;
+  const wrapper = document.getElementById('sala-canvas-wrapper');
+
+  const onMove = (me) => {
+    const tc = me.touches[0];
+    const dx = tc.clientX - startX, dy = tc.clientY - startY;
+    if(!moved && (Math.abs(dx)>6||Math.abs(dy)>6)) moved = true;
+    if(!moved) return;
+    const nx = Math.max(0,Math.round((origX+dx)/SNAP)*SNAP);
+    const ny = Math.max(0,Math.round((origY+dy)/SNAP)*SNAP);
+    t.x=nx; t.y=ny;
+    if(el){el.style.left=nx+'px';el.style.top=ny+'px';}
+  };
+  const onEnd = () => {
+    document.removeEventListener('touchmove',onMove);
+    document.removeEventListener('touchend',onEnd);
+    if(moved) saveState();
+    else onFloorTableClick(tableId);
+  };
+  document.addEventListener('touchmove',onMove,{passive:false});
+  document.addEventListener('touchend',onEnd);
 }
 
 // ── Sala Side Panel ───────────────────────────────────────────────────────────
@@ -6960,34 +7468,33 @@ function renderSalaPanel() {
   const footer = document.getElementById('ssp-footer');
   const totalEl = document.getElementById('ssp-total');
   const footerBtns = document.getElementById('ssp-footer-btns');
-  if(footer) footer.style.display = table.status === 'occupato' ? '' : 'none';
+  if(footer) footer.style.display = '';
 
   if(totalEl && order) {
-    const total = order.items.filter(i=>i.status!=='cancelled').reduce((s,i)=>{
-      const d = state.menuItems.find(m=>m.id===i.menuItemId);
-      return s + (d?.price||0)*i.qty;
-    },0);
-    totalEl.textContent = `€ ${total.toFixed(2)}`;
+    totalEl.textContent = '€ ' + calcOrderTotal(order).toFixed(2);
   }
 
-  // Render footer buttons dynamically based on state
-  if(footerBtns && table.status === 'occupato') {
-    const pendingCount = order ? order.items.filter(i=>i.status==='pending').length : 0;
-    const allInKitchen = order && order.items.filter(i=>!['cancelled','served'].includes(i.status)).every(i=>['cooking','ready','served'].includes(i.status));
+  // Footer buttons — always rendered based on status
+  if(footerBtns) {
     let btns = '';
-    if(pendingCount > 0) {
-      btns += `<button class="btn btn-success" style="flex:1;font-size:12px" onclick="sspSendToKitchen()">
-        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
-        Cucina (${pendingCount})
-      </button>`;
-    } else if(allInKitchen) {
-      btns += `<div style="flex:1;font-size:11px;color:var(--green);display:flex;align-items:center;gap:5px;padding:0 4px">
-        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="var(--green)"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-        Tutto in cucina
-      </div>`;
+    if(table.status === 'libero' || table.status === 'sporco') {
+      btns += '<button class="btn btn-success" style="flex:1;font-size:12px" onclick="sspOpenArrival()">👥 Arrivo clienti</button>';
     }
-    btns += `<button class="btn btn-primary" style="font-size:12px" onclick="sspNewOrder()">+ Ordine</button>`;
-    btns += `<button class="btn btn-danger" style="font-size:12px" onclick="sspPayment()" title="Chiudi conto e incassa">💳</button>`;
+    if(table.status === 'occupato') {
+      const pendingCount = order ? order.items.filter(i=>i.status==='pending').length : 0;
+      if(pendingCount > 0) {
+        btns += '<button class="btn btn-success" style="flex:1;font-size:12px;font-weight:700" onclick="sspSendToKitchen()">🚀 Cucina (' + pendingCount + ')</button>';
+      }
+      btns += '<button class="btn btn-primary" style="font-size:12px;font-weight:700" onclick="sspNewOrder()">➕ Ordine</button>';
+      btns += '<button class="btn btn-danger" style="font-size:12px" onclick="sspPayment()">💳 Paga</button>';
+    }
+    if(table.status === 'pagato') {
+      btns += '<button class="btn btn-secondary" style="flex:1;font-size:12px" onclick="sspMarkDirty()">🧹 Da pulire</button>';
+      btns += '<button class="btn btn-danger" style="font-size:12px" onclick="sspPayment()">💳 Ricassa</button>';
+    }
+    if(table.status === 'sporco') {
+      btns += '<button class="btn btn-success" style="flex:1;font-size:12px" onclick="sspMarkFree()">✓ Pulito / Libero</button>';
+    }
     footerBtns.innerHTML = btns;
   }
 }
@@ -7266,7 +7773,7 @@ function renderAnalyticsOrdini() {
       <div class="dw-value" style="color:var(--red)">€ ${totalExpenses.toFixed(2)}</div>
       <div class="dw-label">Costo stimato scorte correnti</div>
       <div class="separator" style="margin:12px 0"></div>
-      ${state.ingredients.filter(i=>i.suppliers?.length).slice(0,5).map(ing => { const pref = ing.suppliers.find(s=>s.preferred)||ing.suppliers[0]; return `<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid var(--border)"><span>${ing.name}</span><span style="font-family:'DM Mono',monospace;color:var(--red)">€${(pref?.costPerUnit||0).toFixed(2)}/${ing.unit}</span></div>`; }).join('')}
+      ${state.ingredients.filter(i=>i.suppliers?.length).slice(0,5).map(ing => { const pref = ing.suppliers.find(s=>s.preferred)||ing.suppliers[0]; return `<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid var(--border)"><span>${ing.name}</span><span style="font-family:monospace;color:var(--red)">€${(pref?.costPerUnit||0).toFixed(2)}/${ing.unit}</span></div>`; }).join('')}
     </div>
     <div class="dash-widget">
       <div class="dw-header"><div class="dw-title">Tempo Medio Prep.</div></div>
@@ -7277,13 +7784,13 @@ function renderAnalyticsOrdini() {
     </div>
     <div class="dash-widget span2">
       <div class="dw-header"><div class="dw-title">Piatti più Ordinati</div></div>
-      ${topDishList.length > 0 ? topDishList.map(([name, qty], i) => `<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--amber);width:16px">${i+1}</div><div style="flex:1;font-size:13px">${name}</div><div style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text2)">${qty}x</div><div style="width:80px;height:4px;background:var(--bg4);border-radius:2px"><div style="height:100%;border-radius:2px;background:var(--amber);width:${(qty/topDishList[0][1])*100}%"></div></div></div>`).join('') : '<div style="color:var(--text3);font-size:13px;padding:20px 0">Nessun dato ordini</div>'}
+      ${topDishList.length > 0 ? topDishList.map(([name, qty], i) => `<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="font-family:monospace;font-size:11px;color:var(--amber);width:16px">${i+1}</div><div style="flex:1;font-size:13px">${name}</div><div style="font-family:monospace;font-size:13px;color:var(--text2)">${qty}x</div><div style="width:80px;height:4px;background:var(--bg4);border-radius:2px"><div style="height:100%;border-radius:2px;background:var(--amber);width:${(qty/topDishList[0][1])*100}%"></div></div></div>`).join('') : '<div style="color:var(--text3);font-size:13px;padding:20px 0">Nessun dato ordini</div>'}
     </div>
     <div class="dash-widget">
       <div class="dw-header"><div class="dw-title">Scorte Critiche</div></div>
       <div class="dw-value" style="color:var(--red)">${state.ingredients.filter(i=>i.stock<i.minStock).length}</div>
       <div class="dw-label">Ingredienti sotto scorta minima</div>
-      ${state.ingredients.filter(i=>i.stock<i.minStock).slice(0,3).map(i => `<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)"><span>${i.name}</span><span style="color:var(--red);font-family:'DM Mono',monospace">${i.stock.toFixed(1)}/${i.minStock} ${i.unit}</span></div>`).join('')}
+      ${state.ingredients.filter(i=>i.stock<i.minStock).slice(0,3).map(i => `<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)"><span>${i.name}</span><span style="color:var(--red);font-family:monospace">${i.stock.toFixed(1)}/${i.minStock} ${i.unit}</span></div>`).join('')}
     </div>
     <div class="dash-widget">
       <div class="dw-header"><div class="dw-title">Stato Sale</div></div>
@@ -7347,7 +7854,7 @@ function renderAnalyticsPersonale() {
                 <span style="padding:1px 6px;border-radius:6px;background:${typeColors2[op.type]}22;color:${typeColors2[op.type]};flex-shrink:0">${typeLabels2[op.type]}</span>
                 <span style="flex:1;color:var(--text2)">${op.dish}</span>
                 <span style="color:var(--text3)">T${op.table}</span>
-                <span style="font-family:'DM Mono',monospace;color:${(op.durationSec||0)>600?'var(--red)':'var(--text3)'}">${op.durationSec>0?formatDuration(op.durationSec):'--'}</span>
+                <span style="font-family:monospace;color:${(op.durationSec||0)>600?'var(--red)':'var(--text3)'}">${op.durationSec>0?formatDuration(op.durationSec):'--'}</span>
                 <span style="color:var(--text3)">${op.startedAt?new Date(op.startedAt).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}):'--'}</span>
               </div>
             `).join('')}
@@ -7403,7 +7910,7 @@ function renderAnalyticsSpese() {
               ${ing.suppliers?.length>1?`<div style="font-size:10px;color:var(--text3)">${ing.suppliers.length} fornitori</div>`:''}
             </div>
             <div style="text-align:right">
-              <div style="font-family:'DM Mono',monospace;font-size:13px;color:${reorder?'var(--red)':'var(--text2)'};font-weight:600">€${val.toFixed(2)}</div>
+              <div style="font-family:monospace;font-size:13px;color:${reorder?'var(--red)':'var(--text2)'};font-weight:600">€${val.toFixed(2)}</div>
               ${reorder?'<div style="font-size:9px;color:var(--red)">⚠ Riordinare</div>':''}
             </div>
           </div>`;
@@ -7421,7 +7928,7 @@ function renderAnalyticsSpese() {
         return `<div style="padding:10px 0;border-bottom:1px solid var(--border)">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px">
             <div style="font-size:13px;font-weight:500">${s.name}</div>
-            <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--amber)">€${totalVal.toFixed(2)}</div>
+            <div style="font-family:monospace;font-size:12px;color:var(--amber)">€${totalVal.toFixed(2)}</div>
           </div>
           <div style="font-size:11px;color:var(--text3)">${ings.length} ingredienti · ${s.deliveryDays}gg consegna</div>
         </div>`;
@@ -7459,12 +7966,12 @@ function renderOpsLog() {
     ${ops.map(l => `<tr>
       <td><span class="ops-type-badge" style="background:${tc[l.type]}22;color:${tc[l.type]}">${tl[l.type]}</span></td>
       <td style="font-weight:500">${l.dish}</td>
-      <td><span style="font-family:'DM Mono',monospace;color:var(--amber)">T${l.table}</span></td>
+      <td><span style="font-family:monospace;color:var(--amber)">T${l.table}</span></td>
       <td style="color:var(--text3)">${l.stationName}</td>
       <td>${l.user}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">${l.startedAt?new Date(l.startedAt).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'--'}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">${l.completedAt?new Date(l.completedAt).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'--'}</td>
-      <td style="font-family:'DM Mono',monospace;font-weight:700;color:${(l.durationSec||0)>900?'var(--red)':'var(--green)'}">${l.durationSec>0?formatDuration(l.durationSec):'--'}</td>
+      <td style="font-family:monospace;font-size:11px;color:var(--text3)">${l.startedAt?new Date(l.startedAt).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'--'}</td>
+      <td style="font-family:monospace;font-size:11px;color:var(--text3)">${l.completedAt?new Date(l.completedAt).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'--'}</td>
+      <td style="font-family:monospace;font-weight:700;color:${(l.durationSec||0)>900?'var(--red)':'var(--green)'}">${l.durationSec>0?formatDuration(l.durationSec):'--'}</td>
     </tr>`).join('')}
   </tbody></table>`;
 }
@@ -7572,7 +8079,7 @@ function renderSalaDelivery() {
           const waitMins = item.readyAt ? Math.floor((Date.now()-new Date(item.readyAt))/60000) : 0;
           const deliverQtyId = `dqty-${item.orderId}-${item.itemId}`;
           return `<div class="dtc-item ${isDone?'delivered':''}">
-            <div class="dtc-item-name" style="flex:1">${item.qty>1&&!isDone?`<span style="color:var(--text3);font-size:10px;font-family:'DM Mono',monospace;margin-right:4px">${item.qty}x</span>`:(item.qty>1?`<span style="font-size:10px;color:var(--text3);margin-right:3px">${item.qty}x</span>`:'')}${item.name}${!isDone && waitMins>2?` <span style="font-size:9px;color:var(--amber)">⏱${waitMins}m</span>`:''}</div>
+            <div class="dtc-item-name" style="flex:1">${item.qty>1&&!isDone?`<span style="color:var(--text3);font-size:10px;font-family:monospace;margin-right:4px">${item.qty}x</span>`:(item.qty>1?`<span style="font-size:10px;color:var(--text3);margin-right:3px">${item.qty}x</span>`:'')}${item.name}${!isDone && waitMins>2?` <span style="font-size:9px;color:var(--amber)">⏱${waitMins}m</span>`:''}</div>
             ${!isDone && item.qty > 1 ? `
             <div class="dtc-item-qty-ctrl">
               <button class="dtc-qty-mini-btn" onclick="dtcStepQty('${deliverQtyId}',${item.qty},-1)">−</button>
@@ -7785,7 +8292,7 @@ function openDishIssueModal(orderId, itemId) {
       <span style="font-size:26px">🍽️</span>
       <div style="flex:1">
         <div style="font-size:14px;font-weight:600">${dish.name}</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px">T${table?.number||'?'} &middot; ${statusLabel} &middot; <span style="color:var(--amber);font-family:'DM Mono',monospace">${qty}x</span> in questo lotto</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">T${table?.number||'?'} &middot; ${statusLabel} &middot; <span style="color:var(--amber);font-family:monospace">${qty}x</span> in questo lotto</div>
       </div>
     </div>
   `;
@@ -7998,9 +8505,9 @@ function renderMenuFissiList() {
         <div class="mf-course">
           <div class="mf-course-label">Analisi storica</div>
           ${tavoliStorico.length === 0 ? '<div style="font-size:11px;color:var(--text3)">Nessun utilizzo ancora</div>' : `
-          <div class="mf-course-item"><span class="mf-item-name">Incasso</span><span style="color:var(--green);font-family:'DM Mono',monospace;font-size:11px">€${totalIncasso.toFixed(2)}</span></div>
-          <div class="mf-course-item"><span class="mf-item-name">Costo piatti</span><span style="color:var(--red);font-family:'DM Mono',monospace;font-size:11px">€${totalConsumo.toFixed(2)}</span></div>
-          <div class="mf-course-item"><span class="mf-item-name" style="font-weight:700">Margine</span><span style="color:${margine>=0?'var(--green)':'var(--red)'};font-family:'DM Mono',monospace;font-size:12px;font-weight:700">${margine>=0?'+':''}€${margine.toFixed(2)}</span></div>
+          <div class="mf-course-item"><span class="mf-item-name">Incasso</span><span style="color:var(--green);font-family:monospace;font-size:11px">€${totalIncasso.toFixed(2)}</span></div>
+          <div class="mf-course-item"><span class="mf-item-name">Costo piatti</span><span style="color:var(--red);font-family:monospace;font-size:11px">€${totalConsumo.toFixed(2)}</span></div>
+          <div class="mf-course-item"><span class="mf-item-name" style="font-weight:700">Margine</span><span style="color:${margine>=0?'var(--green)':'var(--red)'};font-family:monospace;font-size:12px;font-weight:700">${margine>=0?'+':''}€${margine.toFixed(2)}</span></div>
           `}
         </div>
       </div>
@@ -8783,5 +9290,51 @@ window.addEventListener('resize', () => {
 });
 
 </script>
+
+    <!-- Phone Order Modal -->
+    <div class="modal-overlay" id="modal-phone-order">
+      <div class="modal" style="max-width:520px">
+        <div class="modal-header">
+          <div class="modal-title" id="phone-modal-title">📞 Nuovo Ordine Telefonico</div>
+          <button class="modal-close" onclick="closeModal('modal-phone-order')">✕</button>
+        </div>
+        <div class="modal-body">
+          <!-- Customer info -->
+          <div class="grid-2" style="margin-bottom:12px">
+            <div class="form-group" style="margin:0">
+              <label>Nome cliente</label>
+              <input type="text" id="phone-customer-name" placeholder="es. Mario Rossi" style="font-size:16px">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Telefono</label>
+              <input type="tel" id="phone-customer-tel" placeholder="es. 333 1234567" style="font-size:16px">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:14px">
+            <label>Note consegna / ritiro</label>
+            <input type="text" id="phone-order-note" placeholder="es. Consegna a domicilio, Via Roma 5 — ore 20:30" style="font-size:16px">
+          </div>
+          <div class="separator" style="margin:0 0 12px"></div>
+          <!-- Menu search -->
+          <div class="form-group" style="margin-bottom:10px">
+            <input type="text" id="phone-order-search" placeholder="Cerca piatto..." oninput="filterPhoneOrderMenu()" style="font-size:16px">
+          </div>
+          <div id="phone-order-menu-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;max-height:220px;overflow-y:auto;margin-bottom:14px"></div>
+          <div class="separator" style="margin:0 0 10px"></div>
+          <h3 style="font-size:13px;font-weight:600;margin-bottom:8px">Piatti selezionati</h3>
+          <div id="phone-order-items"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-weight:600">
+            <span>Totale</span>
+            <span id="phone-order-total" style="font-family:'DM Mono',monospace;color:var(--amber);font-size:18px">€ 0.00</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="closeModal('modal-phone-order')">Annulla</button>
+          <button class="btn btn-secondary" onclick="savePhoneOrder(false)" id="phone-save-btn">💾 Salva</button>
+          <button class="btn btn-success" onclick="savePhoneOrder(true)" style="font-weight:700">🚀 Salva + Invia Cucina</button>
+        </div>
+      </div>
+    </div>
+
 </body>
 </html>
