@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Login — RistoCloud</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Outfit',sans-serif;
+  background:#08080a;
+  color:#e8e8f0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.login-card{
+  background:#111118;
+  border:1.5px solid #252530;
+  border-radius:24px;
+  padding:48px 40px;
+  width:90%;
+  max-width:380px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.brand{font-size:42px;font-weight:900;color:#fff;line-height:1}
+.brand span{color:#f59e0b}
+.sub{font-size:14px;color:#505068;margin-bottom:36px}
+.sub span{color:#f59e0b;font-weight:600}
+h1{font-size:28px;font-weight:700;color:#fff;align-self:flex-start;margin-bottom:28px}
+label{
+  font-size:11px;color:#505068;text-transform:uppercase;
+  letter-spacing:1.5px;font-weight:600;align-self:flex-start;margin-bottom:8px;
+}
+input{
+  width:100%;height:52px;border-radius:12px;
+  border:2px solid #333;background:#08080a;
+  color:#fff;font-size:16px;font-family:'Outfit',sans-serif;
+  padding:0 18px;margin-bottom:18px;outline:none;
+}
+input:focus{border-color:#f59e0b}
+.btn-accedi{
+  width:100%;height:56px;border-radius:14px;border:none;
+  background:#f59e0b;color:#000;font-size:20px;font-weight:700;
+  font-family:'Outfit',sans-serif;margin-top:12px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:background .2s, opacity .2s;
+}
+.btn-accedi:hover{background:#d97706}
+.btn-accedi:disabled{opacity:.6;cursor:not-allowed}
+.btn-accedi .spinner{
+  width:20px;height:20px;border:3px solid rgba(0,0,0,.2);
+  border-top-color:#000;border-radius:50%;
+  animation:ruota .6s linear infinite;display:none;
+}
+@keyframes ruota{to{transform:rotate(360deg)}}
+.link{font-size:14px;color:#f59e0b;margin-top:24px;font-weight:500;text-decoration:none}
+.link:hover{text-decoration:underline}
+.errore{
+  width:100%;padding:12px 16px;border-radius:10px;
+  background:#1a1012;border:1px solid #ef4444;
+  color:#ef4444;font-size:13px;font-weight:500;
+  margin-bottom:16px;display:none;text-align:center;
+}
+.avviso-scaduto{
+  width:100%;padding:12px 16px;border-radius:10px;
+  background:#1a1508;border:1px solid #f59e0b;
+  color:#f59e0b;font-size:13px;font-weight:500;
+  margin-bottom:16px;display:none;text-align:center;
+}
+</style>
+</head>
+<body>
+  <div class="login-card">
+    <div class="brand">Risto<span>Cloud</span></div>
+    <div class="sub">un prodotto <span>Nodo Italia</span></div>
+
+    <!-- Avviso abbonamento scaduto (se redirect da piani.html?scaduto=1) -->
+    <div class="avviso-scaduto" id="avvisoScaduto">
+      Il tuo abbonamento è scaduto. Accedi per rinnovare il piano.
+    </div>
+
+    <h1>Accedi</h1>
+
+    <!-- Messaggio errore -->
+    <div class="errore" id="errore"></div>
+
+    <label for="email">Email</label>
+    <input type="email" id="email" placeholder="nome@ristorante.it" autocomplete="email">
+
+    <label for="password">Password</label>
+    <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+
+    <button class="btn-accedi" id="btnAccedi" onclick="gestisciLogin()">
+      <span id="testoBottone">Accedi</span>
+      <div class="spinner" id="spinner"></div>
+    </button>
+
+    <a href="piani.html" class="link">Nuovo Ristorante →</a>
+  </div>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <!-- Config + Auth -->
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+
+  <script>
+  /* ══════════════════════════════════════════════
+     LOGIN — LOGICA PAGINA
+     ══════════════════════════════════════════════ */
+
+  /* ── Mostra avviso se arriva da redirect scaduto ── */
+  const parametri = new URLSearchParams(window.location.search);
+  if (parametri.get('scaduto') === '1') {
+    document.getElementById('avvisoScaduto').style.display = 'block';
+  }
+
+  /* ── Se già autenticato, redirect diretto ── */
+  (async function() {
+    const { data } = await db.auth.getSession();
+    if (data?.session && verificaAuth()) {
+      window.location.href = 'cassa.html';
+    }
+  })();
+
+  /* ── Enter per submit ── */
+  document.getElementById('password').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') gestisciLogin();
+  });
+  document.getElementById('email').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('password').focus();
+  });
+
+  /* ── Login ── */
+  async function gestisciLogin() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    /* Reset errore */
+    document.getElementById('errore').style.display = 'none';
+
+    /* Validazione */
+    if (!email) { mostraErrore('Inserisci la tua email'); return; }
+    if (!password) { mostraErrore('Inserisci la password'); return; }
+
+    /* Stato caricamento */
+    impostaCaricamento(true);
+
+    try {
+      /* ① Autenticazione via auth.js → eseguiLogin() */
+      const risultato = await eseguiLogin(email, password);
+
+      if (!risultato.successo) {
+        let messaggio = risultato.errore;
+        if (messaggio.includes('Invalid login')) messaggio = 'Email o password non corretti';
+        if (messaggio.includes('Email not confirmed')) messaggio = 'Conferma la tua email prima di accedere';
+        if (messaggio.includes('Too many requests')) messaggio = 'Troppi tentativi. Riprova tra qualche minuto';
+        mostraErrore(messaggio);
+        impostaCaricamento(false);
+        return;
+      }
+
+      /* ② Verifica abbonamento via auth.js → verificaAbbonamento() */
+      const utente = risultato.utente;
+      const infoAbbonamento = await verificaAbbonamento(utente.ristorante_id);
+
+      if (infoAbbonamento.stato === 'scaduto' || infoAbbonamento.stato === 'cancellato') {
+        /* Abbonamento scaduto → redirect piani */
+        window.location.href = 'piani.html?scaduto=1';
+      } else {
+        /* ③ Tutto OK → redirect cassa */
+        window.location.href = 'cassa.html';
+      }
+
+    } catch (errore) {
+      console.error('Errore imprevisto:', errore);
+      mostraErrore('Errore di connessione. Controlla la rete e riprova.');
+      impostaCaricamento(false);
+    }
+  }
+
+  /* ── Utilità UI ── */
+  function mostraErrore(messaggio) {
+    const div = document.getElementById('errore');
+    div.textContent = messaggio;
+    div.style.display = 'block';
+  }
+
+  function impostaCaricamento(attivo) {
+    document.getElementById('btnAccedi').disabled = attivo;
+    document.getElementById('testoBottone').textContent = attivo ? 'Accesso in corso' : 'Accedi';
+    document.getElementById('spinner').style.display = attivo ? 'block' : 'none';
+  }
+  </script>
+</body>
+</html>
