@@ -100,7 +100,7 @@ class CaricamentoLoader {
  * @returns {Promise<object>} dati utente o errore
  */
 async function eseguiLogin(email, password) {
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await db.auth.signInWithPassword({
     email: email,
     password: password
   });
@@ -165,7 +165,7 @@ function ottieniUtente() {
  * Esegue il logout: cancella sessione Supabase e dati locali.
  */
 async function eseguiLogout() {
-  await supabase.auth.signOut();
+  await db.auth.signOut();
   sessionStorage.removeItem('ristocloud_utente');
   window.location.href = 'login.html';
 }
@@ -180,7 +180,7 @@ async function eseguiLogout() {
  * @returns {Promise<object>} { stato, giorniRimanenti, tier, piano }
  */
 async function verificaAbbonamento(ristorante_id) {
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('ristoranti')
     .select('tier, piano, stato_abbonamento, inizio_prova, fine_prova, inizio_abbonamento, scadenza_abbonamento, rinnovo_automatico')
     .eq('id', ristorante_id)
@@ -261,7 +261,7 @@ async function provaScaduta(ristorante_id) {
  * @returns {Promise<void>}
  */
 async function aggiornaStatoAbbonamento(ristorante_id, nuovoStato) {
-  const { error } = await supabase
+  const { error } = await db
     .from('ristoranti')
     .update({
       stato_abbonamento: nuovoStato,
@@ -346,7 +346,7 @@ function reindirizzaAPiani() {
  * @returns {Promise<object|null>}
  */
 async function _caricaProfilo(idAuth) {
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('utenti')
     .select('id, email, nome, ruolo, tab_consentiti, ristorante_id')
     .eq('id', idAuth)
@@ -375,7 +375,7 @@ async function controllaAccesso() {
   loader.avvia();
 
   /* ① Verifica sessione Supabase */
-  const { data: sessione } = await supabase.auth.getSession();
+  const { data: sessione } = await db.auth.getSession();
 
   if (!sessione?.session) {
     window.location.href = 'login.html';
