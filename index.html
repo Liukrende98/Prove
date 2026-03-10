@@ -158,9 +158,7 @@ section{padding:100px 40px}
 .carta-servizio:hover .etichetta-tech{
   background:var(--ambra-dim);border-color:rgba(245,158,11,.15);color:var(--ambra);
 }
-/* Scroll reveal */
-.carta-servizio{opacity:0;transform:translateY(30px);transition:opacity .5s ease,transform .5s ease,background .4s,color .3s}
-.carta-servizio.visibile{opacity:1;transform:translateY(0)}
+.carta-servizio{transition:background .4s,color .3s}
 
 /* ═══ PRODOTTI SaaS ═══ */
 #prodotti{background:var(--sfondo)}
@@ -282,7 +280,7 @@ footer a{color:var(--ambra);text-decoration:none}
   </div>
   <div class="griglia-servizi" id="grigliaServizi">
 
-    <div class="carta-servizio">
+    <div class="carta-servizio" onclick="window.location.href='hardware.html'" style="cursor:pointer">
       <div class="icona-servizio" style="background:rgba(245,158,11,.08)"><svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z"/></svg></div>
       <h3>Vendita Hardware</h3>
       <p>PC, server, stampanti, reti, periferiche. Fornitura e configurazione per uffici e produzione.</p>
@@ -347,33 +345,7 @@ footer a{color:var(--ambra);text-decoration:none}
 
   </div>
 
-  <script>
-  /* Scroll reveal staggered */
-  const osservatore = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visibile');
-        osservatore.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.15 });
 
-  document.querySelectorAll('.carta-servizio').forEach((carta, i) => {
-    carta.style.transitionDelay = `${i * 0.07}s`;
-    osservatore.observe(carta);
-  });
-
-  /* Mouse glow follow */
-  document.querySelectorAll('.carta-servizio').forEach(carta => {
-    carta.addEventListener('mousemove', e => {
-      const rect = carta.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(0);
-      const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(0);
-      carta.style.setProperty('--mx', x + '%');
-      carta.style.setProperty('--my', y + '%');
-    });
-  });
-  </script>
 </section>
 
 <!-- ═══ PRODOTTI SaaS ═══ -->
@@ -421,8 +393,8 @@ footer a{color:var(--ambra);text-decoration:none}
       <button class="btn-invia" onclick="alert('Form in arrivo — per ora scrivi a info@nodoitalia.it')">Invia Messaggio →</button>
 
       <div style="display:flex;align-items:center;justify-content:center;gap:20px;margin-top:20px;padding-top:16px;border-top:1px solid var(--bordo)">
-        <a href="mailto:info@nodoitalia.it" style="display:flex;align-items:center;gap:6px;color:var(--testo3);font-size:13px;text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--ambra)'" onmouseout="this.style.color='var(--testo3)'">
-          <span style="font-size:16px">📧</span> info@nodoitalia.it
+        <a href="/cdn-cgi/l/email-protection#99f0f7fff6d9f7f6fdf6f0edf8f5f0f8b7f0ed" style="display:flex;align-items:center;gap:6px;color:var(--testo3);font-size:13px;text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--ambra)'" onmouseout="this.style.color='var(--testo3)'">
+          <span style="font-size:16px">📧</span> <span class="__cf_email__" data-cfemail="c0a9aea6af80aeafa4afa9b4a1aca9a1eea9b4">[email&#160;protected]</span>
         </a>
         <span style="color:var(--bordo)">·</span>
         <a href="https://www.nodoitalia.it" style="display:flex;align-items:center;gap:6px;color:var(--testo3);font-size:13px;text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--ambra)'" onmouseout="this.style.color='var(--testo3)'">
@@ -436,10 +408,4 @@ footer a{color:var(--ambra);text-decoration:none}
 <!-- ═══ FOOTER ═══ -->
 <footer>
   <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="380 520 1060 760" preserveAspectRatio="xMidYMid meet" style="width:16px;height:12px;opacity:.4"><g transform="translate(0,1800) scale(1,-1)"><path fill="#f59e0b" fill-rule="evenodd" d="M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z"/></g></svg>
-  </div>
-  © 2026 Nodo Italia — <a href="mailto:info@nodoitalia.it">info@nodoitalia.it</a>
-</footer>
-
-</body>
-</html>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="380 520 1060 760" preserveAspectRatio="xMidYMid meet" style="width:16px;height:12px;opacity:.4"><g transform="translate(0,1800) scale(1,-1)"><path fill="#f59e0b" fill-rule="evenodd" d="M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z"/
