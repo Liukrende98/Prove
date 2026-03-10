@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vendita Hardware — NodoItalia</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sfondo:#06060a;--sfondo2:#0c0c12;--sfondo3:#111118;
+  --bordo:#1a1a24;--bordo2:#252535;
+  --testo:#e8e8f0;--testo2:#9090a8;--testo3:#505068;
+  --ambra:#f59e0b;--ambra2:#fbbf24;--ambra-dim:rgba(245,158,11,.08);
+  --verde:#22c55e;--blu:#3b82f6;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:var(--sfondo);color:var(--testo);overflow-x:hidden}
+::selection{background:var(--ambra);color:#000}
+
+/* ═══ NAV ═══ */
+nav{
+  position:fixed;top:0;left:0;width:100%;z-index:100;
+  padding:16px 40px;display:flex;align-items:center;
+  background:rgba(6,6,10,.85);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,.03);
+}
+.nav-logo{font-size:20px;font-weight:800;color:#fff;display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-links{display:flex;gap:28px;margin-left:auto;align-items:center}
+.nav-links a{color:var(--testo3);font-size:13px;font-weight:500;text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--ambra)}
+
+/* ═══ HERO ═══ */
+.hero{
+  padding:140px 40px 80px;text-align:center;
+  position:relative;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 16px;border-radius:20px;font-size:11px;font-weight:600;
+  background:var(--ambra-dim);color:var(--ambra);border:1px solid rgba(245,158,11,.15);
+  margin-bottom:24px;letter-spacing:.5px;
+}
+.hero h1{font-size:clamp(32px,5vw,52px);font-weight:900;letter-spacing:-1px;margin-bottom:16px}
+.hero h1 em{font-style:normal;color:var(--ambra)}
+.hero .lead{font-size:clamp(15px,2vw,18px);color:var(--testo2);max-width:600px;margin:0 auto;line-height:1.6;font-weight:300}
+
+/* ═══ SEZIONE ═══ */
+section{padding:80px 40px}
+.sezione-titolo{text-align:center;margin-bottom:48px}
+.sezione-titolo .tag{font-size:11px;font-weight:700;color:var(--ambra);text-transform:uppercase;letter-spacing:3px;margin-bottom:10px;display:block}
+.sezione-titolo h2{font-size:clamp(26px,4vw,38px);font-weight:800;letter-spacing:-.5px}
+.sezione-titolo p{font-size:15px;color:var(--testo2);max-width:500px;margin:10px auto 0;line-height:1.6;font-weight:300}
+
+/* ═══ COSA FACCIAMO ═══ */
+#processo{background:var(--sfondo2)}
+.griglia-processo{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;max-width:900px;margin:0 auto;background:var(--bordo);border-radius:14px;overflow:hidden}
+.carta-processo{background:var(--sfondo2);padding:32px 24px;text-align:center}
+.carta-processo .icona{width:48px;height:48px;border-radius:12px;background:var(--ambra-dim);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.carta-processo .icona svg{width:24px;height:24px;stroke:var(--ambra);fill:none;stroke-width:1.5}
+.carta-processo h3{font-size:15px;font-weight:700;margin-bottom:8px}
+.carta-processo p{font-size:13px;color:var(--testo2);line-height:1.5}
+
+/* ═══ MACCHINE ═══ */
+#macchine{background:var(--sfondo)}
+.griglia-macchine{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1000px;margin:0 auto}
+.carta-macchina{
+  background:var(--sfondo3);border:1px solid var(--bordo);border-radius:16px;
+  padding:36px 28px;display:flex;flex-direction:column;
+  transition:all .3s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;
+}
+.carta-macchina:hover{border-color:var(--bordo2);transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.3)}
+.carta-macchina.evidenziata{border-color:var(--ambra);box-shadow:0 0 0 1px rgba(245,158,11,.15)}
+.carta-macchina.evidenziata::before{
+  content:'PIÙ VENDUTO';position:absolute;top:16px;right:-32px;
+  background:var(--ambra);color:#000;font-size:9px;font-weight:800;
+  padding:4px 40px;transform:rotate(45deg);letter-spacing:1px;
+}
+
+/* Icona PC stilizzata */
+.icona-pc{
+  width:80px;height:60px;margin:0 auto 20px;position:relative;
+  border:2px solid var(--bordo2);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--sfondo);
+}
+.icona-pc::after{
+  content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);
+  width:40px;height:4px;background:var(--bordo2);border-radius:2px;
+}
+.icona-pc .dot{width:6px;height:6px;border-radius:50%;background:var(--ambra)}
+.icona-pc.medio .dot{width:8px;height:8px;background:var(--ambra);box-shadow:0 0 8px rgba(245,158,11,.4)}
+.icona-pc.pro .dot{width:10px;height:10px;background:var(--ambra);box-shadow:0 0 16px rgba(245,158,11,.5)}
+
+.livello{
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;
+  color:var(--ambra);margin-bottom:6px;text-align:center;
+}
+.nome-macchina{font-size:20px;font-weight:800;text-align:center;margin-bottom:4px}
+.target{font-size:12px;color:var(--testo3);text-align:center;margin-bottom:20px}
+
+.prezzo-wrap{text-align:center;margin-bottom:20px}
+.prezzo{font-family:'DM Mono',monospace;font-size:36px;font-weight:700;color:var(--ambra)}
+.prezzo-sub{font-size:12px;color:var(--testo3);margin-top:2px}
+
+.lista-spec{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;flex:1}
+.spec{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--testo2)}
+.spec .check{color:var(--verde);font-size:14px;flex-shrink:0}
+
+.btn-macchina{
+  width:100%;padding:14px;border-radius:10px;border:1.5px solid var(--bordo2);
+  background:transparent;color:var(--testo);font-size:14px;font-weight:700;
+  font-family:inherit;cursor:pointer;transition:all .2s;text-align:center;
+}
+.btn-macchina:hover{border-color:var(--ambra);color:var(--ambra);background:var(--ambra-dim)}
+.carta-macchina.evidenziata .btn-macchina{background:var(--ambra);color:#000;border-color:var(--ambra)}
+.carta-macchina.evidenziata .btn-macchina:hover{background:var(--ambra2)}
+
+/* ═══ GARANZIA ═══ */
+#garanzia{background:var(--sfondo2)}
+.griglia-garanzia{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:900px;margin:0 auto}
+.carta-garanzia{
+  background:var(--sfondo3);border:1px solid var(--bordo);border-radius:12px;
+  padding:24px 20px;text-align:center;
+}
+.carta-garanzia .icona-g{font-size:28px;margin-bottom:12px}
+.carta-garanzia h3{font-size:14px;font-weight:700;margin-bottom:6px}
+.carta-garanzia p{font-size:12px;color:var(--testo2);line-height:1.5}
+
+/* ═══ CTA ═══ */
+.cta-sezione{
+  text-align:center;padding:80px 40px;
+}
+.cta-sezione h2{font-size:clamp(24px,3vw,36px);font-weight:800;margin-bottom:12px}
+.cta-sezione p{font-size:15px;color:var(--testo2);margin-bottom:28px}
+.btn-cta{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 32px;border-radius:12px;background:var(--ambra);color:#000;
+  font-size:15px;font-weight:700;text-decoration:none;font-family:inherit;
+  transition:all .2s;
+}
+.btn-cta:hover{background:var(--ambra2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(245,158,11,.2)}
+
+/* ═══ FOOTER ═══ */
+footer{padding:32px 40px;text-align:center;border-top:1px solid var(--bordo);font-size:12px;color:var(--testo3)}
+footer a{color:var(--ambra);text-decoration:none}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:768px){
+  nav{padding:12px 20px}
+  .nav-links a:not(:last-child){display:none}
+  .hero{padding:110px 24px 60px}
+  section{padding:60px 20px}
+  .griglia-processo,.griglia-macchine,.griglia-garanzia{grid-template-columns:1fr}
+  .carta-macchina.evidenziata::before{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="380 520 1060 760" preserveAspectRatio="xMidYMid meet" style="width:28px;height:20px"><g transform="translate(0,1800) scale(1,-1)"><path fill="#f59e0b" fill-rule="evenodd" d="M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z"/></g></svg>
+    <span>Nodo<span style="color:#f59e0b">Italia</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="index.html">← Torna al sito</a>
+    <a href="index.html#contatti">Contattaci</a>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+  <div class="hero-badge">🖥️ Hardware Rigenerato</div>
+  <h1>PC <em>Rigenerati</em> e Pronti</h1>
+  <div class="lead">Macchine rigenerate professionalmente, testate e garantite. Perfette per chi cerca affidabilità senza spendere una fortuna.</div>
+</div>
+
+<!-- ═══ PROCESSO ═══ -->
+<section id="processo">
+  <div class="sezione-titolo">
+    <span class="tag">Come lavoriamo</span>
+    <h2>Il nostro processo</h2>
+    <p>Ogni macchina passa per tre fasi prima di arrivare a te</p>
+  </div>
+  <div class="griglia-processo">
+    <div class="carta-processo">
+      <div class="icona"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg></div>
+      <h3>Selezione</h3>
+      <p>Scegliamo solo macchine business di alta qualità da fleet aziendali. Niente consumer di bassa gamma.</p>
+    </div>
+    <div class="carta-processo">
+      <div class="icona"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M11.42 15.17l-5.58 5.58a2.121 2.121 0 01-3-3l5.58-5.58m4.24-4.24l5.58-5.58a2.121 2.121 0 013 3l-5.58 5.58"/></svg></div>
+      <h3>Rigenerazione</h3>
+      <p>Pulizia completa, sostituzione componenti usurati, upgrade SSD e RAM dove necessario. Test di stress 48h.</p>
+    </div>
+    <div class="carta-processo">
+      <div class="icona"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+      <h3>Garanzia</h3>
+      <p>Windows installato e attivato, pronto all'uso. 12 mesi di garanzia e assistenza tecnica inclusa.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MACCHINE ═══ -->
+<section id="macchine">
+  <div class="sezione-titolo">
+    <span class="tag">Scegli il tuo</span>
+    <h2>Tre livelli, un obiettivo</h2>
+    <p>La macchina giusta per ogni esigenza e budget</p>
+  </div>
+  <div class="griglia-macchine">
+
+    <!-- ENTRY -->
+    <div class="carta-macchina">
+      <div class="icona-pc"><div class="dot"></div></div>
+      <div class="livello">Entry Level</div>
+      <div class="nome-macchina">Essential</div>
+      <div class="target">Per studenti e navigazione web</div>
+      <div class="prezzo-wrap">
+        <div class="prezzo">€199</div>
+        <div class="prezzo-sub">IVA inclusa · rigenerato</div>
+      </div>
+      <div class="lista-spec">
+        <div class="spec"><span class="check">✓</span> Intel Core i3 o equivalente</div>
+        <div class="spec"><span class="check">✓</span> 8 GB RAM</div>
+        <div class="spec"><span class="check">✓</span> SSD 240 GB</div>
+        <div class="spec"><span class="check">✓</span> Windows 11 attivato</div>
+        <div class="spec"><span class="check">✓</span> Perfetto per web, email, Excel</div>
+        <div class="spec"><span class="check">✓</span> Garanzia 12 mesi</div>
+      </div>
+      <button class="btn-macchina" onclick="window.location.href='index.html#contatti'">Richiedi Info</button>
+    </div>
+
+    <!-- MEDIO -->
+    <div class="carta-macchina evidenziata">
+      <div class="icona-pc medio"><div class="dot"></div></div>
+      <div class="livello">Medio</div>
+      <div class="nome-macchina">Business</div>
+      <div class="target">Per ufficio e multitasking</div>
+      <div class="prezzo-wrap">
+        <div class="prezzo">€399</div>
+        <div class="prezzo-sub">IVA inclusa · rigenerato</div>
+      </div>
+      <div class="lista-spec">
+        <div class="spec"><span class="check">✓</span> Intel Core i5 o equivalente</div>
+        <div class="spec"><span class="check">✓</span> 16 GB RAM</div>
+        <div class="spec"><span class="check">✓</span> SSD 480 GB</div>
+        <div class="spec"><span class="check">✓</span> Windows 11 Pro attivato</div>
+        <div class="spec"><span class="check">✓</span> Office, gestionale, multi-monitor</div>
+        <div class="spec"><span class="check">✓</span> Garanzia 12 mesi</div>
+      </div>
+      <button class="btn-macchina" onclick="window.location.href='index.html#contatti'">Richiedi Info</button>
+    </div>
+
+    <!-- PRO -->
+    <div class="carta-macchina">
+      <div class="icona-pc pro"><div class="dot"></div></div>
+      <div class="livello">Pro</div>
+      <div class="nome-macchina">Performance</div>
+      <div class="target">Per CAD, sviluppo e produttività pesante</div>
+      <div class="prezzo-wrap">
+        <div class="prezzo">€699</div>
+        <div class="prezzo-sub">IVA inclusa · rigenerato</div>
+      </div>
+      <div class="lista-spec">
+        <div class="spec"><span class="check">✓</span> Intel Core i7 o equivalente</div>
+        <div class="spec"><span class="check">✓</span> 32 GB RAM</div>
+        <div class="spec"><span class="check">✓</span> SSD 1 TB NVMe</div>
+        <div class="spec"><span class="check">✓</span> Windows 11 Pro attivato</div>
+        <div class="spec"><span class="check">✓</span> CAD, rendering, compilazione</div>
+        <div class="spec"><span class="check">✓</span> Garanzia 12 mesi + prioritaria</div>
+      </div>
+      <button class="btn-macchina" onclick="window.location.href='index.html#contatti'">Richiedi Info</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ GARANZIA ═══ -->
+<section id="garanzia">
+  <div class="sezione-titolo">
+    <span class="tag">Tranquillità</span>
+    <h2>Cosa è incluso</h2>
+  </div>
+  <div class="griglia-garanzia">
+    <div class="carta-garanzia">
+      <div class="icona-g">🛡️</div>
+      <h3>12 mesi di garanzia</h3>
+      <p>Copertura totale su ogni componente. Se si rompe, lo ripariamo o sostituiamo.</p>
+    </div>
+    <div class="carta-garanzia">
+      <div class="icona-g">🔧</div>
+      <h3>Assistenza tecnica</h3>
+      <p>Supporto da remoto o in sede per qualsiasi problema. Siamo a una chiamata di distanza.</p>
+    </div>
+    <div class="carta-garanzia">
+      <div class="icona-g">📦</div>
+      <h3>Consegna pronta</h3>
+      <p>Macchine disponibili a magazzino. Configuriamo e spediamo in 24-48 ore lavorative.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<div class="cta-sezione">
+  <h2>Ti serve una macchina?</h2>
+  <p>Scrivici e ti consigliamo la configurazione migliore per le tue esigenze.</p>
+  <a href="index.html#contatti" class="btn-cta">Contattaci →</a>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  © 2026 NodoItalia — <a href="mailto:info@nodoitalia.it">info@nodoitalia.it</a>
+</footer>
+
+</body>
+</html>
