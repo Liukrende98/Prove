@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Piani — RistoCloud</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Outfit',sans-serif;
+  background:#08080a;
+  color:#e8e8f0;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:48px 24px;
+}
+.brand{font-size:32px;font-weight:900;color:#fff;line-height:1;margin-bottom:0}
+.brand span{color:#f59e0b}
+.sub{font-size:13px;color:#505068;margin-bottom:40px;margin-top:0}
+.sub span{color:#f59e0b;font-weight:600}
+h1{font-size:28px;font-weight:800;color:#fff;margin-bottom:8px}
+.lead{font-size:14px;color:#9090a8;margin-bottom:32px;text-align:center;max-width:480px}
+
+/* ── Tier Switch ── */
+.tier-switch{
+  display:flex;background:#111118;border:1.5px solid #252530;
+  border-radius:6px;padding:2px;margin-bottom:32px;gap:4px;
+}
+.tier-btn{
+  padding:8px 24px;border-radius:8px;border:none;
+  background:transparent;color:#505068;font-size:12px;font-weight:700;
+  font-family:'Outfit',sans-serif;cursor:pointer;
+  transition:all .3s cubic-bezier(.4,0,.2,1);
+  letter-spacing:.5px;
+}
+.tier-btn.active{background:#f59e0b;color:#000}
+.pro-crown{display:inline-flex;align-items:center;margin-left:5px}
+.pro-crown svg{width:11px;height:11px}
+.tier-btn .pro-crown svg path{fill:#f59e0b}
+.tier-btn.active .pro-crown svg path{fill:#000}
+.plan-crown{display:none}
+
+.plan-crown svg path{fill:#f59e0b}
+body.pro-active .plan-crown{display:inline-block}
+.tier-btn:hover:not(.active){color:#e8e8f0}
+
+/* ── Plans ── */
+.plans{display:flex;gap:16px;width:100%;align-items:stretch;justify-content:center;margin-bottom:40px;width:100%}
+.plan{
+  flex:1;background:#111118;border:1.5px solid #252530;
+  border-radius:20px;padding:32px 24px;
+  display:flex;flex-direction:column;
+  cursor:pointer;
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+}
+.plan:hover{border-color:#505068}
+.plan.selected{border-color:#f59e0b;transform:scale(1.05);box-shadow:0 0 30px rgba(245,158,11,.12)}
+.plan-name{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#f59e0b;margin-bottom:4px;display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+.plan-period{font-size:13px;color:#505068;margin-bottom:20px}
+.plan-price{display:flex;align-items:baseline;gap:4px;margin-bottom:6px}
+.plan-price .amount{font-size:40px;font-weight:900;color:#fff;font-family:'DM Mono',monospace;line-height:1;transition:all .3s}
+.plan-price .per{font-size:13px;color:#505068}
+.plan-total{font-size:12px;color:#505068;margin-bottom:6px;transition:all .3s}
+.plan-badge{font-size:12px;font-weight:600;margin-bottom:20px;height:20px}
+.badge-trial{color:#f59e0b}
+.badge-save{color:#22c55e}
+.plan-desc{font-size:14px;color:#9090a8;line-height:1.6;margin-bottom:24px;flex:1}
+.plan-btn{
+  width:100%;height:48px;border-radius:12px;border:2px solid #333;
+  background:transparent;color:#fff;font-size:16px;font-weight:700;
+  font-family:'Outfit',sans-serif;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+}
+.plan.selected .plan-btn{background:#f59e0b;color:#000;border-color:#f59e0b}
+
+/* ── Feature Table ── */
+.features{
+  width:100%;box-sizing:border-box;background:#111118;
+  border:1px solid #252530;border-radius:20px;padding:32px;
+}
+.features-title{font-size:16px;font-weight:700;color:#707088;margin-bottom:8px}
+.feat-pages .feat-icon{margin-top:2px}
+.feat-row{
+  display:flex;align-items:center;
+  padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);
+}
+.feat-row:last-child{border-bottom:none}
+.feat-header 
+.feat-row{align-items:flex-start}
+.feat-row:last-child{align-items:center}
+.feat-row:last-child .feat-label{align-items:center}
+.feat-col{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#505068}
+.feat-label{flex:1;font-size:14px;font-weight:500;color:#e8e8f0;display:flex;align-items:flex-start;gap:10px}
+.feat-section{border-bottom:1px solid rgba(255,255,255,.04)!important;padding-bottom:8px}
+.feat-section .feat-label{align-items:center}
+.feat-sub{border-bottom:none!important;padding:6px 0;position:relative;align-items:center}
+.feat-sub::after{content:"";position:absolute;bottom:0;left:42px;right:0;height:1px;background:rgba(255,255,255,.04)}
+.feat-sub{align-items:center!important}
+.feat-sub-label{padding-left:42px;font-size:12px!important;color:#707088!important;flex:1}
+.check-sm{font-size:13px;display:block;text-align:center}
+.feat-icon{
+  width:32px;height:32px;background:#08080a;
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex-shrink:0;
+}
+
+.feat-row{align-items:flex-start}
+.feat-row:last-child{align-items:center}
+.feat-row:last-child .feat-label{align-items:center}
+.feat-col{
+  width:80px;text-align:center;flex-shrink:0;font-size:12px;font-weight:700;
+  font-family:'DM Mono',monospace;
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+}
+.feat-cell{padding-top:10px;
+  color:#252530;border-radius:8px;padding:6px 0;
+}
+.feat-cell.lit{
+  color:#22c55e;text-shadow:0 0 8px rgba(34,197,94,.4);
+}
+.x-mark{color:#ef4444}
+.inf-mark{color:#22c55e}
+.feat-cell.dim .inf-mark{color:#252530}
+.feat-cell.dim .x-mark{color:#252530}
+.feat-cell.dim{
+  color:#252530;
+}
+.col-active{color:#f59e0b!important}
+
+.back{margin-top:32px;font-size:13px;color:#505068;text-decoration:none}
+.back:hover{color:#f59e0b}
+
+/* ── Mobile plans ── */
+.mobile-plans{display:none}
+.mobile-tabs{display:flex;gap:10px;width:100%;margin-bottom:14px;justify-content:center}
+.mobile-tab{
+  flex:1;height:90px;background:#111118;border:1.5px solid #252530;
+  border-radius:14px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;cursor:pointer;
+  transition:all .3s cubic-bezier(.4,0,.2,1);gap:2px;
+}
+.mobile-tab.selected{border-color:#f59e0b;transform:scale(1.08);box-shadow:0 0 20px rgba(245,158,11,.15)}
+.mobile-tab .mt-name{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#f59e0b}
+.mobile-tab .mt-price{font-size:22px;font-weight:900;color:#fff;font-family:'DM Mono',monospace;line-height:1}
+.mobile-tab .mt-per{font-size:8px;color:#505068}
+.mobile-tab .mt-total{font-size:7px;color:#9090a8;margin-top:1px}
+.mobile-detail{
+  width:100%;background:#111118;border:1px solid #252530;
+  border-radius:16px;padding:22px 20px;margin-bottom:20px;
+}
+.mobile-detail .md-name{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#f59e0b;margin-bottom:3px}
+.mobile-detail .md-period{font-size:12px;color:#505068;margin-bottom:12px}
+.mobile-detail .md-badge{font-size:11px;font-weight:600;margin-bottom:12px}
+.mobile-detail .md-desc{font-size:12px;color:#9090a8;line-height:1.5;margin-bottom:18px}
+.mobile-detail .md-btn{
+  width:100%;height:44px;border-radius:12px;border:none;
+  background:#f59e0b;color:#000;font-size:12px;font-weight:700;
+  font-family:'Outfit',sans-serif;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* ── Tablet portrait ── */
+@media(max-width:1024px) and (orientation:portrait){
+  body{padding:40px 40px;align-items:center}
+  .brand{font-size:28px;margin-bottom:0}.sub{font-size:12px;margin-bottom:28px}
+  .tier-switch{margin-bottom:20px}
+  .tier-btn{padding:8px 20px;font-size:12px}
+  .content-wrap{max-width:480px!important;display:flex;flex-direction:column;align-items:center}
+  .plans{display:none}
+  .mobile-plans{display:flex;flex-direction:column;align-items:center;width:100%;max-width:480px}
+  .mobile-tabs{width:100%;display:flex;gap:14px;justify-content:center}
+  .mobile-tab{flex:1;height:110px;border-radius:16px;gap:3px}
+  .mobile-tab .mt-name{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#f59e0b}
+  .mobile-tab .mt-price{font-size:26px;font-weight:900;color:#fff;font-family:'DM Mono',monospace;line-height:1}
+  .mobile-tab .mt-per{font-size:9px;color:#505068}.mobile-tab .mt-total{font-size:8px;color:#9090a8}
+  .mobile-detail{border-radius:18px;padding:28px 24px;width:100%;margin-bottom:20px}
+  .mobile-detail .md-name{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#f59e0b;margin-bottom:4px}
+  .mobile-detail .md-period{font-size:13px;color:#505068;margin-bottom:14px}
+  .mobile-detail .md-badge{font-size:12px;font-weight:600;margin-bottom:14px}
+  .mobile-detail .md-desc{font-size:14px;color:#9090a8;line-height:1.5;margin-bottom:20px}
+  .mobile-detail .md-btn{width:100%;height:48px;border-radius:14px;border:none;background:#f59e0b;color:#000;font-size:15px;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .features{width:100%;padding:24px;border-radius:16px}
+  .features-title{font-size:14px}.feat-label{font-size:12px}
+  .feat-pages .feat-icon{margin-top:2px}
+.feat-row{padding:10px 0}
+}
+
+/* ── Tablet landscape ── */
+@media(max-width:1024px) and (orientation:landscape){
+  .plans{max-width:700px}.plan{padding:24px 20px}
+  .plan-price .amount{font-size:34px}
+  .mobile-plans{display:none}
+}
+
+/* ── iPhone ── */
+@media(max-width:430px){
+  body{padding:24px 16px;justify-content:flex-start;align-items:center}
+  .brand{font-size:22px;margin-bottom:0}.sub{font-size:10px;margin-bottom:20px}
+  .tier-switch{margin-bottom:16px;padding:3px;gap:2px}
+  .tier-btn{padding:6px 16px;font-size:10px;border-radius:6px}
+  .content-wrap{max-width:100%!important;width:100%!important;display:flex;flex-direction:column;align-items:center}
+  .plans{display:none}
+  .mobile-plans{display:flex;flex-direction:column;align-items:center;width:100%;max-width:100%}
+  .mobile-tabs{width:100%;display:flex;gap:8px;justify-content:center}
+  .mobile-tab{flex:1;height:80px;border-radius:12px;gap:2px}
+  .mobile-tab .mt-name{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#f59e0b}
+  .mobile-tab .mt-price{font-size:18px;font-weight:900;color:#fff;font-family:'DM Mono',monospace;line-height:1}
+  .mobile-tab .mt-per{font-size:7px;color:#505068}
+  .mobile-tab .mt-total{font-size:7px;color:#9090a8}
+  .mobile-detail{width:100%;border-radius:14px;padding:20px 16px;margin-bottom:16px}
+  .mobile-detail .md-name{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#f59e0b;margin-bottom:3px}
+  .mobile-detail .md-period{font-size:11px;color:#505068;margin-bottom:10px}
+  .mobile-detail .md-badge{font-size:10px;font-weight:600;margin-bottom:10px}
+  .mobile-detail .md-desc{font-size:11px;color:#9090a8;line-height:1.4;margin-bottom:14px}
+  .mobile-detail .md-btn{width:100%;height:40px;border-radius:10px;border:none;background:#f59e0b;color:#000;font-size:13px;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .features{width:100%;padding:16px;border-radius:14px}
+  .features-title{font-size:12px;margin-bottom:10px}
+  .feat-header .feat-col{font-size:9px}
+  .feat-label{font-size:10px}
+  .feat-col{width:60px!important}
+  .feat-sub-label{padding-left:32px!important;font-size:10px!important}
+  .feat-icon{width:24px!important;height:24px!important}
+  .feat-row{padding:6px 0}
+  .check-sm{font-size:11px}
+  .back{margin-top:16px;font-size:10px}
+}
+</style>
+</head>
+<body>
+
+  <div class="brand">Risto<span>Cloud</span></div>
+  <div class="sub">un prodotto <span>Nodo Italia</span></div>
+
+
+  <div class="tier-switch">
+    <button class="tier-btn active" onclick="cambiaTier('standard', this)">Standard</button>
+    <button class="tier-btn" onclick="cambiaTier('pro', this)">Pro<span class="pro-crown"><svg viewBox="0 0 24 24"><path d="M2 20h20v2H2zm1-2h18l1-10-5.5 4L12 4l-4.5 8L2 8z"/></svg></span></button>
+  </div>
+
+  <div class="content-wrap" style="width:100%;max-width:620px">
+
+  <div class="plans">
+    <div class="plan" onclick="seleziona(this)" data-indice="0">
+      <div class="plan-name"><span class="plan-crown"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M2 20h20v2H2zm1-2h18l1-10-5.5 4L12 4l-4.5 8L2 8z" fill="#f59e0b"/></svg></span>Mensile</div>
+      <div class="plan-period">Pagamento mensile</div>
+      <div class="plan-price"><span class="amount" id="d-price-0">€149</span><span class="per"> /mese</span></div>
+      <div class="plan-total" id="d-total-0">€1.788 / annuo</div>
+      <div class="plan-badge badge-trial">10 giorni di prova</div>
+      <div class="plan-desc">Prova 10 giorni gratuita senza impegno.</div>
+      <div class="plan-btn" onclick="event.stopPropagation(); avviaPagamento(0)">Seleziona Piano</div>
+    </div>
+    <div class="plan selected" onclick="seleziona(this)" data-indice="1">
+      <div class="plan-name"><span class="plan-crown"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M2 20h20v2H2zm1-2h18l1-10-5.5 4L12 4l-4.5 8L2 8z" fill="#f59e0b"/></svg></span>Trimestrale</div>
+      <div class="plan-period">Pagamento ogni 3 mesi</div>
+      <div class="plan-price"><span class="amount" id="d-price-1">€129</span><span class="per"> /mese</span></div>
+      <div class="plan-total" id="d-total-1">€1.548 / annuo</div>
+      <div class="plan-badge badge-save">Risparmi 13%</div>
+      <div class="plan-desc">Il piano giusto per chi vuole spendere meno, senza vincoli a lungo termine.</div>
+      <div class="plan-btn" onclick="event.stopPropagation(); avviaPagamento(1)">Seleziona Piano</div>
+    </div>
+    <div class="plan" onclick="seleziona(this)" data-indice="2">
+      <div class="plan-name"><span class="plan-crown"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M2 20h20v2H2zm1-2h18l1-10-5.5 4L12 4l-4.5 8L2 8z" fill="#f59e0b"/></svg></span>Annuale</div>
+      <div class="plan-period">Pagamento annuale</div>
+      <div class="plan-price"><span class="amount" id="d-price-2">€119</span><span class="per"> /mese</span></div>
+      <div class="plan-total" id="d-total-2">€1.428 / annuo</div>
+      <div class="plan-badge badge-save">Risparmi 20%</div>
+      <div class="plan-desc">Per chi ha già scelto RistoCloud e vuole risparmiare.</div>
+      <div class="plan-btn" onclick="event.stopPropagation(); avviaPagamento(2)">Seleziona Piano</div>
+    </div>
+  </div>
+
+  <div class="mobile-plans">
+    <div class="mobile-tabs">
+      <div class="mobile-tab" onclick="selezionaMobile(0)">
+        <div class="mt-name">Mensile</div>
+        <div style="display:flex;align-items:baseline;gap:2px"><span class="mt-price" id="m-price-0">€149</span><span class="mt-per">/mese</span></div>
+        <div class="mt-total" id="m-total-0">€1.788 / annuo</div>
+      </div>
+      <div class="mobile-tab selected" onclick="selezionaMobile(1)">
+        <div class="mt-name">Trimestrale</div>
+        <div style="display:flex;align-items:baseline;gap:2px"><span class="mt-price" id="m-price-1">€129</span><span class="mt-per">/mese</span></div>
+        <div class="mt-total" id="m-total-1">€1.548 / annuo</div>
+      </div>
+      <div class="mobile-tab" onclick="selezionaMobile(2)">
+        <div class="mt-name">Annuale</div>
+        <div style="display:flex;align-items:baseline;gap:2px"><span class="mt-price" id="m-price-2">€119</span><span class="mt-per">/mese</span></div>
+        <div class="mt-total" id="m-total-2">€1.428 / annuo</div>
+      </div>
+    </div>
+    <div class="mobile-detail" id="mobileDetail">
+      <div class="md-name">Trimestrale</div>
+      <div class="md-period">Pagamento ogni 3 mesi</div>
+      <div class="md-badge badge-save">Risparmi 17%</div>
+      <div class="md-desc">Per chi ha già scelto RistoCloud e vuole risparmiare.</div>
+      <div class="md-btn">Seleziona Piano</div>
+    </div>
+  </div>
+
+  <div class="features" id="featureTable">
+    <div class="features-title">— Cosa include —</div>
+
+    <div class="feat-row feat-header">
+      <div class="feat-label"></div>
+      <div class="feat-col" id="col-standard">Standard</div>
+      <div class="feat-col" id="col-pro">Pro</div>
+    </div>
+
+    <div class="feat-row feat-section" style="align-items:center"><div class="feat-label" style="align-items:center"><div class="feat-icon"><svg width="16" height="16" viewBox="0 0 16 16"><line x1="3" y1="4" x2="13" y2="4" stroke="#505068" stroke-width="1.5" stroke-linecap="round"/><line x1="3" y1="8" x2="13" y2="8" stroke="#505068" stroke-width="1.5" stroke-linecap="round"/><line x1="3" y1="12" x2="13" y2="12" stroke="#505068" stroke-width="1.5" stroke-linecap="round"/></svg></div>Pagine</div><div class="feat-col"></div><div class="feat-col"></div></div>
+
+    <div class="feat-row feat-sub" style="align-items:center"><div class="feat-label feat-sub-label">· Cassa</div><div class="feat-col feat-cell" data-tier="s"><span class="check-sm">✓</span></div><div class="feat-col feat-cell" data-tier="p"><span class="check-sm">✓</span></div></div>
+    <div class="feat-row feat-sub" style="align-items:center"><div class="feat-label feat-sub-label">· Sala</div><div class="feat-col feat-cell" data-tier="s"><span class="check-sm">✓</span></div><div class="feat-col feat-cell" data-tier="p"><span class="check-sm">✓</span></div></div>
+    <div class="feat-row feat-sub" style="align-items:center"><div class="feat-label feat-sub-label">· Cucine</div><div class="feat-col feat-cell" data-tier="s"><span class="check-sm">✓</span></div><div class="feat-col feat-cell" data-tier="p"><span class="check-sm">✓</span></div></div>
+    <div class="feat-row feat-sub" style="align-items:center"><div class="feat-label feat-sub-label">· Menu</div><div class="feat-col feat-cell" data-tier="s"><span class="check-sm">✓</span></div><div class="feat-col feat-cell" data-tier="p"><span class="check-sm">✓</span></div></div>
+    <div class="feat-row feat-sub" style="align-items:center"><div class="feat-label feat-sub-label">· Statistiche e analitiche</div><div class="feat-col feat-cell" data-tier="s"><span class="check-sm">✓</span></div><div class="feat-col feat-cell" data-tier="p"><span class="check-sm">✓</span></div></div>
+    <div class="feat-row feat-sub" style="align-items:center"><div class="feat-label feat-sub-label">· Configurazione</div><div class="feat-col feat-cell" data-tier="s"><span class="check-sm">✓</span></div><div class="feat-col feat-cell" data-tier="p"><span class="check-sm">✓</span></div></div>
+    <div class="feat-row feat-sub" style="align-items:center"><div class="feat-label feat-sub-label">· Ordini telefonici</div><div class="feat-col feat-cell" data-tier="s"><span class="check-sm">✓</span></div><div class="feat-col feat-cell" data-tier="p"><span class="check-sm">✓</span></div></div>
+
+    <div class="feat-row" style="align-items:center">
+      <div class="feat-label" style="align-items:center"><div class="feat-icon"><svg width="16" height="16" viewBox="0 0 16 16"><rect x="3" y="2" width="10" height="12" rx="1" fill="none" stroke="#505068" stroke-width="1.3"/><line x1="5" y1="5" x2="11" y2="5" stroke="#505068" stroke-width="1"/><line x1="5" y1="7.5" x2="11" y2="7.5" stroke="#505068" stroke-width="1"/><line x1="5" y1="10" x2="9" y2="10" stroke="#505068" stroke-width="1"/></svg></div>Scontrino Fiscale</div>
+      <div class="feat-col feat-cell" data-tier="s"><span class="check-sm">✓</span></div>
+      <div class="feat-col feat-cell" data-tier="p"><span class="check-sm">✓</span></div>
+    </div>
+
+    <div class="feat-row feat-section" style="align-items:center"><div class="feat-label" style="align-items:center"><div class="feat-icon"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="6" r="3.5" fill="none" stroke="#505068" stroke-width="1.3"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5" fill="none" stroke="#505068" stroke-width="1.3"/><circle cx="12" cy="4" r="1.5" fill="#505068"/></svg></div>Assistente IA Nodo</div><div class="feat-col"></div><div class="feat-col"></div></div>
+
+    <div class="feat-row feat-sub" style="align-items:center"><div class="feat-label feat-sub-label">· Riordino</div><div class="feat-col feat-cell" data-tier="s"><span class="check-sm">✓</span></div><div class="feat-col feat-cell" data-tier="p"><span class="check-sm">✓</span></div></div>
+    <div class="feat-row feat-sub" style="align-items:center"><div class="feat-label feat-sub-label">· Previsione affluenza</div><div class="feat-col feat-cell" data-tier="s"><span style="font-size:13px;display:block;text-align:center" class="x-mark">✕</span></div><div class="feat-col feat-cell" data-tier="p"><span class="check-sm">✓</span></div></div>
+    <div class="feat-row feat-sub" style="align-items:center"><div class="feat-label feat-sub-label">· Suggerimenti menu</div><div class="feat-col feat-cell" data-tier="s"><span style="font-size:13px;display:block;text-align:center" class="x-mark">✕</span></div><div class="feat-col feat-cell" data-tier="p"><span class="check-sm">✓</span></div></div>
+    <div class="feat-row feat-sub" style="align-items:center"><div class="feat-label feat-sub-label">· Analisi sprechi</div><div class="feat-col feat-cell" data-tier="s"><span style="font-size:13px;display:block;text-align:center" class="x-mark">✕</span></div><div class="feat-col feat-cell" data-tier="p"><span class="check-sm">✓</span></div></div>
+
+    <div class="feat-row" style="align-items:center">
+      <div class="feat-label" style="align-items:center"><div class="feat-icon"><svg width="16" height="16" viewBox="0 0 16 16"><rect x="4" y="1" width="8" height="14" rx="2" fill="none" stroke="#505068" stroke-width="1.5"/><line x1="6" y1="12" x2="10" y2="12" stroke="#505068" stroke-width="1" stroke-linecap="round"/></svg></div>Ordini da tablet</div>
+      <div class="feat-col feat-cell" data-tier="s"><span style="font-size:13px;display:block;text-align:center" class="x-mark">✕</span></div>
+      <div class="feat-col feat-cell" data-tier="p"><span style="font-size:22px;line-height:1;display:block;text-align:center" class="inf-mark">∞</span></div>
+      </div>
+
+  </div>
+
+  </div>
+
+  <a href="#" class="back">← Torna al login</a>
+
+<script>
+/* ══════════════════════════════════════════════
+   CONFIGURAZIONE STRIPE (predisposto, non collegato)
+   Quando avrai l'account Stripe, sostituisci i
+   valori 'INSERIRE_ID_PREZZO_...' con i price_id
+   reali dalla dashboard Stripe.
+   ══════════════════════════════════════════════ */
+const idPrezziStripe = {
+  standard: {
+    mensile:     'INSERIRE_ID_PREZZO_STANDARD_MENSILE',
+    trimestrale: 'INSERIRE_ID_PREZZO_STANDARD_TRIMESTRALE',
+    annuale:     'INSERIRE_ID_PREZZO_STANDARD_ANNUALE'
+  },
+  pro: {
+    mensile:     'INSERIRE_ID_PREZZO_PRO_MENSILE',
+    trimestrale: 'INSERIRE_ID_PREZZO_PRO_TRIMESTRALE',
+    annuale:     'INSERIRE_ID_PREZZO_PRO_ANNUALE'
+  }
+};
+
+const nomiPeriodi = ['mensile','trimestrale','annuale'];
+
+/* ── Prezzi ── */
+const prezzi = {
+  standard: {mese:[149,129,119], annuo:[1788,1548,1428]},
+  pro:      {mese:[199,169,149], annuo:[2388,2028,1788]}
+};
+
+const mappaTier = {standard:'s', pro:'p'};
+
+let tierAttuale = 'standard';
+let indicePiano = 1; // 0=mensile, 1=trimestrale, 2=annuale
+
+const datiPiani = [
+  {nome:'Mensile', periodo:'Pagamento mensile', badge:'10 giorni di prova', classeBadge:'badge-trial', desc:'Prova 10 giorni gratuita senza impegno.'},
+  {nome:'Trimestrale', periodo:'Pagamento ogni 3 mesi', badge:'Risparmi 13%', classeBadge:'badge-save', desc:'Il piano giusto per chi vuole spendere meno, senza vincoli a lungo termine.'},
+  {nome:'Annuale', periodo:'Pagamento annuale', badge:'Risparmi 20%', classeBadge:'badge-save', desc:'Per chi ha già scelto RistoCloud e vuole risparmiare.'}
+];
+
+function formatta(n){ return '€' + n.toLocaleString('it-IT') }
+
+/* ══════════════════════════════════════════════
+   PAGAMENTO STRIPE
+   ══════════════════════════════════════════════ */
+async function avviaPagamento(indice){
+  const periodo = nomiPeriodi[indice];
+  const idPrezzo = idPrezziStripe[tierAttuale][periodo];
+  const piano = datiPiani[indice];
+
+  // ── Controlla se Stripe è configurato ──
+  if(idPrezzo.startsWith('INSERIRE_')){
+    mostraAvviso(
+      '⚙️ Stripe non ancora collegato',
+      `Piano selezionato: ${tierAttuale.toUpperCase()} ${piano.nome} — ${formatta(prezzi[tierAttuale].mese[indice])}/mese.
+       Quando Stripe sarà attivo, verrai reindirizzato alla pagina di pagamento sicura.`
+    );
+    return;
+  }
+
+  // ── Chiama Funzione Edge Supabase ──
+  try {
+    const bottone = event.target;
+    const testoOriginale = bottone.textContent;
+    bottone.textContent = 'Caricamento...';
+    bottone.style.opacity = '0.6';
+    bottone.style.pointerEvents = 'none';
+
+    const risposta = await fetch(`${SUPABASE_URL}/functions/v1/crea-sessione-pagamento`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      },
+      body: JSON.stringify({
+        id_prezzo: idPrezzo,
+        ristorante_id: ottieniRistoranteId(),
+        tier: tierAttuale,
+        piano: periodo
+      })
+    });
+
+    const dati = await risposta.json();
+
+    if(dati.url){
+      window.location.href = dati.url;
+    } else {
+      throw new Error(dati.errore || 'Errore nella creazione della sessione');
+    }
+  } catch(errore){
+    console.error('Errore pagamento:', errore);
+    mostraAvviso('❌ Errore', 'Impossibile avviare il pagamento. Riprova tra qualche istante.');
+    bottone.textContent = testoOriginale;
+    bottone.style.opacity = '1';
+    bottone.style.pointerEvents = 'auto';
+  }
+}
+
+function ottieniRistoranteId(){
+  // TODO: recuperare da auth.js / localStorage dopo registrazione
+  return null;
+}
+
+/* ── Avviso modale ── */
+function mostraAvviso(titolo, messaggio){
+  const esistente = document.getElementById('avviso-modale');
+  if(esistente) esistente.remove();
+
+  const modale = document.createElement('div');
+  modale.id = 'avviso-modale';
+  modale.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:9999;padding:24px;backdrop-filter:blur(4px)';
+  modale.innerHTML = `
+    <div style="background:#111118;border:1.5px solid #252530;border-radius:20px;padding:32px;max-width:420px;width:100%;text-align:center">
+      <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:12px">${titolo}</div>
+      <div style="font-size:14px;color:#9090a8;line-height:1.6;margin-bottom:24px;white-space:pre-line">${messaggio}</div>
+      <button onclick="document.getElementById('avviso-modale').remove()" style="padding:12px 32px;border-radius:12px;background:#f59e0b;color:#000;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:'Outfit',sans-serif">Capito</button>
+    </div>`;
+  document.body.appendChild(modale);
+  modale.addEventListener('click', e => { if(e.target === modale) modale.remove(); });
+}
+
+/* ══════════════════════════════════════════════
+   UI — AGGIORNAMENTO PREZZI E SELEZIONE
+   ══════════════════════════════════════════════ */
+function aggiornaPrezzi(){
+  const p = prezzi[tierAttuale];
+  for(let i=0;i<3;i++){
+    const dp = document.getElementById('d-price-'+i);
+    const dt = document.getElementById('d-total-'+i);
+    const mp = document.getElementById('m-price-'+i);
+    const mt = document.getElementById('m-total-'+i);
+    if(dp) dp.textContent = formatta(p.mese[i]);
+    if(dt) dt.textContent = formatta(p.annuo[i]) + ' / annuo';
+    if(mp) mp.textContent = formatta(p.mese[i]);
+    if(mt) mt.textContent = formatta(p.annuo[i]) + ' / annuo';
+  }
+
+  const t = mappaTier[tierAttuale];
+  document.querySelectorAll('.feat-cell').forEach(c => {
+    const tier = c.dataset.tier;
+    if(tier === t){ c.classList.add('lit'); c.classList.remove('dim'); }
+    else { c.classList.remove('lit'); c.classList.add('dim'); }
+  });
+
+  ['standard','pro'].forEach(tid => {
+    const el = document.getElementById('col-'+tid);
+    if(tid === tierAttuale) el.classList.add('col-active');
+    else el.classList.remove('col-active');
+  });
+
+  aggiornaMobileDetail();
+}
+
+function cambiaTier(tier, btn){
+  document.body.classList.toggle('pro-active', tier === 'pro');
+  tierAttuale = tier;
+  document.querySelectorAll('.tier-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  aggiornaPrezzi();
+}
+
+function seleziona(card){
+  const cards = document.querySelectorAll('.plan');
+  cards.forEach(p => p.classList.remove('selected'));
+  card.classList.add('selected');
+  indicePiano = [...cards].indexOf(card);
+}
+
+function selezionaMobile(i){
+  indicePiano = i;
+  document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('selected'));
+  document.querySelectorAll('.mobile-tab')[i].classList.add('selected');
+  aggiornaMobileDetail();
+}
+
+function aggiornaMobileDetail(){
+  const d = datiPiani[indicePiano];
+  const det = document.getElementById('mobileDetail');
+  det.innerHTML = `
+    <div class="md-name">${d.nome}</div>
+    <div class="md-period">${d.periodo}</div>
+    <div class="md-badge ${d.classeBadge}">${d.badge}</div>
+    <div class="md-desc">${d.desc}</div>
+    <div class="md-btn" onclick="avviaPagamento(${indicePiano})">Seleziona Piano</div>`;
+}
+
+// Init
+aggiornaPrezzi();
+</script>
+</body>
+</html>
