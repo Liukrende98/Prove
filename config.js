@@ -2,8 +2,8 @@
    CONFIG.JS — RistoCloud by Nodo Italia
    ══════════════════════════════════════════════════════════ */
 
-const SUPABASE_URL = 'INSERIRE_URL_SUPABASE';
-const SUPABASE_KEY = 'INSERIRE_CHIAVE_ANONIMA_SUPABASE';
+const SUPABASE_URL = 'lttwbxlvhtepxtorkimo';
+const SUPABASE_KEY = 'sb_publishable_BY79G2WCKV5Zxq4z5bxKRw_lChbZEY7';
 
 const STRIPE_CHIAVE_PUBBLICA = 'INSERIRE_CHIAVE_PUBBLICA_STRIPE';
 
