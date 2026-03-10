@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Caricamento — RistoCloud</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Outfit',system-ui,-apple-system,'Segoe UI',sans-serif;
+  background:#08080a;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.contenitore-loader{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+}
+
+.contenitore-logo{
+  width:110px;
+  height:80px;
+  position:relative;
+}
+
+.contenitore-logo svg{
+  position:absolute;
+  top:0;left:0;
+  width:100%;
+  height:100%;
+}
+
+.logo-scuro path{ fill:#f59e0b; opacity:0.12; }
+
+.logo-luminoso path{
+  fill:#f59e0b;
+  filter:drop-shadow(0 0 8px rgba(245,158,11,.35));
+}
+
+.testo-caricamento{
+  font-size:13px;
+  font-weight:600;
+  color:#404050;
+  letter-spacing:3px;
+  text-transform:uppercase;
+}
+
+.contenitore-loader.completato{
+  animation: dissolvenza .5s ease forwards;
+}
+
+@keyframes dissolvenza{
+  to{ opacity:0; visibility:hidden; pointer-events:none; }
+}
+</style>
+</head>
+<body>
+
+  <div class="contenitore-loader" id="loader">
+    <div class="contenitore-logo">
+
+      <svg class="logo-scuro" xmlns="http://www.w3.org/2000/svg" viewBox="380 520 1060 760" preserveAspectRatio="xMidYMid meet">
+        <g transform="translate(0,1800) scale(1,-1)">
+          <path fill-rule="evenodd" d="M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z"/>
+        </g>
+      </svg>
+
+      <svg class="logo-luminoso" id="logoLuminoso" xmlns="http://www.w3.org/2000/svg" viewBox="380 520 1060 760" preserveAspectRatio="xMidYMid meet">
+        <g transform="translate(0,1800) scale(1,-1)">
+          <path fill-rule="evenodd" d="M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z"/>
+        </g>
+      </svg>
+
+    </div>
+
+    <div class="testo-caricamento">Caricamento</div>
+  </div>
+
+  <div id="app" style="display:none;"></div>
+
+  <script>
+    class CaricamentoLoader {
+
+      constructor(opzioni = {}) {
+        this._durataMs       = opzioni.durataMs   || 1200;
+        this._idLoader       = opzioni.idLoader   || 'loader';
+        this._idLogo         = opzioni.idLogo     || 'logoLuminoso';
+        this._idApp          = opzioni.idApp      || 'app';
+
+        this._elementoLoader = document.getElementById(this._idLoader);
+        this._elementoLogo   = document.getElementById(this._idLogo);
+        this._elementoApp    = document.getElementById(this._idApp);
+
+        this._idAnimazione   = null;
+        this._tempoInizio    = null;
+        this._inEsecuzione   = false;
+      }
+
+      impostaDurata(ms) { this._durataMs = ms; }
+      ottieniDurata()    { return this._durataMs; }
+
+      avvia() {
+        if (this._inEsecuzione) return;
+        this._inEsecuzione = true;
+        this._tempoInizio  = null;
+        this._idAnimazione = requestAnimationFrame(this._cicloAnimazione.bind(this));
+      }
+
+      ferma() {
+        if (this._idAnimazione) {
+          cancelAnimationFrame(this._idAnimazione);
+          this._idAnimazione = null;
+        }
+        this._inEsecuzione = false;
+      }
+
+      completaCaricamento() {
+        this.ferma();
+        this._applicaMaschera(100);
+        setTimeout(function() {
+          this._elementoLoader.classList.add('completato');
+          setTimeout(function() {
+            this._elementoLoader.style.display = 'none';
+            this._elementoApp.style.display    = '';
+          }.bind(this), 500);
+        }.bind(this), 300);
+      }
+
+      _cicloAnimazione(timestamp) {
+        if (!this._tempoInizio) this._tempoInizio = timestamp;
+        var trascorso       = (timestamp - this._tempoInizio) % this._durataMs;
+        var progresso       = trascorso / this._durataMs;
+        var progressoFluido = this._easeInOut(progresso);
+        this._applicaMaschera(progressoFluido * 100);
+        this._idAnimazione = requestAnimationFrame(this._cicloAnimazione.bind(this));
+      }
+
+      _applicaMaschera(percentuale) {
+        var bordo    = 4;
+        var fine     = Math.min(percentuale + bordo, 104);
+        var maschera = 'linear-gradient(90deg, #000 ' + percentuale + '%, transparent ' + fine + '%)';
+        this._elementoLogo.style.maskImage       = maschera;
+        this._elementoLogo.style.webkitMaskImage = maschera;
+      }
+
+      _easeInOut(t) {
+        return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      }
+    }
+
+    var loader = new CaricamentoLoader({ durataMs: 1200 });
+    loader.avvia();
+  </script>
+
+</body>
+</html>
