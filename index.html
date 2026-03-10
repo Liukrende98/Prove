@@ -165,25 +165,26 @@ body.pro-active .plan-crown{display:inline-block}
 
 /* ── Tablet portrait ── */
 @media(max-width:1024px) and (orientation:portrait){
-  body{padding:40px 40px}
-  .brand{font-size:28px}.sub{font-size:12px;margin-bottom:32px}
-  h1{font-size:24px;margin-bottom:6px}.lead{font-size:13px;margin-bottom:28px}
-  .tier-switch{margin-bottom:24px}
+  body{padding:40px 40px;align-items:center}
+  .brand{font-size:28px;margin-bottom:0}.sub{font-size:12px;margin-bottom:28px}
+  .tier-switch{margin-bottom:20px}
   .tier-btn{padding:8px 20px;font-size:12px}
-  .content-wrap{max-width:480px!important}
+  .content-wrap{max-width:480px!important;display:flex;flex-direction:column;align-items:center}
   .plans{display:none}
   .mobile-plans{display:flex;flex-direction:column;align-items:center;width:100%;max-width:480px}
-  .mobile-tabs{width:100%}
+  .mobile-tabs{width:100%;display:flex;gap:14px;justify-content:center}
   .mobile-tab{flex:1;height:110px;border-radius:16px;gap:3px}
-  .mobile-tab .mt-name{font-size:10px}.mobile-tab .mt-price{font-size:26px}
-  .mobile-tab .mt-per{font-size:9px}.mobile-tab .mt-total{font-size:8px}
-  .mobile-detail{border-radius:18px;padding:28px 24px;width:100%}
-  .mobile-detail .md-name{font-size:14px}.mobile-detail .md-period{font-size:13px}
-  .mobile-detail .md-badge{font-size:12px}
-  .mobile-detail .md-desc{font-size:14px;margin-bottom:20px}
-  .mobile-detail .md-btn{height:48px;font-size:15px;border-radius:14px}
+  .mobile-tab .mt-name{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#f59e0b}
+  .mobile-tab .mt-price{font-size:26px;font-weight:900;color:#fff;font-family:'DM Mono',monospace;line-height:1}
+  .mobile-tab .mt-per{font-size:9px;color:#505068}.mobile-tab .mt-total{font-size:8px;color:#9090a8}
+  .mobile-detail{border-radius:18px;padding:28px 24px;width:100%;margin-bottom:20px}
+  .mobile-detail .md-name{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#f59e0b;margin-bottom:4px}
+  .mobile-detail .md-period{font-size:13px;color:#505068;margin-bottom:14px}
+  .mobile-detail .md-badge{font-size:12px;font-weight:600;margin-bottom:14px}
+  .mobile-detail .md-desc{font-size:14px;color:#9090a8;line-height:1.5;margin-bottom:20px}
+  .mobile-detail .md-btn{width:100%;height:48px;border-radius:14px;border:none;background:#f59e0b;color:#000;font-size:15px;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center}
   .features{width:100%;padding:24px;border-radius:16px}
-  .features-title{font-size:14px}.feat-label{font-size:12px}.feat-value{font-size:11px}
+  .features-title{font-size:14px}.feat-label{font-size:12px}
   .feat-pages .feat-icon{margin-top:2px}
 .feat-row{padding:10px 0}
 }
@@ -197,23 +198,35 @@ body.pro-active .plan-crown{display:inline-block}
 
 /* ── iPhone ── */
 @media(max-width:430px){
-  body{padding:24px 16px;justify-content:flex-start}
-  .brand{font-size:22px;margin-bottom:2px}.sub{font-size:10px;margin-bottom:24px}
-  h1{font-size:19px;margin-bottom:6px}
-  .lead{font-size:11px;margin-bottom:20px;max-width:280px;line-height:1.4}
-  .tier-switch{margin-bottom:20px;padding:3px;gap:2px}
-  .tier-btn{padding:7px 14px;font-size:11px;border-radius:8px}
+  body{padding:24px 16px;justify-content:flex-start;align-items:center}
+  .brand{font-size:22px;margin-bottom:0}.sub{font-size:10px;margin-bottom:20px}
+  .tier-switch{margin-bottom:16px;padding:3px;gap:2px}
+  .tier-btn{padding:6px 16px;font-size:10px;border-radius:6px}
+  .content-wrap{max-width:100%!important;width:100%!important;display:flex;flex-direction:column;align-items:center}
   .plans{display:none}
-  .mobile-plans{display:flex;flex-direction:column;align-items:center;width:100%;max-width:320px}
-  .mobile-tab{height:80px;border-radius:12px}
-  .mobile-tab .mt-price{font-size:20px}
-  .features{
-  margin:0 auto;padding:18px;border-radius:14px}
-  .features-title{font-size:13px;margin-bottom:14px}
-  .feat-label{font-size:11px}.feat-value{font-size:10px}
-  .feat-pages .feat-icon{margin-top:2px}
-.feat-row{padding:8px 0}
-  .back{margin-top:20px;font-size:11px}
+  .mobile-plans{display:flex;flex-direction:column;align-items:center;width:100%;max-width:100%}
+  .mobile-tabs{width:100%;display:flex;gap:8px;justify-content:center}
+  .mobile-tab{flex:1;height:80px;border-radius:12px;gap:2px}
+  .mobile-tab .mt-name{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#f59e0b}
+  .mobile-tab .mt-price{font-size:18px;font-weight:900;color:#fff;font-family:'DM Mono',monospace;line-height:1}
+  .mobile-tab .mt-per{font-size:7px;color:#505068}
+  .mobile-tab .mt-total{font-size:7px;color:#9090a8}
+  .mobile-detail{width:100%;border-radius:14px;padding:20px 16px;margin-bottom:16px}
+  .mobile-detail .md-name{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#f59e0b;margin-bottom:3px}
+  .mobile-detail .md-period{font-size:11px;color:#505068;margin-bottom:10px}
+  .mobile-detail .md-badge{font-size:10px;font-weight:600;margin-bottom:10px}
+  .mobile-detail .md-desc{font-size:11px;color:#9090a8;line-height:1.4;margin-bottom:14px}
+  .mobile-detail .md-btn{width:100%;height:40px;border-radius:10px;border:none;background:#f59e0b;color:#000;font-size:13px;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .features{width:100%;padding:16px;border-radius:14px}
+  .features-title{font-size:12px;margin-bottom:10px}
+  .feat-header .feat-col{font-size:9px}
+  .feat-label{font-size:10px}
+  .feat-col{width:60px!important}
+  .feat-sub-label{padding-left:32px!important;font-size:10px!important}
+  .feat-icon{width:24px!important;height:24px!important}
+  .feat-row{padding:6px 0}
+  .check-sm{font-size:11px}
+  .back{margin-top:16px;font-size:10px}
 }
 </style>
 </head>
