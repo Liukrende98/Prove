@@ -64,8 +64,9 @@ nav{
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .hero-logo{
   margin-bottom:28px;
-  animation:fadeUp .6s ease .1s both;
+  animation:fadeUp .6s ease .1s both, pulsaLogo 3s ease-in-out .8s infinite;
 }
+@keyframes pulsaLogo{0%,100%{transform:scale(1);filter:drop-shadow(0 0 16px rgba(245,158,11,.2))}50%{transform:scale(1.18);filter:drop-shadow(0 0 44px rgba(245,158,11,.6))}}
 .hero h1{
   font-size:clamp(40px,7vw,72px);font-weight:900;line-height:1.05;
   margin-bottom:20px;letter-spacing:-1.5px;
@@ -417,92 +418,89 @@ footer a{color:var(--ambra);text-decoration:none}
 </footer>
 
 <script>
-/* ═══ CIRCUITI ANIMATI ═══ */
 (function(){
   const cv = document.getElementById('circuitCanvas');
   if(!cv) return;
   const ctx = cv.getContext('2d');
   let W, H;
+  const dpr = window.devicePixelRatio || 1;
   const AMBRA = '#f59e0b';
   const GRIGIO = '#c8c8d4';
+  const tracce=[], nodi=[], segnali=[];
 
   function resize(){
     const hero = cv.parentElement;
-    W = cv.width = hero.offsetWidth;
-    H = cv.height = hero.offsetHeight;
+    W = hero.offsetWidth;
+    H = hero.offsetHeight;
+    cv.width = W * dpr;
+    cv.height = H * dpr;
+    cv.style.width = W + 'px';
+    cv.style.height = H + 'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
     genera();
   }
 
-  const tracce = [];
-  const nodi = [];
-  const segnali = [];
-
   function genera(){
-    tracce.length = 0; nodi.length = 0; segnali.length = 0;
-    const cx = W/2, cy = H/2;
-    const raggio = Math.min(W,H) * 0.42;
+    tracce.length=0; nodi.length=0; segnali.length=0;
+    const mobile = W < 768;
+    const cx=W/2, cy=H/2;
+    const raggio = Math.min(W,H) * (mobile ? 0.35 : 0.42);
+    const nChip = mobile ? 5 : 8;
+    const nPin = mobile ? 10 : 20;
+    const nExtra = mobile ? Math.floor(W/80) : Math.floor(W/40);
 
-    // CPU centrale
-    nodi.push({x:cx, y:cy, r:raggio*0.12, tipo:'cpu'});
+    nodi.push({x:cx,y:cy,r:raggio*(mobile?0.1:0.12),tipo:'cpu'});
 
-    // Chip medi
-    for(let i=0;i<8;i++){
-      const ang = (Math.PI*2/8)*i + Math.random()*0.3;
-      const dist = raggio*(0.35 + Math.random()*0.25);
-      nodi.push({x:cx+Math.cos(ang)*dist, y:cy+Math.sin(ang)*dist, r:3+Math.random()*4, tipo:'chip'});
+    for(let i=0;i<nChip;i++){
+      const ang=(Math.PI*2/nChip)*i+Math.random()*0.3;
+      const dist=raggio*(0.35+Math.random()*0.25);
+      nodi.push({x:cx+Math.cos(ang)*dist,y:cy+Math.sin(ang)*dist,r:2+Math.random()*3,tipo:'chip'});
+    }
+    for(let i=0;i<nPin;i++){
+      const ang=(Math.PI*2/nPin)*i+Math.random()*0.2;
+      const dist=raggio*(0.7+Math.random()*0.3);
+      nodi.push({x:cx+Math.cos(ang)*dist,y:cy+Math.sin(ang)*dist,r:1+Math.random()*1.5,tipo:'pin'});
     }
 
-    // Pin esterni
-    for(let i=0;i<20;i++){
-      const ang = (Math.PI*2/20)*i + Math.random()*0.2;
-      const dist = raggio*(0.7 + Math.random()*0.3);
-      nodi.push({x:cx+Math.cos(ang)*dist, y:cy+Math.sin(ang)*dist, r:1.5+Math.random()*2, tipo:'pin'});
-    }
-
-    // Tracce tra nodi (percorsi a 90°)
     for(let i=1;i<nodi.length;i++){
-      const da = nodi[i];
-      let best=0, dMin=Infinity;
+      const da=nodi[i];
+      let best=0,dMin=1e9;
       for(let j=0;j<i;j++){
-        const dx=nodi[j].x-da.x, dy=nodi[j].y-da.y;
+        const dx=nodi[j].x-da.x,dy=nodi[j].y-da.y;
         const d=Math.sqrt(dx*dx+dy*dy);
         if(d<dMin){dMin=d;best=j;}
       }
-      const a = nodi[best];
-      const punti = [{x:da.x,y:da.y}];
-      if(Math.random()>0.5) punti.push({x:a.x,y:da.y});
-      else punti.push({x:da.x,y:a.y});
-      punti.push({x:a.x,y:a.y});
-      tracce.push({punti});
-      segnali.push({tr:tracce.length-1, p:Math.random(), v:0.001+Math.random()*0.003, r:2+Math.random()*2});
+      const a=nodi[best];
+      const pts=[{x:da.x,y:da.y}];
+      if(Math.random()>0.5) pts.push({x:a.x,y:da.y});
+      else pts.push({x:da.x,y:a.y});
+      pts.push({x:a.x,y:a.y});
+      tracce.push({punti:pts});
+      segnali.push({tr:tracce.length-1,p:Math.random(),v:0.001+Math.random()*0.003,r:1.5+Math.random()*1.5});
     }
 
-    // Tracce decorative extra
-    const n = Math.floor(W/40);
-    for(let i=0;i<n;i++){
-      const punti=[];
+    for(let i=0;i<nExtra;i++){
+      const pts=[];
       if(Math.random()>0.5){
-        const y=Math.random()*H;
-        const x1=Math.random()*W*0.4;
+        const y=Math.random()*H,x1=Math.random()*W*0.4;
         const x2=x1+W*0.15+Math.random()*W*0.3;
-        const my=y+(Math.random()-0.5)*60;
-        punti.push({x:x1,y},{x:(x1+x2)/2,y},{x:(x1+x2)/2,y:my},{x:x2,y:my});
+        const my=y+(Math.random()-0.5)*40;
+        pts.push({x:x1,y},{x:(x1+x2)/2,y},{x:(x1+x2)/2,y:my},{x:x2,y:my});
       } else {
-        const x=Math.random()*W;
-        const y1=Math.random()*H*0.4;
+        const x=Math.random()*W,y1=Math.random()*H*0.4;
         const y2=y1+H*0.15+Math.random()*H*0.3;
-        const mx=x+(Math.random()-0.5)*60;
-        punti.push({x,y:y1},{x,y:(y1+y2)/2},{x:mx,y:(y1+y2)/2},{x:mx,y:y2});
+        const mx=x+(Math.random()-0.5)*40;
+        pts.push({x,y:y1},{x,y:(y1+y2)/2},{x:mx,y:(y1+y2)/2},{x:mx,y:y2});
       }
-      tracce.push({punti});
-      segnali.push({tr:tracce.length-1, p:Math.random(), v:0.0008+Math.random()*0.002, r:1.5+Math.random()*1.5});
+      tracce.push({punti:pts});
+      segnali.push({tr:tracce.length-1,p:Math.random(),v:0.0008+Math.random()*0.002,r:1+Math.random()*1});
     }
   }
 
-  function lungTr(pts){let l=0;for(let i=1;i<pts.length;i++){const dx=pts[i].x-pts[i-1].x,dy=pts[i].y-pts[i-1].y;l+=Math.sqrt(dx*dx+dy*dy);}return l;}
+  function lung(pts){let l=0;for(let i=1;i<pts.length;i++){const dx=pts[i].x-pts[i-1].x,dy=pts[i].y-pts[i-1].y;l+=Math.sqrt(dx*dx+dy*dy);}return l;}
 
-  function ptSuTr(pts,t){
-    const L=lungTr(pts);let tgt=t*L;
+  function ptSu(pts,t){
+    const L=lung(pts);let tgt=t*L;
     for(let i=1;i<pts.length;i++){
       const dx=pts[i].x-pts[i-1].x,dy=pts[i].y-pts[i-1].y;
       const seg=Math.sqrt(dx*dx+dy*dy);
@@ -514,47 +512,50 @@ footer a{color:var(--ambra);text-decoration:none}
 
   function draw(){
     ctx.clearRect(0,0,W,H);
+    const mobile = W < 768;
+    const lw = mobile ? 0.5 : 1;
 
-    // Tracce
-    ctx.lineWidth=1;ctx.strokeStyle=GRIGIO;
+    ctx.lineWidth=lw;ctx.strokeStyle=GRIGIO;
     tracce.forEach(t=>{
       ctx.beginPath();ctx.moveTo(t.punti[0].x,t.punti[0].y);
       for(let i=1;i<t.punti.length;i++)ctx.lineTo(t.punti[i].x,t.punti[i].y);
       ctx.stroke();
     });
 
-    // Nodi
     nodi.forEach(n=>{
       if(n.tipo==='cpu'){
-        ctx.strokeStyle=AMBRA;ctx.lineWidth=1.5;
+        ctx.strokeStyle=AMBRA;ctx.lineWidth=mobile?1:1.5;
         ctx.strokeRect(n.x-n.r,n.y-n.r,n.r*2,n.r*2);
-        for(let i=0;i<8;i++){
-          const px=n.x-n.r+(n.r*2/9)*(i+1);
-          ctx.beginPath();ctx.moveTo(px,n.y-n.r);ctx.lineTo(px,n.y-n.r-8);ctx.stroke();
-          ctx.beginPath();ctx.moveTo(px,n.y+n.r);ctx.lineTo(px,n.y+n.r+8);ctx.stroke();
+        const nPins = mobile ? 5 : 8;
+        const pinLen = mobile ? 5 : 8;
+        for(let i=0;i<nPins;i++){
+          const px=n.x-n.r+(n.r*2/(nPins+1))*(i+1);
+          ctx.beginPath();ctx.moveTo(px,n.y-n.r);ctx.lineTo(px,n.y-n.r-pinLen);ctx.stroke();
+          ctx.beginPath();ctx.moveTo(px,n.y+n.r);ctx.lineTo(px,n.y+n.r+pinLen);ctx.stroke();
         }
-        for(let i=0;i<6;i++){
-          const py=n.y-n.r+(n.r*2/7)*(i+1);
-          ctx.beginPath();ctx.moveTo(n.x-n.r,py);ctx.lineTo(n.x-n.r-8,py);ctx.stroke();
-          ctx.beginPath();ctx.moveTo(n.x+n.r,py);ctx.lineTo(n.x+n.r+8,py);ctx.stroke();
+        const nSide = mobile ? 4 : 6;
+        for(let i=0;i<nSide;i++){
+          const py=n.y-n.r+(n.r*2/(nSide+1))*(i+1);
+          ctx.beginPath();ctx.moveTo(n.x-n.r,py);ctx.lineTo(n.x-n.r-pinLen,py);ctx.stroke();
+          ctx.beginPath();ctx.moveTo(n.x+n.r,py);ctx.lineTo(n.x+n.r+pinLen,py);ctx.stroke();
         }
-        ctx.lineWidth=1;
+        ctx.lineWidth=lw;
       } else {
         ctx.beginPath();ctx.fillStyle=n.tipo==='chip'?AMBRA:GRIGIO;
         ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fill();
       }
     });
 
-    // Segnali luminosi
     segnali.forEach(s=>{
       const t=tracce[s.tr];if(!t)return;
-      const pt=ptSuTr(t.punti,s.p);
+      const pt=ptSu(t.punti,s.p);
       ctx.beginPath();ctx.arc(pt.x,pt.y,s.r,0,Math.PI*2);
       ctx.fillStyle=AMBRA;ctx.fill();
-      ctx.beginPath();ctx.arc(pt.x,pt.y,s.r*3.5,0,Math.PI*2);
-      const g=ctx.createRadialGradient(pt.x,pt.y,0,pt.x,pt.y,s.r*3.5);
-      g.addColorStop(0,'rgba(245,158,11,0.35)');g.addColorStop(1,'rgba(245,158,11,0)');
-      ctx.fillStyle=g;ctx.fill();
+      const gr=ctx.createRadialGradient(pt.x,pt.y,0,pt.x,pt.y,s.r*3);
+      gr.addColorStop(0,'rgba(245,158,11,0.35)');
+      gr.addColorStop(1,'rgba(245,158,11,0)');
+      ctx.beginPath();ctx.arc(pt.x,pt.y,s.r*3,0,Math.PI*2);
+      ctx.fillStyle=gr;ctx.fill();
       s.p+=s.v;if(s.p>1)s.p=0;
     });
 
@@ -563,7 +564,8 @@ footer a{color:var(--ambra);text-decoration:none}
 
   resize();
   draw();
-  window.addEventListener('resize',resize);
+  let resizeTimer;
+  window.addEventListener('resize',function(){clearTimeout(resizeTimer);resizeTimer=setTimeout(resize,200);});
 })();
 </script>
 </body>
