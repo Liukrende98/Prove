@@ -48,10 +48,27 @@ section{padding:80px 40px}
 #processo{background:var(--sfondo2)}
 .griglia-proc{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;max-width:900px;margin:0 auto;background:var(--bordo);border-radius:14px;overflow:hidden}
 .carta-proc{background:var(--sfondo2);padding:32px 24px;text-align:center}
-.carta-proc .ic{width:48px;height:48px;border-radius:12px;background:var(--ambra-dim);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
-.carta-proc .ic svg{width:24px;height:24px;stroke:#1a1a2e;fill:none;stroke-width:1.5}
+.carta-proc .ic-anim{width:100px;height:100px;margin:0 auto 20px;position:relative}
 .carta-proc h3{font-size:15px;font-weight:700;margin-bottom:8px}
 .carta-proc p{font-size:13px;color:var(--testo2);line-height:1.5}
+
+/* Animazione lente selezione */
+@keyframes scanLente{0%{transform:translate(0,0)}25%{transform:translate(8px,-6px)}50%{transform:translate(-4px,4px)}75%{transform:translate(6px,6px)}100%{transform:translate(0,0)}}
+@keyframes pulseCerchio{0%,100%{r:18;opacity:.3}50%{r:22;opacity:.6}}
+.lente-scan{animation:scanLente 4s ease-in-out infinite}
+.lente-pulse{animation:pulseCerchio 2s ease-in-out infinite}
+
+/* Animazione ingranaggi */
+@keyframes ruotaOrario{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes ruotaAnti{from{transform:rotate(0)}to{transform:rotate(-360deg)}}
+.ingr1{transform-origin:50px 50px;transform-box:view-box;animation:ruotaOrario 6s linear infinite}
+.ingr2{transform-origin:72px 68px;transform-box:view-box;animation:ruotaAnti 4s linear infinite}
+
+/* Animazione tachimetro */
+@keyframes lancetta{0%{transform:rotate(-120deg)}15%{transform:rotate(40deg)}30%{transform:rotate(20deg)}50%{transform:rotate(100deg)}65%{transform:rotate(70deg)}80%{transform:rotate(110deg)}100%{transform:rotate(-120deg)}}
+.lancetta-tacho{transform-origin:50px 68px;transform-box:view-box;animation:lancetta 3s ease-in-out infinite}
+@keyframes glowArco{0%,100%{opacity:.3}50%{opacity:.7}}
+.arco-glow{animation:glowArco 3s ease-in-out infinite}
 
 /* ═══ MACCHINE RIGENERATE ═══ */
 #macchine{background:var(--sfondo)}
@@ -103,7 +120,6 @@ section{padding:80px 40px}
 .step-pill{padding:10px 20px;border-radius:24px;font-size:14px;font-weight:600;white-space:nowrap;cursor:pointer;transition:all .2s;border:1px solid var(--bordo);background:var(--sfondo3);color:var(--testo3)}
 .step-pill.att{background:var(--ambra);color:#000;border-color:var(--ambra)}
 .step-pill.done{background:var(--ambra-dim);color:var(--ambra);border-color:rgba(245,158,11,.3)}
-.step-pill.lock{opacity:.4;cursor:not-allowed}
 
 .opt-card{background:var(--sfondo3);border:1px solid var(--bordo);border-radius:10px;padding:14px 16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;margin-bottom:8px}
 .opt-card:hover{border-color:var(--bordo2);background:var(--sfondo2)}
@@ -165,17 +181,96 @@ footer a{color:var(--ambra);text-decoration:none}
 <!-- ═══ HERO ═══ -->
 <div class="hero">
   <canvas class="hero-circuit" id="circuitCanvas"></canvas>
-  <h1 style="position:relative;z-index:1">PC <em>Rigenerati</em> e su Misura</h1>
-  <div class="lead" style="position:relative;z-index:1">Macchine rigenerate professionalmente e configurazioni personalizzate. Scegli il tuo livello o costruisci il PC pezzo per pezzo.</div>
+  <h1 style="position:relative;z-index:1">Il tuo <em>hardware</em>, su misura</h1>
+  <div class="lead" style="position:relative;z-index:1">PC rigenerati, server, reti, stampanti e periferiche — fornitura completa per uffici e produzione. Configura il tuo PC su misura o scegli un rigenerato pronto all'uso. Assistenza e configurazione incluse.</div>
 </div>
 
 <!-- ═══ PROCESSO ═══ -->
 <section id="processo">
   <div class="sez-titolo"><span class="tag">Come lavoriamo</span><h2>Il nostro processo</h2><p>Ogni macchina passa per tre fasi prima di arrivare a te</p></div>
   <div class="griglia-proc">
-    <div class="carta-proc"><div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg></div><h3>Selezione</h3><p>Solo macchine business da fleet aziendali. Niente consumer di bassa gamma.</p></div>
-    <div class="carta-proc"><div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M11.42 15.17l-5.58 5.58a2.121 2.121 0 01-3-3l5.58-5.58m4.24-4.24l5.58-5.58a2.121 2.121 0 013 3l-5.58 5.58"/></svg></div><h3>Rigenerazione</h3><p>Pulizia completa, sostituzione componenti usurati, upgrade SSD e RAM dove necessario.</p></div>
-    <div class="carta-proc"><div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg></div><h3>Benchmark Test</h3><p>Test di stress 48h, benchmark CPU/GPU/RAM. Ogni macchina esce con report prestazioni verificato.</p></div>
+    <div class="carta-proc">
+      <div class="ic-anim">
+        <svg viewBox="0 0 100 100" fill="none">
+          <!-- Cerchi target che pulsano -->
+          <circle cx="42" cy="42" r="28" stroke="#d8d8e0" stroke-width="1" stroke-dasharray="4 3"/>
+          <circle class="lente-pulse" cx="42" cy="42" r="18" stroke="#f59e0b" stroke-width="1.5" fill="rgba(245,158,11,.06)"/>
+          <circle cx="42" cy="42" r="8" fill="rgba(245,158,11,.12)" stroke="#f59e0b" stroke-width="1"/>
+          <!-- Puntino centro -->
+          <circle cx="42" cy="42" r="2.5" fill="#f59e0b"/>
+          <!-- Lente che si muove -->
+          <g class="lente-scan">
+            <circle cx="42" cy="42" r="15" stroke="#1a1a2e" stroke-width="2.5" fill="none"/>
+            <line x1="53" y1="53" x2="68" y2="68" stroke="#1a1a2e" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <!-- Check piccoli che appaiono -->
+          <text x="78" y="28" fill="#22c55e" font-size="14" font-weight="800">✓</text>
+          <text x="14" y="78" fill="#ef4444" font-size="12" font-weight="800">✗</text>
+        </svg>
+      </div>
+      <h3>Selezione</h3>
+      <p>Solo macchine business da fleet aziendali. Niente consumer di bassa gamma.</p>
+    </div>
+
+    <div class="carta-proc">
+      <div class="ic-anim">
+        <svg viewBox="0 0 100 100" fill="none">
+          <!-- Ingranaggio grande -->
+          <g class="ingr1">
+            <circle cx="50" cy="50" r="16" stroke="#1a1a2e" stroke-width="3" fill="rgba(245,158,11,.08)"/>
+            <circle cx="50" cy="50" r="6" fill="#f59e0b"/>
+            <!-- Denti -->
+            <rect x="46" y="30" width="8" height="8" rx="1.5" fill="#1a1a2e"/>
+            <rect x="46" y="62" width="8" height="8" rx="1.5" fill="#1a1a2e"/>
+            <rect x="30" y="46" width="8" height="8" rx="1.5" fill="#1a1a2e"/>
+            <rect x="62" y="46" width="8" height="8" rx="1.5" fill="#1a1a2e"/>
+            <rect x="33" y="33" width="7" height="7" rx="1.5" fill="#1a1a2e" transform="rotate(45 36.5 36.5)"/>
+            <rect x="60" y="33" width="7" height="7" rx="1.5" fill="#1a1a2e" transform="rotate(45 63.5 36.5)"/>
+            <rect x="33" y="60" width="7" height="7" rx="1.5" fill="#1a1a2e" transform="rotate(45 36.5 63.5)"/>
+            <rect x="60" y="60" width="7" height="7" rx="1.5" fill="#1a1a2e" transform="rotate(45 63.5 63.5)"/>
+          </g>
+          <!-- Ingranaggio piccolo -->
+          <g class="ingr2">
+            <circle cx="72" cy="68" r="10" stroke="#1a1a2e" stroke-width="2.5" fill="rgba(245,158,11,.06)"/>
+            <circle cx="72" cy="68" r="4" fill="#f59e0b"/>
+            <rect x="69" y="55" width="6" height="6" rx="1" fill="#1a1a2e"/>
+            <rect x="69" y="75" width="6" height="6" rx="1" fill="#1a1a2e"/>
+            <rect x="59" y="65" width="6" height="6" rx="1" fill="#1a1a2e"/>
+            <rect x="79" y="65" width="6" height="6" rx="1" fill="#1a1a2e"/>
+          </g>
+          <!-- Freccia upgrade -->
+          <path d="M18 80 L18 65 L12 65 L22 55 L32 65 L26 65 L26 80 Z" fill="#22c55e" opacity=".6"/>
+        </svg>
+      </div>
+      <h3>Rigenerazione</h3>
+      <p>Pulizia completa, sostituzione componenti usurati, upgrade SSD e RAM dove necessario.</p>
+    </div>
+
+    <div class="carta-proc">
+      <div class="ic-anim">
+        <svg viewBox="0 0 100 100" fill="none">
+          <!-- Arco tachimetro sfondo -->
+          <path d="M18 68 A32 32 0 1 1 82 68" stroke="#e0e0e8" stroke-width="7" stroke-linecap="round" fill="none"/>
+          <!-- Rosso (sinistra) -->
+          <path d="M18 68 A32 32 0 0 1 34 40" stroke="#ef4444" stroke-width="7" stroke-linecap="round" fill="none"/>
+          <!-- Giallo (centro) -->
+          <path d="M34 40 A32 32 0 0 1 66 40" stroke="#f59e0b" stroke-width="7" stroke-linecap="round" fill="none"/>
+          <!-- Verde (destra) -->
+          <path class="arco-glow" d="M66 40 A32 32 0 0 1 82 68" stroke="#22c55e" stroke-width="7" stroke-linecap="round" fill="none"/>
+          <!-- Centro -->
+          <circle cx="50" cy="68" r="6" fill="#1a1a2e"/>
+          <circle cx="50" cy="68" r="3" fill="#f59e0b"/>
+          <!-- Lancetta -->
+          <g class="lancetta-tacho">
+            <line x1="50" y1="68" x2="50" y2="40" stroke="#1a1a2e" stroke-width="2.5" stroke-linecap="round"/>
+          </g>
+          <!-- Label PASS -->
+          <text x="50" y="92" text-anchor="middle" fill="#22c55e" font-size="12" font-weight="800" font-family="Outfit,sans-serif">PASS</text>
+        </svg>
+      </div>
+      <h3>Benchmark Test</h3>
+      <p>Test di stress 48h, benchmark CPU/GPU/RAM. Ogni macchina esce con report prestazioni verificato.</p>
+    </div>
   </div>
 </section>
 
@@ -201,7 +296,7 @@ footer a{color:var(--ambra);text-decoration:none}
 
 <!-- ═══ CONFIGURATORE ═══ -->
 <section id="configuratore">
-  <div class="sez-titolo"><span class="tag">Costruisci il tuo</span><h2>Configuratore PC</h2><p>Scegli pezzo per pezzo — ti mostriamo solo componenti compatibili</p></div>
+  <div class="sez-titolo"><span class="tag">Configuratore</span><h2>Assembla il tuo PC</h2><p>Parti dal processore o da dove vuoi. Solo pezzi compatibili, zero errori. Il case si riempie click dopo click</p></div>
   <div class="conf-layout">
 
     <!-- CASE 3D VISUALE -->
@@ -416,21 +511,33 @@ function totale(){return Object.values(sel).reduce((s,c)=>s+(c?.prezzo||0),0);}
 
 function renderStepper(){
   document.getElementById('stepper').innerHTML=PASSI.map((p,i)=>{
-    let c='step-pill';if(i===step)c+=' att';else if(sel[p.id])c+=' done';else if(i>step)c+=' lock';
-    return`<div class="${c}" onclick="${i<=step||sel[p.id]?`vai(${i})`:''}">${p.nome}</div>`;
+    let c='step-pill';
+    if(i===step)c+=' att';
+    else if(sel[p.id])c+=' done';
+    return'<div class="'+c+'" onclick="vai('+i+')">'+p.nome+'</div>';
   }).join('');
 }
 
 function renderOpt(){
-  const p=PASSI[step];
+  var p=PASSI[step];
   document.getElementById('titoloStep').textContent=p.nome;
   document.getElementById('descStep').textContent=p.desc;
-  const comp=compat(p.id),cont=document.getElementById('opzioni');
-  if(!comp.length){cont.innerHTML='<div style="padding:20px;text-align:center;color:var(--testo3)">Completa il passo precedente</div>';return;}
-  cont.innerHTML=comp.map(c=>{
-    const a=sel[p.id]?.id===c.id?'sel':'';
-    return`<div class="opt-card ${a}" onclick="pick('${p.id}','${c.id}')"><div style="flex:1"><div class="on">${c.nome}</div><div class="os">${c.spec}</div></div><div class="op">${c.prezzo>0?'€'+c.prezzo:'Gratis'}</div></div>`;
-  }).join('');
+  var comp=compat(p.id),cont=document.getElementById('opzioni');
+  var avviso='';
+  if(p.id==='mb'&&!sel.cpu)avviso='Seleziona prima un processore per filtrare le schede madri compatibili';
+  if(p.id==='ram'&&!sel.mb)avviso='Seleziona prima una scheda madre per filtrare la RAM compatibile';
+  if(p.id==='psu'&&!sel.cpu&&!sel.gpu)avviso='Seleziona CPU e scheda video per calcolare la potenza necessaria';
+  if(p.id==='case'&&!sel.mb)avviso='Seleziona prima una scheda madre per filtrare i case compatibili';
+  if(!comp.length&&avviso){cont.innerHTML='<div style="padding:20px;text-align:center;color:var(--ambra);font-size:13px;background:var(--ambra-dim);border-radius:10px;border:1px solid rgba(245,158,11,.15)">'+avviso+'</div>';return;}
+  if(!comp.length){cont.innerHTML='<div style="padding:20px;text-align:center;color:var(--testo3)">Nessun componente disponibile</div>';return;}
+  var html='';
+  for(var i=0;i<comp.length;i++){
+    var c=comp[i];
+    var a=(sel[p.id]&&sel[p.id].id===c.id)?'sel':'';
+    var pr=c.prezzo>0?('\u20ac'+c.prezzo):'Gratis';
+    html+='<div class="opt-card '+a+'" data-paso="'+p.id+'" data-comp="'+c.id+'" onclick="pick(this.dataset.paso,this.dataset.comp)"><div style="flex:1"><div class="on">'+c.nome+'</div><div class="os">'+c.spec+'</div></div><div class="op">'+pr+'</div></div>';
+  }
+  cont.innerHTML=html;
 }
 
 function isMobile(){return window.innerWidth<=1024;}
@@ -534,12 +641,12 @@ function renderRiep(){
 }
 
 function pick(idP,idC){
-  sel[idP]=C[idP].find(c=>c.id===idC);
+  if(sel[idP]&&sel[idP].id===idC){delete sel[idP];}
+  else{sel[idP]=C[idP].find(function(c){return c.id===idC;});}
   if(idP==='cpu'){delete sel.mb;delete sel.ram;delete sel.case;delete sel.psu;}
   if(idP==='mb'){delete sel.ram;delete sel.case;}
   if(idP==='gpu'||idP==='ssd')delete sel.psu;
   renderOpt();renderRiep();renderCase();renderStepper();
-  setTimeout(()=>{if(step<PASSI.length-1){step++;renderStepper();renderOpt();}},350);
 }
 
 function vai(i){step=i;renderStepper();renderOpt();}
