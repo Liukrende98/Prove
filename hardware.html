@@ -22,7 +22,8 @@ body{font-family:'Outfit',sans-serif;background:var(--sfondo);color:var(--testo)
 ::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
 
 /* ═══ NAV ═══ */
-nav{position:fixed;top:0;left:0;width:100%;z-index:100;padding:16px 40px;display:flex;align-items:center;background:rgba(14,14,20,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.06)}
+nav{position:fixed;top:0;left:0;width:100%;z-index:100;padding:16px 40px;display:flex;align-items:center;background:rgba(58,58,78,.95);backdrop-filter:blur(20px);border-bottom:none}
+nav::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:600px;height:2px;background:linear-gradient(90deg,transparent,var(--ambra),transparent);opacity:.7;z-index:101}
 .nav-logo{font-size:20px;font-weight:800;color:#ffffff;display:flex;align-items:center;gap:10px;text-decoration:none}
 .nav-links{display:flex;gap:28px;margin-left:auto;align-items:center}
 .nav-links a{color:#9090a8;font-size:13px;font-weight:500;text-decoration:none;transition:color .2s}
@@ -39,7 +40,7 @@ nav{position:fixed;top:0;left:0;width:100%;z-index:100;padding:16px 40px;display
 
 /* ═══ SEZIONE ═══ */
 section{padding:80px 40px;position:relative}
-section::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:1px;background:linear-gradient(90deg,transparent,var(--ambra),transparent);opacity:.3}
+section::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:2px;background:linear-gradient(90deg,transparent,var(--ambra),transparent);opacity:.7}
 .sez-titolo{text-align:center;margin-bottom:48px}
 .sez-titolo .tag{font-size:11px;font-weight:700;color:var(--ambra);text-transform:uppercase;letter-spacing:3px;margin-bottom:10px;display:block}
 .sez-titolo h2{font-size:clamp(26px,4vw,38px);font-weight:800;letter-spacing:-.5px}
@@ -82,8 +83,10 @@ section::before{content:'';position:absolute;top:0;left:50%;transform:translateX
 .nm{font-size:20px;font-weight:800;text-align:center;margin-bottom:4px;color:#ffffff}
 .tgt{font-size:12px;color:#8888a0;text-align:center;margin-bottom:20px}
 .prz{text-align:center;margin-bottom:20px}
-.prz .v{font-family:'DM Mono',monospace;font-size:36px;font-weight:700;color:var(--ambra)}
-.prz .s{font-size:12px;color:#8888a0;margin-top:2px}
+.prz .v{font-family:'DM Mono',monospace;font-size:28px;font-weight:800;color:#fff;background:var(--ambra);display:inline-block;padding:4px 16px 4px 12px;border-radius:0 8px 8px 0;position:relative}
+.prz .v::before{content:'';position:absolute;left:-10px;top:50%;transform:translateY(-50%);border:10px solid transparent;border-right:10px solid var(--ambra);border-left:none}
+.prz .v::after{content:'';position:absolute;left:2px;top:50%;transform:translateY(-50%);width:5px;height:5px;background:#fff;border-radius:50%}
+.prz .s{font-size:12px;color:#8888a0;margin-top:8px}
 .specs{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;flex:1}
 .sp{display:flex;align-items:center;gap:8px;font-size:13px;color:#c0c0d0}
 .sp .ck{color:var(--verde);font-size:14px;flex-shrink:0}
@@ -122,7 +125,9 @@ section::before{content:'';position:absolute;top:0;left:50%;transform:translateX
 .opt-card.sel{border-color:var(--ambra);background:var(--ambra-dim)}
 .opt-card .on{font-size:14px;font-weight:600;flex:1}
 .opt-card .os{font-size:11px;color:var(--testo3);margin-top:2px}
-.opt-card .op{font-family:'DM Mono',monospace;font-size:14px;color:var(--ambra);flex-shrink:0}
+.opt-card .op{font-family:'DM Mono',monospace;font-size:14px;font-weight:800;color:#fff;background:var(--ambra);padding:4px 10px 4px 14px;border-radius:0 6px 6px 0;flex-shrink:0;position:relative}
+.opt-card .op::before{content:'';position:absolute;left:-7px;top:50%;transform:translateY(-50%);border:7px solid transparent;border-right:7px solid var(--ambra);border-left:none}
+.opt-card .op::after{content:'';position:absolute;left:3px;top:50%;transform:translateY(-50%);width:4px;height:4px;background:#fff;border-radius:50%;opacity:.5}
 
 /* Bottone preventivo */
 .btn-prev:hover{background:var(--ambra2)}
@@ -149,15 +154,15 @@ section::before{content:'';position:absolute;top:0;left:50%;transform:translateX
 
 /* ═══ CTA ═══ */
 .cta-sez{text-align:center;padding:80px 40px;background:var(--sfondo2);position:relative}
-.cta-sez::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:1px;background:linear-gradient(90deg,transparent,var(--ambra),transparent);opacity:.3}
+.cta-sez::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:2px;background:linear-gradient(90deg,transparent,var(--ambra),transparent);opacity:.7}
 .cta-sez h2{font-size:clamp(24px,3vw,36px);font-weight:800;margin-bottom:12px}
 .cta-sez p{font-size:15px;color:var(--testo2);margin-bottom:28px}
 .btn-cta{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:12px;background:var(--ambra);color:#000;font-size:15px;font-weight:700;text-decoration:none;font-family:inherit;transition:all .2s}
 .btn-cta:hover{background:var(--ambra2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(245,158,11,.2)}
 
 /* ═══ FOOTER ═══ */
-footer{padding:32px 40px;text-align:center;border-top:none;font-size:12px;color:#9090a8;background:#0e0e14;position:relative}
-footer::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:1px;background:linear-gradient(90deg,transparent,var(--ambra),transparent);opacity:.3}
+footer{padding:32px 40px;text-align:center;border-top:none;font-size:12px;color:#9090a8;background:#3a3a4e;position:relative}
+footer::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:2px;background:linear-gradient(90deg,transparent,var(--ambra),transparent);opacity:.7}
 footer a{color:var(--ambra);text-decoration:none}
 
 /* ═══ RESPONSIVE ═══ */
@@ -327,9 +332,10 @@ function filtraCatalogo(uso,el){
 }
 
 function getListaFiltrata(){
-  var lista=catalogo;
+  var lista=catalogo.slice();
   if(filtroCat!=='tutti')lista=lista.filter(function(p){return p.cat===filtroCat;});
   if(filtroUso!=='tutti')lista=lista.filter(function(p){return p.uso.indexOf(filtroUso)!==-1;});
+  lista.sort(function(a,b){return a.prezzo-b.prezzo;});
   return lista;
 }
 
@@ -384,7 +390,7 @@ function renderCatalogo(skipAnim){
         '<span>'+p.spec1+'</span><span>\u00b7</span><span>'+p.spec2+'</span><span>\u00b7</span><span>'+p.spec3+'</span>'+
       '</div>'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:12px;border-top:1px solid #4a4a60">'+
-        '<div style="font-family:Outfit,sans-serif;font-size:24px;font-weight:700;color:var(--ambra)">'+pr+'</div>'+
+        '<div style="font-family:DM Mono,monospace;font-size:20px;font-weight:800;color:#fff;background:var(--ambra);display:inline-block;padding:4px 14px 4px 16px;border-radius:0 6px 6px 0;position:relative;margin-left:10px"><span style="position:absolute;left:-8px;top:50%;transform:translateY(-50%);width:0;height:0;border:8px solid transparent;border-right:8px solid var(--ambra);border-left:none"></span><span style="position:absolute;left:2px;top:50%;transform:translateY(-50%);width:4px;height:4px;background:#fff;border-radius:50%"></span>'+pr+'</div>'+
         '<button class="btn-cat-info" onclick="location.href=\'index.html#contatti\'">Info</button>'+
       '</div></div>';
   }
@@ -523,7 +529,7 @@ renderCatalogo();
 
     <!-- CASE 3D VISUALE -->
     <div class="case-wrap">
-      <svg id="caseSvg" viewBox="-30 10 720 580" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%">
+      <svg id="caseSvg" viewBox="-30 10 780 640" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%">
         <defs>
           <linearGradient id="gF" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3a3a4e"/><stop offset="100%" stop-color="#2e2e42"/></linearGradient>
           <linearGradient id="gS" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#333348"/><stop offset="100%" stop-color="#2a2a3e"/></linearGradient>
@@ -531,10 +537,10 @@ renderCatalogo();
         </defs>
 
         <!-- Case 3D — facciata frontale (rettangolo perfetto) -->
-        <rect x="40" y="50" width="270" height="450" rx="6" fill="url(#gF)" stroke="#50506a" stroke-width="1.5"/>
+        <rect x="40" y="50" width="270" height="510" rx="6" fill="url(#gF)" stroke="#50506a" stroke-width="1.5"/>
 
         <!-- Lato destro (parallelogramma — offset 50px a destra e 30px in alto) -->
-        <path d="M310 50 L360 20 L360 470 L310 500" fill="url(#gS)" stroke="#50506a" stroke-width="1"/>
+        <path d="M310 50 L360 20 L360 530 L310 560" fill="url(#gS)" stroke="#50506a" stroke-width="1"/>
 
         <!-- Top (parallelogramma — parallelo alla base) -->
         <path d="M40 50 L90 20 L360 20 L310 50 Z" fill="url(#gT)" stroke="#50506a" stroke-width="1"/>
@@ -580,58 +586,71 @@ renderCatalogo();
 
         <!-- ═══ PSU ═══ -->
         <g id="gPsu" class="comp-g" opacity="1">
-          <rect x="60" y="410" width="170" height="80" rx="4" fill="#2e2e42" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
-          <text x="145" y="456" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="800" font-family="Outfit,sans-serif">ALIMENTATORE</text>
+          <rect x="60" y="430" width="170" height="80" rx="4" fill="#2e2e42" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
+          <text x="145" y="476" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="800" font-family="Outfit,sans-serif">ALIMENTATORE</text>
         </g>
 
         <!-- ═══ ETICHETTE — frecce orizzontali ═══ -->
         <g id="lblCpu" opacity="0">
-          <line x1="193" y1="150" x2="400" y2="150" stroke="#f59e0b" stroke-width="2" opacity="1"/>
+          <line x1="193" y1="150" x2="400" y2="150" stroke="#f59e0b" stroke-width="2"/>
           <circle cx="400" cy="150" r="5" fill="#f59e0b"/>
-          <text x="412" y="145" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtCpu"></text>
-          <text x="412" y="172" fill="#555570" font-size="18" font-weight="600" font-family="Outfit,sans-serif" id="prezCpu"></text>
+          <text x="412" y="146" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtCpu"></text>
+          <path id="tagCpu" d="M408,158 L402,170 L408,182 L520,182 Q526,182 526,176 L526,164 Q526,158 520,158 Z" fill="#f59e0b"/>
+          <circle cx="412" cy="170" r="3.5" fill="#fff" opacity=".5"/>
+          <text x="422" y="170" fill="#fff" dominant-baseline="central" font-size="18" font-weight="800" font-family="DM Mono,monospace" id="prezCpu"></text>
         </g>
         <g id="lblRam" opacity="0">
-          <line x1="255" y1="115" x2="400" y2="115" stroke="#f59e0b" stroke-width="2" opacity="1"/>
+          <line x1="255" y1="115" x2="400" y2="115" stroke="#f59e0b" stroke-width="2"/>
           <circle cx="400" cy="115" r="5" fill="#f59e0b"/>
-          <text x="412" y="110" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtRam"></text>
-          <text x="412" y="137" fill="#555570" font-size="18" font-weight="600" font-family="Outfit,sans-serif" id="prezRam"></text>
+          <text x="412" y="111" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtRam"></text>
+          <path id="tagRam" d="M408,123 L402,135 L408,147 L520,147 Q526,147 526,141 L526,129 Q526,123 520,123 Z" fill="#f59e0b"/>
+          <circle cx="412" cy="135" r="3.5" fill="#fff" opacity=".5"/>
+          <text x="422" y="135" fill="#fff" dominant-baseline="central" font-size="18" font-weight="800" font-family="DM Mono,monospace" id="prezRam"></text>
         </g>
         <g id="lblMb" opacity="0">
-          <line x1="292" y1="220" x2="400" y2="220" stroke="#f59e0b" stroke-width="2" opacity="1"/>
+          <line x1="292" y1="220" x2="400" y2="220" stroke="#f59e0b" stroke-width="2"/>
           <circle cx="400" cy="220" r="5" fill="#f59e0b"/>
-          <text x="412" y="215" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtMb"></text>
-          <text x="412" y="242" fill="#555570" font-size="18" font-weight="600" font-family="Outfit,sans-serif" id="prezMb"></text>
+          <text x="412" y="216" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtMb"></text>
+          <path id="tagMb" d="M408,228 L402,240 L408,252 L520,252 Q526,252 526,246 L526,234 Q526,228 520,228 Z" fill="#f59e0b"/>
+          <circle cx="412" cy="240" r="3.5" fill="#fff" opacity=".5"/>
+          <text x="422" y="240" fill="#fff" dominant-baseline="central" font-size="18" font-weight="800" font-family="DM Mono,monospace" id="prezMb"></text>
         </g>
         <g id="lblGpu" opacity="0">
-          <line x1="282" y1="304" x2="400" y2="304" stroke="#f59e0b" stroke-width="2" opacity="1"/>
+          <line x1="282" y1="304" x2="400" y2="304" stroke="#f59e0b" stroke-width="2"/>
           <circle cx="400" cy="304" r="5" fill="#f59e0b"/>
-          <text x="412" y="299" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtGpu"></text>
-          <text x="412" y="326" fill="#555570" font-size="18" font-weight="600" font-family="Outfit,sans-serif" id="prezGpu"></text>
+          <text x="412" y="300" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtGpu"></text>
+          <path id="tagGpu" d="M408,312 L402,324 L408,336 L520,336 Q526,336 526,330 L526,318 Q526,312 520,312 Z" fill="#f59e0b"/>
+          <circle cx="412" cy="324" r="3.5" fill="#fff" opacity=".5"/>
+          <text x="422" y="324" fill="#fff" dominant-baseline="central" font-size="18" font-weight="800" font-family="DM Mono,monospace" id="prezGpu"></text>
         </g>
         <g id="lblSsd" opacity="0">
-          <line x1="172" y1="360" x2="400" y2="360" stroke="#f59e0b" stroke-width="2" opacity="1"/>
+          <line x1="172" y1="360" x2="400" y2="360" stroke="#f59e0b" stroke-width="2"/>
           <circle cx="400" cy="360" r="5" fill="#f59e0b"/>
-          <text x="412" y="355" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtSsd"></text>
-          <text x="412" y="382" fill="#555570" font-size="18" font-weight="600" font-family="Outfit,sans-serif" id="prezSsd"></text>
+          <text x="412" y="356" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtSsd"></text>
+          <path id="tagSsd" d="M408,368 L402,380 L408,392 L520,392 Q526,392 526,386 L526,374 Q526,368 520,368 Z" fill="#f59e0b"/>
+          <circle cx="412" cy="380" r="3.5" fill="#fff" opacity=".5"/>
+          <text x="422" y="380" fill="#fff" dominant-baseline="central" font-size="18" font-weight="800" font-family="DM Mono,monospace" id="prezSsd"></text>
         </g>
         <g id="lblPsu" opacity="0">
-          <line x1="232" y1="445" x2="400" y2="445" stroke="#f59e0b" stroke-width="2" opacity="1"/>
-          <circle cx="400" cy="445" r="5" fill="#f59e0b"/>
-          <text x="412" y="440" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtPsu"></text>
-          <text x="412" y="467" fill="#555570" font-size="18" font-weight="600" font-family="Outfit,sans-serif" id="prezPsu"></text>
+          <line x1="232" y1="465" x2="400" y2="465" stroke="#f59e0b" stroke-width="2"/>
+          <circle cx="400" cy="465" r="5" fill="#f59e0b"/>
+          <text x="412" y="461" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtPsu"></text>
+          <path id="tagPsu" d="M408,473 L402,485 L408,497 L520,497 Q526,497 526,491 L526,479 Q526,473 520,473 Z" fill="#f59e0b"/>
+          <circle cx="412" cy="485" r="3.5" fill="#fff" opacity=".5"/>
+          <text x="422" y="485" fill="#fff" dominant-baseline="central" font-size="18" font-weight="800" font-family="DM Mono,monospace" id="prezPsu"></text>
         </g>
 
         <!-- Case label + totale -->
-        <text x="175" y="545" text-anchor="middle" fill="#555570" font-size="14" font-weight="600" font-family="Outfit,sans-serif" id="caseLabelTxt">CASE — in attesa</text>
-        <text x="175" y="572" text-anchor="middle" fill="#555570" font-size="24" font-weight="700" font-family="Outfit,sans-serif" id="caseTotTxt">€ 0</text>
+        <text x="175" y="605" text-anchor="middle" fill="#555570" font-size="16" font-weight="600" font-family="Outfit,sans-serif" id="caseLabelTxt">CASE — in attesa</text>
+        <path id="tagTotale" d="M125,614 L119,630 L125,646 L225,646 Q231,646 231,640 L231,620 Q231,614 225,614 Z" fill="#f59e0b" opacity=".3"/>
+        <circle cx="129" cy="630" r="4" fill="#fff" opacity=".5"/>
+        <text x="175" y="626" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="18" font-weight="800" font-family="DM Mono,monospace" id="caseTotTxt">€ 0</text>
       </svg>
     </div>
 
     <!-- OPZIONI -->
     <div>
-      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--testo3);margin-bottom:10px;display:flex;align-items:center;gap:6px">
-        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zm10.5 0A2.25 2.25 0 0116.5 3.75h2.25A2.25 2.25 0 0121 6v2.25a2.25 2.25 0 01-2.25 2.25H16.5a2.25 2.25 0 01-2.25-2.25V6z"/></svg>
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--testo3);margin-bottom:10px">
         Seleziona i componenti
       </div>
       <div class="step-pills" id="stepper"></div>
@@ -733,11 +752,13 @@ function potRich(){let t=0;if(sel.cpu)t+=sel.cpu.pot||0;if(sel.gpu)t+=sel.gpu.po
 
 function compat(id){
   const l=C[id];if(!l)return[];
-  if(id==='mb')return sel.cpu?l.filter(m=>m.socket===sel.cpu.socket):[];
-  if(id==='ram')return sel.mb?l.filter(r=>r.ddr===sel.mb.ddr):[];
-  if(id==='psu'){const r=potRich();return l.filter(p=>p.w>=r).sort((a,b)=>a.w-b.w);}
-  if(id==='case')return sel.mb?l.filter(c=>c.fmt.includes(sel.mb.fmt)):l;
-  return l;
+  var res;
+  if(id==='mb')res=sel.cpu?l.filter(m=>m.socket===sel.cpu.socket):[];
+  else if(id==='ram')res=sel.mb?l.filter(r=>r.ddr===sel.mb.ddr):[];
+  else if(id==='psu'){const r=potRich();res=l.filter(p=>p.w>=r);}
+  else if(id==='case')res=sel.mb?l.filter(c=>c.fmt.includes(sel.mb.fmt)):l.slice();
+  else res=l.slice();
+  return res.sort((a,b)=>a.prezzo-b.prezzo);
 }
 
 function totale(){return Object.values(sel).reduce((s,c)=>s+(c?.prezzo||0),0);}
@@ -781,10 +802,10 @@ function renderCase(){
   
   // Su mobile: viewBox stretto (solo case), no spostamento
   if(mobile){
-    svg.setAttribute('viewBox','20 10 380 580');
+    svg.setAttribute('viewBox','20 10 380 640');
     svg.classList.remove('spostato');
   } else {
-    svg.setAttribute('viewBox','-30 10 720 580');
+    svg.setAttribute('viewBox','-30 10 780 640');
   }
 
   const parti = {
@@ -793,7 +814,7 @@ function renderCase(){
     mb:   {g:'gMb',  lbl:'lblMb',  txt:'txtMb',  prez:'prezMb',  yIdeale:220},
     gpu:  {g:'gGpu', lbl:'lblGpu', txt:'txtGpu', prez:'prezGpu', yIdeale:304},
     ssd:  {g:'gSsd', lbl:'lblSsd', txt:'txtSsd', prez:'prezSsd', yIdeale:360},
-    psu:  {g:'gPsu', lbl:'lblPsu', txt:'txtPsu', prez:'prezPsu', yIdeale:445},
+    psu:  {g:'gPsu', lbl:'lblPsu', txt:'txtPsu', prez:'prezPsu', yIdeale:465},
   };
 
   // Raccogli etichette attive e calcola posizioni senza sovrapposizioni
@@ -815,6 +836,18 @@ function renderCase(){
       g.querySelectorAll('text').forEach(t => t.setAttribute('fill', '#ffffff'));
       txt.textContent = sel[k].nome;
       prez.textContent = sel[k].prezzo > 0 ? '€' + sel[k].prezzo : 'Gratis';
+      // Auto-size cartellino prezzo
+      var tagKey = k.charAt(0).toUpperCase() + k.slice(1);
+      var tagEl = document.getElementById('tag' + tagKey);
+      if(tagEl && prez.getBBox){
+        try{
+          var bb=prez.getBBox();
+          var rw=bb.width+18;
+          var tagPath=tagEl.getAttribute('d');
+          // Aggiorna larghezza path sostituendo 478/484 con nuovi valori
+          tagEl.setAttribute('d', tagPath.replace(/520/g, (410+rw)).replace(/526/g, (416+rw)));
+        }catch(e){}
+      }
       attive.push({k, ids, yIdeale: ids.yIdeale});
     } else {
       g.setAttribute('opacity','1');
@@ -830,7 +863,7 @@ function renderCase(){
 
   // Ordina per Y ideale e distribuisci con minimo 50px di distanza
   attive.sort((a, b) => a.yIdeale - b.yIdeale);
-  const MIN_GAP = 50;
+  const MIN_GAP = 65;
   for(let i = 0; i < attive.length; i++){
     attive[i].yFinale = attive[i].yIdeale;
     if(i > 0){
@@ -853,8 +886,17 @@ function renderCase(){
     const cerchio = lbl.querySelector('circle');
     if(cerchio) cerchio.setAttribute('cy', y);
     // Aggiorna testi
-    txt.setAttribute('y', y - 5);
-    prez.setAttribute('y', y + 17);
+    txt.setAttribute('y', y - 4);
+    // Aggiorna cartellino prezzo (path) — altezza 24px
+    const tag = lbl.querySelector('path[id^="tag"]');
+    var ty=y+8;
+    if(tag){
+      tag.setAttribute('d','M408,'+ty+' L402,'+(ty+12)+' L408,'+(ty+24)+' L520,'+(ty+24)+' Q526,'+(ty+24)+' 526,'+(ty+18)+' L526,'+(ty+6)+' Q526,'+ty+' 520,'+ty+' Z');
+    }
+    prez.setAttribute('y', ty+12);
+    // Aggiorna buco cartellino
+    const hole = lbl.querySelectorAll('circle')[1];
+    if(hole) hole.setAttribute('cy', ty+12);
 
     lbl.setAttribute('opacity', mobile ? '0' : '1');
   });
@@ -863,7 +905,20 @@ function renderCase(){
   const cl = document.getElementById('caseLabelTxt');
   cl.textContent = sel.case ? 'CASE — ' + sel.case.nome : 'CASE — in attesa';
   cl.setAttribute('fill', sel.case ? '#f59e0b' : '#505068');
-  document.getElementById('caseTotTxt').textContent = '€ ' + totale();
+  var totEl = document.getElementById('caseTotTxt');
+  var tagTot = document.getElementById('tagTotale');
+  var tot = totale();
+  totEl.textContent = '€ ' + tot;
+  if(tot > 0){
+    tagTot.setAttribute('opacity','1');
+    try{
+      var tbb=totEl.getBBox();
+      var hw=tbb.width/2+14;
+      tagTot.setAttribute('d','M'+(175-hw)+',614 L'+(169-hw)+',630 L'+(175-hw)+',646 L'+(175+hw)+',646 Q'+(181+hw)+',646 '+(181+hw)+',640 L'+(181+hw)+',620 Q'+(181+hw)+',614 '+(175+hw)+',614 Z');
+    }catch(e){}
+  } else {
+    tagTot.setAttribute('opacity','0.3');
+  }
   // Sposta a sinistra solo su desktop
   const haComp = Object.keys(sel).some(k => k !== 'case' && sel[k]);
   if(!mobile && haComp) svg.classList.add('spostato'); else svg.classList.remove('spostato');
