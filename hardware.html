@@ -101,7 +101,7 @@ section::before{content:'';position:absolute;top:0;left:50%;transform:translateX
 .carta-gar p{font-size:12px;color:var(--testo2);line-height:1.5}
 
 /* ═══ CONFIGURATORE ═══ */
-#configuratore{background:var(--sfondo2);position:relative;overflow:hidden}
+#configuratore{background:var(--sfondo2);position:relative;overflow-x:clip}
 
 .conf-layout{display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:1400px;margin:0 auto}
 
@@ -171,9 +171,8 @@ footer a{color:var(--ambra);text-decoration:none}
 /* ═══ RESPONSIVE ═══ */
 @media(max-width:1024px){
   .conf-layout{grid-template-columns:1fr}
-  .case-wrap{position:relative;top:0;margin:0 auto 24px;max-width:360px}
+  .case-wrap{position:relative;top:0;margin:0 auto 16px}
   .case-wrap svg{max-width:100%}
-  .case-wrap svg.spostato{transform:none}
   #grCatalogo{grid-template-columns:repeat(2,1fr)!important}
 }
 @media(max-width:768px){
@@ -215,11 +214,15 @@ footer a{color:var(--ambra);text-decoration:none}
   .cat-prezzo{font-size:15px;padding:3px 10px 3px 14px}
   #paginazione button{width:32px!important;height:32px!important;font-size:12px!important}
   .conf-layout{grid-template-columns:1fr;gap:16px}
-  .case-wrap{max-width:100%;margin:0 auto 16px;padding:0 10px}
-  .step-pills{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;padding:8px 10px;gap:6px}
-  .step-pill{padding:8px 14px;font-size:12px}
-  .opt-card{padding:12px}
-  .opt-card .on{font-size:13px}
+  .conf-layout>*{min-width:0;overflow:hidden}
+  .case-wrap{margin:0 auto 12px!important;padding:0!important;position:relative!important;overflow:visible!important}
+  .case-wrap svg{width:100%!important;display:block!important;filter:none!important}
+  .step-pills{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;padding:8px 10px;gap:6px;scrollbar-width:none}
+  .step-pills::-webkit-scrollbar{display:none}
+  .step-pill{padding:8px 14px;font-size:12px;flex-shrink:0}
+  .opt-card{padding:12px;overflow:hidden}
+  .opt-card .on{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .opt-card .os{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .opt-card .op{font-size:12px;padding:3px 8px 3px 12px}
   .cta-sez{padding:48px 16px}
   .cta-sez h2{font-size:22px}
@@ -842,13 +845,11 @@ function renderOpt(){
 function isMobile(){return window.innerWidth<=1024;}
 
 function renderCase(){
-  const mobile = isMobile();
   const svg = document.getElementById('caseSvg');
-  
-  // Su mobile: viewBox stretto (solo case), no spostamento
-  if(mobile){
-    svg.setAttribute('viewBox','20 10 380 640');
-    svg.classList.remove('spostato');
+  // Mobile: viewBox più stretto per centrare case + etichette
+  // Desktop: viewBox largo originale
+  if(window.innerWidth <= 768){
+    svg.setAttribute('viewBox','-20 10 590 640');
   } else {
     svg.setAttribute('viewBox','-30 10 780 640');
   }
@@ -943,7 +944,7 @@ function renderCase(){
     const hole = lbl.querySelectorAll('circle')[1];
     if(hole) hole.setAttribute('cy', ty+12);
 
-    lbl.setAttribute('opacity', mobile ? '0' : '1');
+    lbl.setAttribute('opacity', '1');
   });
 
   // Case label e totale
@@ -964,9 +965,9 @@ function renderCase(){
   } else {
     tagTot.setAttribute('opacity','0.3');
   }
-  // Sposta a sinistra solo su desktop
+  // Sposta a sinistra SEMPRE quando c'è un componente selezionato
   const haComp = Object.keys(sel).some(k => k !== 'case' && sel[k]);
-  if(!mobile && haComp) svg.classList.add('spostato'); else svg.classList.remove('spostato');
+  if(haComp) svg.classList.add('spostato'); else svg.classList.remove('spostato');
 }
 
 function renderRiep(){
@@ -1010,14 +1011,17 @@ window.addEventListener('resize',()=>renderCase());
   var clipRect={x:0,y:0,w:0,h:0};
 
   function getClip(){
-    var heroRect=cv.parentElement.getBoundingClientRect();
-    var emRect=hwEl.getBoundingClientRect();
+    // Use offset-based position (scroll-independent)
+    var hero=cv.parentElement;
+    var el=hwEl;
+    var ox=0,oy=0;
+    while(el&&el!==hero){ox+=el.offsetLeft;oy+=el.offsetTop;el=el.offsetParent;}
     var pad=14;
     clipRect={
-      x:emRect.left-heroRect.left-pad,
-      y:emRect.top-heroRect.top-pad,
-      w:emRect.width+pad*2,
-      h:emRect.height+pad*2
+      x:ox-pad,
+      y:oy-pad,
+      w:hwEl.offsetWidth+pad*2,
+      h:hwEl.offsetHeight+pad*2
     };
   }
 
@@ -1112,7 +1116,6 @@ window.addEventListener('resize',()=>renderCase());
 
   function draw(){
     ctx.clearRect(0,0,W,H);
-    getClip();
     ctx.save();
     // Clip arrotondato dietro "hardware"
     var rd=6,bx=clipRect.x,by=clipRect.y,bw=clipRect.w,bh=clipRect.h;
