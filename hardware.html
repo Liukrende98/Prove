@@ -29,7 +29,9 @@ nav{position:fixed;top:0;left:0;width:100%;z-index:100;padding:16px 40px;display
 .nav-links a:hover{color:#f59e0b}
 
 /* ═══ HERO ═══ */
-.hero{padding:140px 40px 80px;text-align:center}
+.hero{padding:140px 40px 80px;text-align:center;position:relative;overflow:hidden}
+.hero-circuit{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;opacity:.18}
+@media(max-width:768px){.hero-circuit{display:none}}
 .hero-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:20px;font-size:11px;font-weight:600;background:var(--ambra-dim);color:var(--ambra);border:1px solid rgba(245,158,11,.15);margin-bottom:24px;letter-spacing:.5px}
 .hero h1{font-size:clamp(32px,5vw,52px);font-weight:900;letter-spacing:-1px;margin-bottom:16px}
 .hero h1 em{font-style:normal;color:var(--ambra)}
@@ -165,8 +167,9 @@ footer a{color:var(--ambra);text-decoration:none}
 
 <!-- ═══ HERO ═══ -->
 <div class="hero">
-  <h1>PC <em>Rigenerati</em> e su Misura</h1>
-  <div class="lead">Macchine rigenerate professionalmente e configurazioni personalizzate. Scegli il tuo livello o costruisci il PC pezzo per pezzo.</div>
+  <canvas class="hero-circuit" id="circuitCanvas"></canvas>
+  <h1 style="position:relative;z-index:1">PC <em>Rigenerati</em> e su Misura</h1>
+  <div class="lead" style="position:relative;z-index:1">Macchine rigenerate professionalmente e configurazioni personalizzate. Scegli il tuo livello o costruisci il PC pezzo per pezzo.</div>
 </div>
 
 <!-- ═══ PROCESSO ═══ -->
@@ -560,6 +563,79 @@ function selezionaMac(el){
 // INIT
 renderStepper();renderOpt();renderRiep();renderCase();
 window.addEventListener('resize',()=>renderCase());
+</script>
+
+<script>
+/* ═══ CIRCUITI ANIMATI HERO ═══ */
+(function(){
+  var cv=document.getElementById('circuitCanvas');
+  if(!cv||window.innerWidth<=768)return;
+  var ctx=cv.getContext('2d');
+  var W,H;
+  var AMBRA='#f59e0b',GRIGIO='#c8c8d4';
+  var tracce=[],nodi=[],segnali=[];
+
+  function resize(){
+    var hero=cv.parentElement;
+    W=cv.width=hero.offsetWidth;H=cv.height=hero.offsetHeight;
+    genera();
+  }
+
+  function genera(){
+    tracce=[];nodi=[];segnali=[];
+    var cx=W/2,cy=H/2,r=Math.min(W,H)*0.42;
+    nodi.push({x:cx,y:cy,r:r*0.12,t:'cpu'});
+    for(var ring=0;ring<3;ring++){
+      var n=8+ring*6,dist=r*(0.3+ring*0.25);
+      for(var i=0;i<n;i++){
+        var ang=(Math.PI*2/n)*i+ring*0.3;
+        nodi.push({x:cx+Math.cos(ang)*dist,y:cy+Math.sin(ang)*dist,r:1.5+Math.random()*2,t:ring<1?'c':'p'});
+      }
+    }
+    for(var i=1;i<nodi.length;i++){
+      var best=0,dm=1e9;
+      for(var j=0;j<i;j++){var dx=nodi[j].x-nodi[i].x,dy=nodi[j].y-nodi[i].y,d=dx*dx+dy*dy;if(d<dm){dm=d;best=j;}}
+      var a=nodi[best],b=nodi[i],pts=[{x:b.x,y:b.y}];
+      if(Math.random()>.5)pts.push({x:a.x,y:b.y});else pts.push({x:b.x,y:a.y});
+      pts.push({x:a.x,y:a.y});tracce.push({punti:pts});
+      segnali.push({tr:tracce.length-1,p:Math.random(),v:0.001+Math.random()*0.003,r:2+Math.random()*2});
+    }
+    var n2=Math.floor(W/40);
+    for(var i=0;i<n2;i++){
+      var pts=[];
+      if(Math.random()>.5){var y=Math.random()*H,x1=Math.random()*W*0.4,x2=x1+W*0.15+Math.random()*W*0.3,my=y+(Math.random()-.5)*60;pts.push({x:x1,y},{x:(x1+x2)/2,y},{x:(x1+x2)/2,y:my},{x:x2,y:my});}
+      else{var x=Math.random()*W,y1=Math.random()*H*0.4,y2=y1+H*0.15+Math.random()*H*0.3,mx=x+(Math.random()-.5)*60;pts.push({x:x,y:y1},{x:x,y:(y1+y2)/2},{x:mx,y:(y1+y2)/2},{x:mx,y:y2});}
+      tracce.push({punti:pts});segnali.push({tr:tracce.length-1,p:Math.random(),v:0.0008+Math.random()*0.002,r:1.5+Math.random()*1.5});
+    }
+  }
+
+  function trLen(pts){var l=0;for(var i=1;i<pts.length;i++){var dx=pts[i].x-pts[i-1].x,dy=pts[i].y-pts[i-1].y;l+=Math.sqrt(dx*dx+dy*dy);}return l||1;}
+  function ptSu(pts,t){var L=trLen(pts),tg=t*L;for(var i=1;i<pts.length;i++){var dx=pts[i].x-pts[i-1].x,dy=pts[i].y-pts[i-1].y,s=Math.sqrt(dx*dx+dy*dy);if(tg<=s&&s>0){var f=tg/s;return{x:pts[i-1].x+dx*f,y:pts[i-1].y+dy*f};}tg-=s;}return pts[pts.length-1];}
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.lineWidth=1;ctx.strokeStyle=GRIGIO;
+    tracce.forEach(function(t){ctx.beginPath();ctx.moveTo(t.punti[0].x,t.punti[0].y);for(var i=1;i<t.punti.length;i++)ctx.lineTo(t.punti[i].x,t.punti[i].y);ctx.stroke();});
+    nodi.forEach(function(n){
+      if(n.t==='cpu'){ctx.strokeStyle=AMBRA;ctx.lineWidth=1.5;ctx.strokeRect(n.x-n.r,n.y-n.r,n.r*2,n.r*2);
+        for(var i=0;i<8;i++){var px=n.x-n.r+(n.r*2/9)*(i+1);ctx.beginPath();ctx.moveTo(px,n.y-n.r);ctx.lineTo(px,n.y-n.r-8);ctx.stroke();ctx.beginPath();ctx.moveTo(px,n.y+n.r);ctx.lineTo(px,n.y+n.r+8);ctx.stroke();}
+        for(var i=0;i<6;i++){var py=n.y-n.r+(n.r*2/7)*(i+1);ctx.beginPath();ctx.moveTo(n.x-n.r,py);ctx.lineTo(n.x-n.r-8,py);ctx.stroke();ctx.beginPath();ctx.moveTo(n.x+n.r,py);ctx.lineTo(n.x+n.r+8,py);ctx.stroke();}
+        ctx.lineWidth=1;
+      }else{ctx.beginPath();ctx.fillStyle=n.t==='c'?AMBRA:GRIGIO;ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fill();}
+    });
+    segnali.forEach(function(s){
+      var t=tracce[s.tr];if(!t)return;var pt=ptSu(t.punti,s.p);
+      if(!isFinite(pt.x)||!isFinite(pt.y)||!isFinite(s.r)){s.p=0;return;}
+      ctx.beginPath();ctx.arc(pt.x,pt.y,s.r*3,0,Math.PI*2);ctx.fillStyle='rgba(245,158,11,0.12)';ctx.fill();
+      ctx.beginPath();ctx.arc(pt.x,pt.y,s.r,0,Math.PI*2);ctx.fillStyle=AMBRA;ctx.fill();
+      s.p+=s.v;if(s.p>1)s.p=0;
+    });
+    requestAnimationFrame(draw);
+  }
+
+  resize();draw();
+  var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(resize,200);});
+})();
 </script>
 </body>
 </html>
