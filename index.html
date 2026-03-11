@@ -65,6 +65,7 @@ nav{
 .hero-logo{
   margin-bottom:28px;
   animation:fadeUp .6s ease .1s both, pulsaLogo 3s ease-in-out .8s infinite;
+  transition:opacity .3s ease;
 }
 @keyframes pulsaLogo{0%,100%{transform:scale(1);filter:drop-shadow(0 0 16px rgba(245,158,11,.2))}50%{transform:scale(1.18);filter:drop-shadow(0 0 44px rgba(245,158,11,.6))}}
 .hero h1{
@@ -246,6 +247,7 @@ footer a{color:var(--ambra);text-decoration:none}
 </style>
 </head>
 <body>
+<script>if('scrollRestoration' in history)history.scrollRestoration='manual';window.scrollTo(0,0);</script>
 
 <!-- ═══ INTRO ANIMATION ═══ -->
 <div id="intro" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0f;z-index:10000;display:flex;align-items:center;justify-content:center;overflow:hidden">
@@ -435,6 +437,9 @@ footer a{color:var(--ambra);text-decoration:none}
   function sz(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
   sz();
   document.body.style.overflow='hidden';
+  // Nascondi hero logo durante intro
+  var heroLogo=document.querySelector('.hero-logo');
+  if(heroLogo)heroLogo.style.opacity='0';
 
   var A='#f59e0b';
   var t0=performance.now();
@@ -543,15 +548,46 @@ footer a{color:var(--ambra);text-decoration:none}
       logo.style.transform='scale('+(0.5+e*0.5)+')';
     }
 
-    // Exit (75%-100%)
+    // Exit (75%-100%): logo vola verso hero-logo, circuiti dissolve
     if(prog>0.75){
       var ep=(prog-0.75)/0.25;
-      var ee=ep*ep;
-      intro.style.opacity=1-ee;
+      var ee=1-Math.pow(1-ep,3); // easeOutCubic
+
+      // Trova posizione hero logo
+      var heroLogo=document.querySelector('.hero-logo');
+      if(heroLogo){
+        var rect=heroLogo.getBoundingClientRect();
+        var targetX=rect.left+rect.width/2;
+        var targetY=rect.top+rect.height/2;
+        var startX=W/2;
+        var startY=H/2;
+        var curX=startX+(targetX-startX)*ee;
+        var curY=startY+(targetY-startY)*ee;
+        // Scala da 140px (intro) a ~100px (hero) 
+        var scaleFrom=1;
+        var scaleTo=100/140;
+        var curScale=scaleFrom+(scaleTo-scaleFrom)*ee;
+        logo.style.position='fixed';
+        logo.style.left=curX+'px';
+        logo.style.top=curY+'px';
+        logo.style.transform='translate(-50%,-50%) scale('+curScale+')';
+        logo.style.filter='drop-shadow(0 0 '+(40-ee*30)+'px rgba(245,158,11,'+(0.6-ee*0.4)+'))';
+      }
+
+      // Circuiti fade
+      intro.style.background='rgba(10,10,15,'+(1-ee)+')';
+      cv.style.opacity=1-ee;
+
+      // Ultimo frame: nascondi intro
+      if(ep>=0.98){
+        intro.style.display='none';
+        document.body.style.overflow='';
+        var hl=document.querySelector('.hero-logo');if(hl)hl.style.opacity='1';
+      }
     }
 
     if(prog<1){requestAnimationFrame(draw);}
-    else{intro.style.display='none';document.body.style.overflow='';}
+    else{intro.style.display='none';document.body.style.overflow='';var hl=document.querySelector('.hero-logo');if(hl)hl.style.opacity='1';}
   }
   draw();
 })();
