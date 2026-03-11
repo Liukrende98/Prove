@@ -32,7 +32,7 @@ nav::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-
 /* ═══ HERO ═══ */
 .hero{padding:140px 40px 20px;text-align:center;position:relative;overflow:hidden}
 .hero-circuit{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1}
-@media(max-width:768px){.hero-circuit{display:none}}
+@media(max-width:768px){.hero-circuit{display:block}}
 .hero-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:20px;font-size:11px;font-weight:600;background:var(--ambra-dim);color:var(--ambra);border:1px solid rgba(245,158,11,.15);margin-bottom:24px;letter-spacing:.5px}
 .hero h1{font-size:clamp(32px,5vw,52px);font-weight:900;letter-spacing:-1px;margin-bottom:16px}
 .hero h1 em{font-style:normal;color:var(--ambra);position:relative;display:inline-block;padding:4px 12px}
@@ -151,6 +151,9 @@ section::before{content:'';position:absolute;top:0;left:50%;transform:translateX
 .cat-card:hover{border-color:#5a5a70;transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.2)}
 .btn-cat-info{padding:8px 18px;border-radius:8px;border:1.5px solid #5a5a70;background:none;color:#fff;font-size:12px;font-weight:600;font-family:Outfit,sans-serif;cursor:pointer;transition:all .2s}
 .btn-cat-info:hover{border-color:#f59e0b;color:#f59e0b}
+.cat-prezzo{font-family:DM Mono,monospace;font-size:18px;font-weight:800;color:#fff;background:var(--ambra);display:inline-block;padding:4px 12px 4px 16px;border-radius:0 6px 6px 0;position:relative;margin-left:10px}
+.cat-prezzo::before{content:'';position:absolute;left:-8px;top:50%;transform:translateY(-50%);width:0;height:0;border:8px solid transparent;border-right:8px solid var(--ambra);border-left:none}
+.cat-prezzo::after{content:'';position:absolute;left:2px;top:50%;transform:translateY(-50%);width:4px;height:4px;background:#fff;border-radius:50%}
 
 /* ═══ CTA ═══ */
 .cta-sez{text-align:center;padding:80px 40px;background:var(--sfondo2);position:relative}
@@ -174,15 +177,57 @@ footer a{color:var(--ambra);text-decoration:none}
   #grCatalogo{grid-template-columns:repeat(2,1fr)!important}
 }
 @media(max-width:768px){
-  nav{padding:12px 20px}
+  nav{padding:12px 16px}
+  nav::after{width:90%}
   .nav-links a:not(:last-child){display:none}
-  .hero{padding:110px 24px 16px}
-  section{padding:60px 20px}
+  .hero{padding:100px 16px 16px}
+  .hero h1{font-size:28px;letter-spacing:-.5px}
+  .hero h1 em{padding:2px 8px}
+  .hero .lead{font-size:14px;padding:0 8px}
+  section{padding:48px 16px}
+  #catalogo{padding-top:20px!important}
+  section::before{width:80%}
+  .sez-titolo{margin-bottom:28px}
+  .sez-titolo h2{font-size:24px}
+  .sez-titolo p{font-size:13px}
+  .griglia-proc{gap:0;border-radius:10px}
   .griglia-proc,.griglia-mac,.griglia-gar{grid-template-columns:1fr}
-  #grCatalogo{grid-template-columns:1fr!important}
-  .conf-layout{grid-template-columns:1fr}
-  .case-wrap{max-width:280px;margin:0 auto 20px}
-  .step-pills{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .carta-proc{padding:24px 16px}
+  .carta-proc .ic-anim{width:70px;height:70px}
+  .carta-mac{padding:24px 20px}
+  .ic-pc{width:60px;height:45px}
+  .nm{font-size:18px}
+  .prz .v{font-size:22px;padding:3px 12px 3px 10px}
+  .prz .v::before{border-width:8px}
+  .specs{gap:6px}
+  .sp{font-size:12px}
+  .btn-m{padding:12px;font-size:13px}
+  .griglia-gar{gap:10px}
+  .carta-gar{padding:18px 14px}
+  .carta-gar h3{font-size:13px}
+  .carta-gar p{font-size:11px}
+  #grCatalogo{grid-template-columns:1fr!important;gap:12px}
+  .cat-card{padding:18px}
+  .cat-card>div:first-child{height:100px!important}
+  #filtroCategoria,#filtroCatalogo{gap:6px!important;overflow-x:auto;flex-wrap:nowrap!important;justify-content:flex-start!important;padding:4px!important;-webkit-overflow-scrolling:touch;margin-bottom:12px!important}
+  .cat-filtro{padding:8px 14px;font-size:11px;white-space:nowrap;flex-shrink:0}
+  .cat-filtro svg{width:14px;height:14px}
+  .cat-prezzo{font-size:15px;padding:3px 10px 3px 14px}
+  #paginazione button{width:32px!important;height:32px!important;font-size:12px!important}
+  .conf-layout{grid-template-columns:1fr;gap:16px}
+  .case-wrap{max-width:100%;margin:0 auto 16px;padding:0 10px}
+  .step-pills{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;padding:8px 10px;gap:6px}
+  .step-pill{padding:8px 14px;font-size:12px}
+  .opt-card{padding:12px}
+  .opt-card .on{font-size:13px}
+  .opt-card .op{font-size:12px;padding:3px 8px 3px 12px}
+  .cta-sez{padding:48px 16px}
+  .cta-sez h2{font-size:22px}
+  .cta-sez p{font-size:13px}
+  .cta-sez::before{width:80%}
+  .btn-cta{padding:12px 24px;font-size:14px}
+  footer{padding:24px 16px}
+  footer::before{width:80%}
 }
 </style>
 </head>
@@ -390,7 +435,7 @@ function renderCatalogo(skipAnim){
         '<span>'+p.spec1+'</span><span>\u00b7</span><span>'+p.spec2+'</span><span>\u00b7</span><span>'+p.spec3+'</span>'+
       '</div>'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:12px;border-top:1px solid #4a4a60">'+
-        '<div style="font-family:DM Mono,monospace;font-size:20px;font-weight:800;color:#fff;background:var(--ambra);display:inline-block;padding:4px 14px 4px 16px;border-radius:0 6px 6px 0;position:relative;margin-left:10px"><span style="position:absolute;left:-8px;top:50%;transform:translateY(-50%);width:0;height:0;border:8px solid transparent;border-right:8px solid var(--ambra);border-left:none"></span><span style="position:absolute;left:2px;top:50%;transform:translateY(-50%);width:4px;height:4px;background:#fff;border-radius:50%"></span>'+pr+'</div>'+
+        '<div class="cat-prezzo">'+pr+'</div>'+
         '<button class="btn-cat-info" onclick="location.href=\'index.html#contatti\'">Info</button>'+
       '</div></div>';
   }
@@ -957,7 +1002,7 @@ window.addEventListener('resize',()=>renderCase());
 (function(){
   var cv=document.getElementById('circuitCanvas');
   var hwEl=document.getElementById('hwWord');
-  if(!cv||!hwEl||window.innerWidth<=768)return;
+  if(!cv||!hwEl)return;
   var ctx=cv.getContext('2d');
   var W,H;
   var AMBRA='#f59e0b',GRIGIO='#c8c8d4';
