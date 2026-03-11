@@ -511,4 +511,14 @@ function vai(i){step=i;renderStepper();renderOpt();}
 
 function confermaConfig(){
   let r='Configurazione PC:\n\n';
-  PASSI.forEach(p=>{const s=sel[p.id];if(s)r+=`${p.nome}: ${
+  PASSI.forEach(p=>{const s=sel[p.id];if(s)r+=p.nome+': '+s.nome+' — €'+s.prezzo+'\n';});
+  r+='\nTOTALE: €'+totale();
+  alert(r+'\n\nContattaci a info@nodoitalia.it!');
+  location.href='index.html#contatti';
+}
+
+// INIT
+renderStepper();renderOpt();renderRiep();renderCase();
+</script>
+</body>
+</html>
