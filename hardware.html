@@ -54,10 +54,10 @@ section{padding:80px 40px}
 /* ═══ MACCHINE RIGENERATE ═══ */
 #macchine{background:var(--sfondo)}
 .griglia-mac{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1000px;margin:0 auto}
-.carta-mac{background:var(--sfondo3);border:1px solid var(--bordo);border-radius:16px;padding:36px 28px;display:flex;flex-direction:column;transition:all .3s;position:relative;overflow:hidden}
+.carta-mac{background:var(--sfondo3);border:1px solid var(--bordo);border-radius:16px;padding:36px 28px;display:flex;flex-direction:column;transition:all .3s;position:relative;overflow:hidden;cursor:pointer}
 .carta-mac:hover{border-color:var(--bordo2);transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.3)}
 .carta-mac.top{border-color:var(--ambra);box-shadow:0 0 0 1px rgba(245,158,11,.15)}
-.carta-mac.top::before{content:'PIÙ VENDUTO';position:absolute;top:16px;right:-32px;background:var(--ambra);color:#000;font-size:9px;font-weight:800;padding:4px 40px;transform:rotate(45deg);letter-spacing:1px}
+.carta-mac.top::before{content:attr(data-badge);position:absolute;top:16px;right:-32px;background:var(--ambra);color:#000;font-size:9px;font-weight:800;padding:4px 40px;transform:rotate(45deg);letter-spacing:1px}
 .ic-pc{width:80px;height:60px;margin:0 auto 20px;position:relative;border:2px solid var(--bordo2);border-radius:6px;display:flex;align-items:center;justify-content:center;background:var(--sfondo)}
 .ic-pc::after{content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:40px;height:4px;background:var(--bordo2);border-radius:2px}
 .ic-pc .d{width:6px;height:6px;border-radius:50%;background:var(--ambra)}
@@ -172,9 +172,9 @@ footer a{color:var(--ambra);text-decoration:none}
 <section id="macchine">
   <div class="sez-titolo"><span class="tag">Pronti all'uso</span><h2>PC Rigenerati</h2><p>La macchina giusta per ogni esigenza e budget</p></div>
   <div class="griglia-mac">
-    <div class="carta-mac"><div class="ic-pc"><div class="d"></div></div><div class="liv">Entry Level</div><div class="nm">Essential</div><div class="tgt">Studenti e navigazione web</div><div class="prz"><div class="v">€199</div><div class="s">IVA inclusa · rigenerato</div></div><div class="specs"><div class="sp"><span class="ck">✓</span>Intel Core i3</div><div class="sp"><span class="ck">✓</span>8 GB RAM</div><div class="sp"><span class="ck">✓</span>SSD 240 GB</div><div class="sp"><span class="ck">✓</span>Windows 11</div><div class="sp"><span class="ck">✓</span>Garanzia 12 mesi</div></div><button class="btn-m" onclick="location.href='index.html#contatti'">Richiedi Info</button></div>
-    <div class="carta-mac top"><div class="ic-pc m"><div class="d"></div></div><div class="liv">Medio</div><div class="nm">Business</div><div class="tgt">Ufficio e multitasking</div><div class="prz"><div class="v">€399</div><div class="s">IVA inclusa · rigenerato</div></div><div class="specs"><div class="sp"><span class="ck">✓</span>Intel Core i5</div><div class="sp"><span class="ck">✓</span>16 GB RAM</div><div class="sp"><span class="ck">✓</span>SSD 480 GB</div><div class="sp"><span class="ck">✓</span>Windows 11 Pro</div><div class="sp"><span class="ck">✓</span>Garanzia 12 mesi</div></div><button class="btn-m" onclick="location.href='index.html#contatti'">Richiedi Info</button></div>
-    <div class="carta-mac"><div class="ic-pc p"><div class="d"></div></div><div class="liv">Pro</div><div class="nm">Performance</div><div class="tgt">CAD, sviluppo, produttività</div><div class="prz"><div class="v">€699</div><div class="s">IVA inclusa · rigenerato</div></div><div class="specs"><div class="sp"><span class="ck">✓</span>Intel Core i7</div><div class="sp"><span class="ck">✓</span>32 GB RAM</div><div class="sp"><span class="ck">✓</span>SSD 1 TB NVMe</div><div class="sp"><span class="ck">✓</span>Windows 11 Pro</div><div class="sp"><span class="ck">✓</span>Garanzia 12 + prioritaria</div></div><button class="btn-m" onclick="location.href='index.html#contatti'">Richiedi Info</button></div>
+    <div class="carta-mac" data-badge="ENTRY" onclick="selezionaMac(this)"><div class="ic-pc"><div class="d"></div></div><div class="liv">Entry Level</div><div class="nm">Essential</div><div class="tgt">Studenti e navigazione web</div><div class="prz"><div class="v">€199</div><div class="s">IVA inclusa · rigenerato</div></div><div class="specs"><div class="sp"><span class="ck">✓</span>Intel Core i3</div><div class="sp"><span class="ck">✓</span>8 GB RAM</div><div class="sp"><span class="ck">✓</span>SSD 240 GB</div><div class="sp"><span class="ck">✓</span>Windows 11</div><div class="sp"><span class="ck">✓</span>Garanzia 12 mesi</div></div><button class="btn-m" onclick="event.stopPropagation();location.href='index.html#contatti'">Richiedi Info</button></div>
+    <div class="carta-mac top" data-badge="PIÙ VENDUTO" onclick="selezionaMac(this)"><div class="ic-pc m"><div class="d"></div></div><div class="liv">Medio</div><div class="nm">Business</div><div class="tgt">Ufficio e multitasking</div><div class="prz"><div class="v">€399</div><div class="s">IVA inclusa · rigenerato</div></div><div class="specs"><div class="sp"><span class="ck">✓</span>Intel Core i5</div><div class="sp"><span class="ck">✓</span>16 GB RAM</div><div class="sp"><span class="ck">✓</span>SSD 480 GB</div><div class="sp"><span class="ck">✓</span>Windows 11 Pro</div><div class="sp"><span class="ck">✓</span>Garanzia 12 mesi</div></div><button class="btn-m" onclick="event.stopPropagation();location.href='index.html#contatti'">Richiedi Info</button></div>
+    <div class="carta-mac" data-badge="PRO" onclick="selezionaMac(this)"><div class="ic-pc p"><div class="d"></div></div><div class="liv">Pro</div><div class="nm">Performance</div><div class="tgt">CAD, sviluppo, produttività</div><div class="prz"><div class="v">€699</div><div class="s">IVA inclusa · rigenerato</div></div><div class="specs"><div class="sp"><span class="ck">✓</span>Intel Core i7</div><div class="sp"><span class="ck">✓</span>32 GB RAM</div><div class="sp"><span class="ck">✓</span>SSD 1 TB NVMe</div><div class="sp"><span class="ck">✓</span>Windows 11 Pro</div><div class="sp"><span class="ck">✓</span>Garanzia 12 + prioritaria</div></div><button class="btn-m" onclick="event.stopPropagation();location.href='index.html#contatti'">Richiedi Info</button></div>
   </div>
 </section>
 
@@ -493,6 +493,11 @@ function confermaConfig(){
   r+='\nTOTALE: €'+totale();
   alert(r+'\n\nContattaci a info@nodoitalia.it!');
   location.href='index.html#contatti';
+}
+
+function selezionaMac(el){
+  document.querySelectorAll('.carta-mac').forEach(c=>c.classList.remove('top'));
+  el.classList.add('top');
 }
 
 // INIT
