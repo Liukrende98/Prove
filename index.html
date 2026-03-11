@@ -94,7 +94,6 @@ section{padding:80px 40px}
 .case-wrap{position:sticky;top:100px;height:fit-content;display:flex;justify-content:center}
 .case-wrap svg{filter:drop-shadow(0 8px 32px rgba(0,0,0,.25));width:100%;max-width:600px;transition:transform .6s cubic-bezier(.4,0,.2,1)}
 .case-wrap svg.spostato{transform:translateX(-40px)}
-@media(max-width:768px){.case-wrap svg.spostato{transform:translateX(-20px)}}
 .comp-g{transition:opacity .6s cubic-bezier(.4,0,.2,1)}
 .comp-g rect,.comp-g circle{transition:all .5s cubic-bezier(.4,0,.2,1)}
 .comp-g text{transition:fill .5s ease}
@@ -129,14 +128,22 @@ footer{padding:32px 40px;text-align:center;border-top:none;font-size:12px;color:
 footer a{color:var(--ambra);text-decoration:none}
 
 /* ═══ RESPONSIVE ═══ */
-@media(max-width:1024px){.conf-layout{grid-template-columns:1fr}.case-wrap{position:relative;top:0;margin:0 auto 24px}}
-@media(max-width:768px){.conf-layout{grid-template-columns:1fr!important}}
+@media(max-width:1024px){
+  .conf-layout{grid-template-columns:1fr}
+  .case-wrap{position:relative;top:0;margin:0 auto 24px;max-width:400px}
+  .case-wrap svg{max-width:100%}
+  .case-wrap svg.spostato{transform:none}
+}
 @media(max-width:768px){
-  nav{padding:12px 20px}.nav-links a:not(:last-child){display:none}
-  .hero{padding:110px 24px 60px}section{padding:60px 20px}
+  nav{padding:12px 20px}
+  .nav-links a:not(:last-child){display:none}
+  .hero{padding:110px 24px 60px}
+  section{padding:60px 20px}
   .griglia-proc,.griglia-mac,.griglia-gar{grid-template-columns:1fr}
   .carta-mac.top::before{display:none}
-  .conf-layout{grid-template-columns:1fr!important}
+  .conf-layout{grid-template-columns:1fr}
+  .case-wrap{max-width:320px}
+  .step-pills{overflow-x:auto;-webkit-overflow-scrolling:touch}
 }
 </style>
 </head>
@@ -434,7 +441,7 @@ function renderCase(){
   
   // Su mobile: viewBox stretto (solo case), no spostamento
   if(mobile){
-    svg.setAttribute('viewBox','-10 10 680 580');
+    svg.setAttribute('viewBox','0 10 400 580');
     svg.classList.remove('spostato');
   } else {
     svg.setAttribute('viewBox','-30 10 720 580');
@@ -509,7 +516,7 @@ function renderCase(){
     txt.setAttribute('y', y - 5);
     prez.setAttribute('y', y + 17);
 
-    lbl.setAttribute('opacity', '1');
+    lbl.setAttribute('opacity', mobile ? '0' : '1');
   });
 
   // Case label e totale
@@ -517,9 +524,9 @@ function renderCase(){
   cl.textContent = sel.case ? 'CASE — ' + sel.case.nome : 'CASE — in attesa';
   cl.setAttribute('fill', sel.case ? '#f59e0b' : '#505068');
   document.getElementById('caseTotTxt').textContent = '€ ' + totale();
-  // Sposta a sinistra quando ci sono componenti selezionati
+  // Sposta a sinistra solo su desktop
   const haComp = Object.keys(sel).some(k => k !== 'case' && sel[k]);
-  if(haComp) svg.classList.add('spostato'); else svg.classList.remove('spostato');
+  if(!mobile && haComp) svg.classList.add('spostato'); else svg.classList.remove('spostato');
 }
 
 function renderRiep(){
