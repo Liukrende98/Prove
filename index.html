@@ -424,192 +424,139 @@ footer a{color:var(--ambra);text-decoration:none}
 </footer>
 
 <script>
-/* ═══ INTRO ANIMATION — CPU + LOGO ═══ */
+/* ═══ INTRO — 2.5s ═══ */
 (function(){
-  const intro = document.getElementById('intro');
-  const cv = document.getElementById('introCanvas');
-  const logo = document.getElementById('introLogo');
-  if(!cv||!intro) return;
-  const ctx = cv.getContext('2d');
-  let W,H;
-  function resize(){W=cv.width=intro.offsetWidth;H=cv.height=intro.offsetHeight;}
-  resize();
+  var intro=document.getElementById('intro');
+  var cv=document.getElementById('introCanvas');
+  var logo=document.getElementById('introLogo');
+  if(!cv||!intro){if(intro)intro.style.display='none';return;}
+  var ctx=cv.getContext('2d');
+  var W,H;
+  function sz(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
+  sz();
+  document.body.style.overflow='hidden';
 
-  const AMBRA='#f59e0b';
-  const t0=performance.now();
-  const DURATA=4200; // ms totali intro
+  var A='#f59e0b';
+  var t0=performance.now();
+  var DUR=2500;
+  var midX,midY,R;
 
-  // Genera circuito CPU
-  const cx=()=>W/2, cy=()=>H/2;
-  let nodi=[],tracce=[],segnali=[];
-
-  function genera(){
-    nodi=[];tracce=[];segnali=[];
-    const r=Math.min(W,H)*0.35;
-    // CPU die centrale
-    nodi.push({x:cx(),y:cy(),r:r*0.15,tipo:'cpu'});
-    // Anelli di nodi
-    for(let ring=0;ring<3;ring++){
-      const n=8+ring*6;
-      const dist=r*(0.3+ring*0.25);
-      for(let i=0;i<n;i++){
-        const ang=(Math.PI*2/n)*i+ring*0.3;
-        nodi.push({x:cx()+Math.cos(ang)*dist,y:cy()+Math.sin(ang)*dist,r:1.5+Math.random()*2,tipo:ring<1?'chip':'pin'});
+  // Nodi e tracce
+  var nodi=[],tracce=[];
+  function gen(){
+    nodi=[];tracce=[];
+    midX=W/2;midY=H/2;R=Math.min(W,H)*0.32;
+    nodi.push({x:midX,y:midY,r:R*0.14,t:'cpu'});
+    for(var ring=0;ring<3;ring++){
+      var n=6+ring*5;var dist=R*(0.3+ring*0.28);
+      for(var i=0;i<n;i++){
+        var ang=(Math.PI*2/n)*i+ring*0.4;
+        nodi.push({x:midX+Math.cos(ang)*dist,y:midY+Math.sin(ang)*dist,r:1.5+Math.random()*2.5,t:ring<1?'c':'p'});
       }
     }
-    // Tracce
-    for(let i=1;i<nodi.length;i++){
-      let best=0,dMin=1e9;
-      for(let j=0;j<i;j++){
-        if(j===0&&i>14)continue;
-        const dx=nodi[j].x-nodi[i].x,dy=nodi[j].y-nodi[i].y;
-        const d=Math.sqrt(dx*dx+dy*dy);
-        if(d<dMin){dMin=d;best=j;}
+    for(var i=1;i<nodi.length;i++){
+      var best=0,dm=1e9;
+      for(var j=Math.max(0,i-8);j<i;j++){
+        var dx=nodi[j].x-nodi[i].x,dy=nodi[j].y-nodi[i].y,d=dx*dx+dy*dy;
+        if(d<dm){dm=d;best=j;}
       }
-      const a=nodi[best],b=nodi[i];
-      const punti=[{x:b.x,y:b.y}];
-      if(Math.random()>.5)punti.push({x:a.x,y:b.y});
-      else punti.push({x:b.x,y:a.y});
-      punti.push({x:a.x,y:a.y});
-      tracce.push({punti,delay:Math.random()*0.5});
-    }
-    // Segnali
-    for(let i=0;i<tracce.length;i++){
-      segnali.push({tr:i,p:0,v:0.008+Math.random()*0.012,r:2+Math.random()*2,started:false});
+      var a=nodi[best],b=nodi[i];
+      if(Math.random()>.5)tracce.push([{x:b.x,y:b.y},{x:a.x,y:b.y},{x:a.x,y:a.y}]);
+      else tracce.push([{x:b.x,y:b.y},{x:b.x,y:a.y},{x:a.x,y:a.y}]);
     }
   }
-  genera();
+  gen();
 
-  function lungTr(pts){let l=0;for(let i=1;i<pts.length;i++){const dx=pts[i].x-pts[i-1].x,dy=pts[i].y-pts[i-1].y;l+=Math.sqrt(dx*dx+dy*dy);}return l;}
-  function ptSuTr(pts,t){const L=lungTr(pts);let tgt=t*L;for(let i=1;i<pts.length;i++){const dx=pts[i].x-pts[i-1].x,dy=pts[i].y-pts[i-1].y;const s=Math.sqrt(dx*dx+dy*dy);if(tgt<=s){const f=tgt/s;return{x:pts[i-1].x+dx*f,y:pts[i-1].y+dy*f};}tgt-=s;}return pts[pts.length-1];}
+  // Segnali
+  var sigs=[];
+  for(var i=0;i<tracce.length;i++)sigs.push({tr:i,p:Math.random(),v:0.01+Math.random()*0.015});
+
+  function trLen(pts){var l=0;for(var i=1;i<pts.length;i++){var dx=pts[i].x-pts[i-1].x,dy=pts[i].y-pts[i-1].y;l+=Math.sqrt(dx*dx+dy*dy);}return l||1;}
+  function trPt(pts,t){var L=trLen(pts);var tg=t*L;for(var i=1;i<pts.length;i++){var dx=pts[i].x-pts[i-1].x,dy=pts[i].y-pts[i-1].y;var s=Math.sqrt(dx*dx+dy*dy);if(tg<=s&&s>0){var f=tg/s;return{x:pts[i-1].x+dx*f,y:pts[i-1].y+dy*f};}tg-=s;}return pts[pts.length-1];}
 
   function draw(){
-    const now=performance.now();
-    const elapsed=now-t0;
-    const progress=Math.min(elapsed/DURATA,1);
-
+    var now=performance.now();
+    var prog=Math.min((now-t0)/DUR,1);
     ctx.clearRect(0,0,W,H);
 
-    // Fase 1 (0-0.5): Costruzione circuiti
-    const buildProgress=Math.min(progress/0.5,1);
+    // Build progress (0->1 in first 50%)
+    var bp=Math.min(prog/0.45,1);
+    var tv=Math.floor(bp*tracce.length);
 
-    // Tracce che si costruiscono progressivamente
-    const tracceVisibili=Math.floor(buildProgress*tracce.length);
+    // Tracce
     ctx.lineWidth=1;
-    for(let i=0;i<tracceVisibili;i++){
-      const t=tracce[i];
-      const trProg=i<tracceVisibili-1?1:Math.min((buildProgress*tracce.length-i),1);
-      ctx.strokeStyle=`rgba(245,158,11,${0.15+trProg*0.15})`;
-      ctx.beginPath();
-      ctx.moveTo(t.punti[0].x,t.punti[0].y);
-      for(let j=1;j<t.punti.length;j++){
-        const frac=Math.min(trProg*t.punti.length/j,1);
-        const px=t.punti[j-1].x+(t.punti[j].x-t.punti[j-1].x)*frac;
-        const py=t.punti[j-1].y+(t.punti[j].y-t.punti[j-1].y)*frac;
-        ctx.lineTo(px,py);
-        if(frac<1)break;
-      }
+    for(var i=0;i<tv;i++){
+      ctx.strokeStyle='rgba(245,158,11,'+(0.12+bp*0.18)+')';
+      ctx.beginPath();ctx.moveTo(tracce[i][0].x,tracce[i][0].y);
+      for(var j=1;j<tracce[i].length;j++)ctx.lineTo(tracce[i][j].x,tracce[i][j].y);
       ctx.stroke();
     }
 
-    // Nodi che appaiono
-    const nodiVisibili=Math.floor(buildProgress*nodi.length);
-    for(let i=0;i<nodiVisibili;i++){
-      const n=nodi[i];
-      if(n.tipo==='cpu'){
-        const s=Math.min(buildProgress*3,1);
-        ctx.strokeStyle=AMBRA;ctx.lineWidth=1.5;
-        const sz=n.r*s;
-        ctx.strokeRect(n.x-sz,n.y-sz,sz*2,sz*2);
-        // Pin
-        if(s>0.5){
-          const pinAlpha=(s-0.5)*2;
-          ctx.strokeStyle=`rgba(245,158,11,${pinAlpha})`;
-          for(let p=0;p<8;p++){
-            const px=n.x-sz+(sz*2/9)*(p+1);
-            ctx.beginPath();ctx.moveTo(px,n.y-sz);ctx.lineTo(px,n.y-sz-10*pinAlpha);ctx.stroke();
-            ctx.beginPath();ctx.moveTo(px,n.y+sz);ctx.lineTo(px,n.y+sz+10*pinAlpha);ctx.stroke();
-          }
-          for(let p=0;p<6;p++){
-            const py=n.y-sz+(sz*2/7)*(p+1);
-            ctx.beginPath();ctx.moveTo(n.x-sz,py);ctx.lineTo(n.x-sz-10*pinAlpha,py);ctx.stroke();
-            ctx.beginPath();ctx.moveTo(n.x+sz,py);ctx.lineTo(n.x+sz+10*pinAlpha,py);ctx.stroke();
+    // Nodi
+    var nv=Math.floor(bp*nodi.length);
+    for(var i=0;i<nv;i++){
+      var n=nodi[i];
+      if(n.t==='cpu'){
+        var s=Math.min(bp*2.5,1);var sz=n.r*s;
+        if(sz>0){
+          ctx.strokeStyle=A;ctx.lineWidth=1.5;
+          ctx.strokeRect(n.x-sz,n.y-sz,sz*2,sz*2);
+          if(s>.4){
+            ctx.strokeStyle='rgba(245,158,11,'+(s-.4)*1.6+')';
+            for(var p=0;p<7;p++){
+              var px=n.x-sz+(sz*2/8)*(p+1);
+              ctx.beginPath();ctx.moveTo(px,n.y-sz);ctx.lineTo(px,n.y-sz-8*s);ctx.stroke();
+              ctx.beginPath();ctx.moveTo(px,n.y+sz);ctx.lineTo(px,n.y+sz+8*s);ctx.stroke();
+            }
+            for(var p=0;p<5;p++){
+              var py=n.y-sz+(sz*2/6)*(p+1);
+              ctx.beginPath();ctx.moveTo(n.x-sz,py);ctx.lineTo(n.x-sz-8*s,py);ctx.stroke();
+              ctx.beginPath();ctx.moveTo(n.x+sz,py);ctx.lineTo(n.x+sz+8*s,py);ctx.stroke();
+            }
           }
         }
       } else {
-        ctx.beginPath();
-        ctx.fillStyle=n.tipo==='chip'?AMBRA:'rgba(245,158,11,0.4)';
+        ctx.beginPath();ctx.fillStyle=n.t==='c'?A:'rgba(245,158,11,0.4)';
         ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fill();
       }
     }
 
-    // Segnali luminosi (dopo 20% di build)
-    if(buildProgress>0.2){
-      const sigAlpha=Math.min((buildProgress-0.2)/0.3,1);
-      segnali.forEach(s=>{
-        if(s.tr>=tracceVisibili)return;
-        const t=tracce[s.tr];
+    // Segnali
+    if(bp>0.15){
+      for(var i=0;i<sigs.length;i++){
+        var s=sigs[i];if(s.tr>=tv)continue;
         s.p+=s.v;if(s.p>1)s.p=0;
-        const pt=ptSuTr(t.punti,s.p);
-        ctx.beginPath();ctx.arc(pt.x,pt.y,s.r,0,Math.PI*2);
-        ctx.fillStyle=`rgba(245,158,11,${sigAlpha})`;ctx.fill();
-        const g=ctx.createRadialGradient(pt.x,pt.y,0,pt.x,pt.y,s.r*4);
-        g.addColorStop(0,`rgba(245,158,11,${sigAlpha*0.5})`);g.addColorStop(1,'rgba(245,158,11,0)');
-        ctx.beginPath();ctx.arc(pt.x,pt.y,s.r*4,0,Math.PI*2);
-        ctx.fillStyle=g;ctx.fill();
-      });
+        var pt=trPt(tracce[s.tr],s.p);
+        if(isFinite(pt.x)&&isFinite(pt.y)){
+          ctx.beginPath();ctx.arc(pt.x,pt.y,2.5,0,Math.PI*2);
+          ctx.fillStyle='rgba(245,158,11,0.8)';ctx.fill();
+        }
+      }
     }
 
-    // Fase 2 (0.4-0.7): Logo appare con glow
-    if(progress>0.4){
-      const logoP=Math.min((progress-0.4)/0.25,1);
-      const ease=1-Math.pow(1-logoP,3); // easeOutCubic
-      logo.style.opacity=ease;
-      logo.style.filter=`drop-shadow(0 0 ${ease*40}px rgba(245,158,11,${ease*0.6}))`;
-      logo.style.transform=`scale(${0.5+ease*0.5})`;
+    // Logo (appare 35%-60%)
+    if(prog>0.35){
+      var lp=Math.min((prog-0.35)/0.25,1);
+      var e=1-Math.pow(1-lp,3);
+      logo.style.opacity=e;
+      logo.style.filter='drop-shadow(0 0 '+e*40+'px rgba(245,158,11,'+e*0.6+'))';
+      logo.style.transform='scale('+(0.5+e*0.5)+')';
     }
 
-    // Fase 3 (0.75-1.0): Tutto svanisce, linee esplodono verso fuori
-    if(progress>0.75){
-      const exitP=(progress-0.75)/0.25;
-      const ease=exitP*exitP; // easeInQuad
-      
-      // Circuiti si dissolvono verso esterno
-      ctx.globalAlpha=1-ease;
-      
-      // Overlay bianco/chiaro che si espande dal centro
-      const expandR=ease*Math.max(W,H);
-      const grd=ctx.createRadialGradient(cx(),cy(),0,cx(),cy(),expandR);
-      grd.addColorStop(0,`rgba(245,245,247,${ease})`);
-      grd.addColorStop(0.7,`rgba(245,245,247,${ease*0.5})`);
-      grd.addColorStop(1,'rgba(245,245,247,0)');
-      ctx.globalAlpha=1;
-      ctx.fillStyle=grd;
-      ctx.fillRect(0,0,W,H);
-      
-      // Logo si rimpicciolisce e sale
-      const logoExit=Math.min(exitP*1.5,1);
-      logo.style.transform=`scale(${1-logoExit*0.3}) translateY(${-logoExit*80}px)`;
-      logo.style.opacity=1-logoExit;
-      
-      // Intro fade out
-      intro.style.opacity=1-ease;
+    // Exit (75%-100%)
+    if(prog>0.75){
+      var ep=(prog-0.75)/0.25;
+      var ee=ep*ep;
+      intro.style.opacity=1-ee;
     }
 
-    if(progress<1){
-      requestAnimationFrame(draw);
-    } else {
-      // Fine: rimuovi intro
-      intro.style.display='none';
-      document.body.style.overflow='';
-    }
+    if(prog<1){requestAnimationFrame(draw);}
+    else{intro.style.display='none';document.body.style.overflow='';}
   }
-
-  // Blocca scroll durante intro
-  document.body.style.overflow='hidden';
   draw();
 })();
 </script>
+
 
 <script>
 (function(){
@@ -743,6 +690,7 @@ footer a{color:var(--ambra);text-decoration:none}
     segnali.forEach(s=>{
       const t=tracce[s.tr];if(!t)return;
       const pt=ptSu(t.punti,s.p);
+      if(!isFinite(pt.x)||!isFinite(pt.y)){s.p=0;return;}
       ctx.beginPath();ctx.arc(pt.x,pt.y,s.r,0,Math.PI*2);
       ctx.fillStyle=AMBRA;ctx.fill();
       const gr=ctx.createRadialGradient(pt.x,pt.y,0,pt.x,pt.y,s.r*3);
