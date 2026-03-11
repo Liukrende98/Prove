@@ -88,50 +88,14 @@ section{padding:80px 40px}
 #configuratore{background:var(--sfondo);position:relative;overflow:hidden}
 #configuratore::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:1px;background:linear-gradient(90deg,transparent,var(--ambra),transparent);opacity:.3}
 
-.conf-layout{display:grid;grid-template-columns:280px 1fr 300px;gap:24px;max-width:1100px;margin:0 auto}
+.conf-layout{display:grid;grid-template-columns:340px 1fr 280px;gap:24px;max-width:1150px;margin:0 auto}
 
-/* Case SVG */
+/* Case SVG 3D */
 .case-wrap{position:sticky;top:100px;height:fit-content}
-.case-visual{
-  width:280px;height:380px;
-  background:var(--sfondo3);border:1px solid var(--bordo);border-radius:14px;
-  position:relative;overflow:hidden;
-  display:flex;flex-direction:column;padding:16px;
-}
-.case-slot{
-  border:1.5px dashed var(--bordo2);border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:10px;color:var(--bordo2);font-weight:600;
-  text-transform:uppercase;letter-spacing:1px;
-  transition:all .5s cubic-bezier(.4,0,.2,1);
-  position:relative;overflow:hidden;
-}
-.case-slot.pieno{
-  border-style:solid;border-color:var(--ambra);color:var(--ambra);
-  background:var(--ambra-dim);
-  box-shadow:0 0 12px rgba(245,158,11,.08);
-}
-.case-slot.pieno::after{
-  content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(245,158,11,.06),transparent);
-  animation:shimmer 3s infinite;
-}
-@keyframes shimmer{0%{left:-100%}100%{left:200%}}
-.case-slot .comp-nome{font-size:9px;color:var(--ambra);font-weight:600;position:absolute;bottom:4px;left:8px;right:8px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transition:opacity .4s}
-.case-slot.pieno .comp-nome{opacity:1}
-
-.slot-cpu{height:50px;margin-bottom:6px}
-.slot-mb{height:70px;margin-bottom:6px}
-.slot-ram{height:30px;margin-bottom:6px}
-.slot-gpu{height:55px;margin-bottom:6px}
-.slot-ssd{height:30px;margin-bottom:6px}
-.slot-psu{height:50px;margin-bottom:6px}
-
-.case-label{font-size:9px;color:var(--testo3);text-align:center;margin-top:8px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
-.case-prezzo-tot{
-  font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:var(--ambra);
-  text-align:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--bordo);
-}
+.case-wrap svg{filter:drop-shadow(0 8px 32px rgba(0,0,0,.4))}
+.comp-g{transition:opacity .6s cubic-bezier(.4,0,.2,1)}
+.comp-g rect,.comp-g circle{transition:all .5s cubic-bezier(.4,0,.2,1)}
+.comp-g text{transition:fill .5s ease}
 
 /* Steps & Options */
 .step-pills{display:flex;gap:4px;margin-bottom:24px;flex-wrap:wrap}
@@ -237,18 +201,111 @@ footer a{color:var(--ambra);text-decoration:none}
   <div class="sez-titolo"><span class="tag">Costruisci il tuo</span><h2>Configuratore PC</h2><p>Scegli pezzo per pezzo — ti mostriamo solo componenti compatibili</p></div>
   <div class="conf-layout">
 
-    <!-- CASE VISUALE -->
+    <!-- CASE 3D VISUALE -->
     <div class="case-wrap">
-      <div class="case-visual">
-        <div class="case-slot slot-cpu" id="slotCpu">CPU<span class="comp-nome" id="nSlotCpu"></span></div>
-        <div class="case-slot slot-mb" id="slotMb">SCHEDA MADRE<span class="comp-nome" id="nSlotMb"></span></div>
-        <div class="case-slot slot-ram" id="slotRam">RAM<span class="comp-nome" id="nSlotRam"></span></div>
-        <div class="case-slot slot-gpu" id="slotGpu">SCHEDA VIDEO<span class="comp-nome" id="nSlotGpu"></span></div>
-        <div class="case-slot slot-ssd" id="slotSsd">SSD<span class="comp-nome" id="nSlotSsd"></span></div>
-        <div class="case-slot slot-psu" id="slotPsu">ALIMENTATORE<span class="comp-nome" id="nSlotPsu"></span></div>
-        <div class="case-label" id="caseLabel">CASE — in attesa</div>
-        <div class="case-prezzo-tot" id="caseTotale">€ 0</div>
-      </div>
+      <svg id="caseSvg" viewBox="0 0 380 520" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:380px">
+        <!-- Case body - isometric 3D open side -->
+        <defs>
+          <linearGradient id="caseGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#151520"/><stop offset="100%" stop-color="#0c0c12"/></linearGradient>
+          <linearGradient id="caseSide" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1a1a24"/><stop offset="100%" stop-color="#111118"/></linearGradient>
+          <filter id="glow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+
+        <!-- Case chassis - front face -->
+        <path d="M30 40 L280 20 L280 460 L30 480 Z" fill="url(#caseGrad)" stroke="#252535" stroke-width="1.5"/>
+        <!-- Case chassis - side face (3D depth) -->
+        <path d="M280 20 L340 50 L340 430 L280 460 Z" fill="url(#caseSide)" stroke="#252535" stroke-width="1"/>
+        <!-- Case chassis - top face -->
+        <path d="M30 40 L280 20 L340 50 L90 70 Z" fill="#181822" stroke="#252535" stroke-width="1"/>
+        <!-- Ventilation grille top -->
+        <line x1="120" y1="48" x2="200" y2="40" stroke="#1e1e2a" stroke-width="1"/><line x1="120" y1="52" x2="200" y2="44" stroke="#1e1e2a" stroke-width="1"/><line x1="120" y1="56" x2="200" y2="48" stroke="#1e1e2a" stroke-width="1"/>
+
+        <!-- ═══ MOTHERBOARD ═══ -->
+        <g id="gMb" class="comp-g" opacity="0.25">
+          <rect x="50" y="80" width="210" height="280" rx="4" fill="#0a0a10" stroke="#252535" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <text x="155" y="230" text-anchor="middle" fill="#252535" font-size="10" font-weight="700" letter-spacing="2" font-family="Outfit,sans-serif">SCHEDA MADRE</text>
+        </g>
+
+        <!-- ═══ CPU ═══ -->
+        <g id="gCpu" class="comp-g" opacity="0.25">
+          <rect x="105" y="110" width="60" height="60" rx="4" fill="#0a0a10" stroke="#252535" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <text x="135" y="145" text-anchor="middle" fill="#252535" font-size="10" font-weight="700" font-family="Outfit,sans-serif">CPU</text>
+        </g>
+
+        <!-- ═══ RAM ═══ -->
+        <g id="gRam" class="comp-g" opacity="0.25">
+          <rect x="185" y="100" width="16" height="80" rx="3" fill="#0a0a10" stroke="#252535" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <rect x="205" y="100" width="16" height="80" rx="3" fill="#0a0a10" stroke="#252535" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <text x="210" y="94" text-anchor="middle" fill="#252535" font-size="8" font-weight="700" font-family="Outfit,sans-serif">RAM</text>
+        </g>
+
+        <!-- ═══ GPU ═══ -->
+        <g id="gGpu" class="comp-g" opacity="0.25">
+          <rect x="60" y="260" width="190" height="40" rx="4" fill="#0a0a10" stroke="#252535" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <text x="155" y="284" text-anchor="middle" fill="#252535" font-size="10" font-weight="700" font-family="Outfit,sans-serif">SCHEDA VIDEO</text>
+        </g>
+
+        <!-- ═══ SSD ═══ -->
+        <g id="gSsd" class="comp-g" opacity="0.25">
+          <rect x="60" y="315" width="80" height="24" rx="3" fill="#0a0a10" stroke="#252535" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <text x="100" y="331" text-anchor="middle" fill="#252535" font-size="8" font-weight="700" font-family="Outfit,sans-serif">SSD</text>
+        </g>
+
+        <!-- ═══ PSU ═══ -->
+        <g id="gPsu" class="comp-g" opacity="0.25">
+          <rect x="50" y="380" width="140" height="70" rx="4" fill="#0a0a10" stroke="#252535" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <circle cx="120" cy="415" r="18" fill="none" stroke="#252535" stroke-width="1" stroke-dasharray="3 2"/>
+          <text x="120" y="440" text-anchor="middle" fill="#252535" font-size="8" font-weight="700" font-family="Outfit,sans-serif">ALIMENTATORE</text>
+        </g>
+
+        <!-- ═══ FRECCE + ETICHETTE (lato destro, appaiono quando pieno) ═══ -->
+        <!-- CPU label -->
+        <g id="lblCpu" opacity="0">
+          <line x1="168" y1="140" x2="295" y2="140" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3 2"/>
+          <circle cx="295" cy="140" r="2" fill="#f59e0b"/>
+          <text x="300" y="136" fill="#f59e0b" font-size="9" font-weight="700" font-family="DM Mono,monospace" id="txtCpu"></text>
+          <text x="300" y="148" fill="#505068" font-size="8" font-family="DM Mono,monospace" id="prezCpu"></text>
+        </g>
+        <!-- RAM label -->
+        <g id="lblRam" opacity="0">
+          <line x1="224" y1="130" x2="295" y2="175" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3 2"/>
+          <circle cx="295" cy="175" r="2" fill="#f59e0b"/>
+          <text x="300" y="171" fill="#f59e0b" font-size="9" font-weight="700" font-family="DM Mono,monospace" id="txtRam"></text>
+          <text x="300" y="183" fill="#505068" font-size="8" font-family="DM Mono,monospace" id="prezRam"></text>
+        </g>
+        <!-- MB label -->
+        <g id="lblMb" opacity="0">
+          <line x1="262" y1="220" x2="295" y2="210" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3 2"/>
+          <circle cx="295" cy="210" r="2" fill="#f59e0b"/>
+          <text x="300" y="206" fill="#f59e0b" font-size="9" font-weight="700" font-family="DM Mono,monospace" id="txtMb"></text>
+          <text x="300" y="218" fill="#505068" font-size="8" font-family="DM Mono,monospace" id="prezMb"></text>
+        </g>
+        <!-- GPU label -->
+        <g id="lblGpu" opacity="0">
+          <line x1="252" y1="280" x2="295" y2="270" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3 2"/>
+          <circle cx="295" cy="270" r="2" fill="#f59e0b"/>
+          <text x="300" y="266" fill="#f59e0b" font-size="9" font-weight="700" font-family="DM Mono,monospace" id="txtGpu"></text>
+          <text x="300" y="278" fill="#505068" font-size="8" font-family="DM Mono,monospace" id="prezGpu"></text>
+        </g>
+        <!-- SSD label -->
+        <g id="lblSsd" opacity="0">
+          <line x1="142" y1="327" x2="295" y2="310" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3 2"/>
+          <circle cx="295" cy="310" r="2" fill="#f59e0b"/>
+          <text x="300" y="306" fill="#f59e0b" font-size="9" font-weight="700" font-family="DM Mono,monospace" id="txtSsd"></text>
+          <text x="300" y="318" fill="#505068" font-size="8" font-family="DM Mono,monospace" id="prezSsd"></text>
+        </g>
+        <!-- PSU label -->
+        <g id="lblPsu" opacity="0">
+          <line x1="192" y1="415" x2="295" y2="380" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3 2"/>
+          <circle cx="295" cy="380" r="2" fill="#f59e0b"/>
+          <text x="300" y="376" fill="#f59e0b" font-size="9" font-weight="700" font-family="DM Mono,monospace" id="txtPsu"></text>
+          <text x="300" y="388" fill="#505068" font-size="8" font-family="DM Mono,monospace" id="prezPsu"></text>
+        </g>
+
+        <!-- Totale in basso -->
+        <text x="155" y="500" text-anchor="middle" fill="#505068" font-size="10" font-weight="600" font-family="Outfit,sans-serif" id="caseLabelTxt">CASE — in attesa</text>
+        <text x="155" y="516" text-anchor="middle" fill="#f59e0b" font-size="18" font-weight="700" font-family="DM Mono,monospace" id="caseTotTxt">€ 0</text>
+      </svg>
     </div>
 
     <!-- OPZIONI -->
@@ -275,16 +332,16 @@ footer a{color:var(--ambra);text-decoration:none}
 <!-- ═══ CTA ═══ -->
 <div class="cta-sez"><h2>Non sai cosa scegliere?</h2><p>Scrivici e ti consigliamo la configurazione migliore.</p><a href="index.html#contatti" class="btn-cta">Contattaci →</a></div>
 
-<footer>© 2026 NodoItalia — <a href="mailto:info@nodoitalia.it">info@nodoitalia.it</a></footer>
+<footer>© 2026 NodoItalia — <a href="/cdn-cgi/l/email-protection#721b1c141d321c1d161d1b06131e1b135c1b06"><span class="__cf_email__" data-cfemail="a0c9cec6cfe0cecfc4cfc9d4c1ccc9c18ec9d4">[email&#160;protected]</span></a></footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const PASSI=[
-  {id:'cpu',nome:'Processore',desc:'Il cuore del PC',slot:'slotCpu',nSlot:'nSlotCpu'},
-  {id:'mb',nome:'Scheda Madre',desc:'Compatibile con il processore scelto',slot:'slotMb',nSlot:'nSlotMb'},
-  {id:'ram',nome:'RAM',desc:'Compatibile con la scheda madre',slot:'slotRam',nSlot:'nSlotRam'},
-  {id:'ssd',nome:'Archiviazione',desc:'SSD o HDD per i tuoi dati',slot:'slotSsd',nSlot:'nSlotSsd'},
-  {id:'gpu',nome:'Scheda Video',desc:'Per grafica e gaming',slot:'slotGpu',nSlot:'nSlotGpu'},
-  {id:'psu',nome:'Alimentatore',desc:'Potenza adeguata ai componenti',slot:'slotPsu',nSlot:'nSlotPsu'},
+  {id:'cpu',nome:'Processore',desc:'Il cuore del PC'},
+  {id:'mb',nome:'Scheda Madre',desc:'Compatibile con il processore scelto'},
+  {id:'ram',nome:'RAM',desc:'Compatibile con la scheda madre'},
+  {id:'ssd',nome:'Archiviazione',desc:'SSD o HDD per i tuoi dati'},
+  {id:'gpu',nome:'Scheda Video',desc:'Per grafica e gaming'},
+  {id:'psu',nome:'Alimentatore',desc:'Potenza adeguata ai componenti'},
   {id:'case',nome:'Case',desc:'Il vestito del PC',slot:null,nSlot:null},
 ];
 
@@ -379,18 +436,56 @@ function renderOpt(){
 }
 
 function renderCase(){
-  const mappa={cpu:'slotCpu',mb:'slotMb',ram:'slotRam',ssd:'slotSsd',gpu:'slotGpu',psu:'slotPsu'};
-  const nMappa={cpu:'nSlotCpu',mb:'nSlotMb',ram:'nSlotRam',ssd:'nSlotSsd',gpu:'nSlotGpu',psu:'nSlotPsu'};
-  for(const[k,slotId] of Object.entries(mappa)){
-    const el=document.getElementById(slotId);
-    const nEl=document.getElementById(nMappa[k]);
-    if(sel[k]){el.classList.add('pieno');nEl.textContent=sel[k].nome;}
-    else{el.classList.remove('pieno');nEl.textContent='';}
+  const parti = {
+    cpu:  {g:'gCpu', lbl:'lblCpu', txt:'txtCpu', prez:'prezCpu'},
+    mb:   {g:'gMb',  lbl:'lblMb',  txt:'txtMb',  prez:'prezMb'},
+    ram:  {g:'gRam', lbl:'lblRam', txt:'txtRam', prez:'prezRam'},
+    gpu:  {g:'gGpu', lbl:'lblGpu', txt:'txtGpu', prez:'prezGpu'},
+    ssd:  {g:'gSsd', lbl:'lblSsd', txt:'txtSsd', prez:'prezSsd'},
+    psu:  {g:'gPsu', lbl:'lblPsu', txt:'txtPsu', prez:'prezPsu'},
+  };
+  for(const[k,ids] of Object.entries(parti)){
+    const g = document.getElementById(ids.g);
+    const lbl = document.getElementById(ids.lbl);
+    const txt = document.getElementById(ids.txt);
+    const prez = document.getElementById(ids.prez);
+    if(sel[k]){
+      // Illumina il componente
+      g.style.transition = 'opacity 0.6s ease';
+      g.style.opacity = '1';
+      const rects = g.querySelectorAll('rect, circle');
+      rects.forEach(r => {
+        r.setAttribute('fill', 'rgba(245,158,11,0.12)');
+        r.setAttribute('stroke', '#f59e0b');
+        r.setAttribute('stroke-dasharray', 'none');
+        r.setAttribute('stroke-width', '1.5');
+      });
+      const texts = g.querySelectorAll('text');
+      texts.forEach(t => t.setAttribute('fill', '#f59e0b'));
+      // Mostra etichetta con freccia
+      lbl.style.transition = 'opacity 0.5s ease 0.2s';
+      lbl.style.opacity = '1';
+      txt.textContent = sel[k].nome.substring(0, 20);
+      prez.textContent = sel[k].prezzo > 0 ? '€' + sel[k].prezzo : 'Gratis';
+    } else {
+      // Resetta a vuoto
+      g.style.opacity = '0.25';
+      const rects = g.querySelectorAll('rect, circle');
+      rects.forEach(r => {
+        r.setAttribute('fill', '#0a0a10');
+        r.setAttribute('stroke', '#252535');
+        r.setAttribute('stroke-dasharray', '4 3');
+      });
+      const texts = g.querySelectorAll('text');
+      texts.forEach(t => t.setAttribute('fill', '#252535'));
+      lbl.style.opacity = '0';
+    }
   }
-  const cl=document.getElementById('caseLabel');
-  cl.textContent=sel.case?`CASE — ${sel.case.nome}`:'CASE — in attesa';
-  if(sel.case){cl.style.color='var(--ambra)';}else{cl.style.color='var(--testo3)';}
-  document.getElementById('caseTotale').textContent='€ '+totale();
+  // Case label e totale
+  const cl = document.getElementById('caseLabelTxt');
+  cl.textContent = sel.case ? 'CASE — ' + sel.case.nome : 'CASE — in attesa';
+  cl.setAttribute('fill', sel.case ? '#f59e0b' : '#505068');
+  document.getElementById('caseTotTxt').textContent = '€ ' + totale();
 }
 
 function renderRiep(){
@@ -416,13 +511,4 @@ function vai(i){step=i;renderStepper();renderOpt();}
 
 function confermaConfig(){
   let r='Configurazione PC:\n\n';
-  PASSI.forEach(p=>{const s=sel[p.id];if(s)r+=`${p.nome}: ${s.nome} — €${s.prezzo}\n`;});
-  r+=`\nTOTALE: €${totale()}`;
-  alert(r+'\n\nContattaci a info@nodoitalia.it!');
-  location.href='index.html#contatti';
-}
-
-renderStepper();renderOpt();renderRiep();renderCase();
-</script>
-</body>
-</html>
+  PASSI.forEach(p=>{const s=sel[p.id];if(s)r+=`${p.nome}: ${
