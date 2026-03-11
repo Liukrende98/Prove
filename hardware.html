@@ -88,11 +88,11 @@ section{padding:80px 40px}
 #configuratore{background:var(--sfondo);position:relative;overflow:hidden}
 #configuratore::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:1px;background:linear-gradient(90deg,transparent,var(--ambra),transparent);opacity:.3}
 
-.conf-layout{display:grid;grid-template-columns:340px 1fr 280px;gap:24px;max-width:1150px;margin:0 auto}
+.conf-layout{display:grid;grid-template-columns:420px 1fr;gap:32px;max-width:1050px;margin:0 auto}
 
 /* Case SVG 3D */
 .case-wrap{position:sticky;top:100px;height:fit-content}
-.case-wrap svg{filter:drop-shadow(0 8px 32px rgba(0,0,0,.4))}
+.case-wrap svg{filter:drop-shadow(0 8px 32px rgba(0,0,0,.4));width:100%}
 .comp-g{transition:opacity .6s cubic-bezier(.4,0,.2,1)}
 .comp-g rect,.comp-g circle{transition:all .5s cubic-bezier(.4,0,.2,1)}
 .comp-g text{transition:fill .5s ease}
@@ -111,15 +111,7 @@ section{padding:80px 40px}
 .opt-card .os{font-size:11px;color:var(--testo3);margin-top:2px}
 .opt-card .op{font-family:'DM Mono',monospace;font-size:14px;color:var(--ambra);flex-shrink:0}
 
-/* Riepilogo */
-.riep-wrap{position:sticky;top:100px;height:fit-content;background:var(--sfondo3);border:1px solid var(--bordo);border-radius:14px;padding:24px}
-.riep-riga{display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)}
-.riep-riga .rc{color:var(--testo3);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
-.riep-riga .rn{font-size:11px;color:var(--testo2)}
-.riep-riga .rp{font-family:'DM Mono',monospace;color:var(--ambra);font-size:12px}
-.riep-riga.vuota .rn{color:var(--bordo2)}
-
-.btn-prev{width:100%;margin-top:16px;padding:14px;border-radius:10px;border:none;background:var(--ambra);color:#000;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;display:none}
+/* Bottone preventivo */
 .btn-prev:hover{background:var(--ambra2)}
 
 /* ═══ CTA ═══ */
@@ -134,7 +126,7 @@ footer{padding:32px 40px;text-align:center;border-top:1px solid var(--bordo);fon
 footer a{color:var(--ambra);text-decoration:none}
 
 /* ═══ RESPONSIVE ═══ */
-@media(max-width:1024px){.conf-layout{grid-template-columns:1fr}.case-wrap{display:none}}
+@media(max-width:1024px){.conf-layout{grid-template-columns:1fr}.case-wrap{position:relative;top:0;max-width:400px;margin:0 auto 24px}}
 @media(max-width:768px){
   nav{padding:12px 20px}.nav-links a:not(:last-child){display:none}
   .hero{padding:110px 24px 60px}section{padding:60px 20px}
@@ -203,7 +195,7 @@ footer a{color:var(--ambra);text-decoration:none}
 
     <!-- CASE 3D VISUALE -->
     <div class="case-wrap">
-      <svg id="caseSvg" viewBox="0 0 380 520" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:380px">
+      <svg id="caseSvg" viewBox="0 0 500 530" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:500px">
         <!-- Case body - isometric 3D open side -->
         <defs>
           <linearGradient id="caseGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#151520"/><stop offset="100%" stop-color="#0c0c12"/></linearGradient>
@@ -258,48 +250,48 @@ footer a{color:var(--ambra);text-decoration:none}
           <text x="120" y="440" text-anchor="middle" fill="#252535" font-size="8" font-weight="700" font-family="Outfit,sans-serif">ALIMENTATORE</text>
         </g>
 
-        <!-- ═══ FRECCE + ETICHETTE (lato destro, appaiono quando pieno) ═══ -->
+        <!-- ═══ ETICHETTE componenti (linee orizzontali, no incroci) ═══ -->
         <!-- CPU label -->
         <g id="lblCpu" opacity="0">
-          <line x1="168" y1="140" x2="295" y2="140" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3 2"/>
-          <circle cx="295" cy="140" r="2" fill="#f59e0b"/>
-          <text x="300" y="136" fill="#f59e0b" font-size="9" font-weight="700" font-family="DM Mono,monospace" id="txtCpu"></text>
-          <text x="300" y="148" fill="#505068" font-size="8" font-family="DM Mono,monospace" id="prezCpu"></text>
+          <line x1="168" y1="140" x2="290" y2="140" stroke="#f59e0b" stroke-width="1" opacity=".5"/>
+          <circle cx="290" cy="140" r="2.5" fill="#f59e0b"/>
+          <text x="298" y="136" fill="#f59e0b" font-size="8" font-weight="700" font-family="DM Mono,monospace" id="txtCpu"></text>
+          <text x="298" y="148" fill="#505068" font-size="7.5" font-family="DM Mono,monospace" id="prezCpu"></text>
         </g>
         <!-- RAM label -->
         <g id="lblRam" opacity="0">
-          <line x1="224" y1="130" x2="295" y2="175" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3 2"/>
-          <circle cx="295" cy="175" r="2" fill="#f59e0b"/>
-          <text x="300" y="171" fill="#f59e0b" font-size="9" font-weight="700" font-family="DM Mono,monospace" id="txtRam"></text>
-          <text x="300" y="183" fill="#505068" font-size="8" font-family="DM Mono,monospace" id="prezRam"></text>
+          <line x1="224" y1="98" x2="290" y2="98" stroke="#f59e0b" stroke-width="1" opacity=".5"/>
+          <circle cx="290" cy="98" r="2.5" fill="#f59e0b"/>
+          <text x="298" y="94" fill="#f59e0b" font-size="8" font-weight="700" font-family="DM Mono,monospace" id="txtRam"></text>
+          <text x="298" y="106" fill="#505068" font-size="7.5" font-family="DM Mono,monospace" id="prezRam"></text>
         </g>
         <!-- MB label -->
         <g id="lblMb" opacity="0">
-          <line x1="262" y1="220" x2="295" y2="210" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3 2"/>
-          <circle cx="295" cy="210" r="2" fill="#f59e0b"/>
-          <text x="300" y="206" fill="#f59e0b" font-size="9" font-weight="700" font-family="DM Mono,monospace" id="txtMb"></text>
-          <text x="300" y="218" fill="#505068" font-size="8" font-family="DM Mono,monospace" id="prezMb"></text>
+          <line x1="262" y1="200" x2="290" y2="200" stroke="#f59e0b" stroke-width="1" opacity=".5"/>
+          <circle cx="290" cy="200" r="2.5" fill="#f59e0b"/>
+          <text x="298" y="196" fill="#f59e0b" font-size="8" font-weight="700" font-family="DM Mono,monospace" id="txtMb"></text>
+          <text x="298" y="208" fill="#505068" font-size="7.5" font-family="DM Mono,monospace" id="prezMb"></text>
         </g>
         <!-- GPU label -->
         <g id="lblGpu" opacity="0">
-          <line x1="252" y1="280" x2="295" y2="270" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3 2"/>
-          <circle cx="295" cy="270" r="2" fill="#f59e0b"/>
-          <text x="300" y="266" fill="#f59e0b" font-size="9" font-weight="700" font-family="DM Mono,monospace" id="txtGpu"></text>
-          <text x="300" y="278" fill="#505068" font-size="8" font-family="DM Mono,monospace" id="prezGpu"></text>
+          <line x1="252" y1="280" x2="290" y2="280" stroke="#f59e0b" stroke-width="1" opacity=".5"/>
+          <circle cx="290" cy="280" r="2.5" fill="#f59e0b"/>
+          <text x="298" y="276" fill="#f59e0b" font-size="8" font-weight="700" font-family="DM Mono,monospace" id="txtGpu"></text>
+          <text x="298" y="288" fill="#505068" font-size="7.5" font-family="DM Mono,monospace" id="prezGpu"></text>
         </g>
         <!-- SSD label -->
         <g id="lblSsd" opacity="0">
-          <line x1="142" y1="327" x2="295" y2="310" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3 2"/>
-          <circle cx="295" cy="310" r="2" fill="#f59e0b"/>
-          <text x="300" y="306" fill="#f59e0b" font-size="9" font-weight="700" font-family="DM Mono,monospace" id="txtSsd"></text>
-          <text x="300" y="318" fill="#505068" font-size="8" font-family="DM Mono,monospace" id="prezSsd"></text>
+          <line x1="142" y1="327" x2="290" y2="327" stroke="#f59e0b" stroke-width="1" opacity=".5"/>
+          <circle cx="290" cy="327" r="2.5" fill="#f59e0b"/>
+          <text x="298" y="323" fill="#f59e0b" font-size="8" font-weight="700" font-family="DM Mono,monospace" id="txtSsd"></text>
+          <text x="298" y="335" fill="#505068" font-size="7.5" font-family="DM Mono,monospace" id="prezSsd"></text>
         </g>
         <!-- PSU label -->
         <g id="lblPsu" opacity="0">
-          <line x1="192" y1="415" x2="295" y2="380" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3 2"/>
-          <circle cx="295" cy="380" r="2" fill="#f59e0b"/>
-          <text x="300" y="376" fill="#f59e0b" font-size="9" font-weight="700" font-family="DM Mono,monospace" id="txtPsu"></text>
-          <text x="300" y="388" fill="#505068" font-size="8" font-family="DM Mono,monospace" id="prezPsu"></text>
+          <line x1="192" y1="415" x2="290" y2="415" stroke="#f59e0b" stroke-width="1" opacity=".5"/>
+          <circle cx="290" cy="415" r="2.5" fill="#f59e0b"/>
+          <text x="298" y="411" fill="#f59e0b" font-size="8" font-weight="700" font-family="DM Mono,monospace" id="txtPsu"></text>
+          <text x="298" y="423" fill="#505068" font-size="7.5" font-family="DM Mono,monospace" id="prezPsu"></text>
         </g>
 
         <!-- Totale in basso -->
@@ -314,18 +306,9 @@ footer a{color:var(--ambra);text-decoration:none}
       <div id="titoloStep" style="font-size:18px;font-weight:700;margin-bottom:4px"></div>
       <div id="descStep" style="font-size:13px;color:var(--testo3);margin-bottom:16px"></div>
       <div id="opzioni"></div>
+      <button class="btn-prev" id="btnPrev" onclick="confermaConfig()" style="display:none;width:100%;margin-top:20px;padding:14px;border-radius:10px;border:none;background:var(--ambra);color:#000;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">Richiedi Preventivo →</button>
     </div>
 
-    <!-- RIEPILOGO -->
-    <div class="riep-wrap">
-      <div style="font-size:14px;font-weight:700;margin-bottom:16px">La tua build</div>
-      <div id="riepilogo"></div>
-      <div style="border-top:1px solid var(--bordo);padding-top:14px;margin-top:12px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-weight:600">Totale</span>
-        <span id="totPrezzo" style="font-family:'DM Mono',monospace;font-size:24px;font-weight:700;color:var(--ambra)">€ 0</span>
-      </div>
-      <button class="btn-prev" id="btnPrev" onclick="confermaConfig()">Richiedi Preventivo →</button>
-    </div>
   </div>
 </section>
 
@@ -489,12 +472,6 @@ function renderCase(){
 }
 
 function renderRiep(){
-  document.getElementById('riepilogo').innerHTML=PASSI.map(p=>{
-    const s=sel[p.id];
-    return s?`<div class="riep-riga"><span class="rc">${p.nome}</span><span class="rp">€${s.prezzo}</span></div><div style="font-size:10px;color:var(--testo2);margin-top:-2px;margin-bottom:4px">${s.nome}</div>`
-    :`<div class="riep-riga vuota"><span class="rc">${p.nome}</span><span class="rn">—</span></div>`;
-  }).join('');
-  document.getElementById('totPrezzo').textContent='€ '+totale();
   document.getElementById('btnPrev').style.display=PASSI.every(p=>sel[p.id])?'block':'none';
 }
 
