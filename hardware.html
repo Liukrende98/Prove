@@ -47,7 +47,7 @@ section{padding:80px 40px}
 .griglia-proc{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;max-width:900px;margin:0 auto;background:var(--bordo);border-radius:14px;overflow:hidden}
 .carta-proc{background:var(--sfondo2);padding:32px 24px;text-align:center}
 .carta-proc .ic{width:48px;height:48px;border-radius:12px;background:var(--ambra-dim);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
-.carta-proc .ic svg{width:24px;height:24px;stroke:var(--ambra);fill:none;stroke-width:1.5}
+.carta-proc .ic svg{width:24px;height:24px;stroke:#1a1a2e;fill:none;stroke-width:1.5}
 .carta-proc h3{font-size:15px;font-weight:700;margin-bottom:8px}
 .carta-proc p{font-size:13px;color:var(--testo2);line-height:1.5}
 
@@ -88,13 +88,12 @@ section{padding:80px 40px}
 #configuratore{background:var(--sfondo);position:relative;overflow:hidden}
 #configuratore::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:1px;background:linear-gradient(90deg,transparent,var(--ambra),transparent);opacity:.3}
 
-.conf-layout{display:grid;grid-template-columns:1fr 1fr;gap:32px;max-width:1200px;margin:0 auto}
+.conf-layout{display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:1400px;margin:0 auto}
 
 /* Case SVG 3D */
-.case-wrap{position:sticky;top:100px;height:fit-content;display:flex;justify-content:center}
-.case-wrap svg{filter:drop-shadow(0 8px 32px rgba(0,0,0,.25));width:100%;max-width:500px;transition:transform .6s cubic-bezier(.4,0,.2,1)}
-.case-wrap svg.spostato{transform:translateX(-40px)}
-@media(max-width:768px){.case-wrap svg.spostato{transform:translateX(-20px)}}
+.case-wrap{position:sticky;top:80px;height:fit-content;display:flex;justify-content:center;align-items:flex-start}
+.case-wrap svg{filter:drop-shadow(0 8px 32px rgba(0,0,0,.25));width:100%;max-width:none;transition:transform .6s cubic-bezier(.4,0,.2,1)}
+.case-wrap svg.spostato{transform:translateX(-30px)}
 .comp-g{transition:opacity .6s cubic-bezier(.4,0,.2,1)}
 .comp-g rect,.comp-g circle{transition:all .5s cubic-bezier(.4,0,.2,1)}
 .comp-g text{transition:fill .5s ease}
@@ -129,14 +128,22 @@ footer{padding:32px 40px;text-align:center;border-top:none;font-size:12px;color:
 footer a{color:var(--ambra);text-decoration:none}
 
 /* ═══ RESPONSIVE ═══ */
-@media(max-width:1024px){.conf-layout{grid-template-columns:1fr}.case-wrap{position:relative;top:0;margin:0 auto 24px}}
-@media(max-width:768px){.conf-layout{grid-template-columns:1fr!important}}
+@media(max-width:1024px){
+  .conf-layout{grid-template-columns:1fr}
+  .case-wrap{position:relative;top:0;margin:0 auto 24px;max-width:360px}
+  .case-wrap svg{max-width:100%}
+  .case-wrap svg.spostato{transform:none}
+}
 @media(max-width:768px){
-  nav{padding:12px 20px}.nav-links a:not(:last-child){display:none}
-  .hero{padding:110px 24px 60px}section{padding:60px 20px}
+  nav{padding:12px 20px}
+  .nav-links a:not(:last-child){display:none}
+  .hero{padding:110px 24px 60px}
+  section{padding:60px 20px}
   .griglia-proc,.griglia-mac,.griglia-gar{grid-template-columns:1fr}
   .carta-mac.top::before{display:none}
-  .conf-layout{grid-template-columns:1fr!important}
+  .conf-layout{grid-template-columns:1fr}
+  .case-wrap{max-width:280px;margin:0 auto 20px}
+  .step-pills{overflow-x:auto;-webkit-overflow-scrolling:touch}
 }
 </style>
 </head>
@@ -186,9 +193,9 @@ footer a{color:var(--ambra);text-decoration:none}
 <section id="garanzia">
   <div class="sez-titolo"><span class="tag">Tranquillità</span><h2>Cosa è incluso</h2></div>
   <div class="griglia-gar">
-    <div class="carta-gar"><div style="font-size:28px">🛡️</div><h3>12 mesi di garanzia</h3><p>Copertura totale. Se si rompe, lo ripariamo o sostituiamo.</p></div>
-    <div class="carta-gar"><div style="font-size:28px">🔧</div><h3>Assistenza tecnica</h3><p>Supporto remoto o in sede. Siamo a una chiamata di distanza.</p></div>
-    <div class="carta-gar"><div style="font-size:28px">📦</div><h3>Consegna pronta</h3><p>Disponibili a magazzino. Spedizione in 24-48 ore lavorative.</p></div>
+    <div class="carta-gar"><div style="font-size:28px"><svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="#1a1a2e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg></div><h3>12 mesi di garanzia</h3><p>Copertura totale. Se si rompe, lo ripariamo o sostituiamo.</p></div>
+    <div class="carta-gar"><div style="font-size:28px"><svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="#1a1a2e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.42 15.17l-5.58 5.58a2.121 2.121 0 01-3-3l5.58-5.58m4.24-4.24l5.58-5.58a2.121 2.121 0 013 3l-5.58 5.58m-4.24 4.24l4.24-4.24"/></svg></div><h3>Assistenza tecnica</h3><p>Supporto remoto o in sede. Siamo a una chiamata di distanza.</p></div>
+    <div class="carta-gar"><div style="font-size:28px"><svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="#1a1a2e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/></svg></div><h3>Consegna pronta</h3><p>Disponibili a magazzino. Spedizione in 24-48 ore lavorative.</p></div>
   </div>
 </section>
 
@@ -434,7 +441,7 @@ function renderCase(){
   
   // Su mobile: viewBox stretto (solo case), no spostamento
   if(mobile){
-    svg.setAttribute('viewBox','-10 10 680 580');
+    svg.setAttribute('viewBox','20 10 380 580');
     svg.classList.remove('spostato');
   } else {
     svg.setAttribute('viewBox','-30 10 720 580');
@@ -509,7 +516,7 @@ function renderCase(){
     txt.setAttribute('y', y - 5);
     prez.setAttribute('y', y + 17);
 
-    lbl.setAttribute('opacity', '1');
+    lbl.setAttribute('opacity', mobile ? '0' : '1');
   });
 
   // Case label e totale
@@ -517,9 +524,9 @@ function renderCase(){
   cl.textContent = sel.case ? 'CASE — ' + sel.case.nome : 'CASE — in attesa';
   cl.setAttribute('fill', sel.case ? '#f59e0b' : '#505068');
   document.getElementById('caseTotTxt').textContent = '€ ' + totale();
-  // Sposta a sinistra quando ci sono componenti selezionati
+  // Sposta a sinistra solo su desktop
   const haComp = Object.keys(sel).some(k => k !== 'case' && sel[k]);
-  if(haComp) svg.classList.add('spostato'); else svg.classList.remove('spostato');
+  if(!mobile && haComp) svg.classList.add('spostato'); else svg.classList.remove('spostato');
 }
 
 function renderRiep(){
