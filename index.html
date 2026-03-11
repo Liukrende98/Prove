@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Nodo Italia — Soluzioni IT & Automazione</title>
+<title>Hardware — NodoItalia</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -11,7 +11,7 @@
   --bordo:#d8d8e0;--bordo2:#c0c0cc;
   --testo:#1a1a2e;--testo2:#555570;--testo3:#888898;
   --ambra:#f59e0b;--ambra2:#fbbf24;--ambra-dim:rgba(245,158,11,.1);
-  --verde:#22c55e;--blu:#3b82f6;--rosso:#ef4444;--viola:#a855f7;
+  --verde:#22c55e;--blu:#3b82f6;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -22,718 +22,537 @@ body{font-family:'Outfit',sans-serif;background:var(--sfondo);color:var(--testo)
 ::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
 
 /* ═══ NAV ═══ */
-nav{
-  position:fixed;top:0;left:0;width:100%;z-index:100;
-  padding:16px 40px;display:flex;align-items:center;
-  background:rgba(14,14,20,.95);backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(255,255,255,.06);
-  transition:all .3s;
-}
+nav{position:fixed;top:0;left:0;width:100%;z-index:100;padding:16px 40px;display:flex;align-items:center;background:rgba(14,14,20,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.06)}
 .nav-logo{font-size:20px;font-weight:800;color:#ffffff;display:flex;align-items:center;gap:10px;text-decoration:none}
 .nav-links{display:flex;gap:28px;margin-left:auto;align-items:center}
-.nav-links a{color:#9090a8;font-size:13px;font-weight:500;text-decoration:none;transition:color .2s;letter-spacing:.3px}
+.nav-links a{color:#9090a8;font-size:13px;font-weight:500;text-decoration:none;transition:color .2s}
 .nav-links a:hover{color:#f59e0b}
-.nav-cta{
-  padding:8px 20px;border-radius:8px;background:var(--ambra);color:#000;
-  font-size:12px;font-weight:700;text-decoration:none;letter-spacing:.5px;
-  transition:all .2s;
-}
-.nav-cta:hover{background:var(--ambra2);transform:translateY(-1px);color:#000}
 
 /* ═══ HERO ═══ */
-.hero{
-  min-height:100vh;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  padding:120px 40px 80px;text-align:center;
-  position:relative;overflow:hidden;
-}
-.hero-circuit{
-  position:absolute;top:0;left:0;width:100%;height:100%;
-  pointer-events:none;opacity:.18;
-}
-@media(max-width:768px){
-  .hero-circuit{display:none}
-  #intro{display:none!important}
-}
-
-
-.hero-badge{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:6px 16px;border-radius:20px;font-size:11px;font-weight:600;
-  background:var(--ambra-dim);color:var(--ambra);border:1px solid rgba(245,158,11,.15);
-  margin-bottom:32px;letter-spacing:.5px;
-  animation:fadeUp .6s ease both;
-}
-.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--ambra);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.hero-logo{
-  margin-bottom:28px;
-  animation:fadeUp .6s ease .1s both, pulsaLogo 3s ease-in-out .8s infinite;
-  transition:opacity .3s ease;
-}
-@keyframes pulsaLogo{0%,100%{transform:scale(1);filter:drop-shadow(0 0 16px rgba(245,158,11,.2))}50%{transform:scale(1.18);filter:drop-shadow(0 0 44px rgba(245,158,11,.6))}}
-.hero h1{
-  font-size:clamp(40px,7vw,72px);font-weight:900;line-height:1.05;
-  margin-bottom:20px;letter-spacing:-1.5px;
-  animation:fadeUp .6s ease .2s both;
-}
+.hero{padding:140px 40px 80px;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:20px;font-size:11px;font-weight:600;background:var(--ambra-dim);color:var(--ambra);border:1px solid rgba(245,158,11,.15);margin-bottom:24px;letter-spacing:.5px}
+.hero h1{font-size:clamp(32px,5vw,52px);font-weight:900;letter-spacing:-1px;margin-bottom:16px}
 .hero h1 em{font-style:normal;color:var(--ambra)}
-.hero .lead{
-  font-size:clamp(16px,2vw,20px);color:var(--testo2);
-  max-width:560px;line-height:1.6;margin-bottom:40px;font-weight:300;
-  animation:fadeUp .6s ease .3s both;
-}
-.hero-actions{
-  display:flex;gap:12px;flex-wrap:wrap;justify-content:center;
-  animation:fadeUp .6s ease .4s both;
-}
-.btn-hero{
-  padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700;
-  text-decoration:none;font-family:inherit;cursor:pointer;border:none;
-  transition:all .25s cubic-bezier(.4,0,.2,1);
-}
-.btn-primario{background:var(--ambra);color:#000}
-.btn-primario:hover{background:var(--ambra2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(245,158,11,.15)}
-.btn-secondario{background:var(--sfondo3);color:var(--testo);border:1px solid var(--bordo2)}
-.btn-secondario:hover{border-color:var(--ambra);color:var(--ambra)}
-.hero-stats{
-  display:flex;gap:48px;margin-top:64px;
-  animation:fadeUp .6s ease .5s both;
-}
-.hero-stat .numero{font-family:'DM Mono',monospace;font-size:28px;font-weight:700;color:var(--ambra)}
-.hero-stat .etichetta{font-size:12px;color:var(--testo3);margin-top:4px;text-transform:uppercase;letter-spacing:1px}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.hero .lead{font-size:clamp(15px,2vw,18px);color:var(--testo2);max-width:600px;margin:0 auto;line-height:1.6;font-weight:300}
 
 /* ═══ SEZIONE ═══ */
-section{padding:100px 40px}
-.sezione-titolo{
-  text-align:center;margin-bottom:60px;
-}
-.sezione-titolo .tag{
-  font-size:11px;font-weight:700;color:var(--ambra);text-transform:uppercase;
-  letter-spacing:3px;margin-bottom:12px;display:block;
-}
-.sezione-titolo h2{font-size:clamp(28px,4vw,42px);font-weight:800;letter-spacing:-.5px}
-.sezione-titolo p{font-size:16px;color:var(--testo2);max-width:480px;margin:12px auto 0;line-height:1.6;font-weight:300}
+section{padding:80px 40px}
+.sez-titolo{text-align:center;margin-bottom:48px}
+.sez-titolo .tag{font-size:11px;font-weight:700;color:var(--ambra);text-transform:uppercase;letter-spacing:3px;margin-bottom:10px;display:block}
+.sez-titolo h2{font-size:clamp(26px,4vw,38px);font-weight:800;letter-spacing:-.5px}
+.sez-titolo p{font-size:15px;color:var(--testo2);max-width:500px;margin:10px auto 0;line-height:1.6;font-weight:300}
 
-/* ═══ SERVIZI ═══ */
-#servizi{background:var(--sfondo2);position:relative;overflow:hidden}
-#servizi::before{
-  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
-  width:600px;height:1px;
-  background:linear-gradient(90deg,transparent,var(--ambra),transparent);
-  opacity:.5;
-}
-.griglia-servizi{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:1px;max-width:1100px;margin:0 auto;
-  background:var(--bordo);border-radius:16px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.06);
-}
-.carta-servizio{
-  background:var(--sfondo2);
-  padding:36px 28px;
-  transition:all .4s cubic-bezier(.4,0,.2,1);
-  position:relative;overflow:hidden;cursor:default;
-}
-.carta-servizio::before{
-  content:'';position:absolute;top:0;left:0;width:100%;height:100%;
-  background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(245,158,11,.08) 0%,transparent 60%);
-  opacity:0;transition:opacity .4s;pointer-events:none;
-}
-.carta-servizio:hover::before{opacity:1}
-.carta-servizio:hover{background:var(--sfondo3)}
-.carta-servizio:hover .icona-servizio{transform:scale(1.15) rotate(-3deg)}
+/* ═══ PROCESSO ═══ */
+#processo{background:var(--sfondo2)}
+.griglia-proc{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;max-width:900px;margin:0 auto;background:var(--bordo);border-radius:14px;overflow:hidden}
+.carta-proc{background:var(--sfondo2);padding:32px 24px;text-align:center}
+.carta-proc .ic{width:48px;height:48px;border-radius:12px;background:var(--ambra-dim);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.carta-proc .ic svg{width:24px;height:24px;stroke:#1a1a2e;fill:none;stroke-width:1.5}
+.carta-proc h3{font-size:15px;font-weight:700;margin-bottom:8px}
+.carta-proc p{font-size:13px;color:var(--testo2);line-height:1.5}
 
-.carta-servizio:hover h3{color:var(--ambra)}
-.icona-servizio{
-  width:52px;height:52px;border-radius:12px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:24px;margin-bottom:18px;transition:all .4s cubic-bezier(.4,0,.2,1);
-  position:relative;
-  animation:pulsaIcona 2s ease-in-out infinite;
-}
-@keyframes pulsaIcona{0%,100%{transform:scale(1);box-shadow:0 0 0 rgba(245,158,11,0)}50%{transform:scale(1.15);box-shadow:0 0 20px rgba(245,158,11,.25)}}
-.carta-servizio:hover .icona-servizio{animation:none;transform:scale(1.2) rotate(-8deg);box-shadow:0 0 24px rgba(245,158,11,.3)}
-.icona-servizio::after{
-  content:'';position:absolute;inset:-4px;border-radius:14px;
-  opacity:0;transition:opacity .4s;pointer-events:none;
-}
-.carta-servizio:hover .icona-servizio::after{opacity:1}
-.carta-servizio h3{font-size:16px;font-weight:700;margin-bottom:8px;transition:color .3s}
-.carta-servizio p{font-size:13px;color:var(--testo2);line-height:1.6}
-.carta-servizio .etichette{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px}
-.etichetta-tech{
-  font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;
-  background:rgba(255,255,255,.03);color:var(--testo3);
-  letter-spacing:.3px;border:1px solid rgba(255,255,255,.04);
-  transition:all .3s;
-}
-.carta-servizio:hover .etichetta-tech{
-  background:var(--ambra-dim);border-color:rgba(245,158,11,.15);color:var(--ambra);
-}
-.carta-servizio{transition:background .4s,color .3s}
+/* ═══ MACCHINE RIGENERATE ═══ */
+#macchine{background:var(--sfondo)}
+.griglia-mac{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1000px;margin:0 auto}
+.carta-mac{background:var(--sfondo3);border:1px solid var(--bordo);border-radius:16px;padding:36px 28px;display:flex;flex-direction:column;transition:all .3s;position:relative;overflow:hidden;cursor:pointer}
+.carta-mac:hover{border-color:var(--bordo2);transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.08)}
+.carta-mac.top{border-color:var(--ambra);box-shadow:0 0 0 1px rgba(245,158,11,.15)}
+.carta-mac.top::before{content:attr(data-badge);position:absolute;top:18px;right:-36px;background:var(--ambra);color:#000;font-size:9px;font-weight:800;padding:7px 50px 6px;transform:rotate(45deg);letter-spacing:1.5px;line-height:1.4}
+.ic-pc{width:80px;height:60px;margin:0 auto 20px;position:relative;border:2px solid #c0c0cc;border-radius:6px;display:flex;align-items:center;justify-content:center;background:var(--sfondo)}
+.ic-pc::after{content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:40px;height:4px;background:var(--bordo2);border-radius:2px}
+.ic-pc .d{width:6px;height:6px;border-radius:50%;background:var(--ambra)}
+.ic-pc.m .d{width:8px;height:8px;box-shadow:0 0 8px rgba(245,158,11,.4)}
+.ic-pc.p .d{width:10px;height:10px;box-shadow:0 0 16px rgba(245,158,11,.5)}
+.liv{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--ambra);margin-bottom:6px;text-align:center}
+.nm{font-size:20px;font-weight:800;text-align:center;margin-bottom:4px}
+.tgt{font-size:12px;color:var(--testo3);text-align:center;margin-bottom:20px}
+.prz{text-align:center;margin-bottom:20px}
+.prz .v{font-family:'DM Mono',monospace;font-size:36px;font-weight:700;color:var(--ambra)}
+.prz .s{font-size:12px;color:var(--testo3);margin-top:2px}
+.specs{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;flex:1}
+.sp{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--testo2)}
+.sp .ck{color:var(--verde);font-size:14px;flex-shrink:0}
+.btn-m{width:100%;padding:14px;border-radius:10px;border:1.5px solid var(--bordo2);background:transparent;color:var(--testo);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;text-align:center}
+.btn-m:hover{border-color:var(--ambra);color:var(--ambra);background:var(--ambra-dim)}
+.carta-mac.top .btn-m{background:var(--ambra);color:#fff;border-color:var(--ambra)}
+.carta-mac.top .btn-m:hover{background:var(--ambra2)}
 
-/* ═══ PRODOTTI SaaS ═══ */
-#prodotti{background:var(--sfondo)}
-.griglia-prodotti{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
-  gap:20px;max-width:900px;margin:0 auto;
-}
-.carta-prodotto{
-  background:var(--sfondo3);border:1px solid var(--bordo);border-radius:16px;
-  padding:36px 32px;text-align:center;position:relative;overflow:hidden;
-  transition:all .3s cubic-bezier(.4,0,.2,1);
-  text-decoration:none;color:inherit;display:block;
-}
-.carta-prodotto:hover{
-  border-color:var(--ambra);transform:translateY(-4px);
-  box-shadow:0 16px 48px rgba(245,158,11,.12);
-}
-.carta-prodotto .icona-prodotto{font-size:42px;margin-bottom:16px}
-.carta-prodotto h3{font-size:22px;font-weight:800;margin-bottom:8px}
-.carta-prodotto h3 span{color:var(--ambra)}
-.carta-prodotto p{font-size:14px;color:var(--testo2);line-height:1.6;margin-bottom:16px}
-.badge-stato{
-  display:inline-block;padding:5px 14px;border-radius:20px;
-  font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
-}
-.badge-attivo{background:rgba(34,197,94,.1);color:var(--verde);border:1px solid rgba(34,197,94,.2)}
-.badge-presto{background:var(--ambra-dim);color:var(--ambra);border:1px solid rgba(245,158,11,.2)}
+/* ═══ GARANZIA ═══ */
+#garanzia{background:var(--sfondo2)}
+.griglia-gar{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:900px;margin:0 auto}
+.carta-gar{background:var(--sfondo3);border:1px solid var(--bordo);border-radius:12px;padding:24px 20px;text-align:center}
+.carta-gar h3{font-size:14px;font-weight:700;margin:12px 0 6px}
+.carta-gar p{font-size:12px;color:var(--testo2);line-height:1.5}
 
-/* ═══ CONTATTI ═══ */
-#contatti{background:var(--sfondo2)}
-.contatti-grid{
-  display:grid;grid-template-columns:1fr 1fr;gap:40px;
-  max-width:900px;margin:0 auto;
-}
-.info-contatto{display:flex;flex-direction:column;justify-content:center;gap:20px}
-.riga-contatto{display:flex;align-items:center;gap:14px}
-.riga-contatto .icona-contatto{
-  width:40px;height:40px;border-radius:10px;background:var(--sfondo3);border:1px solid var(--bordo);
-  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
-}
-.riga-contatto .dato{font-size:14px;color:var(--testo2)}
-.riga-contatto .dato strong{color:var(--testo);display:block;font-size:13px;margin-bottom:2px}
-.form-contatto{
-  background:var(--sfondo3);border:1px solid var(--bordo);border-radius:16px;padding:32px;
-}
-.campo{
-  width:100%;padding:12px 16px;border-radius:8px;border:1px solid var(--bordo);
-  background:var(--sfondo);color:var(--testo);font-size:14px;font-family:inherit;
-  outline:none;margin-bottom:12px;transition:border-color .2s;
-}
-.campo:focus{border-color:var(--ambra)}
-textarea.campo{resize:vertical;min-height:100px}
-.btn-invia{
-  width:100%;padding:14px;border-radius:10px;border:none;
-  background:var(--ambra);color:#000;font-size:15px;font-weight:700;
-  font-family:inherit;cursor:pointer;transition:all .2s;
-}
-.btn-invia:hover{background:var(--ambra2)}
+/* ═══ CONFIGURATORE ═══ */
+#configuratore{background:var(--sfondo);position:relative;overflow:hidden}
+#configuratore::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:1px;background:linear-gradient(90deg,transparent,var(--ambra),transparent);opacity:.3}
+
+.conf-layout{display:grid;grid-template-columns:1.3fr 1fr;gap:32px;max-width:1200px;margin:0 auto}
+
+/* Case SVG 3D */
+.case-wrap{position:sticky;top:100px;height:fit-content;display:flex;justify-content:center}
+.case-wrap svg{filter:drop-shadow(0 8px 32px rgba(0,0,0,.25));width:100%;max-width:600px;transition:transform .6s cubic-bezier(.4,0,.2,1)}
+.case-wrap svg.spostato{transform:translateX(-40px)}
+@media(max-width:768px){.case-wrap svg.spostato{transform:translateX(-20px)}}
+.comp-g{transition:opacity .6s cubic-bezier(.4,0,.2,1)}
+.comp-g rect,.comp-g circle{transition:all .5s cubic-bezier(.4,0,.2,1)}
+.comp-g text{transition:fill .5s ease}
+#lblCpu,#lblRam,#lblMb,#lblGpu,#lblSsd,#lblPsu{transition:opacity .5s ease .2s}
+
+/* Steps & Options */
+.step-pills{display:flex;gap:8px;margin-bottom:24px;flex-wrap:nowrap;overflow-x:auto;padding:12px 16px;background:var(--sfondo2);border-radius:14px;border:1px solid var(--bordo)}
+.step-pill{padding:10px 20px;border-radius:24px;font-size:14px;font-weight:600;white-space:nowrap;cursor:pointer;transition:all .2s;border:1px solid var(--bordo);background:var(--sfondo3);color:var(--testo3)}
+.step-pill.att{background:var(--ambra);color:#000;border-color:var(--ambra)}
+.step-pill.done{background:var(--ambra-dim);color:var(--ambra);border-color:rgba(245,158,11,.3)}
+.step-pill.lock{opacity:.4;cursor:not-allowed}
+
+.opt-card{background:var(--sfondo3);border:1px solid var(--bordo);border-radius:10px;padding:14px 16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.opt-card:hover{border-color:var(--bordo2);background:var(--sfondo2)}
+.opt-card.sel{border-color:var(--ambra);background:var(--ambra-dim)}
+.opt-card .on{font-size:14px;font-weight:600;flex:1}
+.opt-card .os{font-size:11px;color:var(--testo3);margin-top:2px}
+.opt-card .op{font-family:'DM Mono',monospace;font-size:14px;color:var(--ambra);flex-shrink:0}
+
+/* Bottone preventivo */
+.btn-prev:hover{background:var(--ambra2)}
+
+/* ═══ CTA ═══ */
+.cta-sez{text-align:center;padding:80px 40px;background:var(--sfondo2)}
+.cta-sez h2{font-size:clamp(24px,3vw,36px);font-weight:800;margin-bottom:12px}
+.cta-sez p{font-size:15px;color:var(--testo2);margin-bottom:28px}
+.btn-cta{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:12px;background:var(--ambra);color:#000;font-size:15px;font-weight:700;text-decoration:none;font-family:inherit;transition:all .2s}
+.btn-cta:hover{background:var(--ambra2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(245,158,11,.2)}
 
 /* ═══ FOOTER ═══ */
-footer{
-  padding:40px;text-align:center;border-top:none;
-  font-size:12px;color:#9090a8;background:#0e0e14;
-}
+footer{padding:32px 40px;text-align:center;border-top:none;font-size:12px;color:#9090a8;background:#0e0e14}
 footer a{color:var(--ambra);text-decoration:none}
 
 /* ═══ RESPONSIVE ═══ */
+@media(max-width:1024px){.conf-layout{grid-template-columns:1fr}.case-wrap{position:relative;top:0;margin:0 auto 24px}}
+@media(max-width:768px){.conf-layout{grid-template-columns:1fr!important}}
 @media(max-width:768px){
-  nav{padding:12px 20px}
-  .nav-links a:not(.nav-cta){display:none}
-  .hero{padding:100px 24px 60px}
-  .hero-stats{gap:24px}
-  section{padding:60px 20px}
-  .contatti-grid{grid-template-columns:1fr}
-  .griglia-servizi{grid-template-columns:1fr}
+  nav{padding:12px 20px}.nav-links a:not(:last-child){display:none}
+  .hero{padding:110px 24px 60px}section{padding:60px 20px}
+  .griglia-proc,.griglia-mac,.griglia-gar{grid-template-columns:1fr}
+  .carta-mac.top::before{display:none}
+  .conf-layout{grid-template-columns:1fr!important}
 }
 </style>
 </head>
 <body>
-<script>if('scrollRestoration' in history)history.scrollRestoration='manual';window.scrollTo(0,0);</script>
-
-<!-- ═══ INTRO ANIMATION ═══ -->
-<div id="intro" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#f5f5f7;z-index:10000;display:flex;align-items:center;justify-content:center;overflow:hidden">
-  <canvas id="introCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%"></canvas>
-  <svg id="introLogo" xmlns="http://www.w3.org/2000/svg" viewBox="380 520 1060 760" preserveAspectRatio="xMidYMid meet" style="width:140px;height:100px;position:relative;z-index:2;opacity:0;filter:drop-shadow(0 0 0 rgba(245,158,11,0))"><g transform="translate(0,1800) scale(1,-1)"><path fill="#f59e0b" fill-rule="evenodd" d="M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z"/></g></svg>
-</div>
 
 <!-- ═══ NAV ═══ -->
 <nav>
-  <a href="#" class="nav-logo">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="380 520 1060 760" preserveAspectRatio="xMidYMid meet" style="width:28px;height:20px"><g transform="translate(0,1800) scale(1,-1)"><path fill="#f59e0b" fill-rule="evenodd" d="M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z"/></g></svg><span>Nodo<span style="color:var(--ambra)">Italia</span></span>
+  <a href="index.html" class="nav-logo">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="380 520 1060 760" preserveAspectRatio="xMidYMid meet" style="width:28px;height:20px"><g transform="translate(0,1800) scale(1,-1)"><path fill="#f59e0b" fill-rule="evenodd" d="M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z"/></g></svg>
+    <span>Nodo<span style="color:#f59e0b">Italia</span></span>
   </a>
   <div class="nav-links">
-    <a href="#servizi">Servizi</a>
-    <a href="#prodotti">Prodotti</a>
-    <a href="#contatti">Contatti</a>
-    <a href="login.html" class="nav-cta">RistoCloud →</a>
+    <a href="index.html">← Torna al sito</a>
+    <a href="#macchine">Rigenerati</a>
+    <a href="#configuratore">Configuratore</a>
+    <a href="index.html#contatti">Contattaci</a>
   </div>
 </nav>
 
 <!-- ═══ HERO ═══ -->
 <div class="hero">
-  <canvas class="hero-circuit" id="circuitCanvas"></canvas>
-  <div class="hero-logo" style="position:relative;z-index:1">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="380 520 1060 760" preserveAspectRatio="xMidYMid meet" style="width:100px;height:72px;filter:drop-shadow(0 0 20px rgba(245,158,11,.3))"><g transform="translate(0,1800) scale(1,-1)"><path fill="#f59e0b" fill-rule="evenodd" d="M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z"/></g></svg>
-  </div>
-  <h1 style="position:relative;z-index:1">Nodo<em>Italia</em></h1>
-  <div class="lead" style="position:relative;z-index:1">Hardware, software e automazione. Dalla vendita di attrezzature IT alla creazione di gestionali su misura — tutto da un unico partner.</div>
-  <div class="hero-actions" style="position:relative;z-index:1">
-    <a href="#servizi" class="btn-hero btn-primario">Scopri i Servizi</a>
-    <a href="#contatti" class="btn-hero btn-secondario">Contattaci</a>
-  </div>
-
+  <h1>PC <em>Rigenerati</em> e su Misura</h1>
+  <div class="lead">Macchine rigenerate professionalmente e configurazioni personalizzate. Scegli il tuo livello o costruisci il PC pezzo per pezzo.</div>
 </div>
 
-<!-- ═══ SERVIZI ═══ -->
-<section id="servizi">
-  <div class="sezione-titolo">
-    <span class="tag">Cosa facciamo</span>
-    <h2>I nostri servizi</h2>
-    <p><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ambra)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;margin-top:-2px"><path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/></svg>Clicca su un servizio per scoprire tutti i dettagli</p>
-  </div>
-  <div class="griglia-servizi" id="grigliaServizi">
-
-    <div class="carta-servizio" onclick="window.location.href='hardware.html'" style="cursor:pointer">
-      <div class="icona-servizio" style="background:rgba(245,158,11,.08)"><svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#1a1a2e" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z"/></svg></div>
-      <h3>Vendita Hardware</h3>
-      <p>PC, server, stampanti, reti, periferiche. Fornitura e configurazione per uffici e produzione.</p>
-      <div class="etichette"><span class="etichetta-tech">PC & Server</span><span class="etichetta-tech">Reti</span><span class="etichetta-tech">Stampanti</span></div>
-    </div>
-
-    <div class="carta-servizio">
-      <div class="icona-servizio" style="background:rgba(245,158,11,.08)"><svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#1a1a2e" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17l-5.58 5.58a2.121 2.121 0 01-3-3l5.58-5.58m4.24-4.24l5.58-5.58a2.121 2.121 0 013 3l-5.58 5.58m-4.24 4.24l4.24-4.24"/></svg></div>
-      <h3>Assistenza IT</h3>
-      <p>Supporto tecnico, manutenzione sistemi, infrastruttura. Intervento rapido on-site o da remoto.</p>
-      <div class="etichette"><span class="etichetta-tech">On-site</span><span class="etichetta-tech">Remoto</span><span class="etichetta-tech">H24</span></div>
-    </div>
-
-    <div class="carta-servizio">
-      <div class="icona-servizio" style="background:rgba(245,158,11,.08)"><svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#1a1a2e" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42"/></svg></div>
-      <h3>Rebranding Grafico</h3>
-      <p>Identità visiva, logo, materiale coordinato. Dal concept alla realizzazione completa.</p>
-      <div class="etichette"><span class="etichetta-tech">Logo</span><span class="etichetta-tech">Brand Identity</span><span class="etichetta-tech">Stampa</span></div>
-    </div>
-
-    <div class="carta-servizio">
-      <div class="icona-servizio" style="background:rgba(245,158,11,.08)"><svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#1a1a2e" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5a17.92 17.92 0 01-8.716-2.247m0 0A9 9 0 013 12c0-1.47.353-2.856.978-4.082"/></svg></div>
-      <h3>Creazione Siti Web</h3>
-      <p>Siti vetrina, e-commerce, landing page. Design responsive, SEO, hosting e manutenzione.</p>
-      <div class="etichette"><span class="etichetta-tech">Responsive</span><span class="etichetta-tech">SEO</span><span class="etichetta-tech">E-commerce</span></div>
-    </div>
-
-    <div class="carta-servizio">
-      <div class="icona-servizio" style="background:rgba(245,158,11,.08)"><svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#1a1a2e" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
-      <h3>Gestionali su Misura</h3>
-      <p>Software personalizzati per la tua azienda. Desktop o web, con database e automazioni.</p>
-      <div class="etichette"><span class="etichetta-tech">Desktop</span><span class="etichetta-tech">Web App</span><span class="etichetta-tech">Cloud</span></div>
-    </div>
-
-    <div class="carta-servizio">
-      <div class="icona-servizio" style="background:rgba(245,158,11,.08)"><svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#1a1a2e" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg></div>
-      <h3>Integrazione MES</h3>
-      <p>Collegamento macchine ai sistemi informativi. Raccolta dati, monitoraggio real-time, OEE.</p>
-      <div class="etichette"><span class="etichetta-tech">OPC-UA</span><span class="etichetta-tech">Real-time</span><span class="etichetta-tech">OEE</span></div>
-    </div>
-
-    <div class="carta-servizio">
-      <div class="icona-servizio" style="background:rgba(245,158,11,.08)"><svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#1a1a2e" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg></div>
-      <h3>Comunicazione PLM</h3>
-      <p>Integrazione Product Lifecycle Management con i tuoi sistemi CAD, PDM e ERP.</p>
-      <div class="etichette"><span class="etichetta-tech">CAD</span><span class="etichetta-tech">PDM</span><span class="etichetta-tech">Workflow</span></div>
-    </div>
-
-    <div class="carta-servizio">
-      <div class="icona-servizio" style="background:rgba(245,158,11,.08)"><svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#1a1a2e" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/></svg></div>
-      <h3>Integrazione ERP</h3>
-      <p>Connessione con SAP, Zucchetti, TeamSystem. Migrazione dati e sincronizzazione.</p>
-      <div class="etichette"><span class="etichetta-tech">SAP</span><span class="etichetta-tech">Zucchetti</span><span class="etichetta-tech">API</span></div>
-    </div>
-
-    <div class="carta-servizio">
-      <div class="icona-servizio" style="background:rgba(245,158,11,.08)"><svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#1a1a2e" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 13.5V3.75m0 9.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 9.75V10.5"/></svg></div>
-      <h3>Configuratori</h3>
-      <p>Configuratori di prodotto web e desktop. Regole, varianti, prezzi dinamici, export CAD.</p>
-      <div class="etichette"><span class="etichetta-tech">Regole</span><span class="etichetta-tech">Varianti</span><span class="etichetta-tech">Export CAD</span></div>
-    </div>
-
-  </div>
-
-
-</section>
-
-<!-- ═══ PRODOTTI SaaS ═══ -->
-<section id="prodotti">
-  <div class="sezione-titolo">
-    <span class="tag">I nostri prodotti</span>
-    <h2>Piattaforme SaaS</h2>
-    <p>Software pronti all'uso, accessibili da qualsiasi dispositivo</p>
-  </div>
-  <div class="griglia-prodotti">
-    <a href="login.html" class="carta-prodotto">
-      <div class="icona-prodotto"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg></div>
-      <h3>Risto<span>Cloud</span></h3>
-      <p>Gestionale completo per ristoranti. Cassa, sala, cucine, menu, statistiche e configurazione — tutto nel browser.</p>
-      <div class="badge-stato badge-attivo">Attivo</div>
-    </a>
-    <div class="carta-prodotto" style="cursor:default;opacity:.5">
-      <div class="icona-prodotto"><svg width="42" height="42" fill="none" viewBox="0 0 24 24" stroke="#1a1a2e" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/></svg></div>
-      <h3>Prossimamente</h3>
-      <p>Nuove piattaforme SaaS in sviluppo. Resta aggiornato.</p>
-      <div class="badge-stato badge-presto">In sviluppo</div>
-    </div>
+<!-- ═══ PROCESSO ═══ -->
+<section id="processo">
+  <div class="sez-titolo"><span class="tag">Come lavoriamo</span><h2>Il nostro processo</h2><p>Ogni macchina passa per tre fasi prima di arrivare a te</p></div>
+  <div class="griglia-proc">
+    <div class="carta-proc"><div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg></div><h3>Selezione</h3><p>Solo macchine business da fleet aziendali. Niente consumer di bassa gamma.</p></div>
+    <div class="carta-proc"><div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M11.42 15.17l-5.58 5.58a2.121 2.121 0 01-3-3l5.58-5.58m4.24-4.24l5.58-5.58a2.121 2.121 0 013 3l-5.58 5.58"/></svg></div><h3>Rigenerazione</h3><p>Pulizia, sostituzione componenti, upgrade SSD e RAM. Test di stress 48h.</p></div>
+    <div class="carta-proc"><div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><h3>Garanzia</h3><p>Windows installato e attivato, pronto all'uso. 12 mesi di garanzia.</p></div>
   </div>
 </section>
 
-<!-- ═══ CONTATTI ═══ -->
-<section id="contatti">
-  <div class="sezione-titolo">
-    <span class="tag">Hai un'idea?</span>
-    <h2>Parliamone</h2>
-    <p>Raccontaci cosa ti serve — ti rispondiamo entro 24 ore</p>
+<!-- ═══ MACCHINE ═══ -->
+<section id="macchine">
+  <div class="sez-titolo"><span class="tag">Pronti all'uso</span><h2>PC Rigenerati</h2><p>La macchina giusta per ogni esigenza e budget</p></div>
+  <div class="griglia-mac">
+    <div class="carta-mac" data-badge="ENTRY" onclick="selezionaMac(this)"><div class="ic-pc"><div class="d"></div></div><div class="liv">Entry Level</div><div class="nm">Essential</div><div class="tgt">Studenti e navigazione web</div><div class="prz"><div class="v">€199</div><div class="s">IVA inclusa · rigenerato</div></div><div class="specs"><div class="sp"><span class="ck">✓</span>Intel Core i3</div><div class="sp"><span class="ck">✓</span>8 GB RAM</div><div class="sp"><span class="ck">✓</span>SSD 240 GB</div><div class="sp"><span class="ck">✓</span>Windows 11</div><div class="sp"><span class="ck">✓</span>Garanzia 12 mesi</div></div><button class="btn-m" onclick="event.stopPropagation();location.href='index.html#contatti'">Richiedi Info</button></div>
+    <div class="carta-mac top" data-badge="POPOLARE" onclick="selezionaMac(this)"><div class="ic-pc m"><div class="d"></div></div><div class="liv">Medio</div><div class="nm">Business</div><div class="tgt">Ufficio e multitasking</div><div class="prz"><div class="v">€399</div><div class="s">IVA inclusa · rigenerato</div></div><div class="specs"><div class="sp"><span class="ck">✓</span>Intel Core i5</div><div class="sp"><span class="ck">✓</span>16 GB RAM</div><div class="sp"><span class="ck">✓</span>SSD 480 GB</div><div class="sp"><span class="ck">✓</span>Windows 11 Pro</div><div class="sp"><span class="ck">✓</span>Garanzia 12 mesi</div></div><button class="btn-m" onclick="event.stopPropagation();location.href='index.html#contatti'">Richiedi Info</button></div>
+    <div class="carta-mac" data-badge="PRO" onclick="selezionaMac(this)"><div class="ic-pc p"><div class="d"></div></div><div class="liv">Pro</div><div class="nm">Performance</div><div class="tgt">CAD, sviluppo, produttività</div><div class="prz"><div class="v">€699</div><div class="s">IVA inclusa · rigenerato</div></div><div class="specs"><div class="sp"><span class="ck">✓</span>Intel Core i7</div><div class="sp"><span class="ck">✓</span>32 GB RAM</div><div class="sp"><span class="ck">✓</span>SSD 1 TB NVMe</div><div class="sp"><span class="ck">✓</span>Windows 11 Pro</div><div class="sp"><span class="ck">✓</span>Garanzia 12 + prioritaria</div></div><button class="btn-m" onclick="event.stopPropagation();location.href='index.html#contatti'">Richiedi Info</button></div>
   </div>
+</section>
 
-  <div style="max-width:560px;margin:0 auto">
-    <div class="form-contatto" style="position:relative;overflow:hidden">
-      <!-- Glow decorativo -->
-      <div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(245,158,11,.08) 0%,transparent 70%);pointer-events:none"></div>
+<!-- ═══ GARANZIA ═══ -->
+<section id="garanzia">
+  <div class="sez-titolo"><span class="tag">Tranquillità</span><h2>Cosa è incluso</h2></div>
+  <div class="griglia-gar">
+    <div class="carta-gar"><div style="font-size:28px"><svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="#1a1a2e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg></div><h3>12 mesi di garanzia</h3><p>Copertura totale. Se si rompe, lo ripariamo o sostituiamo.</p></div>
+    <div class="carta-gar"><div style="font-size:28px"><svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="#1a1a2e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.42 15.17l-5.58 5.58a2.121 2.121 0 01-3-3l5.58-5.58m4.24-4.24l5.58-5.58a2.121 2.121 0 013 3l-5.58 5.58m-4.24 4.24l4.24-4.24"/></svg></div><h3>Assistenza tecnica</h3><p>Supporto remoto o in sede. Siamo a una chiamata di distanza.</p></div>
+    <div class="carta-gar"><div style="font-size:28px"><svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="#1a1a2e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/></svg></div><h3>Consegna pronta</h3><p>Disponibili a magazzino. Spedizione in 24-48 ore lavorative.</p></div>
+  </div>
+</section>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-        <input type="text" class="campo" placeholder="Nome" style="margin:0">
-        <input type="email" class="campo" placeholder="Email" style="margin:0">
+<!-- ═══ CONFIGURATORE ═══ -->
+<section id="configuratore">
+  <div class="sez-titolo"><span class="tag">Costruisci il tuo</span><h2>Configuratore PC</h2><p>Scegli pezzo per pezzo — ti mostriamo solo componenti compatibili</p></div>
+  <div class="conf-layout">
+
+    <!-- CASE 3D VISUALE -->
+    <div class="case-wrap">
+      <svg id="caseSvg" viewBox="-30 10 720 580" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%">
+        <defs>
+          <linearGradient id="gF" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2a2a35"/><stop offset="100%" stop-color="#1a1a24"/></linearGradient>
+          <linearGradient id="gS" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#222230"/><stop offset="100%" stop-color="#18181f"/></linearGradient>
+          <linearGradient id="gT" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#252530"/><stop offset="100%" stop-color="#333340"/></linearGradient>
+        </defs>
+
+        <!-- Case 3D — facciata frontale (rettangolo perfetto) -->
+        <rect x="40" y="50" width="270" height="450" rx="6" fill="url(#gF)" stroke="#3a3a48" stroke-width="1.5"/>
+
+        <!-- Lato destro (parallelogramma — offset 50px a destra e 30px in alto) -->
+        <path d="M310 50 L360 20 L360 470 L310 500" fill="url(#gS)" stroke="#3a3a48" stroke-width="1"/>
+
+        <!-- Top (parallelogramma — parallelo alla base) -->
+        <path d="M40 50 L90 20 L360 20 L310 50 Z" fill="url(#gT)" stroke="#3a3a48" stroke-width="1"/>
+
+        <!-- Griglie ventilazione top -->
+        <line x1="120" y1="32" x2="260" y2="32" stroke="#404050" stroke-width="1"/>
+        <line x1="120" y1="37" x2="260" y2="37" stroke="#404050" stroke-width="1"/>
+        <line x1="120" y1="42" x2="260" y2="42" stroke="#404050" stroke-width="1"/>
+
+        <!-- Power button -->
+        <circle cx="290" cy="70" r="5" fill="none" stroke="#404050" stroke-width="1"/>
+
+        <!-- ═══ MOTHERBOARD ═══ -->
+        <g id="gMb" class="comp-g" opacity="1">
+          <rect x="60" y="80" width="230" height="320" rx="4" fill="#1e1e28" stroke="#404050" stroke-width="1" stroke-dasharray="6 4"/>
+          <text x="175" y="250" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="800" letter-spacing="3" font-family="Outfit,sans-serif">SCHEDA MADRE</text>
+        </g>
+
+        <!-- ═══ CPU ═══ -->
+        <g id="gCpu" class="comp-g" opacity="1">
+          <rect x="120" y="115" width="70" height="70" rx="4" fill="#1e1e28" stroke="#404050" stroke-width="1" stroke-dasharray="6 4"/>
+          <text x="155" y="155" text-anchor="middle" fill="#ffffff" font-size="20" font-weight="800" font-family="Outfit,sans-serif">CPU</text>
+        </g>
+
+        <!-- ═══ RAM ═══ -->
+        <g id="gRam" class="comp-g" opacity="1">
+          <rect x="210" y="105" width="18" height="90" rx="3" fill="#1e1e28" stroke="#404050" stroke-width="1" stroke-dasharray="6 4"/>
+          <rect x="234" y="105" width="18" height="90" rx="3" fill="#1e1e28" stroke="#404050" stroke-width="1" stroke-dasharray="6 4"/>
+          <text x="235" y="98" text-anchor="middle" fill="#ffffff" font-size="16" font-weight="800" font-family="Outfit,sans-serif">RAM</text>
+        </g>
+
+        <!-- ═══ GPU ═══ -->
+        <g id="gGpu" class="comp-g" opacity="1">
+          <rect x="70" y="280" width="210" height="48" rx="4" fill="#1e1e28" stroke="#404050" stroke-width="1" stroke-dasharray="6 4"/>
+          <text x="175" y="309" text-anchor="middle" fill="#ffffff" font-size="16" font-weight="800" font-family="Outfit,sans-serif">SCHEDA VIDEO</text>
+        </g>
+
+        <!-- ═══ SSD ═══ -->
+        <g id="gSsd" class="comp-g" opacity="1">
+          <rect x="70" y="345" width="100" height="28" rx="3" fill="#1e1e28" stroke="#404050" stroke-width="1" stroke-dasharray="6 4"/>
+          <text x="120" y="364" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="800" font-family="Outfit,sans-serif">SSD</text>
+        </g>
+
+        <!-- ═══ PSU ═══ -->
+        <g id="gPsu" class="comp-g" opacity="1">
+          <rect x="60" y="410" width="170" height="80" rx="4" fill="#1e1e28" stroke="#404050" stroke-width="1" stroke-dasharray="6 4"/>
+          <text x="145" y="456" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="800" font-family="Outfit,sans-serif">ALIMENTATORE</text>
+        </g>
+
+        <!-- ═══ ETICHETTE — frecce orizzontali ═══ -->
+        <g id="lblCpu" opacity="0">
+          <line x1="193" y1="150" x2="400" y2="150" stroke="#f59e0b" stroke-width="2" opacity="1"/>
+          <circle cx="400" cy="150" r="5" fill="#f59e0b"/>
+          <text x="412" y="145" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtCpu"></text>
+          <text x="412" y="172" fill="#555570" font-size="18" font-weight="600" font-family="Outfit,sans-serif" id="prezCpu"></text>
+        </g>
+        <g id="lblRam" opacity="0">
+          <line x1="255" y1="105" x2="400" y2="105" stroke="#f59e0b" stroke-width="2" opacity="1"/>
+          <circle cx="400" cy="105" r="5" fill="#f59e0b"/>
+          <text x="412" y="100" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtRam"></text>
+          <text x="412" y="127" fill="#555570" font-size="18" font-weight="600" font-family="Outfit,sans-serif" id="prezRam"></text>
+        </g>
+        <g id="lblMb" opacity="0">
+          <line x1="292" y1="220" x2="400" y2="220" stroke="#f59e0b" stroke-width="2" opacity="1"/>
+          <circle cx="400" cy="220" r="5" fill="#f59e0b"/>
+          <text x="412" y="215" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtMb"></text>
+          <text x="412" y="242" fill="#555570" font-size="18" font-weight="600" font-family="Outfit,sans-serif" id="prezMb"></text>
+        </g>
+        <g id="lblGpu" opacity="0">
+          <line x1="282" y1="304" x2="400" y2="304" stroke="#f59e0b" stroke-width="2" opacity="1"/>
+          <circle cx="400" cy="304" r="5" fill="#f59e0b"/>
+          <text x="412" y="299" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtGpu"></text>
+          <text x="412" y="326" fill="#555570" font-size="18" font-weight="600" font-family="Outfit,sans-serif" id="prezGpu"></text>
+        </g>
+        <g id="lblSsd" opacity="0">
+          <line x1="172" y1="360" x2="400" y2="360" stroke="#f59e0b" stroke-width="2" opacity="1"/>
+          <circle cx="400" cy="360" r="5" fill="#f59e0b"/>
+          <text x="412" y="355" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtSsd"></text>
+          <text x="412" y="382" fill="#555570" font-size="18" font-weight="600" font-family="Outfit,sans-serif" id="prezSsd"></text>
+        </g>
+        <g id="lblPsu" opacity="0">
+          <line x1="232" y1="445" x2="400" y2="445" stroke="#f59e0b" stroke-width="2" opacity="1"/>
+          <circle cx="400" cy="445" r="5" fill="#f59e0b"/>
+          <text x="412" y="440" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtPsu"></text>
+          <text x="412" y="467" fill="#555570" font-size="18" font-weight="600" font-family="Outfit,sans-serif" id="prezPsu"></text>
+        </g>
+
+        <!-- Case label + totale -->
+        <text x="175" y="545" text-anchor="middle" fill="#555570" font-size="14" font-weight="600" font-family="Outfit,sans-serif" id="caseLabelTxt">CASE — in attesa</text>
+        <text x="175" y="572" text-anchor="middle" fill="#1a1a2e" font-size="24" font-weight="700" font-family="Outfit,sans-serif" id="caseTotTxt">€ 0</text>
+      </svg>
+    </div>
+
+    <!-- OPZIONI -->
+    <div>
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--testo3);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zm10.5 0A2.25 2.25 0 0116.5 3.75h2.25A2.25 2.25 0 0121 6v2.25a2.25 2.25 0 01-2.25 2.25H16.5a2.25 2.25 0 01-2.25-2.25V6z"/></svg>
+        Seleziona i componenti
       </div>
-      <input type="text" class="campo" placeholder="Di cosa hai bisogno?">
-      <textarea class="campo" placeholder="Raccontaci il tuo progetto, le tue esigenze, o anche solo un'idea..."></textarea>
-      <button class="btn-invia" onclick="alert('Form in arrivo — per ora scrivi a marketing@nodoitalia.it')">Invia Messaggio →</button>
-
-      <div style="display:flex;align-items:center;justify-content:center;gap:20px;margin-top:20px;padding-top:16px;border-top:1px solid var(--bordo)">
-        <a href="/cdn-cgi/l/email-protection#2e434f5c454b5a4740496e40414a41475a4f42474f00475a" style="display:flex;align-items:center;gap:6px;color:var(--testo3);font-size:13px;text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--ambra)'" onmouseout="this.style.color='var(--testo3)'">
-          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0l-9.75 6.5-9.75-6.5"/></svg> <span class="__cf_email__" data-cfemail="a7cac6d5ccc2d3cec9c0e7c9c8c3c8ced3c6cbcec689ced3">[email&#160;protected]</span>
-        </a>
-        <span style="color:var(--bordo2)">·</span>
-        <a href="https://www.nodoitalia.it" style="display:flex;align-items:center;gap:6px;color:var(--testo3);font-size:13px;text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--ambra)'" onmouseout="this.style.color='var(--testo3)'">
-          <span style="font-size:16px"><svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#1a1a2e" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5a17.92 17.92 0 01-8.716-2.247m0 0A9 9 0 013 12c0-1.47.353-2.856.978-4.082"/></svg></span> nodoitalia.it
-        </a>
-      </div>
+      <div class="step-pills" id="stepper"></div>
+      <div id="titoloStep" style="font-size:20px;font-weight:800;margin-bottom:4px"></div>
+      <div id="descStep" style="font-size:13px;color:var(--testo3);margin-bottom:16px"></div>
+      <div id="opzioni"></div>
+      <button class="btn-prev" id="btnPrev" onclick="confermaConfig()" style="display:none;width:100%;margin-top:20px;padding:14px;border-radius:10px;border:none;background:var(--ambra);color:#000;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">Richiedi Preventivo →</button>
     </div>
+
   </div>
 </section>
 
-<!-- ═══ FOOTER ═══ -->
-<footer>
-  <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="380 520 1060 760" preserveAspectRatio="xMidYMid meet" style="width:16px;height:12px;opacity:.4"><g transform="translate(0,1800) scale(1,-1)"><path fill="#f59e0b" fill-rule="evenodd" d="M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z"/></g></svg>
-  </div>
-  © 2026 NodoItalia — <a href="/cdn-cgi/l/email-protection#10797e767f507e7f747f7964717c79713e7964"><span class="__cf_email__" data-cfemail="91f8fff7fed1fffef5fef8e5f0fdf8f0bff8e5">[email&#160;protected]</span></a>
-</footer>
+<!-- ═══ CTA ═══ -->
+<div class="cta-sez"><h2>Non sai cosa scegliere?</h2><p>Scrivici e ti consigliamo la configurazione migliore.</p><a href="index.html#contatti" class="btn-cta">Contattaci →</a></div>
+
+<footer>© 2026 NodoItalia — <a href="/cdn-cgi/l/email-protection#721b1c141d321c1d161d1b06131e1b135c1b06"><span class="__cf_email__" data-cfemail="a0c9cec6cfe0cecfc4cfc9d4c1ccc9c18ec9d4">[email&#160;protected]</span></a></footer>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-/* ═══ INTRO — 2.5s ═══ */
-(function(){
-  var intro=document.getElementById('intro');
-  // Skip su mobile, oppure se arrivi da pagina interna del sito
-  var daInterno = document.referrer && document.referrer.includes(location.hostname);
-  if(window.innerWidth<=768||daInterno){if(intro)intro.style.display='none';var hl=document.querySelector('.hero-logo');if(hl)hl.style.opacity='1';document.body.style.overflow='';return;}
-  var cv=document.getElementById('introCanvas');
-  var logo=document.getElementById('introLogo');
-  if(!cv||!intro){if(intro)intro.style.display='none';return;}
-  var ctx=cv.getContext('2d');
-  var W,H;
-  function sz(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
-  sz();
-  document.body.style.overflow='hidden';
-  // Nascondi hero logo durante intro
-  var heroLogo=document.querySelector('.hero-logo');
-  if(heroLogo)heroLogo.style.opacity='0';
+const PASSI=[
+  {id:'cpu',nome:'Processore',desc:'Il cuore del PC'},
+  {id:'mb',nome:'Scheda Madre',desc:'Compatibile con il processore scelto'},
+  {id:'ram',nome:'RAM',desc:'Compatibile con la scheda madre'},
+  {id:'ssd',nome:'Archiviazione',desc:'SSD o HDD per i tuoi dati'},
+  {id:'gpu',nome:'Scheda Video',desc:'Per grafica e gaming'},
+  {id:'psu',nome:'Alimentatore',desc:'Potenza adeguata ai componenti'},
+  {id:'case',nome:'Case',desc:'Il vestito del PC',slot:null,nSlot:null},
+];
 
-  var A='#f59e0b';
-  var t0=performance.now();
-  var DUR=2500;
-  var midX,midY,R;
+const C={
+  cpu:[
+    {id:'c1',nome:'Intel Core i3-13100',spec:'4C/8T · LGA1700',prezzo:139,socket:'LGA1700',pot:60},
+    {id:'c2',nome:'Intel Core i5-13400F',spec:'10C/16T · LGA1700',prezzo:199,socket:'LGA1700',pot:65},
+    {id:'c3',nome:'Intel Core i7-13700F',spec:'16C/24T · LGA1700',prezzo:339,socket:'LGA1700',pot:125},
+    {id:'c4',nome:'AMD Ryzen 5 5600',spec:'6C/12T · AM4',prezzo:149,socket:'AM4',pot:65},
+    {id:'c5',nome:'AMD Ryzen 7 5700X',spec:'8C/16T · AM4',prezzo:219,socket:'AM4',pot:65},
+    {id:'c6',nome:'AMD Ryzen 5 7600',spec:'6C/12T · AM5',prezzo:229,socket:'AM5',pot:65},
+    {id:'c7',nome:'AMD Ryzen 7 7700X',spec:'8C/16T · AM5',prezzo:349,socket:'AM5',pot:105},
+  ],
+  mb:[
+    {id:'m1',nome:'Gigabyte B660M DS3H',spec:'LGA1700 · DDR4 · mATX',prezzo:99,socket:'LGA1700',ddr:'DDR4',fmt:'mATX'},
+    {id:'m2',nome:'MSI PRO B760M-A',spec:'LGA1700 · DDR5 · mATX',prezzo:139,socket:'LGA1700',ddr:'DDR5',fmt:'mATX'},
+    {id:'m3',nome:'ASUS TUF B760-PLUS',spec:'LGA1700 · DDR5 · ATX',prezzo:179,socket:'LGA1700',ddr:'DDR5',fmt:'ATX'},
+    {id:'m4',nome:'Gigabyte B550M DS3H',spec:'AM4 · DDR4 · mATX',prezzo:89,socket:'AM4',ddr:'DDR4',fmt:'mATX'},
+    {id:'m5',nome:'MSI B550-A PRO',spec:'AM4 · DDR4 · ATX',prezzo:119,socket:'AM4',ddr:'DDR4',fmt:'ATX'},
+    {id:'m6',nome:'Gigabyte B650M DS3H',spec:'AM5 · DDR5 · mATX',prezzo:149,socket:'AM5',ddr:'DDR5',fmt:'mATX'},
+    {id:'m7',nome:'ASUS TUF B650-PLUS',spec:'AM5 · DDR5 · ATX',prezzo:199,socket:'AM5',ddr:'DDR5',fmt:'ATX'},
+  ],
+  ram:[
+    {id:'r1',nome:'Crucial 16GB (2x8)',spec:'DDR4-3200',prezzo:39,ddr:'DDR4'},
+    {id:'r2',nome:'Corsair 32GB (2x16)',spec:'DDR4-3200',prezzo:69,ddr:'DDR4'},
+    {id:'r3',nome:'Kingston 16GB (2x8)',spec:'DDR5-5600',prezzo:59,ddr:'DDR5'},
+    {id:'r4',nome:'Corsair 32GB (2x16)',spec:'DDR5-5600',prezzo:99,ddr:'DDR5'},
+    {id:'r5',nome:'G.Skill 64GB (2x32)',spec:'DDR5-6000',prezzo:189,ddr:'DDR5'},
+  ],
+  ssd:[
+    {id:'s1',nome:'Kingston NV2 500GB',spec:'NVMe · 3500 MB/s',prezzo:39,pot:5},
+    {id:'s2',nome:'Samsung 980 1TB',spec:'NVMe · 3500 MB/s',prezzo:69,pot:5},
+    {id:'s3',nome:'WD SN770 1TB',spec:'NVMe · 5150 MB/s',prezzo:79,pot:5},
+    {id:'s4',nome:'Samsung 990 PRO 2TB',spec:'NVMe · 7450 MB/s',prezzo:169,pot:5},
+  ],
+  gpu:[
+    {id:'g0',nome:'Nessuna (integrata)',spec:'Grafica del processore',prezzo:0,pot:0},
+    {id:'g1',nome:'GTX 1650',spec:'4GB · Entry',prezzo:159,pot:75},
+    {id:'g2',nome:'RTX 4060',spec:'8GB · 1080p',prezzo:299,pot:115},
+    {id:'g3',nome:'RTX 4070',spec:'12GB · 1440p',prezzo:549,pot:200},
+    {id:'g4',nome:'RTX 4070 Ti SUPER',spec:'16GB · 4K',prezzo:799,pot:285},
+    {id:'g5',nome:'RX 7600',spec:'8GB · 1080p',prezzo:269,pot:165},
+  ],
+  psu:[
+    {id:'p1',nome:'Corsair CV450',spec:'450W · Bronze',prezzo:44,w:450},
+    {id:'p2',nome:'be quiet! 550W',spec:'550W · Gold',prezzo:69,w:550},
+    {id:'p3',nome:'Corsair RM650',spec:'650W · Gold Mod.',prezzo:89,w:650},
+    {id:'p4',nome:'Corsair RM750',spec:'750W · Gold Mod.',prezzo:99,w:750},
+    {id:'p5',nome:'be quiet! 850W',spec:'850W · Gold Mod.',prezzo:129,w:850},
+  ],
+  case:[
+    {id:'k1',nome:'DeepCool MATREXX 40',spec:'mATX · Vetro',prezzo:44,fmt:['mATX']},
+    {id:'k2',nome:'Corsair 4000D Airflow',spec:'ATX/mATX',prezzo:89,fmt:['ATX','mATX']},
+    {id:'k3',nome:'NZXT H5 Flow',spec:'ATX/mATX · Vetro',prezzo:99,fmt:['ATX','mATX']},
+    {id:'k4',nome:'be quiet! 500DX',spec:'ATX/mATX · Silent',prezzo:109,fmt:['ATX','mATX']},
+    {id:'k5',nome:'Fractal Torrent',spec:'ATX/mATX · Premium',prezzo:139,fmt:['ATX','mATX']},
+  ],
+};
 
-  // Nodi e tracce
-  var nodi=[],tracce=[];
-  function gen(){
-    nodi=[];tracce=[];
-    midX=W/2;midY=H/2;R=Math.min(W,H)*0.32;
-    nodi.push({x:midX,y:midY,r:R*0.22,t:'cpu'});
-    for(var ring=0;ring<3;ring++){
-      var n=6+ring*5;var dist=R*(0.3+ring*0.28);
-      for(var i=0;i<n;i++){
-        var ang=(Math.PI*2/n)*i+ring*0.4;
-        nodi.push({x:midX+Math.cos(ang)*dist,y:midY+Math.sin(ang)*dist,r:1.5+Math.random()*2.5,t:ring<1?'c':'p'});
-      }
-    }
-    for(var i=1;i<nodi.length;i++){
-      var best=0,dm=1e9;
-      for(var j=Math.max(0,i-8);j<i;j++){
-        var dx=nodi[j].x-nodi[i].x,dy=nodi[j].y-nodi[i].y,d=dx*dx+dy*dy;
-        if(d<dm){dm=d;best=j;}
-      }
-      var a=nodi[best],b=nodi[i];
-      if(Math.random()>.5)tracce.push([{x:b.x,y:b.y},{x:a.x,y:b.y},{x:a.x,y:a.y}]);
-      else tracce.push([{x:b.x,y:b.y},{x:b.x,y:a.y},{x:a.x,y:a.y}]);
+let sel={},step=0;
+
+function potRich(){let t=0;if(sel.cpu)t+=sel.cpu.pot||0;if(sel.gpu)t+=sel.gpu.pot||0;if(sel.ssd)t+=sel.ssd.pot||0;return t+100;}
+
+function compat(id){
+  const l=C[id];if(!l)return[];
+  if(id==='mb')return sel.cpu?l.filter(m=>m.socket===sel.cpu.socket):[];
+  if(id==='ram')return sel.mb?l.filter(r=>r.ddr===sel.mb.ddr):[];
+  if(id==='psu'){const r=potRich();return l.filter(p=>p.w>=r).sort((a,b)=>a.w-b.w);}
+  if(id==='case')return sel.mb?l.filter(c=>c.fmt.includes(sel.mb.fmt)):l;
+  return l;
+}
+
+function totale(){return Object.values(sel).reduce((s,c)=>s+(c?.prezzo||0),0);}
+
+function renderStepper(){
+  document.getElementById('stepper').innerHTML=PASSI.map((p,i)=>{
+    let c='step-pill';if(i===step)c+=' att';else if(sel[p.id])c+=' done';else if(i>step)c+=' lock';
+    return`<div class="${c}" onclick="${i<=step||sel[p.id]?`vai(${i})`:''}">${p.nome}</div>`;
+  }).join('');
+}
+
+function renderOpt(){
+  const p=PASSI[step];
+  document.getElementById('titoloStep').textContent=p.nome;
+  document.getElementById('descStep').textContent=p.desc;
+  const comp=compat(p.id),cont=document.getElementById('opzioni');
+  if(!comp.length){cont.innerHTML='<div style="padding:20px;text-align:center;color:var(--testo3)">Completa il passo precedente</div>';return;}
+  cont.innerHTML=comp.map(c=>{
+    const a=sel[p.id]?.id===c.id?'sel':'';
+    return`<div class="opt-card ${a}" onclick="pick('${p.id}','${c.id}')"><div style="flex:1"><div class="on">${c.nome}</div><div class="os">${c.spec}</div></div><div class="op">${c.prezzo>0?'€'+c.prezzo:'Gratis'}</div></div>`;
+  }).join('');
+}
+
+function isMobile(){return window.innerWidth<=1024;}
+
+function renderCase(){
+  const mobile = isMobile();
+  const svg = document.getElementById('caseSvg');
+  
+  // Su mobile: viewBox stretto (solo case), no spostamento
+  if(mobile){
+    svg.setAttribute('viewBox','-10 10 680 580');
+    svg.classList.remove('spostato');
+  } else {
+    svg.setAttribute('viewBox','-30 10 720 580');
+  }
+
+  const parti = {
+    cpu:  {g:'gCpu', lbl:'lblCpu', txt:'txtCpu', prez:'prezCpu', yIdeale:150},
+    ram:  {g:'gRam', lbl:'lblRam', txt:'txtRam', prez:'prezRam', yIdeale:105},
+    mb:   {g:'gMb',  lbl:'lblMb',  txt:'txtMb',  prez:'prezMb',  yIdeale:220},
+    gpu:  {g:'gGpu', lbl:'lblGpu', txt:'txtGpu', prez:'prezGpu', yIdeale:304},
+    ssd:  {g:'gSsd', lbl:'lblSsd', txt:'txtSsd', prez:'prezSsd', yIdeale:360},
+    psu:  {g:'gPsu', lbl:'lblPsu', txt:'txtPsu', prez:'prezPsu', yIdeale:445},
+  };
+
+  // Raccogli etichette attive e calcola posizioni senza sovrapposizioni
+  const attive = [];
+  for(const[k,ids] of Object.entries(parti)){
+    const g = document.getElementById(ids.g);
+    const lbl = document.getElementById(ids.lbl);
+    const txt = document.getElementById(ids.txt);
+    const prez = document.getElementById(ids.prez);
+    if(sel[k]){
+      
+      g.setAttribute('opacity','1');
+      g.querySelectorAll('rect, circle').forEach(r => {
+        r.setAttribute('fill', 'rgba(245,158,11,0.15)');
+        r.setAttribute('stroke', '#f59e0b');
+        r.setAttribute('stroke-dasharray', 'none');
+        r.setAttribute('stroke-width', '1.5');
+      });
+      g.querySelectorAll('text').forEach(t => t.setAttribute('fill', '#ffffff'));
+      txt.textContent = sel[k].nome;
+      prez.textContent = sel[k].prezzo > 0 ? '€' + sel[k].prezzo : 'Gratis';
+      attive.push({k, ids, yIdeale: ids.yIdeale});
+    } else {
+      g.setAttribute('opacity','1');
+      g.querySelectorAll('rect, circle').forEach(r => {
+        r.setAttribute('fill', '#1e1e28');
+        r.setAttribute('stroke', '#404050');
+        r.setAttribute('stroke-dasharray', '6 4');
+      });
+      g.querySelectorAll('text').forEach(t => t.setAttribute('fill', '#ffffff'));
+      lbl.setAttribute('opacity', '0');
     }
   }
-  gen();
 
-  // Segnali
-  var sigs=[];
-  for(var i=0;i<tracce.length;i++)sigs.push({tr:i,p:Math.random(),v:0.01+Math.random()*0.015});
-
-  function trLen(pts){var l=0;for(var i=1;i<pts.length;i++){var dx=pts[i].x-pts[i-1].x,dy=pts[i].y-pts[i-1].y;l+=Math.sqrt(dx*dx+dy*dy);}return l||1;}
-  function trPt(pts,t){var L=trLen(pts);var tg=t*L;for(var i=1;i<pts.length;i++){var dx=pts[i].x-pts[i-1].x,dy=pts[i].y-pts[i-1].y;var s=Math.sqrt(dx*dx+dy*dy);if(tg<=s&&s>0){var f=tg/s;return{x:pts[i-1].x+dx*f,y:pts[i-1].y+dy*f};}tg-=s;}return pts[pts.length-1];}
-
-  function draw(){
-    var now=performance.now();
-    var prog=Math.min((now-t0)/DUR,1);
-    ctx.clearRect(0,0,W,H);
-
-    // Build progress (0->1 in first 50%)
-    var bp=Math.min(prog/0.45,1);
-    var tv=Math.floor(bp*tracce.length);
-
-    // Tracce
-    ctx.lineWidth=1;
-    for(var i=0;i<tv;i++){
-      ctx.strokeStyle='rgba(245,158,11,'+(0.2+bp*0.3)+')';
-      ctx.beginPath();ctx.moveTo(tracce[i][0].x,tracce[i][0].y);
-      for(var j=1;j<tracce[i].length;j++)ctx.lineTo(tracce[i][j].x,tracce[i][j].y);
-      ctx.stroke();
+  // Ordina per Y ideale e distribuisci con minimo 50px di distanza
+  attive.sort((a, b) => a.yIdeale - b.yIdeale);
+  const MIN_GAP = 50;
+  for(let i = 0; i < attive.length; i++){
+    attive[i].yFinale = attive[i].yIdeale;
+    if(i > 0){
+      const dist = attive[i].yFinale - attive[i-1].yFinale;
+      if(dist < MIN_GAP) attive[i].yFinale = attive[i-1].yFinale + MIN_GAP;
     }
-
-    // Nodi
-    var nv=Math.floor(bp*nodi.length);
-    for(var i=0;i<nv;i++){
-      var n=nodi[i];
-      if(n.t==='cpu'){
-        var s=Math.min(bp*2.5,1);var sz=n.r*s;
-        if(sz>0){
-          ctx.strokeStyle=A;ctx.lineWidth=1.5;
-          ctx.strokeRect(n.x-sz,n.y-sz,sz*2,sz*2);
-          if(s>.4){
-            ctx.strokeStyle='rgba(245,158,11,'+(s-.4)*2.0+')';
-            for(var p=0;p<7;p++){
-              var px=n.x-sz+(sz*2/8)*(p+1);
-              ctx.beginPath();ctx.moveTo(px,n.y-sz);ctx.lineTo(px,n.y-sz-8*s);ctx.stroke();
-              ctx.beginPath();ctx.moveTo(px,n.y+sz);ctx.lineTo(px,n.y+sz+8*s);ctx.stroke();
-            }
-            for(var p=0;p<5;p++){
-              var py=n.y-sz+(sz*2/6)*(p+1);
-              ctx.beginPath();ctx.moveTo(n.x-sz,py);ctx.lineTo(n.x-sz-8*s,py);ctx.stroke();
-              ctx.beginPath();ctx.moveTo(n.x+sz,py);ctx.lineTo(n.x+sz+8*s,py);ctx.stroke();
-            }
-          }
-        }
-      } else {
-        ctx.beginPath();ctx.fillStyle=n.t==='c'?A:'rgba(245,158,11,0.5)';
-        ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fill();
-      }
-    }
-
-    // Segnali
-    if(bp>0.15){
-      for(var i=0;i<sigs.length;i++){
-        var s=sigs[i];if(s.tr>=tv)continue;
-        s.p+=s.v;if(s.p>1)s.p=0;
-        var pt=trPt(tracce[s.tr],s.p);
-        if(isFinite(pt.x)&&isFinite(pt.y)){
-          ctx.beginPath();ctx.arc(pt.x,pt.y,2.5,0,Math.PI*2);
-          ctx.fillStyle='rgba(245,158,11,1)';ctx.fill();
-        }
-      }
-    }
-
-    // Logo (appare 35%-60%)
-    if(prog>0.35){
-      var lp=Math.min((prog-0.35)/0.25,1);
-      var e=1-Math.pow(1-lp,3);
-      logo.style.opacity=e;
-      logo.style.filter='drop-shadow(0 0 '+e*40+'px rgba(245,158,11,'+e*0.6+'))';
-      logo.style.transform='scale('+(0.5+e*0.5)+')';
-    }
-
-    // Exit (75%-100%): logo vola verso hero-logo, circuiti dissolve
-    if(prog>0.75){
-      var ep=(prog-0.75)/0.25;
-      var ee=1-Math.pow(1-ep,3); // easeOutCubic
-
-      // Trova posizione hero logo
-      var heroLogo=document.querySelector('.hero-logo');
-      if(heroLogo){
-        var rect=heroLogo.getBoundingClientRect();
-        var targetX=rect.left+rect.width/2;
-        var targetY=rect.top+rect.height/2;
-        var startX=W/2;
-        var startY=H/2;
-        var curX=startX+(targetX-startX)*ee;
-        var curY=startY+(targetY-startY)*ee;
-        // Scala da 140px (intro) a ~100px (hero) 
-        var scaleFrom=1;
-        var scaleTo=100/140;
-        var curScale=scaleFrom+(scaleTo-scaleFrom)*ee;
-        logo.style.position='fixed';
-        logo.style.left=curX+'px';
-        logo.style.top=curY+'px';
-        logo.style.transform='translate(-50%,-50%) scale('+curScale+')';
-        logo.style.filter='drop-shadow(0 0 '+(40-ee*30)+'px rgba(245,158,11,'+(0.6-ee*0.4)+'))';
-      }
-
-      // Circuiti fade
-      intro.style.background='rgba(245,245,247,'+(1-ee)+')';
-      cv.style.opacity=1-ee;
-
-      // Ultimo frame: nascondi intro
-      if(ep>=0.98){
-        intro.style.display='none';
-        document.body.style.overflow='';
-        var hl=document.querySelector('.hero-logo');if(hl)hl.style.opacity='1';
-        
-      }
-    }
-
-    if(prog<1){requestAnimationFrame(draw);}
-    else{intro.style.display='none';document.body.style.overflow='';var hl=document.querySelector('.hero-logo');if(hl)hl.style.opacity='1';}
   }
-  draw();
-})();
+
+  // Applica posizioni calcolate
+  attive.forEach(a => {
+    const lbl = document.getElementById(a.ids.lbl);
+    const txt = document.getElementById(a.ids.txt);
+    const prez = document.getElementById(a.ids.prez);
+    const y = a.yFinale;
+
+    // Aggiorna linea
+    const linea = lbl.querySelector('line');
+    if(linea){ linea.setAttribute('y1', y); linea.setAttribute('y2', y); }
+    // Aggiorna pallino
+    const cerchio = lbl.querySelector('circle');
+    if(cerchio) cerchio.setAttribute('cy', y);
+    // Aggiorna testi
+    txt.setAttribute('y', y - 5);
+    prez.setAttribute('y', y + 17);
+
+    lbl.setAttribute('opacity', '1');
+  });
+
+  // Case label e totale
+  const cl = document.getElementById('caseLabelTxt');
+  cl.textContent = sel.case ? 'CASE — ' + sel.case.nome : 'CASE — in attesa';
+  cl.setAttribute('fill', sel.case ? '#f59e0b' : '#505068');
+  document.getElementById('caseTotTxt').textContent = '€ ' + totale();
+  // Sposta a sinistra quando ci sono componenti selezionati
+  const haComp = Object.keys(sel).some(k => k !== 'case' && sel[k]);
+  if(haComp) svg.classList.add('spostato'); else svg.classList.remove('spostato');
+}
+
+function renderRiep(){
+  document.getElementById('btnPrev').style.display=PASSI.every(p=>sel[p.id])?'block':'none';
+}
+
+function pick(idP,idC){
+  sel[idP]=C[idP].find(c=>c.id===idC);
+  if(idP==='cpu'){delete sel.mb;delete sel.ram;delete sel.case;delete sel.psu;}
+  if(idP==='mb'){delete sel.ram;delete sel.case;}
+  if(idP==='gpu'||idP==='ssd')delete sel.psu;
+  renderOpt();renderRiep();renderCase();renderStepper();
+  setTimeout(()=>{if(step<PASSI.length-1){step++;renderStepper();renderOpt();}},350);
+}
+
+function vai(i){step=i;renderStepper();renderOpt();}
+
+function confermaConfig(){
+  let r='Configurazione PC:\n\n';
+  PASSI.forEach(p=>{const s=sel[p.id];if(s)r+=p.nome+': '+s.nome+' — €'+s.prezzo+'\n';});
+  r+='\nTOTALE: €'+totale();
+  alert(r+'\n\nContattaci a info@nodoitalia.it!');
+  location.href='index.html#contatti';
+}
+
+function selezionaMac(el){
+  document.querySelectorAll('.carta-mac').forEach(c=>c.classList.remove('top'));
+  el.classList.add('top');
+}
+
+// INIT
+renderStepper();renderOpt();renderRiep();renderCase();
+window.addEventListener('resize',()=>renderCase());
 </script>
-
-
-<script>
-(function(){
-  const cv = document.getElementById('circuitCanvas');
-  if(!cv||window.innerWidth<=768) return;
-  const ctx = cv.getContext('2d');
-  let W, H;
-  const dpr = window.devicePixelRatio || 1;
-  const AMBRA = '#f59e0b';
-  const GRIGIO = '#c8c8d4';
-  const tracce=[], nodi=[], segnali=[];
-
-  function resize(){
-    const hero = cv.parentElement;
-    W = hero.offsetWidth;
-    H = hero.offsetHeight;
-    cv.width = W * dpr;
-    cv.height = H * dpr;
-    cv.style.width = W + 'px';
-    cv.style.height = H + 'px';
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-    genera();
-  }
-
-  function genera(){
-    tracce.length=0; nodi.length=0; segnali.length=0;
-    const mobile = W < 768;
-    const cx=W/2, cy=H/2;
-    const raggio = Math.min(W,H) * (mobile ? 0.35 : 0.42);
-    const nChip = mobile ? 5 : 8;
-    const nPin = mobile ? 10 : 20;
-    const nExtra = mobile ? Math.floor(W/80) : Math.floor(W/40);
-
-    nodi.push({x:cx,y:cy,r:raggio*(mobile?0.1:0.12),tipo:'cpu'});
-
-    for(let i=0;i<nChip;i++){
-      const ang=(Math.PI*2/nChip)*i+Math.random()*0.3;
-      const dist=raggio*(0.35+Math.random()*0.25);
-      nodi.push({x:cx+Math.cos(ang)*dist,y:cy+Math.sin(ang)*dist,r:2+Math.random()*3,tipo:'chip'});
-    }
-    for(let i=0;i<nPin;i++){
-      const ang=(Math.PI*2/nPin)*i+Math.random()*0.2;
-      const dist=raggio*(0.7+Math.random()*0.3);
-      nodi.push({x:cx+Math.cos(ang)*dist,y:cy+Math.sin(ang)*dist,r:1+Math.random()*1.5,tipo:'pin'});
-    }
-
-    for(let i=1;i<nodi.length;i++){
-      const da=nodi[i];
-      let best=0,dMin=1e9;
-      for(let j=0;j<i;j++){
-        const dx=nodi[j].x-da.x,dy=nodi[j].y-da.y;
-        const d=Math.sqrt(dx*dx+dy*dy);
-        if(d<dMin){dMin=d;best=j;}
-      }
-      const a=nodi[best];
-      const pts=[{x:da.x,y:da.y}];
-      if(Math.random()>0.5) pts.push({x:a.x,y:da.y});
-      else pts.push({x:da.x,y:a.y});
-      pts.push({x:a.x,y:a.y});
-      tracce.push({punti:pts});
-      segnali.push({tr:tracce.length-1,p:Math.random(),v:0.001+Math.random()*0.003,r:1.5+Math.random()*1.5});
-    }
-
-    for(let i=0;i<nExtra;i++){
-      const pts=[];
-      if(Math.random()>0.5){
-        const y=Math.random()*H,x1=Math.random()*W*0.4;
-        const x2=x1+W*0.15+Math.random()*W*0.3;
-        const my=y+(Math.random()-0.5)*40;
-        pts.push({x:x1,y},{x:(x1+x2)/2,y},{x:(x1+x2)/2,y:my},{x:x2,y:my});
-      } else {
-        const x=Math.random()*W,y1=Math.random()*H*0.4;
-        const y2=y1+H*0.15+Math.random()*H*0.3;
-        const mx=x+(Math.random()-0.5)*40;
-        pts.push({x,y:y1},{x,y:(y1+y2)/2},{x:mx,y:(y1+y2)/2},{x:mx,y:y2});
-      }
-      tracce.push({punti:pts});
-      segnali.push({tr:tracce.length-1,p:Math.random(),v:0.0008+Math.random()*0.002,r:1+Math.random()*1});
-    }
-  }
-
-  function lung(pts){let l=0;for(let i=1;i<pts.length;i++){const dx=pts[i].x-pts[i-1].x,dy=pts[i].y-pts[i-1].y;l+=Math.sqrt(dx*dx+dy*dy);}return l;}
-
-  function ptSu(pts,t){
-    const L=lung(pts);let tgt=t*L;
-    for(let i=1;i<pts.length;i++){
-      const dx=pts[i].x-pts[i-1].x,dy=pts[i].y-pts[i-1].y;
-      const seg=Math.sqrt(dx*dx+dy*dy);
-      if(tgt<=seg){const f=tgt/seg;return{x:pts[i-1].x+dx*f,y:pts[i-1].y+dy*f};}
-      tgt-=seg;
-    }
-    return pts[pts.length-1];
-  }
-
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-    const mobile = W < 768;
-    const lw = mobile ? 0.5 : 1;
-
-    ctx.lineWidth=lw;ctx.strokeStyle=GRIGIO;
-    tracce.forEach(t=>{
-      ctx.beginPath();ctx.moveTo(t.punti[0].x,t.punti[0].y);
-      for(let i=1;i<t.punti.length;i++)ctx.lineTo(t.punti[i].x,t.punti[i].y);
-      ctx.stroke();
-    });
-
-    nodi.forEach(n=>{
-      if(n.tipo==='cpu'){
-        ctx.strokeStyle=AMBRA;ctx.lineWidth=mobile?1:1.5;
-        ctx.strokeRect(n.x-n.r,n.y-n.r,n.r*2,n.r*2);
-        const nPins = mobile ? 5 : 8;
-        const pinLen = mobile ? 5 : 8;
-        for(let i=0;i<nPins;i++){
-          const px=n.x-n.r+(n.r*2/(nPins+1))*(i+1);
-          ctx.beginPath();ctx.moveTo(px,n.y-n.r);ctx.lineTo(px,n.y-n.r-pinLen);ctx.stroke();
-          ctx.beginPath();ctx.moveTo(px,n.y+n.r);ctx.lineTo(px,n.y+n.r+pinLen);ctx.stroke();
-        }
-        const nSide = mobile ? 4 : 6;
-        for(let i=0;i<nSide;i++){
-          const py=n.y-n.r+(n.r*2/(nSide+1))*(i+1);
-          ctx.beginPath();ctx.moveTo(n.x-n.r,py);ctx.lineTo(n.x-n.r-pinLen,py);ctx.stroke();
-          ctx.beginPath();ctx.moveTo(n.x+n.r,py);ctx.lineTo(n.x+n.r+pinLen,py);ctx.stroke();
-        }
-        ctx.lineWidth=lw;
-      } else {
-        ctx.beginPath();ctx.fillStyle=n.tipo==='chip'?AMBRA:GRIGIO;
-        ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fill();
-      }
-    });
-
-    segnali.forEach(s=>{
-      const t=tracce[s.tr];if(!t)return;
-      const pt=ptSu(t.punti,s.p);
-      if(!isFinite(pt.x)||!isFinite(pt.y)||!isFinite(s.r)){s.p=0;return;}
-      ctx.beginPath();ctx.arc(pt.x,pt.y,s.r*3,0,Math.PI*2);
-      ctx.fillStyle='rgba(245
+</body>
+</html>
