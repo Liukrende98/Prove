@@ -7,23 +7,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --sfondo:#06060a;--sfondo2:#0c0c12;--sfondo3:#111118;
-  --bordo:#1a1a24;--bordo2:#252535;
-  --testo:#e8e8f0;--testo2:#9090a8;--testo3:#505068;
-  --ambra:#f59e0b;--ambra2:#fbbf24;--ambra-dim:rgba(245,158,11,.08);
+  --sfondo:#f5f5f7;--sfondo2:#eeeef2;--sfondo3:#ffffff;
+  --bordo:#d8d8e0;--bordo2:#c0c0cc;
+  --testo:#1a1a2e;--testo2:#555570;--testo3:#888898;
+  --ambra:#f59e0b;--ambra2:#fbbf24;--ambra-dim:rgba(245,158,11,.1);
   --verde:#22c55e;--blu:#3b82f6;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{font-family:'Outfit',sans-serif;background:var(--sfondo);color:var(--testo);overflow-x:hidden}
-::selection{background:var(--ambra);color:#000}
+::selection{background:var(--ambra);color:#fff}
 ::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:var(--sfondo)}
-::-webkit-scrollbar-thumb{background:var(--bordo2);border-radius:3px}
+::-webkit-scrollbar-track{background:#eee}
+::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
 
 /* ═══ NAV ═══ */
-nav{position:fixed;top:0;left:0;width:100%;z-index:100;padding:16px 40px;display:flex;align-items:center;background:rgba(6,6,10,.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.03)}
-.nav-logo{font-size:20px;font-weight:800;color:#fff;display:flex;align-items:center;gap:10px;text-decoration:none}
+nav{position:fixed;top:0;left:0;width:100%;z-index:100;padding:16px 40px;display:flex;align-items:center;background:rgba(245,245,247,.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.08)}
+.nav-logo{font-size:20px;font-weight:800;color:#1a1a2e;display:flex;align-items:center;gap:10px;text-decoration:none}
 .nav-links{display:flex;gap:28px;margin-left:auto;align-items:center}
 .nav-links a{color:var(--testo3);font-size:13px;font-weight:500;text-decoration:none;transition:color .2s}
 .nav-links a:hover{color:var(--ambra)}
@@ -55,10 +55,10 @@ section{padding:80px 40px}
 #macchine{background:var(--sfondo)}
 .griglia-mac{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1000px;margin:0 auto}
 .carta-mac{background:var(--sfondo3);border:1px solid var(--bordo);border-radius:16px;padding:36px 28px;display:flex;flex-direction:column;transition:all .3s;position:relative;overflow:hidden;cursor:pointer}
-.carta-mac:hover{border-color:var(--bordo2);transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.3)}
+.carta-mac:hover{border-color:var(--bordo2);transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.08)}
 .carta-mac.top{border-color:var(--ambra);box-shadow:0 0 0 1px rgba(245,158,11,.15)}
 .carta-mac.top::before{content:attr(data-badge);position:absolute;top:18px;right:-36px;background:var(--ambra);color:#000;font-size:9px;font-weight:800;padding:7px 50px 6px;transform:rotate(45deg);letter-spacing:1.5px;line-height:1.4}
-.ic-pc{width:80px;height:60px;margin:0 auto 20px;position:relative;border:2px solid var(--bordo2);border-radius:6px;display:flex;align-items:center;justify-content:center;background:var(--sfondo)}
+.ic-pc{width:80px;height:60px;margin:0 auto 20px;position:relative;border:2px solid #c0c0cc;border-radius:6px;display:flex;align-items:center;justify-content:center;background:var(--sfondo)}
 .ic-pc::after{content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:40px;height:4px;background:var(--bordo2);border-radius:2px}
 .ic-pc .d{width:6px;height:6px;border-radius:50%;background:var(--ambra)}
 .ic-pc.m .d{width:8px;height:8px;box-shadow:0 0 8px rgba(245,158,11,.4)}
@@ -74,7 +74,7 @@ section{padding:80px 40px}
 .sp .ck{color:var(--verde);font-size:14px;flex-shrink:0}
 .btn-m{width:100%;padding:14px;border-radius:10px;border:1.5px solid var(--bordo2);background:transparent;color:var(--testo);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;text-align:center}
 .btn-m:hover{border-color:var(--ambra);color:var(--ambra);background:var(--ambra-dim)}
-.carta-mac.top .btn-m{background:var(--ambra);color:#000;border-color:var(--ambra)}
+.carta-mac.top .btn-m{background:var(--ambra);color:#fff;border-color:var(--ambra)}
 .carta-mac.top .btn-m:hover{background:var(--ambra2)}
 
 /* ═══ GARANZIA ═══ */
@@ -92,11 +92,13 @@ section{padding:80px 40px}
 
 /* Case SVG 3D */
 .case-wrap{position:sticky;top:100px;height:fit-content;display:flex;justify-content:center}
-.case-wrap svg{filter:drop-shadow(0 8px 32px rgba(0,0,0,.4));width:100%;max-width:500px;transition:transform .6s cubic-bezier(.4,0,.2,1)}
-.case-wrap svg.spostato{transform:translateX(-60px)}
+.case-wrap svg{filter:drop-shadow(0 8px 24px rgba(0,0,0,.12));width:100%;max-width:500px;transition:transform .6s cubic-bezier(.4,0,.2,1)}
+.case-wrap svg.spostato{transform:translateX(-40px)}
+@media(max-width:768px){.case-wrap svg.spostato{transform:translateX(-20px)}}
 .comp-g{transition:opacity .6s cubic-bezier(.4,0,.2,1)}
 .comp-g rect,.comp-g circle{transition:all .5s cubic-bezier(.4,0,.2,1)}
 .comp-g text{transition:fill .5s ease}
+#lblCpu,#lblRam,#lblMb,#lblGpu,#lblSsd,#lblPsu{transition:opacity .5s ease .2s}
 
 /* Steps & Options */
 .step-pills{display:flex;gap:4px;margin-bottom:24px;flex-wrap:wrap}
@@ -127,7 +129,8 @@ footer{padding:32px 40px;text-align:center;border-top:1px solid var(--bordo);fon
 footer a{color:var(--ambra);text-decoration:none}
 
 /* ═══ RESPONSIVE ═══ */
-@media(max-width:1024px){.conf-layout{grid-template-columns:1fr}.case-wrap{position:relative;top:0;max-width:400px;margin:0 auto 24px}.case-wrap svg.spostato{transform:none}}
+@media(max-width:1024px){.conf-layout{grid-template-columns:1fr}.case-wrap{position:relative;top:0;margin:0 auto 24px}}
+@media(max-width:768px){.conf-layout{grid-template-columns:1fr!important}}
 @media(max-width:768px){
   nav{padding:12px 20px}.nav-links a:not(:last-child){display:none}
   .hero{padding:110px 24px 60px}section{padding:60px 20px}
@@ -198,106 +201,106 @@ footer a{color:var(--ambra);text-decoration:none}
     <div class="case-wrap">
       <svg id="caseSvg" viewBox="-30 10 720 580" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%">
         <defs>
-          <linearGradient id="gF" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#161620"/><stop offset="100%" stop-color="#0e0e14"/></linearGradient>
-          <linearGradient id="gS" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1c1c28"/><stop offset="100%" stop-color="#131318"/></linearGradient>
-          <linearGradient id="gT" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#1a1a24"/><stop offset="100%" stop-color="#141420"/></linearGradient>
+          <linearGradient id="gF" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#161620"/><stop offset="100%" stop-color="#dddde8"/></linearGradient>
+          <linearGradient id="gS" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#d0d0dc"/><stop offset="100%" stop-color="#222230"/></linearGradient>
+          <linearGradient id="gT" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#d8d8e4"/><stop offset="100%" stop-color="#e8e8f0"/></linearGradient>
         </defs>
 
         <!-- Case 3D — facciata frontale (rettangolo perfetto) -->
-        <rect x="40" y="50" width="270" height="450" rx="6" fill="url(#gF)" stroke="#2a2a38" stroke-width="1.5"/>
+        <rect x="40" y="50" width="270" height="450" rx="6" fill="url(#gF)" stroke="#a0a0b0" stroke-width="1.5"/>
 
         <!-- Lato destro (parallelogramma — offset 50px a destra e 30px in alto) -->
-        <path d="M310 50 L360 20 L360 470 L310 500" fill="url(#gS)" stroke="#2a2a38" stroke-width="1"/>
+        <path d="M310 50 L360 20 L360 470 L310 500" fill="url(#gS)" stroke="#a0a0b0" stroke-width="1"/>
 
         <!-- Top (parallelogramma — parallelo alla base) -->
-        <path d="M40 50 L90 20 L360 20 L310 50 Z" fill="url(#gT)" stroke="#2a2a38" stroke-width="1"/>
+        <path d="M40 50 L90 20 L360 20 L310 50 Z" fill="url(#gT)" stroke="#a0a0b0" stroke-width="1"/>
 
         <!-- Griglie ventilazione top -->
-        <line x1="120" y1="32" x2="260" y2="32" stroke="#222230" stroke-width="1.2"/>
-        <line x1="120" y1="37" x2="260" y2="37" stroke="#222230" stroke-width="1.2"/>
-        <line x1="120" y1="42" x2="260" y2="42" stroke="#222230" stroke-width="1.2"/>
+        <line x1="120" y1="32" x2="260" y2="32" stroke="#a0a0b0" stroke-width="1.2"/>
+        <line x1="120" y1="37" x2="260" y2="37" stroke="#a0a0b0" stroke-width="1.2"/>
+        <line x1="120" y1="42" x2="260" y2="42" stroke="#a0a0b0" stroke-width="1.2"/>
 
         <!-- Power button -->
-        <circle cx="290" cy="70" r="5" fill="none" stroke="#333345" stroke-width="1.2"/>
+        <circle cx="290" cy="70" r="5" fill="none" stroke="#a0a0b0" stroke-width="1.2"/>
 
         <!-- ═══ MOTHERBOARD ═══ -->
         <g id="gMb" class="comp-g" opacity="0.25">
-          <rect x="60" y="80" width="230" height="320" rx="4" fill="#0c0c14" stroke="#2a2a38" stroke-width="1.5" stroke-dasharray="5 3"/>
-          <text x="175" y="250" text-anchor="middle" fill="#444458" font-size="18" font-weight="800" letter-spacing="3" font-family="Outfit,sans-serif">SCHEDA MADRE</text>
+          <rect x="60" y="80" width="230" height="320" rx="4" fill="#e8e8f0" stroke="#a0a0b0" stroke-width="1.5" stroke-dasharray="5 3"/>
+          <text x="175" y="250" text-anchor="middle" fill="#777790" font-size="18" font-weight="800" letter-spacing="3" font-family="Outfit,sans-serif">SCHEDA MADRE</text>
         </g>
 
         <!-- ═══ CPU ═══ -->
         <g id="gCpu" class="comp-g" opacity="0.25">
-          <rect x="120" y="115" width="70" height="70" rx="4" fill="#0c0c14" stroke="#2a2a38" stroke-width="1.5" stroke-dasharray="5 3"/>
-          <text x="155" y="155" text-anchor="middle" fill="#444458" font-size="20" font-weight="800" font-family="Outfit,sans-serif">CPU</text>
+          <rect x="120" y="115" width="70" height="70" rx="4" fill="#e8e8f0" stroke="#a0a0b0" stroke-width="1.5" stroke-dasharray="5 3"/>
+          <text x="155" y="155" text-anchor="middle" fill="#777790" font-size="20" font-weight="800" font-family="Outfit,sans-serif">CPU</text>
         </g>
 
         <!-- ═══ RAM ═══ -->
         <g id="gRam" class="comp-g" opacity="0.25">
-          <rect x="210" y="105" width="18" height="90" rx="3" fill="#0c0c14" stroke="#2a2a38" stroke-width="1.5" stroke-dasharray="5 3"/>
-          <rect x="234" y="105" width="18" height="90" rx="3" fill="#0c0c14" stroke="#2a2a38" stroke-width="1.5" stroke-dasharray="5 3"/>
-          <text x="235" y="98" text-anchor="middle" fill="#444458" font-size="16" font-weight="800" font-family="Outfit,sans-serif">RAM</text>
+          <rect x="210" y="105" width="18" height="90" rx="3" fill="#e8e8f0" stroke="#a0a0b0" stroke-width="1.5" stroke-dasharray="5 3"/>
+          <rect x="234" y="105" width="18" height="90" rx="3" fill="#e8e8f0" stroke="#a0a0b0" stroke-width="1.5" stroke-dasharray="5 3"/>
+          <text x="235" y="98" text-anchor="middle" fill="#777790" font-size="16" font-weight="800" font-family="Outfit,sans-serif">RAM</text>
         </g>
 
         <!-- ═══ GPU ═══ -->
         <g id="gGpu" class="comp-g" opacity="0.25">
-          <rect x="70" y="280" width="210" height="48" rx="4" fill="#0c0c14" stroke="#2a2a38" stroke-width="1.5" stroke-dasharray="5 3"/>
-          <text x="175" y="309" text-anchor="middle" fill="#444458" font-size="16" font-weight="800" font-family="Outfit,sans-serif">SCHEDA VIDEO</text>
+          <rect x="70" y="280" width="210" height="48" rx="4" fill="#e8e8f0" stroke="#a0a0b0" stroke-width="1.5" stroke-dasharray="5 3"/>
+          <text x="175" y="309" text-anchor="middle" fill="#777790" font-size="16" font-weight="800" font-family="Outfit,sans-serif">SCHEDA VIDEO</text>
         </g>
 
         <!-- ═══ SSD ═══ -->
         <g id="gSsd" class="comp-g" opacity="0.25">
-          <rect x="70" y="345" width="100" height="28" rx="3" fill="#0c0c14" stroke="#2a2a38" stroke-width="1.5" stroke-dasharray="5 3"/>
-          <text x="120" y="364" text-anchor="middle" fill="#444458" font-size="18" font-weight="800" font-family="Outfit,sans-serif">SSD</text>
+          <rect x="70" y="345" width="100" height="28" rx="3" fill="#e8e8f0" stroke="#a0a0b0" stroke-width="1.5" stroke-dasharray="5 3"/>
+          <text x="120" y="364" text-anchor="middle" fill="#777790" font-size="18" font-weight="800" font-family="Outfit,sans-serif">SSD</text>
         </g>
 
         <!-- ═══ PSU ═══ -->
         <g id="gPsu" class="comp-g" opacity="0.25">
-          <rect x="60" y="410" width="170" height="80" rx="4" fill="#0c0c14" stroke="#2a2a38" stroke-width="1.5" stroke-dasharray="5 3"/>
-          <circle cx="145" cy="445" r="22" fill="none" stroke="#2a2a38" stroke-width="1" stroke-dasharray="3 2"/>
-          <text x="145" y="485" text-anchor="middle" fill="#444458" font-size="14" font-weight="800" font-family="Outfit,sans-serif">ALIMENTATORE</text>
+          <rect x="60" y="410" width="170" height="80" rx="4" fill="#e8e8f0" stroke="#a0a0b0" stroke-width="1.5" stroke-dasharray="5 3"/>
+          <circle cx="145" cy="445" r="22" fill="none" stroke="#a0a0b0" stroke-width="1" stroke-dasharray="3 2"/>
+          <text x="145" y="485" text-anchor="middle" fill="#777790" font-size="14" font-weight="800" font-family="Outfit,sans-serif">ALIMENTATORE</text>
         </g>
 
         <!-- ═══ ETICHETTE — frecce orizzontali ═══ -->
         <g id="lblCpu" opacity="0">
-          <line x1="193" y1="150" x2="400" y2="150" stroke="#f59e0b" stroke-width="1.5" opacity=".6"/>
-          <circle cx="400" cy="150" r="4" fill="#f59e0b"/>
+          <line x1="193" y1="150" x2="400" y2="150" stroke="#f59e0b" stroke-width="2" opacity="1"/>
+          <circle cx="400" cy="150" r="5" fill="#f59e0b"/>
           <text x="412" y="145" fill="#f59e0b" font-size="22" font-weight="700" font-family="DM Mono,monospace" id="txtCpu"></text>
-          <text x="412" y="172" fill="#9090a8" font-size="18" font-family="DM Mono,monospace" id="prezCpu"></text>
+          <text x="412" y="172" fill="#c0c0d0" font-size="18" font-family="DM Mono,monospace" id="prezCpu"></text>
         </g>
         <g id="lblRam" opacity="0">
-          <line x1="255" y1="105" x2="400" y2="105" stroke="#f59e0b" stroke-width="1.5" opacity=".6"/>
-          <circle cx="400" cy="105" r="4" fill="#f59e0b"/>
+          <line x1="255" y1="105" x2="400" y2="105" stroke="#f59e0b" stroke-width="2" opacity="1"/>
+          <circle cx="400" cy="105" r="5" fill="#f59e0b"/>
           <text x="412" y="100" fill="#f59e0b" font-size="22" font-weight="700" font-family="DM Mono,monospace" id="txtRam"></text>
-          <text x="412" y="127" fill="#9090a8" font-size="18" font-family="DM Mono,monospace" id="prezRam"></text>
+          <text x="412" y="127" fill="#c0c0d0" font-size="18" font-family="DM Mono,monospace" id="prezRam"></text>
         </g>
         <g id="lblMb" opacity="0">
-          <line x1="292" y1="220" x2="400" y2="220" stroke="#f59e0b" stroke-width="1.5" opacity=".6"/>
-          <circle cx="400" cy="220" r="4" fill="#f59e0b"/>
+          <line x1="292" y1="220" x2="400" y2="220" stroke="#f59e0b" stroke-width="2" opacity="1"/>
+          <circle cx="400" cy="220" r="5" fill="#f59e0b"/>
           <text x="412" y="215" fill="#f59e0b" font-size="22" font-weight="700" font-family="DM Mono,monospace" id="txtMb"></text>
-          <text x="412" y="242" fill="#9090a8" font-size="18" font-family="DM Mono,monospace" id="prezMb"></text>
+          <text x="412" y="242" fill="#c0c0d0" font-size="18" font-family="DM Mono,monospace" id="prezMb"></text>
         </g>
         <g id="lblGpu" opacity="0">
-          <line x1="282" y1="304" x2="400" y2="304" stroke="#f59e0b" stroke-width="1.5" opacity=".6"/>
-          <circle cx="400" cy="304" r="4" fill="#f59e0b"/>
+          <line x1="282" y1="304" x2="400" y2="304" stroke="#f59e0b" stroke-width="2" opacity="1"/>
+          <circle cx="400" cy="304" r="5" fill="#f59e0b"/>
           <text x="412" y="299" fill="#f59e0b" font-size="22" font-weight="700" font-family="DM Mono,monospace" id="txtGpu"></text>
-          <text x="412" y="326" fill="#9090a8" font-size="18" font-family="DM Mono,monospace" id="prezGpu"></text>
+          <text x="412" y="326" fill="#c0c0d0" font-size="18" font-family="DM Mono,monospace" id="prezGpu"></text>
         </g>
         <g id="lblSsd" opacity="0">
-          <line x1="172" y1="360" x2="400" y2="360" stroke="#f59e0b" stroke-width="1.5" opacity=".6"/>
-          <circle cx="400" cy="360" r="4" fill="#f59e0b"/>
+          <line x1="172" y1="360" x2="400" y2="360" stroke="#f59e0b" stroke-width="2" opacity="1"/>
+          <circle cx="400" cy="360" r="5" fill="#f59e0b"/>
           <text x="412" y="355" fill="#f59e0b" font-size="22" font-weight="700" font-family="DM Mono,monospace" id="txtSsd"></text>
-          <text x="412" y="382" fill="#9090a8" font-size="18" font-family="DM Mono,monospace" id="prezSsd"></text>
+          <text x="412" y="382" fill="#c0c0d0" font-size="18" font-family="DM Mono,monospace" id="prezSsd"></text>
         </g>
         <g id="lblPsu" opacity="0">
-          <line x1="232" y1="445" x2="400" y2="445" stroke="#f59e0b" stroke-width="1.5" opacity=".6"/>
-          <circle cx="400" cy="445" r="4" fill="#f59e0b"/>
+          <line x1="232" y1="445" x2="400" y2="445" stroke="#f59e0b" stroke-width="2" opacity="1"/>
+          <circle cx="400" cy="445" r="5" fill="#f59e0b"/>
           <text x="412" y="440" fill="#f59e0b" font-size="22" font-weight="700" font-family="DM Mono,monospace" id="txtPsu"></text>
-          <text x="412" y="467" fill="#9090a8" font-size="18" font-family="DM Mono,monospace" id="prezPsu"></text>
+          <text x="412" y="467" fill="#c0c0d0" font-size="18" font-family="DM Mono,monospace" id="prezPsu"></text>
         </g>
 
         <!-- Case label + totale -->
-        <text x="175" y="545" text-anchor="middle" fill="#505068" font-size="14" font-weight="600" font-family="Outfit,sans-serif" id="caseLabelTxt">CASE — in attesa</text>
+        <text x="175" y="545" text-anchor="middle" fill="#888898" font-size="14" font-weight="600" font-family="Outfit,sans-serif" id="caseLabelTxt">CASE — in attesa</text>
         <text x="175" y="572" text-anchor="middle" fill="#f59e0b" font-size="24" font-weight="700" font-family="DM Mono,monospace" id="caseTotTxt">€ 0</text>
       </svg>
     </div>
@@ -420,7 +423,20 @@ function renderOpt(){
   }).join('');
 }
 
+function isMobile(){return window.innerWidth<=1024;}
+
 function renderCase(){
+  const mobile = isMobile();
+  const svg = document.getElementById('caseSvg');
+  
+  // Su mobile: viewBox stretto (solo case), no spostamento
+  if(mobile){
+    svg.setAttribute('viewBox','-10 10 680 580');
+    svg.classList.remove('spostato');
+  } else {
+    svg.setAttribute('viewBox','-30 10 720 580');
+  }
+
   const parti = {
     cpu:  {g:'gCpu', lbl:'lblCpu', txt:'txtCpu', prez:'prezCpu', yIdeale:150},
     ram:  {g:'gRam', lbl:'lblRam', txt:'txtRam', prez:'prezRam', yIdeale:105},
@@ -438,10 +454,10 @@ function renderCase(){
     const txt = document.getElementById(ids.txt);
     const prez = document.getElementById(ids.prez);
     if(sel[k]){
-      g.style.transition = 'opacity 0.6s ease';
-      g.style.opacity = '1';
+      
+      g.setAttribute('opacity','1');
       g.querySelectorAll('rect, circle').forEach(r => {
-        r.setAttribute('fill', 'rgba(245,158,11,0.12)');
+        r.setAttribute('fill', 'rgba(245,158,11,0.15)');
         r.setAttribute('stroke', '#f59e0b');
         r.setAttribute('stroke-dasharray', 'none');
         r.setAttribute('stroke-width', '1.5');
@@ -451,14 +467,14 @@ function renderCase(){
       prez.textContent = sel[k].prezzo > 0 ? '€' + sel[k].prezzo : 'Gratis';
       attive.push({k, ids, yIdeale: ids.yIdeale});
     } else {
-      g.style.opacity = '0.25';
+      g.setAttribute('opacity','0.25');
       g.querySelectorAll('rect, circle').forEach(r => {
-        r.setAttribute('fill', '#0c0c14');
-        r.setAttribute('stroke', '#2a2a38');
+        r.setAttribute('fill', '#e8e8f0');
+        r.setAttribute('stroke', '#a0a0b0');
         r.setAttribute('stroke-dasharray', '5 3');
       });
-      g.querySelectorAll('text').forEach(t => t.setAttribute('fill', '#444458'));
-      lbl.style.opacity = '0';
+      g.querySelectorAll('text').forEach(t => t.setAttribute('fill', '#777790'));
+      lbl.setAttribute('opacity', '0');
     }
   }
 
@@ -490,8 +506,7 @@ function renderCase(){
     txt.setAttribute('y', y - 5);
     prez.setAttribute('y', y + 17);
 
-    lbl.style.transition = 'opacity 0.5s ease 0.2s';
-    lbl.style.opacity = '1';
+    lbl.setAttribute('opacity', '1');
   });
 
   // Case label e totale
@@ -499,8 +514,7 @@ function renderCase(){
   cl.textContent = sel.case ? 'CASE — ' + sel.case.nome : 'CASE — in attesa';
   cl.setAttribute('fill', sel.case ? '#f59e0b' : '#505068');
   document.getElementById('caseTotTxt').textContent = '€ ' + totale();
-  // Sposta a sinistra se almeno un componente selezionato
-  const svg = document.getElementById('caseSvg');
+  // Sposta a sinistra quando ci sono componenti selezionati
   const haComp = Object.keys(sel).some(k => k !== 'case' && sel[k]);
   if(haComp) svg.classList.add('spostato'); else svg.classList.remove('spostato');
 }
@@ -535,6 +549,7 @@ function selezionaMac(el){
 
 // INIT
 renderStepper();renderOpt();renderRiep();renderCase();
+window.addEventListener('resize',()=>renderCase());
 </script>
 </body>
 </html>
