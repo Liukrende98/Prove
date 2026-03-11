@@ -56,27 +56,24 @@ section{padding:80px 40px}
 /* ═══ MACCHINE RIGENERATE ═══ */
 #macchine{background:var(--sfondo)}
 .griglia-mac{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1000px;margin:0 auto}
-.carta-mac{background:var(--sfondo3);border:1px solid var(--bordo);border-radius:16px;padding:36px 28px;display:flex;flex-direction:column;transition:all .3s;position:relative;overflow:hidden;cursor:pointer}
-.carta-mac:hover{border-color:var(--bordo2);transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.08)}
+.carta-mac{background:#1a1a24;border:1px solid #2a2a38;border-radius:16px;padding:36px 28px;display:flex;flex-direction:column;transition:all .3s;position:relative;overflow:hidden;cursor:pointer}
+.carta-mac:hover{border-color:#3a3a48;transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.25)}
 .carta-mac.top{border-color:var(--ambra);box-shadow:0 0 0 1px rgba(245,158,11,.15)}
 .carta-mac.top::before{content:attr(data-badge);position:absolute;top:18px;right:-36px;background:var(--ambra);color:#000;font-size:9px;font-weight:800;padding:7px 50px 6px;transform:rotate(45deg);letter-spacing:1.5px;line-height:1.4}
-.ic-pc{width:80px;height:60px;margin:0 auto 20px;position:relative;border:2px solid #c0c0cc;border-radius:6px;display:flex;align-items:center;justify-content:center;background:var(--sfondo)}
-.ic-pc::after{content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:40px;height:4px;background:var(--bordo2);border-radius:2px}
-.ic-pc .d{width:6px;height:6px;border-radius:50%;background:var(--ambra)}
-.ic-pc.m .d{width:8px;height:8px;box-shadow:0 0 8px rgba(245,158,11,.4)}
-.ic-pc.p .d{width:10px;height:10px;box-shadow:0 0 16px rgba(245,158,11,.5)}
+.ic-pc{width:80px;height:60px;margin:0 auto 20px;position:relative;border:2px solid #3a3a48;border-radius:6px;display:flex;align-items:center;justify-content:center;background:#e8e8f0}
+.ic-pc::after{content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:40px;height:4px;background:#3a3a48;border-radius:2px}
 .liv{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--ambra);margin-bottom:6px;text-align:center}
-.nm{font-size:20px;font-weight:800;text-align:center;margin-bottom:4px}
-.tgt{font-size:12px;color:var(--testo3);text-align:center;margin-bottom:20px}
+.nm{font-size:20px;font-weight:800;text-align:center;margin-bottom:4px;color:#ffffff}
+.tgt{font-size:12px;color:#8888a0;text-align:center;margin-bottom:20px}
 .prz{text-align:center;margin-bottom:20px}
 .prz .v{font-family:'DM Mono',monospace;font-size:36px;font-weight:700;color:var(--ambra)}
-.prz .s{font-size:12px;color:var(--testo3);margin-top:2px}
+.prz .s{font-size:12px;color:#8888a0;margin-top:2px}
 .specs{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;flex:1}
-.sp{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--testo2)}
+.sp{display:flex;align-items:center;gap:8px;font-size:13px;color:#c0c0d0}
 .sp .ck{color:var(--verde);font-size:14px;flex-shrink:0}
-.btn-m{width:100%;padding:14px;border-radius:10px;border:1.5px solid var(--bordo2);background:transparent;color:var(--testo);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;text-align:center}
-.btn-m:hover{border-color:var(--ambra);color:var(--ambra);background:var(--ambra-dim)}
-.carta-mac.top .btn-m{background:var(--ambra);color:#fff;border-color:var(--ambra)}
+.btn-m{width:100%;padding:14px;border-radius:10px;border:1.5px solid #3a3a48;background:transparent;color:#ffffff;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;text-align:center}
+.btn-m:hover{border-color:var(--ambra);color:var(--ambra);background:rgba(245,158,11,.08)}
+.carta-mac.top .btn-m{background:var(--ambra);color:#000;border-color:var(--ambra)}
 .carta-mac.top .btn-m:hover{background:var(--ambra2)}
 
 /* ═══ GARANZIA ═══ */
@@ -177,8 +174,8 @@ footer a{color:var(--ambra);text-decoration:none}
   <div class="sez-titolo"><span class="tag">Come lavoriamo</span><h2>Il nostro processo</h2><p>Ogni macchina passa per tre fasi prima di arrivare a te</p></div>
   <div class="griglia-proc">
     <div class="carta-proc"><div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg></div><h3>Selezione</h3><p>Solo macchine business da fleet aziendali. Niente consumer di bassa gamma.</p></div>
-    <div class="carta-proc"><div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M11.42 15.17l-5.58 5.58a2.121 2.121 0 01-3-3l5.58-5.58m4.24-4.24l5.58-5.58a2.121 2.121 0 013 3l-5.58 5.58"/></svg></div><h3>Rigenerazione</h3><p>Pulizia, sostituzione componenti, upgrade SSD e RAM. Test di stress 48h.</p></div>
-    <div class="carta-proc"><div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><h3>Garanzia</h3><p>Windows installato e attivato, pronto all'uso. 12 mesi di garanzia.</p></div>
+    <div class="carta-proc"><div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M11.42 15.17l-5.58 5.58a2.121 2.121 0 01-3-3l5.58-5.58m4.24-4.24l5.58-5.58a2.121 2.121 0 013 3l-5.58 5.58"/></svg></div><h3>Rigenerazione</h3><p>Pulizia completa, sostituzione componenti usurati, upgrade SSD e RAM dove necessario.</p></div>
+    <div class="carta-proc"><div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg></div><h3>Benchmark Test</h3><p>Test di stress 48h, benchmark CPU/GPU/RAM. Ogni macchina esce con report prestazioni verificato.</p></div>
   </div>
 </section>
 
@@ -186,9 +183,9 @@ footer a{color:var(--ambra);text-decoration:none}
 <section id="macchine">
   <div class="sez-titolo"><span class="tag">Pronti all'uso</span><h2>PC Rigenerati</h2><p>La macchina giusta per ogni esigenza e budget</p></div>
   <div class="griglia-mac">
-    <div class="carta-mac" data-badge="ENTRY" onclick="selezionaMac(this)"><div class="ic-pc"><div class="d"></div></div><div class="liv">Entry Level</div><div class="nm">Essential</div><div class="tgt">Studenti e navigazione web</div><div class="prz"><div class="v">€199</div><div class="s">IVA inclusa · rigenerato</div></div><div class="specs"><div class="sp"><span class="ck">✓</span>Intel Core i3</div><div class="sp"><span class="ck">✓</span>8 GB RAM</div><div class="sp"><span class="ck">✓</span>SSD 240 GB</div><div class="sp"><span class="ck">✓</span>Windows 11</div><div class="sp"><span class="ck">✓</span>Garanzia 12 mesi</div></div><button class="btn-m" onclick="event.stopPropagation();location.href='index.html#contatti'">Richiedi Info</button></div>
-    <div class="carta-mac top" data-badge="POPOLARE" onclick="selezionaMac(this)"><div class="ic-pc m"><div class="d"></div></div><div class="liv">Medio</div><div class="nm">Business</div><div class="tgt">Ufficio e multitasking</div><div class="prz"><div class="v">€399</div><div class="s">IVA inclusa · rigenerato</div></div><div class="specs"><div class="sp"><span class="ck">✓</span>Intel Core i5</div><div class="sp"><span class="ck">✓</span>16 GB RAM</div><div class="sp"><span class="ck">✓</span>SSD 480 GB</div><div class="sp"><span class="ck">✓</span>Windows 11 Pro</div><div class="sp"><span class="ck">✓</span>Garanzia 12 mesi</div></div><button class="btn-m" onclick="event.stopPropagation();location.href='index.html#contatti'">Richiedi Info</button></div>
-    <div class="carta-mac" data-badge="PRO" onclick="selezionaMac(this)"><div class="ic-pc p"><div class="d"></div></div><div class="liv">Pro</div><div class="nm">Performance</div><div class="tgt">CAD, sviluppo, produttività</div><div class="prz"><div class="v">€699</div><div class="s">IVA inclusa · rigenerato</div></div><div class="specs"><div class="sp"><span class="ck">✓</span>Intel Core i7</div><div class="sp"><span class="ck">✓</span>32 GB RAM</div><div class="sp"><span class="ck">✓</span>SSD 1 TB NVMe</div><div class="sp"><span class="ck">✓</span>Windows 11 Pro</div><div class="sp"><span class="ck">✓</span>Garanzia 12 + prioritaria</div></div><button class="btn-m" onclick="event.stopPropagation();location.href='index.html#contatti'">Richiedi Info</button></div>
+    <div class="carta-mac" data-badge="ENTRY" onclick="selezionaMac(this)"><div class="ic-pc"><svg width="20" height="20" viewBox="0 0 24 24" fill="#0078d4"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.851"/></svg></div><div class="liv">Entry Level</div><div class="nm">Essential</div><div class="tgt">Studenti e navigazione web</div><div class="prz"><div class="v">€199</div><div class="s">IVA inclusa · rigenerato</div></div><div class="specs"><div class="sp"><span class="ck">✓</span>Intel Core i3</div><div class="sp"><span class="ck">✓</span>8 GB RAM</div><div class="sp"><span class="ck">✓</span>SSD 240 GB</div><div class="sp"><span class="ck">✓</span>Windows 11</div><div class="sp"><span class="ck">✓</span>Garanzia 12 mesi</div></div><button class="btn-m" onclick="event.stopPropagation();location.href='index.html#contatti'">Richiedi Info</button></div>
+    <div class="carta-mac top" data-badge="POPOLARE" onclick="selezionaMac(this)"><div class="ic-pc m"><svg width="20" height="20" viewBox="0 0 24 24" fill="#0078d4"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.851"/></svg></div><div class="liv">Medio</div><div class="nm">Business</div><div class="tgt">Ufficio e multitasking</div><div class="prz"><div class="v">€399</div><div class="s">IVA inclusa · rigenerato</div></div><div class="specs"><div class="sp"><span class="ck">✓</span>Intel Core i5</div><div class="sp"><span class="ck">✓</span>16 GB RAM</div><div class="sp"><span class="ck">✓</span>SSD 480 GB</div><div class="sp"><span class="ck">✓</span>Windows 11 Pro</div><div class="sp"><span class="ck">✓</span>Garanzia 12 mesi</div></div><button class="btn-m" onclick="event.stopPropagation();location.href='index.html#contatti'">Richiedi Info</button></div>
+    <div class="carta-mac" data-badge="PRO" onclick="selezionaMac(this)"><div class="ic-pc p"><svg width="20" height="20" viewBox="0 0 24 24" fill="#0078d4"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.851"/></svg></div><div class="liv">Pro</div><div class="nm">Performance</div><div class="tgt">CAD, sviluppo, produttività</div><div class="prz"><div class="v">€699</div><div class="s">IVA inclusa · rigenerato</div></div><div class="specs"><div class="sp"><span class="ck">✓</span>Intel Core i7</div><div class="sp"><span class="ck">✓</span>32 GB RAM</div><div class="sp"><span class="ck">✓</span>SSD 1 TB NVMe</div><div class="sp"><span class="ck">✓</span>Windows 11 Pro</div><div class="sp"><span class="ck">✓</span>Garanzia 12 + prioritaria</div></div><button class="btn-m" onclick="event.stopPropagation();location.href='index.html#contatti'">Richiedi Info</button></div>
   </div>
 </section>
 
@@ -247,9 +244,9 @@ footer a{color:var(--ambra);text-decoration:none}
 
         <!-- ═══ RAM ═══ -->
         <g id="gRam" class="comp-g" opacity="1">
-          <rect x="210" y="105" width="18" height="90" rx="3" fill="#1e1e28" stroke="#404050" stroke-width="1" stroke-dasharray="6 4"/>
-          <rect x="234" y="105" width="18" height="90" rx="3" fill="#1e1e28" stroke="#404050" stroke-width="1" stroke-dasharray="6 4"/>
-          <text x="235" y="98" text-anchor="middle" fill="#ffffff" font-size="16" font-weight="800" font-family="Outfit,sans-serif">RAM</text>
+          <rect x="210" y="130" width="18" height="80" rx="3" fill="#1e1e28" stroke="#404050" stroke-width="1" stroke-dasharray="6 4"/>
+          <rect x="234" y="130" width="18" height="80" rx="3" fill="#1e1e28" stroke="#404050" stroke-width="1" stroke-dasharray="6 4"/>
+          <text x="235" y="122" text-anchor="middle" fill="#ffffff" font-size="16" font-weight="800" font-family="Outfit,sans-serif">RAM</text>
         </g>
 
         <!-- ═══ GPU ═══ -->
@@ -278,10 +275,10 @@ footer a{color:var(--ambra);text-decoration:none}
           <text x="412" y="172" fill="#555570" font-size="18" font-weight="600" font-family="Outfit,sans-serif" id="prezCpu"></text>
         </g>
         <g id="lblRam" opacity="0">
-          <line x1="255" y1="105" x2="400" y2="105" stroke="#f59e0b" stroke-width="2" opacity="1"/>
-          <circle cx="400" cy="105" r="5" fill="#f59e0b"/>
-          <text x="412" y="100" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtRam"></text>
-          <text x="412" y="127" fill="#555570" font-size="18" font-weight="600" font-family="Outfit,sans-serif" id="prezRam"></text>
+          <line x1="255" y1="115" x2="400" y2="115" stroke="#f59e0b" stroke-width="2" opacity="1"/>
+          <circle cx="400" cy="115" r="5" fill="#f59e0b"/>
+          <text x="412" y="110" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtRam"></text>
+          <text x="412" y="137" fill="#555570" font-size="18" font-weight="600" font-family="Outfit,sans-serif" id="prezRam"></text>
         </g>
         <g id="lblMb" opacity="0">
           <line x1="292" y1="220" x2="400" y2="220" stroke="#f59e0b" stroke-width="2" opacity="1"/>
@@ -452,7 +449,7 @@ function renderCase(){
 
   const parti = {
     cpu:  {g:'gCpu', lbl:'lblCpu', txt:'txtCpu', prez:'prezCpu', yIdeale:150},
-    ram:  {g:'gRam', lbl:'lblRam', txt:'txtRam', prez:'prezRam', yIdeale:105},
+    ram:  {g:'gRam', lbl:'lblRam', txt:'txtRam', prez:'prezRam', yIdeale:115},
     mb:   {g:'gMb',  lbl:'lblMb',  txt:'txtMb',  prez:'prezMb',  yIdeale:220},
     gpu:  {g:'gGpu', lbl:'lblGpu', txt:'txtGpu', prez:'prezGpu', yIdeale:304},
     ssd:  {g:'gSsd', lbl:'lblSsd', txt:'txtSsd', prez:'prezSsd', yIdeale:360},
