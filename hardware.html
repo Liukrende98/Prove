@@ -29,16 +29,17 @@ nav{position:fixed;top:0;left:0;width:100%;z-index:100;padding:16px 40px;display
 .nav-links a:hover{color:#f59e0b}
 
 /* ═══ HERO ═══ */
-.hero{padding:140px 40px 80px;text-align:center;position:relative;overflow:hidden}
-.hero-circuit{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;opacity:.18}
+.hero{padding:140px 40px 20px;text-align:center;position:relative;overflow:hidden}
+.hero-circuit{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1}
 @media(max-width:768px){.hero-circuit{display:none}}
 .hero-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:20px;font-size:11px;font-weight:600;background:var(--ambra-dim);color:var(--ambra);border:1px solid rgba(245,158,11,.15);margin-bottom:24px;letter-spacing:.5px}
 .hero h1{font-size:clamp(32px,5vw,52px);font-weight:900;letter-spacing:-1px;margin-bottom:16px}
-.hero h1 em{font-style:normal;color:var(--ambra)}
+.hero h1 em{font-style:normal;color:var(--ambra);position:relative;display:inline-block;padding:4px 12px}
 .hero .lead{font-size:clamp(15px,2vw,18px);color:var(--testo2);max-width:600px;margin:0 auto;line-height:1.6;font-weight:300}
 
 /* ═══ SEZIONE ═══ */
-section{padding:80px 40px}
+section{padding:80px 40px;position:relative}
+section::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:1px;background:linear-gradient(90deg,transparent,var(--ambra),transparent);opacity:.3}
 .sez-titolo{text-align:center;margin-bottom:48px}
 .sez-titolo .tag{font-size:11px;font-weight:700;color:var(--ambra);text-transform:uppercase;letter-spacing:3px;margin-bottom:10px;display:block}
 .sez-titolo h2{font-size:clamp(26px,4vw,38px);font-weight:800;letter-spacing:-.5px}
@@ -98,7 +99,6 @@ section{padding:80px 40px}
 
 /* ═══ CONFIGURATORE ═══ */
 #configuratore{background:var(--sfondo2);position:relative;overflow:hidden}
-#configuratore::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:1px;background:linear-gradient(90deg,transparent,var(--ambra),transparent);opacity:.3}
 
 .conf-layout{display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:1400px;margin:0 auto}
 
@@ -148,14 +148,16 @@ section{padding:80px 40px}
 .btn-cat-info:hover{border-color:#f59e0b;color:#f59e0b}
 
 /* ═══ CTA ═══ */
-.cta-sez{text-align:center;padding:80px 40px;background:var(--sfondo2)}
+.cta-sez{text-align:center;padding:80px 40px;background:var(--sfondo2);position:relative}
+.cta-sez::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:1px;background:linear-gradient(90deg,transparent,var(--ambra),transparent);opacity:.3}
 .cta-sez h2{font-size:clamp(24px,3vw,36px);font-weight:800;margin-bottom:12px}
 .cta-sez p{font-size:15px;color:var(--testo2);margin-bottom:28px}
 .btn-cta{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:12px;background:var(--ambra);color:#000;font-size:15px;font-weight:700;text-decoration:none;font-family:inherit;transition:all .2s}
 .btn-cta:hover{background:var(--ambra2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(245,158,11,.2)}
 
 /* ═══ FOOTER ═══ */
-footer{padding:32px 40px;text-align:center;border-top:none;font-size:12px;color:#9090a8;background:#0e0e14}
+footer{padding:32px 40px;text-align:center;border-top:none;font-size:12px;color:#9090a8;background:#0e0e14;position:relative}
+footer::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:1px;background:linear-gradient(90deg,transparent,var(--ambra),transparent);opacity:.3}
 footer a{color:var(--ambra);text-decoration:none}
 
 /* ═══ RESPONSIVE ═══ */
@@ -164,13 +166,15 @@ footer a{color:var(--ambra);text-decoration:none}
   .case-wrap{position:relative;top:0;margin:0 auto 24px;max-width:360px}
   .case-wrap svg{max-width:100%}
   .case-wrap svg.spostato{transform:none}
+  #grCatalogo{grid-template-columns:repeat(2,1fr)!important}
 }
 @media(max-width:768px){
   nav{padding:12px 20px}
   .nav-links a:not(:last-child){display:none}
-  .hero{padding:110px 24px 60px}
+  .hero{padding:110px 24px 16px}
   section{padding:60px 20px}
   .griglia-proc,.griglia-mac,.griglia-gar{grid-template-columns:1fr}
+  #grCatalogo{grid-template-columns:1fr!important}
   .conf-layout{grid-template-columns:1fr}
   .case-wrap{max-width:280px;margin:0 auto 20px}
   .step-pills{overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -196,38 +200,64 @@ footer a{color:var(--ambra);text-decoration:none}
 <!-- ═══ HERO ═══ -->
 <div class="hero">
   <canvas class="hero-circuit" id="circuitCanvas"></canvas>
-  <h1 style="position:relative;z-index:1">Il tuo <em>hardware</em>, su misura</h1>
-  <div class="lead" style="position:relative;z-index:1">PC rigenerati, server, reti, stampanti e periferiche — fornitura completa per uffici e produzione. Configura il tuo PC su misura o scegli un rigenerato pronto all'uso. Assistenza e configurazione incluse.</div>
+  <h1 style="position:relative;z-index:2">Il tuo <em id="hwWord">hardware</em>, su misura</h1>
+  <div class="lead" style="position:relative;z-index:2">PC rigenerati e nuovi, server, reti, stampanti e periferiche. Fornitura completa per uffici e produzione. Configura il tuo PC su misura, scegli un rigenerato o acquista hardware nuovo. Assistenza e configurazione incluse.</div>
 </div>
 <!-- ═══ CATALOGO PRODOTTI ═══ -->
-<section id="catalogo" style="background:var(--sfondo)">
+<section id="catalogo" style="background:var(--sfondo);padding-top:30px">
+
+  <!-- Filtri categoria -->
+  <div id="filtroCategoria" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px">
+    <button class="cat-filtro attivo" onclick="filtraCategoria('tutti',this)">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
+      Tutti
+    </button>
+    <button class="cat-filtro" onclick="filtraCategoria('pc',this)">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z"/></svg>
+      PC Desktop
+    </button>
+    <button class="cat-filtro" onclick="filtraCategoria('stampante',this)">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18.25 7.234l-.003.005"/></svg>
+      Stampanti
+    </button>
+    <button class="cat-filtro" onclick="filtraCategoria('server',this)">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7m0 0a3 3 0 01-3 3m0 3h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008zm-3 6h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008z"/></svg>
+      Server
+    </button>
+    <button class="cat-filtro" onclick="filtraCategoria('rete',this)">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z"/></svg>
+      Reti
+    </button>
+    <button class="cat-filtro" onclick="filtraCategoria('periferica',this)">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 002.25-2.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v2.25A2.25 2.25 0 006 10.5zm0 9.75h2.25A2.25 2.25 0 0010.5 18v-2.25a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25V18A2.25 2.25 0 006 20.25zm9.75-9.75H18a2.25 2.25 0 002.25-2.25V6A2.25 2.25 0 0018 3.75h-2.25A2.25 2.25 0 0013.5 6v2.25a2.25 2.25 0 002.25 2.25z"/></svg>
+      Periferiche
+    </button>
+  </div>
 
   <!-- Filtri uso -->
   <div id="filtroCatalogo" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:36px">
     <button class="cat-filtro attivo" onclick="filtraCatalogo('tutti',this)">
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
       Tutti
     </button>
     <button class="cat-filtro" onclick="filtraCatalogo('studio',this)">
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
       Studio
     </button>
     <button class="cat-filtro" onclick="filtraCatalogo('ufficio',this)">
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z"/></svg>
       Ufficio
     </button>
     <button class="cat-filtro" onclick="filtraCatalogo('gaming',this)">
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 01-.657.643 48.491 48.491 0 01-4.163-.3c-1.068-.142-1.83-1.091-1.83-2.17v-1.26a2.25 2.25 0 011.5-2.121c3.114-.963 6.486-.963 9.6 0a2.25 2.25 0 011.5 2.122v1.259c0 1.079-.762 2.028-1.83 2.17a48.491 48.491 0 01-4.163.3v0a.64.64 0 01-.657-.643zM6.75 12h10.5M6.75 12a4.5 4.5 0 00-4.5 4.5 3 3 0 003 3h13.5a3 3 0 003-3 4.5 4.5 0 00-4.5-4.5M6.75 12h10.5"/></svg>
       Gaming
     </button>
     <button class="cat-filtro" onclick="filtraCatalogo('domestico',this)">
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
       Domestico
     </button>
   </div>
 
   <!-- Griglia prodotti -->
-  <div id="grCatalogo" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;max-width:1100px;margin:0 auto"></div>
+  <div id="grCatalogo" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1100px;margin:0 auto;transition:opacity .35s ease,transform .35s ease"></div>
+
+  <!-- Paginazione -->
+  <div id="paginazione" style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:28px"></div>
 </section>
 
 <script>
@@ -236,40 +266,106 @@ var svgMap={
 tower:'<svg viewBox="0 0 90 110" fill="none" style="width:70px;height:90px"><path d="M60 10 L80 0 L80 85 L60 95Z" fill="#c8c8d4" stroke="#b0b0c0" stroke-width=".5"/><path d="M10 10 L30 0 L80 0 L60 10Z" fill="#dcdce4" stroke="#b0b0c0" stroke-width=".5"/><rect x="10" y="10" width="50" height="85" rx="2" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".5"/><rect x="14" y="15" width="42" height="10" rx="1" fill="#f2f2f8" stroke="#d0d0dc"/><rect x="14" y="27" width="42" height="10" rx="1" fill="#f2f2f8" stroke="#d0d0dc"/><rect x="18" y="42" width="6" height="3" rx=".5" fill="#c0c0cc"/><rect x="26" y="42" width="6" height="3" rx=".5" fill="#c0c0cc"/><circle cx="35" cy="49" r="3.5" fill="none" stroke="#c0c0cc" stroke-width="1"/><circle cx="35" cy="49" r="1.5" fill="#f59e0b"/><circle cx="35" cy="70" r="14" fill="#f2f2f8" stroke="#d0d0dc"/><circle cx="35" cy="70" r="10" fill="none" stroke="#d0d0dc" stroke-width=".5"/><circle cx="35" cy="70" r="3" fill="#c0c0cc"/><path d="M35 60 Q40 65 35 70" stroke="#c0c0cc" fill="none"/><path d="M35 80 Q30 75 35 70" stroke="#c0c0cc" fill="none"/><path d="M25 70 Q30 65 35 70" stroke="#c0c0cc" fill="none"/><path d="M45 70 Q40 75 35 70" stroke="#c0c0cc" fill="none"/><rect x="12" y="95" width="10" height="3" rx="1" fill="#c0c0cc"/><rect x="48" y="95" width="10" height="3" rx="1" fill="#c0c0cc"/></svg>',
 mini:'<svg viewBox="0 0 90 70" fill="none" style="width:80px;height:60px"><path d="M70 22 L82 16 L82 50 L70 56Z" fill="#c8c8d4" stroke="#b0b0c0" stroke-width=".5"/><path d="M8 22 L20 16 L82 16 L70 22Z" fill="#dcdce4" stroke="#b0b0c0" stroke-width=".5"/><line x1="30" y1="19" x2="60" y2="19" stroke="#c0c0cc" stroke-width=".4"/><line x1="31" y1="20.5" x2="59" y2="20.5" stroke="#c0c0cc" stroke-width=".4"/><rect x="8" y="22" width="62" height="34" rx="2" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".5"/><circle cx="16" cy="39" r="2.5" fill="#f59e0b" opacity=".9"/><rect x="22" y="33" width="18" height="2" rx=".5" fill="#c0c0cc"/><rect x="22" y="37" width="12" height="2" rx=".5" fill="#c0c0cc"/><rect x="50" y="34" width="5" height="3" rx=".5" fill="#c0c0cc"/><rect x="57" y="34" width="5" height="3" rx=".5" fill="#c0c0cc"/><circle cx="53" cy="42" r="1.5" fill="#c0c0cc"/><rect x="12" y="56" width="8" height="2" rx=".5" fill="#c0c0cc"/><rect x="58" y="56" width="8" height="2" rx=".5" fill="#c0c0cc"/></svg>',
 work:'<svg viewBox="0 0 90 110" fill="none" style="width:70px;height:90px"><path d="M60 8 L82 0 L82 90 L60 98Z" fill="#c8c8d4" stroke="#b0b0c0" stroke-width=".5"/><path d="M8 8 L30 0 L82 0 L60 8Z" fill="#dcdce4" stroke="#b0b0c0" stroke-width=".5"/><rect x="8" y="8" width="52" height="90" rx="2" fill="#e8e8f0" stroke="#f59e0b" stroke-width=".8"/><rect x="12" y="13" width="44" height="10" rx="1" fill="#f2f2f8" stroke="#d0d0dc"/><rect x="16" y="28" width="5" height="3" rx=".5" fill="#c0c0cc"/><rect x="23" y="28" width="5" height="3" rx=".5" fill="#c0c0cc"/><rect x="30" y="28" width="5" height="3" rx=".5" fill="#c0c0cc"/><circle cx="34" cy="38" r="3.5" fill="none" stroke="#f59e0b" stroke-width="1"/><circle cx="34" cy="38" r="1.5" fill="#f59e0b"/><circle cx="26" cy="58" r="10" fill="#f2f2f8" stroke="#d0d0dc"/><circle cx="26" cy="58" r="2.5" fill="#c0c0cc"/><path d="M26 48 Q31 53 26 58" stroke="#c0c0cc" fill="none"/><path d="M26 68 Q21 63 26 58" stroke="#c0c0cc" fill="none"/><circle cx="46" cy="58" r="10" fill="#f2f2f8" stroke="#d0d0dc"/><circle cx="46" cy="58" r="2.5" fill="#c0c0cc"/><path d="M46 48 Q51 53 46 58" stroke="#c0c0cc" fill="none"/><path d="M46 68 Q41 63 46 58" stroke="#c0c0cc" fill="none"/><rect x="14" y="75" width="40" height="10" rx="2" fill="#f2f2f8" stroke="#f59e0b" stroke-width=".6"/><text x="34" y="83" text-anchor="middle" fill="#f59e0b" font-size="6" font-weight="700" font-family="Outfit">GPU</text><circle cx="14" cy="92" r="2" fill="#22c55e" opacity=".8"/><rect x="10" y="98" width="10" height="3" rx="1" fill="#c0c0cc"/><rect x="48" y="98" width="10" height="3" rx="1" fill="#c0c0cc"/></svg>',
-sff:'<svg viewBox="0 0 100 75" fill="none" style="width:85px;height:65px"><path d="M78 18 L92 12 L92 55 L78 61Z" fill="#c8c8d4" stroke="#b0b0c0" stroke-width=".5"/><path d="M8 18 L22 12 L92 12 L78 18Z" fill="#dcdce4" stroke="#b0b0c0" stroke-width=".5"/><rect x="8" y="18" width="70" height="43" rx="2" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".5"/><rect x="12" y="22" width="62" height="10" rx="1" fill="#f2f2f8" stroke="#d0d0dc"/><rect x="60" y="24" width="10" height="6" rx=".5" fill="#d0d0dc"/><circle cx="18" cy="41" r="3" fill="none" stroke="#c0c0cc"/><circle cx="18" cy="41" r="1.5" fill="#f59e0b"/><rect x="28" y="38" width="5" height="3" rx=".5" fill="#c0c0cc"/><rect x="35" y="38" width="5" height="3" rx=".5" fill="#c0c0cc"/><circle cx="45" cy="40" r="1.5" fill="#c0c0cc"/><line x1="55" y1="36" x2="55" y2="52" stroke="#d0d0dc" stroke-width=".5"/><line x1="58" y1="36" x2="58" y2="52" stroke="#d0d0dc" stroke-width=".5"/><line x1="61" y1="36" x2="61" y2="52" stroke="#d0d0dc" stroke-width=".5"/><line x1="64" y1="36" x2="64" y2="52" stroke="#d0d0dc" stroke-width=".5"/><line x1="67" y1="36" x2="67" y2="52" stroke="#d0d0dc" stroke-width=".5"/><rect x="12" y="61" width="8" height="2" rx=".5" fill="#c0c0cc"/><rect x="66" y="61" width="8" height="2" rx=".5" fill="#c0c0cc"/></svg>'
+sff:'<svg viewBox="0 0 100 75" fill="none" style="width:85px;height:65px"><path d="M78 18 L92 12 L92 55 L78 61Z" fill="#c8c8d4" stroke="#b0b0c0" stroke-width=".5"/><path d="M8 18 L22 12 L92 12 L78 18Z" fill="#dcdce4" stroke="#b0b0c0" stroke-width=".5"/><rect x="8" y="18" width="70" height="43" rx="2" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".5"/><rect x="12" y="22" width="62" height="10" rx="1" fill="#f2f2f8" stroke="#d0d0dc"/><rect x="60" y="24" width="10" height="6" rx=".5" fill="#d0d0dc"/><circle cx="18" cy="41" r="3" fill="none" stroke="#c0c0cc"/><circle cx="18" cy="41" r="1.5" fill="#f59e0b"/><rect x="28" y="38" width="5" height="3" rx=".5" fill="#c0c0cc"/><rect x="35" y="38" width="5" height="3" rx=".5" fill="#c0c0cc"/><circle cx="45" cy="40" r="1.5" fill="#c0c0cc"/><line x1="55" y1="36" x2="55" y2="52" stroke="#d0d0dc" stroke-width=".5"/><line x1="58" y1="36" x2="58" y2="52" stroke="#d0d0dc" stroke-width=".5"/><line x1="61" y1="36" x2="61" y2="52" stroke="#d0d0dc" stroke-width=".5"/><line x1="64" y1="36" x2="64" y2="52" stroke="#d0d0dc" stroke-width=".5"/><line x1="67" y1="36" x2="67" y2="52" stroke="#d0d0dc" stroke-width=".5"/><rect x="12" y="61" width="8" height="2" rx=".5" fill="#c0c0cc"/><rect x="66" y="61" width="8" height="2" rx=".5" fill="#c0c0cc"/></svg>',
+stampante:'<svg viewBox="0 0 90 80" fill="none" style="width:80px;height:70px"><rect x="20" y="5" width="50" height="18" rx="2" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".8"/><line x1="28" y1="10" x2="58" y2="10" stroke="#c0c0cc" stroke-width="1"/><line x1="28" y1="14" x2="50" y2="14" stroke="#c0c0cc" stroke-width="1"/><line x1="28" y1="18" x2="54" y2="18" stroke="#c0c0cc" stroke-width="1"/><rect x="10" y="23" width="70" height="32" rx="4" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".8"/><rect x="16" y="30" width="20" height="3" rx="1" fill="#c0c0cc"/><rect x="16" y="36" width="14" height="3" rx="1" fill="#c0c0cc"/><circle cx="68" cy="33" r="3" fill="#f59e0b"/><circle cx="68" cy="42" r="2" fill="#22c55e"/><rect x="22" y="55" width="46" height="16" rx="2" fill="#f2f2f8" stroke="#d0d0dc" stroke-width=".8"/><line x1="30" y1="60" x2="56" y2="60" stroke="#c0c0cc" stroke-width=".8"/><line x1="30" y1="64" x2="48" y2="64" stroke="#c0c0cc" stroke-width=".8"/></svg>',
+server:'<svg viewBox="0 0 90 90" fill="none" style="width:75px;height:75px"><rect x="10" y="5" width="70" height="22" rx="3" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".8"/><circle cx="22" cy="16" r="2.5" fill="#22c55e"/><circle cx="30" cy="16" r="2.5" fill="#f59e0b"/><rect x="40" y="12" width="28" height="3" rx="1" fill="#c0c0cc"/><line x1="40" y1="18" x2="60" y2="18" stroke="#d0d0dc" stroke-width=".8"/><rect x="10" y="30" width="70" height="22" rx="3" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".8"/><circle cx="22" cy="41" r="2.5" fill="#22c55e"/><circle cx="30" cy="41" r="2.5" fill="#f59e0b"/><rect x="40" y="37" width="28" height="3" rx="1" fill="#c0c0cc"/><line x1="40" y1="43" x2="60" y2="43" stroke="#d0d0dc" stroke-width=".8"/><rect x="10" y="55" width="70" height="22" rx="3" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".8"/><circle cx="22" cy="66" r="2.5" fill="#22c55e"/><circle cx="30" cy="66" r="2.5" fill="#c0c0cc" opacity=".5"/><rect x="40" y="62" width="28" height="3" rx="1" fill="#c0c0cc"/><line x1="40" y1="68" x2="60" y2="68" stroke="#d0d0dc" stroke-width=".8"/><rect x="35" y="80" width="20" height="5" rx="1" fill="#c0c0cc"/></svg>',
+rete:'<svg viewBox="0 0 90 70" fill="none" style="width:80px;height:60px"><rect x="10" y="15" width="70" height="30" rx="4" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".8"/><circle cx="24" cy="24" r="2" fill="#22c55e"/><circle cx="32" cy="24" r="2" fill="#22c55e"/><circle cx="40" cy="24" r="2" fill="#f59e0b"/><circle cx="48" cy="24" r="2" fill="#22c55e"/><circle cx="24" cy="36" r="2" fill="#22c55e"/><circle cx="32" cy="36" r="2" fill="#c0c0cc"/><circle cx="40" cy="36" r="2" fill="#22c55e"/><circle cx="48" cy="36" r="2" fill="#c0c0cc"/><rect x="58" y="22" width="14" height="3" rx="1" fill="#c0c0cc"/><rect x="58" y="28" width="14" height="3" rx="1" fill="#c0c0cc"/><rect x="58" y="34" width="14" height="3" rx="1" fill="#c0c0cc"/><line x1="20" y1="50" x2="20" y2="58" stroke="#c0c0cc" stroke-width="1.5"/><line x1="45" y1="50" x2="45" y2="58" stroke="#c0c0cc" stroke-width="1.5"/><line x1="70" y1="50" x2="70" y2="58" stroke="#c0c0cc" stroke-width="1.5"/><circle cx="20" cy="61" r="3" fill="#f2f2f8" stroke="#b0b0c0"/><circle cx="45" cy="61" r="3" fill="#f2f2f8" stroke="#b0b0c0"/><circle cx="70" cy="61" r="3" fill="#f2f2f8" stroke="#b0b0c0"/></svg>',
+periferica:'<svg viewBox="0 0 90 70" fill="none" style="width:80px;height:60px"><rect x="5" y="8" width="50" height="30" rx="3" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".8"/><rect x="9" y="12" width="42" height="18" rx="2" fill="#f2f2f8" stroke="#d0d0dc"/><rect x="20" y="38" width="20" height="3" rx="1" fill="#c0c0cc"/><rect x="60" y="10" width="25" height="40" rx="3" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".8"/><rect x="64" y="14" width="17" height="10" rx="1" fill="#f2f2f8" stroke="#d0d0dc"/><circle cx="72" cy="34" r="4" fill="none" stroke="#c0c0cc" stroke-width="1.5"/><circle cx="72" cy="34" r="1.5" fill="#f59e0b"/><rect x="66" y="42" width="5" height="3" rx=".5" fill="#c0c0cc"/><rect x="74" y="42" width="5" height="3" rx=".5" fill="#c0c0cc"/><rect x="10" y="50" width="40" height="12" rx="2" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".8"/><rect x="14" y="53" width="4" height="4" rx=".5" fill="#c0c0cc"/><rect x="20" y="53" width="4" height="4" rx=".5" fill="#c0c0cc"/><rect x="26" y="53" width="4" height="4" rx=".5" fill="#c0c0cc"/><rect x="32" y="53" width="4" height="4" rx=".5" fill="#c0c0cc"/><rect x="38" y="53" width="4" height="4" rx=".5" fill="#c0c0cc"/><rect x="44" y="53" width="4" height="4" rx=".5" fill="#c0c0cc"/></svg>'
 };
 
 var catalogo=[
-  {nome:'Dell OptiPlex 3080',brand:'Dell',cpu:'i5-10500',ram:'8GB',ssd:'256GB SSD',prezzo:289,uso:['studio','ufficio','domestico'],badge:'',tipo:'tower'},
-  {nome:'Dell OptiPlex 5090',brand:'Dell',cpu:'i5-11500',ram:'16GB',ssd:'512GB SSD',prezzo:449,uso:['ufficio','studio'],badge:'',tipo:'sff'},
-  {nome:'Dell OptiPlex 7090',brand:'Dell',cpu:'i7-11700',ram:'32GB',ssd:'1TB SSD',prezzo:699,uso:['ufficio','gaming'],badge:'',tipo:'tower'},
-  {nome:'Lenovo ThinkCentre M70q',brand:'Lenovo',cpu:'i3-10100T',ram:'8GB',ssd:'256GB SSD',prezzo:229,uso:['studio','domestico'],badge:'',tipo:'mini'},
-  {nome:'Lenovo ThinkCentre M80q',brand:'Lenovo',cpu:'i5-11400T',ram:'16GB',ssd:'512GB SSD',prezzo:399,uso:['ufficio','studio','domestico'],badge:'',tipo:'mini'},
-  {nome:'Lenovo ThinkCentre M90q',brand:'Lenovo',cpu:'i7-11700T',ram:'32GB',ssd:'1TB SSD',prezzo:649,uso:['ufficio','gaming'],badge:'',tipo:'mini'},
-  {nome:'HP ProDesk 400 G7',brand:'HP',cpu:'i5-10500',ram:'8GB',ssd:'256GB SSD',prezzo:269,uso:['studio','domestico'],badge:'',tipo:'sff'},
-  {nome:'HP EliteDesk 800 G6',brand:'HP',cpu:'i7-10700',ram:'16GB',ssd:'512GB SSD',prezzo:549,uso:['ufficio','gaming'],badge:'',tipo:'sff'},
-  {nome:'Dell Precision 3640',brand:'Dell',cpu:'i7-10700',ram:'32GB',ssd:'512GB SSD + GPU',prezzo:799,uso:['gaming','ufficio'],badge:'',tipo:'work'},
+  // PC Desktop
+  {nome:'Dell OptiPlex 3080',brand:'Dell',spec1:'i5-10500',spec2:'8GB',spec3:'256GB SSD',prezzo:289,uso:['studio','ufficio','domestico'],cat:'pc',tipo:'tower'},
+  {nome:'Dell OptiPlex 5090',brand:'Dell',spec1:'i5-11500',spec2:'16GB',spec3:'512GB SSD',prezzo:449,uso:['ufficio','studio'],cat:'pc',tipo:'sff'},
+  {nome:'Dell OptiPlex 7090',brand:'Dell',spec1:'i7-11700',spec2:'32GB',spec3:'1TB SSD',prezzo:699,uso:['ufficio','gaming'],cat:'pc',tipo:'tower'},
+  {nome:'Lenovo ThinkCentre M70q',brand:'Lenovo',spec1:'i3-10100T',spec2:'8GB',spec3:'256GB SSD',prezzo:229,uso:['studio','domestico'],cat:'pc',tipo:'mini'},
+  {nome:'Lenovo ThinkCentre M80q',brand:'Lenovo',spec1:'i5-11400T',spec2:'16GB',spec3:'512GB SSD',prezzo:399,uso:['ufficio','studio','domestico'],cat:'pc',tipo:'mini'},
+  {nome:'Lenovo ThinkCentre M90q',brand:'Lenovo',spec1:'i7-11700T',spec2:'32GB',spec3:'1TB SSD',prezzo:649,uso:['ufficio','gaming'],cat:'pc',tipo:'mini'},
+  {nome:'HP ProDesk 400 G7',brand:'HP',spec1:'i5-10500',spec2:'8GB',spec3:'256GB SSD',prezzo:269,uso:['studio','domestico'],cat:'pc',tipo:'sff'},
+  {nome:'HP EliteDesk 800 G6',brand:'HP',spec1:'i7-10700',spec2:'16GB',spec3:'512GB SSD',prezzo:549,uso:['ufficio','gaming'],cat:'pc',tipo:'sff'},
+  {nome:'Dell Precision 3640',brand:'Dell',spec1:'i7-10700',spec2:'32GB',spec3:'512GB SSD + GPU',prezzo:799,uso:['gaming','ufficio'],cat:'pc',tipo:'work'},
+  // Stampanti
+  {nome:'HP LaserJet Pro M404dn',brand:'HP',spec1:'Laser B/N',spec2:'40 ppm',spec3:'Duplex + Rete',prezzo:249,uso:['ufficio'],cat:'stampante',tipo:'stampante'},
+  {nome:'Brother MFC-L2750DW',brand:'Brother',spec1:'Laser B/N',spec2:'Multifunzione',spec3:'WiFi + Fax',prezzo:299,uso:['ufficio','domestico'],cat:'stampante',tipo:'stampante'},
+  {nome:'HP Color LaserJet Pro M255dw',brand:'HP',spec1:'Laser Colori',spec2:'22 ppm',spec3:'WiFi + Duplex',prezzo:349,uso:['ufficio','studio'],cat:'stampante',tipo:'stampante'},
+  {nome:'Epson EcoTank ET-4850',brand:'Epson',spec1:'Inkjet Colori',spec2:'Multifunzione',spec3:'Serbatoi ricaricabili',prezzo:399,uso:['ufficio','domestico'],cat:'stampante',tipo:'stampante'},
+  // Server
+  {nome:'Dell PowerEdge T40',brand:'Dell',spec1:'Xeon E-2224G',spec2:'8GB ECC',spec3:'1TB HDD',prezzo:699,uso:['ufficio'],cat:'server',tipo:'server'},
+  {nome:'HPE ProLiant ML30 Gen10+',brand:'HPE',spec1:'Xeon E-2314',spec2:'16GB ECC',spec3:'2x 1TB RAID',prezzo:1299,uso:['ufficio'],cat:'server',tipo:'server'},
+  {nome:'Lenovo ThinkSystem ST50 V2',brand:'Lenovo',spec1:'Xeon E-2324G',spec2:'16GB ECC',spec3:'480GB SSD',prezzo:999,uso:['ufficio'],cat:'server',tipo:'server'},
+  // Reti
+  {nome:'Ubiquiti UniFi USW-24',brand:'Ubiquiti',spec1:'24 Porte Gigabit',spec2:'Managed',spec3:'PoE opzionale',prezzo:249,uso:['ufficio'],cat:'rete',tipo:'rete'},
+  {nome:'MikroTik hEX S',brand:'MikroTik',spec1:'Router 5 Porte',spec2:'Gigabit',spec3:'USB + SFP',prezzo:79,uso:['ufficio','domestico'],cat:'rete',tipo:'rete'},
+  {nome:'Ubiquiti UniFi U6 Pro',brand:'Ubiquiti',spec1:'Access Point WiFi 6',spec2:'Dual Band',spec3:'PoE',prezzo:169,uso:['ufficio'],cat:'rete',tipo:'rete'},
+  {nome:'TP-Link TL-SG1016PE',brand:'TP-Link',spec1:'16 Porte Gigabit',spec2:'PoE+ 110W',spec3:'Managed',prezzo:189,uso:['ufficio'],cat:'rete',tipo:'rete'},
+  // Periferiche
+  {nome:'Dell UltraSharp U2722D',brand:'Dell',spec1:'27" QHD IPS',spec2:'USB-C Hub',spec3:'sRGB 100%',prezzo:399,uso:['ufficio','studio'],cat:'periferica',tipo:'periferica'},
+  {nome:'Logitech MK545 Advanced',brand:'Logitech',spec1:'Tastiera + Mouse',spec2:'Wireless',spec3:'Ergonomico',prezzo:69,uso:['ufficio','domestico','studio'],cat:'periferica',tipo:'periferica'},
+  {nome:'APC Back-UPS BX1400UI',brand:'APC',spec1:'UPS 1400VA',spec2:'700W reali',spec3:'6 prese protette',prezzo:159,uso:['ufficio'],cat:'periferica',tipo:'periferica'},
+  {nome:'Fujitsu fi-8170',brand:'Fujitsu',spec1:'Scanner documenti',spec2:'70 ppm',spec3:'ADF duplex',prezzo:599,uso:['ufficio'],cat:'periferica',tipo:'periferica'},
 ];
 
 var filtroUso='tutti';
+var filtroCat='tutti';
+var paginaCorrente=0;
+var PER_PAGINA=6;
 
-function filtraCatalogo(uso,el){
-  filtroUso=uso;
-  document.querySelectorAll('.cat-filtro').forEach(function(b){b.classList.remove('attivo');});
+function filtraCategoria(cat,el){
+  filtroCat=cat;
+  paginaCorrente=0;
+  document.querySelectorAll('#filtroCategoria .cat-filtro').forEach(function(b){b.classList.remove('attivo');});
   el.classList.add('attivo');
   renderCatalogo();
 }
 
-function renderCatalogo(){
-  var lista=catalogo;
-  if(filtroUso!=='tutti')lista=catalogo.filter(function(p){return p.uso.indexOf(filtroUso)!==-1;});
+function filtraCatalogo(uso,el){
+  filtroUso=uso;
+  paginaCorrente=0;
+  document.querySelectorAll('#filtroCatalogo .cat-filtro').forEach(function(b){b.classList.remove('attivo');});
+  el.classList.add('attivo');
+  renderCatalogo();
+}
 
+function getListaFiltrata(){
+  var lista=catalogo;
+  if(filtroCat!=='tutti')lista=lista.filter(function(p){return p.cat===filtroCat;});
+  if(filtroUso!=='tutti')lista=lista.filter(function(p){return p.uso.indexOf(filtroUso)!==-1;});
+  return lista;
+}
+
+function vaiPagina(n){
+  var lista=getListaFiltrata();
+  var totPag=Math.ceil(lista.length/PER_PAGINA);
+  if(n<0||n>=totPag||n===paginaCorrente)return;
   var cont=document.getElementById('grCatalogo');
-  if(!lista.length){cont.innerHTML='<div style="text-align:center;padding:40px;color:var(--testo3);grid-column:1/-1">Nessun prodotto per questo filtro</div>';return;}
+  cont.style.opacity='0';
+  cont.style.transform='translateY(12px)';
+  setTimeout(function(){
+    paginaCorrente=n;
+    renderCatalogo(true);
+  },300);
+}
+
+function renderCatalogo(skipAnim){
+  var lista=getListaFiltrata();
+  var cont=document.getElementById('grCatalogo');
+  var pag=document.getElementById('paginazione');
+
+  if(!lista.length){
+    cont.innerHTML='<div style="text-align:center;padding:40px;color:var(--testo3);grid-column:1/-1">Nessun prodotto per questo filtro</div>';
+    pag.innerHTML='';
+    cont.style.opacity='1';cont.style.transform='none';
+    return;
+  }
+
+  var totPag=Math.ceil(lista.length/PER_PAGINA);
+  if(paginaCorrente>=totPag)paginaCorrente=totPag-1;
+  var inizio=paginaCorrente*PER_PAGINA;
+  var pagina=lista.slice(inizio,inizio+PER_PAGINA);
 
   var html='';
-  for(var i=0;i<lista.length;i++){
-    var p=lista[i];
+  for(var i=0;i<pagina.length;i++){
+    var p=pagina[i];
     var tags='';
     for(var j=0;j<p.uso.length;j++){
       var u=p.uso[j];
@@ -285,7 +381,7 @@ function renderCatalogo(){
       '<div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:10px">'+p.nome+'</div>'+
       '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+tags+'</div>'+
       '<div style="display:flex;gap:12px;margin-bottom:16px;font-size:12px;color:#9090a8">'+
-        '<span>'+p.cpu+'</span><span>\u00b7</span><span>'+p.ram+'</span><span>\u00b7</span><span>'+p.ssd+'</span>'+
+        '<span>'+p.spec1+'</span><span>\u00b7</span><span>'+p.spec2+'</span><span>\u00b7</span><span>'+p.spec3+'</span>'+
       '</div>'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:12px;border-top:1px solid #4a4a60">'+
         '<div style="font-family:Outfit,sans-serif;font-size:24px;font-weight:700;color:var(--ambra)">'+pr+'</div>'+
@@ -293,6 +389,29 @@ function renderCatalogo(){
       '</div></div>';
   }
   cont.innerHTML=html;
+
+  // Paginazione
+  if(totPag>1){
+    var ph='<button onclick="vaiPagina('+(paginaCorrente-1)+')" style="width:36px;height:36px;border-radius:8px;border:1.5px solid var(--bordo);background:var(--sfondo3);color:var(--testo);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;opacity:'+(paginaCorrente===0?'.3;pointer-events:none':'1')+'">←</button>';
+    for(var pg=0;pg<totPag;pg++){
+      var att=pg===paginaCorrente;
+      ph+='<button onclick="vaiPagina('+pg+')" style="width:36px;height:36px;border-radius:8px;border:1.5px solid '+(att?'var(--ambra)':'var(--bordo)')+';background:'+(att?'var(--ambra)':'var(--sfondo3)')+';color:'+(att?'#000':'var(--testo)')+';font-size:13px;font-weight:700;cursor:pointer;font-family:Outfit,sans-serif;transition:all .2s">'+(pg+1)+'</button>';
+    }
+    ph+='<button onclick="vaiPagina('+(paginaCorrente+1)+')" style="width:36px;height:36px;border-radius:8px;border:1.5px solid var(--bordo);background:var(--sfondo3);color:var(--testo);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;opacity:'+(paginaCorrente===totPag-1?'.3;pointer-events:none':'1')+'">→</button>';
+    pag.innerHTML=ph;
+  } else {
+    pag.innerHTML='';
+  }
+
+  // Animazione entrata
+  if(!skipAnim){
+    cont.style.opacity='0';cont.style.transform='translateY(12px)';
+  }
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      cont.style.opacity='1';cont.style.transform='none';
+    });
+  });
 }
 
 renderCatalogo();
@@ -782,43 +901,109 @@ window.addEventListener('resize',()=>renderCase());
 /* ═══ CIRCUITI ANIMATI HERO ═══ */
 (function(){
   var cv=document.getElementById('circuitCanvas');
-  if(!cv||window.innerWidth<=768)return;
+  var hwEl=document.getElementById('hwWord');
+  if(!cv||!hwEl||window.innerWidth<=768)return;
   var ctx=cv.getContext('2d');
   var W,H;
   var AMBRA='#f59e0b',GRIGIO='#c8c8d4';
   var tracce=[],nodi=[],segnali=[];
+  var clipRect={x:0,y:0,w:0,h:0};
+
+  function getClip(){
+    var heroRect=cv.parentElement.getBoundingClientRect();
+    var emRect=hwEl.getBoundingClientRect();
+    var pad=14;
+    clipRect={
+      x:emRect.left-heroRect.left-pad,
+      y:emRect.top-heroRect.top-pad,
+      w:emRect.width+pad*2,
+      h:emRect.height+pad*2
+    };
+  }
 
   function resize(){
     var hero=cv.parentElement;
     W=cv.width=hero.offsetWidth;H=cv.height=hero.offsetHeight;
+    getClip();
     genera();
   }
 
   function genera(){
     tracce=[];nodi=[];segnali=[];
-    var cx=W/2,cy=H/2,r=Math.min(W,H)*0.42;
-    nodi.push({x:cx,y:cy,r:r*0.12,t:'cpu'});
-    for(var ring=0;ring<3;ring++){
-      var n=8+ring*6,dist=r*(0.3+ring*0.25);
-      for(var i=0;i<n;i++){
-        var ang=(Math.PI*2/n)*i+ring*0.3;
-        nodi.push({x:cx+Math.cos(ang)*dist,y:cy+Math.sin(ang)*dist,r:1.5+Math.random()*2,t:ring<1?'c':'p'});
+    var cx=clipRect.x+clipRect.w/2,cy=clipRect.y+clipRect.h/2;
+    var sz=Math.min(clipRect.w,clipRect.h)*0.14; // CPU die size
+
+    // CPU die al centro
+    nodi.push({x:cx,y:cy,r:sz,t:'cpu'});
+
+    // Pin che escono dal die in 4 direzioni — griglia ordinata
+    var pinCount=6; // pin per lato
+    var maxLen=clipRect.w*0.48;
+
+    // Pin superiori (vanno su)
+    for(var i=0;i<pinCount;i++){
+      var px=cx-sz+(sz*2/(pinCount+1))*(i+1);
+      var endY=cy-sz-10-Math.random()*maxLen*0.6;
+      var pts=[{x:px,y:cy-sz},{x:px,y:endY}];
+      // Gomito opzionale
+      if(Math.random()>0.4){
+        var gx=px+(Math.random()-.5)*30;
+        pts=[{x:px,y:cy-sz},{x:px,y:endY+15},{x:gx,y:endY+15},{x:gx,y:endY}];
       }
+      tracce.push({punti:pts});
+      nodi.push({x:pts[pts.length-1].x,y:pts[pts.length-1].y,r:1.2,t:'c'});
+      segnali.push({tr:tracce.length-1,p:Math.random(),v:0.003+Math.random()*0.004,r:1.2});
     }
-    for(var i=1;i<nodi.length;i++){
-      var best=0,dm=1e9;
-      for(var j=0;j<i;j++){var dx=nodi[j].x-nodi[i].x,dy=nodi[j].y-nodi[i].y,d=dx*dx+dy*dy;if(d<dm){dm=d;best=j;}}
-      var a=nodi[best],b=nodi[i],pts=[{x:b.x,y:b.y}];
-      if(Math.random()>.5)pts.push({x:a.x,y:b.y});else pts.push({x:b.x,y:a.y});
-      pts.push({x:a.x,y:a.y});tracce.push({punti:pts});
-      segnali.push({tr:tracce.length-1,p:Math.random(),v:0.001+Math.random()*0.003,r:2+Math.random()*2});
+    // Pin inferiori (vanno giù)
+    for(var i=0;i<pinCount;i++){
+      var px=cx-sz+(sz*2/(pinCount+1))*(i+1);
+      var endY=cy+sz+10+Math.random()*maxLen*0.6;
+      var pts=[{x:px,y:cy+sz},{x:px,y:endY}];
+      if(Math.random()>0.4){
+        var gx=px+(Math.random()-.5)*30;
+        pts=[{x:px,y:cy+sz},{x:px,y:endY-15},{x:gx,y:endY-15},{x:gx,y:endY}];
+      }
+      tracce.push({punti:pts});
+      nodi.push({x:pts[pts.length-1].x,y:pts[pts.length-1].y,r:1.2,t:'c'});
+      segnali.push({tr:tracce.length-1,p:Math.random(),v:0.003+Math.random()*0.004,r:1.2});
     }
-    var n2=Math.floor(W/40);
-    for(var i=0;i<n2;i++){
-      var pts=[];
-      if(Math.random()>.5){var y=Math.random()*H,x1=Math.random()*W*0.4,x2=x1+W*0.15+Math.random()*W*0.3,my=y+(Math.random()-.5)*60;pts.push({x:x1,y},{x:(x1+x2)/2,y},{x:(x1+x2)/2,y:my},{x:x2,y:my});}
-      else{var x=Math.random()*W,y1=Math.random()*H*0.4,y2=y1+H*0.15+Math.random()*H*0.3,mx=x+(Math.random()-.5)*60;pts.push({x:x,y:y1},{x:x,y:(y1+y2)/2},{x:mx,y:(y1+y2)/2},{x:mx,y:y2});}
-      tracce.push({punti:pts});segnali.push({tr:tracce.length-1,p:Math.random(),v:0.0008+Math.random()*0.002,r:1.5+Math.random()*1.5});
+    // Pin sinistri (vanno a sinistra)
+    var pinH=4;
+    for(var i=0;i<pinH;i++){
+      var py=cy-sz+(sz*2/(pinH+1))*(i+1);
+      var endX=cx-sz-10-Math.random()*maxLen*0.5;
+      var pts=[{x:cx-sz,y:py},{x:endX,y:py}];
+      if(Math.random()>0.4){
+        var gy=py+(Math.random()-.5)*20;
+        pts=[{x:cx-sz,y:py},{x:endX+15,y:py},{x:endX+15,y:gy},{x:endX,y:gy}];
+      }
+      tracce.push({punti:pts});
+      nodi.push({x:pts[pts.length-1].x,y:pts[pts.length-1].y,r:1.2,t:'c'});
+      segnali.push({tr:tracce.length-1,p:Math.random(),v:0.003+Math.random()*0.004,r:1.2});
+    }
+    // Pin destri (vanno a destra)
+    for(var i=0;i<pinH;i++){
+      var py=cy-sz+(sz*2/(pinH+1))*(i+1);
+      var endX=cx+sz+10+Math.random()*maxLen*0.5;
+      var pts=[{x:cx+sz,y:py},{x:endX,y:py}];
+      if(Math.random()>0.4){
+        var gy=py+(Math.random()-.5)*20;
+        pts=[{x:cx+sz,y:py},{x:endX-15,y:py},{x:endX-15,y:gy},{x:endX,y:gy}];
+      }
+      tracce.push({punti:pts});
+      nodi.push({x:pts[pts.length-1].x,y:pts[pts.length-1].y,r:1.2,t:'c'});
+      segnali.push({tr:tracce.length-1,p:Math.random(),v:0.003+Math.random()*0.004,r:1.2});
+    }
+    // Angoli diagonali — 4 tracce
+    var diags=[[-1,-1],[1,-1],[-1,1],[1,1]];
+    for(var d=0;d<diags.length;d++){
+      var dx=diags[d][0],dy=diags[d][1];
+      var sx=cx+dx*sz*0.7,sy=cy+dy*sz*0.7;
+      var ex=sx+dx*(20+Math.random()*maxLen*0.35),ey=sy+dy*(10+Math.random()*maxLen*0.35);
+      var pts=[{x:sx,y:sy},{x:sx+dx*15,y:sy},{x:sx+dx*15,y:ey},{x:ex,y:ey}];
+      tracce.push({punti:pts});
+      nodi.push({x:ex,y:ey,r:1,t:'p'});
+      segnali.push({tr:tracce.length-1,p:Math.random(),v:0.003+Math.random()*0.003,r:1});
     }
   }
 
@@ -827,17 +1012,55 @@ window.addEventListener('resize',()=>renderCase());
 
   function draw(){
     ctx.clearRect(0,0,W,H);
-    ctx.lineWidth=1;ctx.strokeStyle=GRIGIO;
+    getClip();
+    ctx.save();
+    // Clip arrotondato dietro "hardware"
+    var rd=6,bx=clipRect.x,by=clipRect.y,bw=clipRect.w,bh=clipRect.h;
+    ctx.beginPath();
+    ctx.moveTo(bx+rd,by);ctx.lineTo(bx+bw-rd,by);ctx.quadraticCurveTo(bx+bw,by,bx+bw,by+rd);
+    ctx.lineTo(bx+bw,by+bh-rd);ctx.quadraticCurveTo(bx+bw,by+bh,bx+bw-rd,by+bh);
+    ctx.lineTo(bx+rd,by+bh);ctx.quadraticCurveTo(bx,by+bh,bx,by+bh-rd);
+    ctx.lineTo(bx,by+rd);ctx.quadraticCurveTo(bx,by,bx+rd,by);
+    ctx.closePath();
+    ctx.clip();
+
+    // Tracce sottili
+    ctx.lineWidth=0.7;ctx.strokeStyle='rgba(245,158,11,0.2)';
     tracce.forEach(function(t){ctx.beginPath();ctx.moveTo(t.punti[0].x,t.punti[0].y);for(var i=1;i<t.punti.length;i++)ctx.lineTo(t.punti[i].x,t.punti[i].y);ctx.stroke();});
+    // Nodi
     nodi.forEach(function(n){
-      if(n.t==='cpu'){ctx.strokeStyle=AMBRA;ctx.lineWidth=1.5;ctx.strokeRect(n.x-n.r,n.y-n.r,n.r*2,n.r*2);
-        for(var i=0;i<8;i++){var px=n.x-n.r+(n.r*2/9)*(i+1);ctx.beginPath();ctx.moveTo(px,n.y-n.r);ctx.lineTo(px,n.y-n.r-8);ctx.stroke();ctx.beginPath();ctx.moveTo(px,n.y+n.r);ctx.lineTo(px,n.y+n.r+8);ctx.stroke();}
-        for(var i=0;i<6;i++){var py=n.y-n.r+(n.r*2/7)*(i+1);ctx.beginPath();ctx.moveTo(n.x-n.r,py);ctx.lineTo(n.x-n.r-8,py);ctx.stroke();ctx.beginPath();ctx.moveTo(n.x+n.r,py);ctx.lineTo(n.x+n.r+8,py);ctx.stroke();}
-        ctx.lineWidth=1;
-      }else{ctx.beginPath();ctx.fillStyle=n.t==='c'?AMBRA:GRIGIO;ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fill();}
+      if(n.t==='cpu'){
+        // CPU die — quadrato con bordo
+        ctx.strokeStyle='rgba(245,158,11,0.3)';ctx.lineWidth=1.2;
+        ctx.strokeRect(n.x-n.r,n.y-n.r,n.r*2,n.r*2);
+        // Die interno
+        ctx.strokeStyle='rgba(245,158,11,0.15)';ctx.lineWidth=0.5;
+        ctx.strokeRect(n.x-n.r*0.6,n.y-n.r*0.6,n.r*1.2,n.r*1.2);
+        // Puntino centro
+        ctx.beginPath();ctx.arc(n.x,n.y,1.5,0,Math.PI*2);ctx.fillStyle='rgba(245,158,11,0.4)';ctx.fill();
+      }else{
+        // Terminale pad
+        ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+        ctx.fillStyle=n.t==='c'?'rgba(245,158,11,0.35)':'rgba(180,180,200,0.25)';ctx.fill();
+      }
     });
+    // Segnali luminosi
     segnali.forEach(function(s){
       var t=tracce[s.tr];if(!t)return;var pt=ptSu(t.punti,s.p);
       if(!isFinite(pt.x)||!isFinite(pt.y)||!isFinite(s.r)){s.p=0;return;}
-      ctx.beginPath();ctx.arc(pt.x,pt.y,s.r*3,0,Math.PI*2);ctx.fillStyle='rgba(245,158,11,0.12)';ctx.fill();
-      ctx.beginPath();ctx.arc(pt.x,pt.y,s.r,0,Math.PI*2);ctx.fillStyle=AMBR
+      ctx.beginPath();ctx.arc(pt.x,pt.y,s.r*2.5,0,Math.PI*2);ctx.fillStyle='rgba(245,158,11,0.08)';ctx.fill();
+      ctx.beginPath();ctx.arc(pt.x,pt.y,s.r*0.8,0,Math.PI*2);ctx.fillStyle='rgba(245,158,11,0.4)';ctx.fill();
+      s.p+=s.v;if(s.p>1)s.p=0;
+    });
+    ctx.restore();
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  window.addEventListener('resize',resize);
+  draw();
+})();
+</script>
+
+</body>
+</html>
