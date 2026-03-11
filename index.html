@@ -728,14 +728,11 @@ footer a{color:var(--ambra);text-decoration:none}
     segnali.forEach(s=>{
       const t=tracce[s.tr];if(!t)return;
       const pt=ptSu(t.punti,s.p);
-      if(!isFinite(pt.x)||!isFinite(pt.y)){s.p=0;return;}
+      if(!isFinite(pt.x)||!isFinite(pt.y)||!isFinite(s.r)){s.p=0;return;}
+      ctx.beginPath();ctx.arc(pt.x,pt.y,s.r*3,0,Math.PI*2);
+      ctx.fillStyle='rgba(245,158,11,0.12)';ctx.fill();
       ctx.beginPath();ctx.arc(pt.x,pt.y,s.r,0,Math.PI*2);
       ctx.fillStyle=AMBRA;ctx.fill();
-      const gr=ctx.createRadialGradient(pt.x,pt.y,0,pt.x,pt.y,s.r*3);
-      gr.addColorStop(0,'rgba(245,158,11,0.35)');
-      gr.addColorStop(1,'rgba(245,158,11,0)');
-      ctx.beginPath();ctx.arc(pt.x,pt.y,s.r*3,0,Math.PI*2);
-      ctx.fillStyle=gr;ctx.fill();
       s.p+=s.v;if(s.p>1)s.p=0;
     });
 
