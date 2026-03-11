@@ -57,7 +57,7 @@ section{padding:80px 40px}
 .carta-mac{background:var(--sfondo3);border:1px solid var(--bordo);border-radius:16px;padding:36px 28px;display:flex;flex-direction:column;transition:all .3s;position:relative;overflow:hidden;cursor:pointer}
 .carta-mac:hover{border-color:var(--bordo2);transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.3)}
 .carta-mac.top{border-color:var(--ambra);box-shadow:0 0 0 1px rgba(245,158,11,.15)}
-.carta-mac.top::before{content:attr(data-badge);position:absolute;top:16px;right:-32px;background:var(--ambra);color:#000;font-size:9px;font-weight:800;padding:4px 40px;transform:rotate(45deg);letter-spacing:1px}
+.carta-mac.top::before{content:attr(data-badge);position:absolute;top:18px;right:-36px;background:var(--ambra);color:#000;font-size:9px;font-weight:800;padding:7px 50px 6px;transform:rotate(45deg);letter-spacing:1.5px;line-height:1.4}
 .ic-pc{width:80px;height:60px;margin:0 auto 20px;position:relative;border:2px solid var(--bordo2);border-radius:6px;display:flex;align-items:center;justify-content:center;background:var(--sfondo)}
 .ic-pc::after{content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:40px;height:4px;background:var(--bordo2);border-radius:2px}
 .ic-pc .d{width:6px;height:6px;border-radius:50%;background:var(--ambra)}
@@ -91,8 +91,9 @@ section{padding:80px 40px}
 .conf-layout{display:grid;grid-template-columns:1fr 1fr;gap:32px;max-width:1200px;margin:0 auto}
 
 /* Case SVG 3D */
-.case-wrap{position:sticky;top:100px;height:fit-content}
-.case-wrap svg{filter:drop-shadow(0 8px 32px rgba(0,0,0,.4));width:100%}
+.case-wrap{position:sticky;top:100px;height:fit-content;display:flex;justify-content:center}
+.case-wrap svg{filter:drop-shadow(0 8px 32px rgba(0,0,0,.4));width:100%;max-width:500px;transition:transform .6s cubic-bezier(.4,0,.2,1)}
+.case-wrap svg.spostato{transform:translateX(-60px)}
 .comp-g{transition:opacity .6s cubic-bezier(.4,0,.2,1)}
 .comp-g rect,.comp-g circle{transition:all .5s cubic-bezier(.4,0,.2,1)}
 .comp-g text{transition:fill .5s ease}
@@ -126,7 +127,7 @@ footer{padding:32px 40px;text-align:center;border-top:1px solid var(--bordo);fon
 footer a{color:var(--ambra);text-decoration:none}
 
 /* ═══ RESPONSIVE ═══ */
-@media(max-width:1024px){.conf-layout{grid-template-columns:1fr}.case-wrap{position:relative;top:0;max-width:400px;margin:0 auto 24px}}
+@media(max-width:1024px){.conf-layout{grid-template-columns:1fr}.case-wrap{position:relative;top:0;max-width:400px;margin:0 auto 24px}.case-wrap svg.spostato{transform:none}}
 @media(max-width:768px){
   nav{padding:12px 20px}.nav-links a:not(:last-child){display:none}
   .hero{padding:110px 24px 60px}section{padding:60px 20px}
@@ -173,7 +174,7 @@ footer a{color:var(--ambra);text-decoration:none}
   <div class="sez-titolo"><span class="tag">Pronti all'uso</span><h2>PC Rigenerati</h2><p>La macchina giusta per ogni esigenza e budget</p></div>
   <div class="griglia-mac">
     <div class="carta-mac" data-badge="ENTRY" onclick="selezionaMac(this)"><div class="ic-pc"><div class="d"></div></div><div class="liv">Entry Level</div><div class="nm">Essential</div><div class="tgt">Studenti e navigazione web</div><div class="prz"><div class="v">€199</div><div class="s">IVA inclusa · rigenerato</div></div><div class="specs"><div class="sp"><span class="ck">✓</span>Intel Core i3</div><div class="sp"><span class="ck">✓</span>8 GB RAM</div><div class="sp"><span class="ck">✓</span>SSD 240 GB</div><div class="sp"><span class="ck">✓</span>Windows 11</div><div class="sp"><span class="ck">✓</span>Garanzia 12 mesi</div></div><button class="btn-m" onclick="event.stopPropagation();location.href='index.html#contatti'">Richiedi Info</button></div>
-    <div class="carta-mac top" data-badge="PIÙ VENDUTO" onclick="selezionaMac(this)"><div class="ic-pc m"><div class="d"></div></div><div class="liv">Medio</div><div class="nm">Business</div><div class="tgt">Ufficio e multitasking</div><div class="prz"><div class="v">€399</div><div class="s">IVA inclusa · rigenerato</div></div><div class="specs"><div class="sp"><span class="ck">✓</span>Intel Core i5</div><div class="sp"><span class="ck">✓</span>16 GB RAM</div><div class="sp"><span class="ck">✓</span>SSD 480 GB</div><div class="sp"><span class="ck">✓</span>Windows 11 Pro</div><div class="sp"><span class="ck">✓</span>Garanzia 12 mesi</div></div><button class="btn-m" onclick="event.stopPropagation();location.href='index.html#contatti'">Richiedi Info</button></div>
+    <div class="carta-mac top" data-badge="POPOLARE" onclick="selezionaMac(this)"><div class="ic-pc m"><div class="d"></div></div><div class="liv">Medio</div><div class="nm">Business</div><div class="tgt">Ufficio e multitasking</div><div class="prz"><div class="v">€399</div><div class="s">IVA inclusa · rigenerato</div></div><div class="specs"><div class="sp"><span class="ck">✓</span>Intel Core i5</div><div class="sp"><span class="ck">✓</span>16 GB RAM</div><div class="sp"><span class="ck">✓</span>SSD 480 GB</div><div class="sp"><span class="ck">✓</span>Windows 11 Pro</div><div class="sp"><span class="ck">✓</span>Garanzia 12 mesi</div></div><button class="btn-m" onclick="event.stopPropagation();location.href='index.html#contatti'">Richiedi Info</button></div>
     <div class="carta-mac" data-badge="PRO" onclick="selezionaMac(this)"><div class="ic-pc p"><div class="d"></div></div><div class="liv">Pro</div><div class="nm">Performance</div><div class="tgt">CAD, sviluppo, produttività</div><div class="prz"><div class="v">€699</div><div class="s">IVA inclusa · rigenerato</div></div><div class="specs"><div class="sp"><span class="ck">✓</span>Intel Core i7</div><div class="sp"><span class="ck">✓</span>32 GB RAM</div><div class="sp"><span class="ck">✓</span>SSD 1 TB NVMe</div><div class="sp"><span class="ck">✓</span>Windows 11 Pro</div><div class="sp"><span class="ck">✓</span>Garanzia 12 + prioritaria</div></div><button class="btn-m" onclick="event.stopPropagation();location.href='index.html#contatti'">Richiedi Info</button></div>
   </div>
 </section>
@@ -195,7 +196,7 @@ footer a{color:var(--ambra);text-decoration:none}
 
     <!-- CASE 3D VISUALE -->
     <div class="case-wrap">
-      <svg id="caseSvg" viewBox="0 0 700 560" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px">
+      <svg id="caseSvg" viewBox="-30 10 620 580" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%">
         <defs>
           <linearGradient id="gF" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#161620"/><stop offset="100%" stop-color="#0e0e14"/></linearGradient>
           <linearGradient id="gS" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1c1c28"/><stop offset="100%" stop-color="#131318"/></linearGradient>
@@ -254,7 +255,7 @@ footer a{color:var(--ambra);text-decoration:none}
         <g id="gPsu" class="comp-g" opacity="0.25">
           <rect x="60" y="410" width="170" height="80" rx="4" fill="#0c0c14" stroke="#2a2a38" stroke-width="1.5" stroke-dasharray="5 3"/>
           <circle cx="145" cy="445" r="22" fill="none" stroke="#2a2a38" stroke-width="1" stroke-dasharray="3 2"/>
-          <text x="145" y="473" text-anchor="middle" fill="#333345" font-size="10" font-weight="700" font-family="Outfit,sans-serif">ALIMENTATORE</text>
+          <text x="145" y="485" text-anchor="middle" fill="#333345" font-size="10" font-weight="700" font-family="Outfit,sans-serif">ALIMENTATORE</text>
         </g>
 
         <!-- ═══ ETICHETTE — frecce orizzontali ═══ -->
@@ -296,8 +297,8 @@ footer a{color:var(--ambra);text-decoration:none}
         </g>
 
         <!-- Case label + totale -->
-        <text x="175" y="530" text-anchor="middle" fill="#505068" font-size="14" font-weight="600" font-family="Outfit,sans-serif" id="caseLabelTxt">CASE — in attesa</text>
-        <text x="175" y="555" text-anchor="middle" fill="#f59e0b" font-size="24" font-weight="700" font-family="DM Mono,monospace" id="caseTotTxt">€ 0</text>
+        <text x="175" y="545" text-anchor="middle" fill="#505068" font-size="14" font-weight="600" font-family="Outfit,sans-serif" id="caseLabelTxt">CASE — in attesa</text>
+        <text x="175" y="572" text-anchor="middle" fill="#f59e0b" font-size="24" font-weight="700" font-family="DM Mono,monospace" id="caseTotTxt">€ 0</text>
       </svg>
     </div>
 
@@ -470,6 +471,10 @@ function renderCase(){
   cl.textContent = sel.case ? 'CASE — ' + sel.case.nome : 'CASE — in attesa';
   cl.setAttribute('fill', sel.case ? '#f59e0b' : '#505068');
   document.getElementById('caseTotTxt').textContent = '€ ' + totale();
+  // Sposta a sinistra se almeno un componente selezionato
+  const svg = document.getElementById('caseSvg');
+  const haComp = Object.keys(sel).some(k => k !== 'case' && sel[k]);
+  if(haComp) svg.classList.add('spostato'); else svg.classList.remove('spostato');
 }
 
 function renderRiep(){
