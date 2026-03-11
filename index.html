@@ -25,14 +25,14 @@ body{font-family:'Outfit',sans-serif;background:var(--sfondo);color:var(--testo)
 nav{
   position:fixed;top:0;left:0;width:100%;z-index:100;
   padding:16px 40px;display:flex;align-items:center;
-  background:rgba(245,245,247,.92);backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(0,0,0,.08);
+  background:rgba(14,14,20,.95);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,.06);
   transition:all .3s;
 }
-.nav-logo{font-size:20px;font-weight:800;color:#1a1a2e;display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo{font-size:20px;font-weight:800;color:#ffffff;display:flex;align-items:center;gap:10px;text-decoration:none}
 .nav-links{display:flex;gap:28px;margin-left:auto;align-items:center}
-.nav-links a{color:var(--testo3);font-size:13px;font-weight:500;text-decoration:none;transition:color .2s;letter-spacing:.3px}
-.nav-links a:hover{color:var(--ambra)}
+.nav-links a{color:#9090a8;font-size:13px;font-weight:500;text-decoration:none;transition:color .2s;letter-spacing:.3px}
+.nav-links a:hover{color:#f59e0b}
 .nav-cta{
   padding:8px 20px;border-radius:8px;background:var(--ambra);color:#000;
   font-size:12px;font-weight:700;text-decoration:none;letter-spacing:.5px;
@@ -46,6 +46,10 @@ nav{
   align-items:center;justify-content:center;
   padding:120px 40px 80px;text-align:center;
   position:relative;overflow:hidden;
+}
+.hero-circuit{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;opacity:.18;
 }
 
 
@@ -140,7 +144,10 @@ section{padding:100px 40px}
   display:flex;align-items:center;justify-content:center;
   font-size:24px;margin-bottom:18px;transition:all .4s cubic-bezier(.4,0,.2,1);
   position:relative;
+  animation:pulsaIcona 2s ease-in-out infinite;
 }
+@keyframes pulsaIcona{0%,100%{transform:scale(1);box-shadow:0 0 0 rgba(245,158,11,0)}50%{transform:scale(1.15);box-shadow:0 0 20px rgba(245,158,11,.25)}}
+.carta-servizio:hover .icona-servizio{animation:none;transform:scale(1.2) rotate(-8deg);box-shadow:0 0 24px rgba(245,158,11,.3)}
 .icona-servizio::after{
   content:'';position:absolute;inset:-4px;border-radius:14px;
   opacity:0;transition:opacity .4s;pointer-events:none;
@@ -220,8 +227,8 @@ textarea.campo{resize:vertical;min-height:100px}
 
 /* ═══ FOOTER ═══ */
 footer{
-  padding:40px;text-align:center;border-top:1px solid var(--bordo);
-  font-size:12px;color:var(--testo3);
+  padding:40px;text-align:center;border-top:none;
+  font-size:12px;color:#9090a8;background:#0e0e14;
 }
 footer a{color:var(--ambra);text-decoration:none}
 
@@ -254,12 +261,13 @@ footer a{color:var(--ambra);text-decoration:none}
 
 <!-- ═══ HERO ═══ -->
 <div class="hero">
-  <div class="hero-logo">
+  <canvas class="hero-circuit" id="circuitCanvas"></canvas>
+  <div class="hero-logo" style="position:relative;z-index:1">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="380 520 1060 760" preserveAspectRatio="xMidYMid meet" style="width:100px;height:72px;filter:drop-shadow(0 0 20px rgba(245,158,11,.3))"><g transform="translate(0,1800) scale(1,-1)"><path fill="#f59e0b" fill-rule="evenodd" d="M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z"/></g></svg>
   </div>
-  <h1>Nodo<em>Italia</em></h1>
-  <div class="lead">Hardware, software e automazione. Dalla vendita di attrezzature IT alla creazione di gestionali su misura — tutto da un unico partner.</div>
-  <div class="hero-actions">
+  <h1 style="position:relative;z-index:1">Nodo<em>Italia</em></h1>
+  <div class="lead" style="position:relative;z-index:1">Hardware, software e automazione. Dalla vendita di attrezzature IT alla creazione di gestionali su misura — tutto da un unico partner.</div>
+  <div class="hero-actions" style="position:relative;z-index:1">
     <a href="#servizi" class="btn-hero btn-primario">Scopri i Servizi</a>
     <a href="#contatti" class="btn-hero btn-secondario">Contattaci</a>
   </div>
@@ -271,7 +279,7 @@ footer a{color:var(--ambra);text-decoration:none}
   <div class="sezione-titolo">
     <span class="tag">Cosa facciamo</span>
     <h2>I nostri servizi</h2>
-    <p>Soluzioni complete per la tua azienda, dalla A alla Z</p>
+    <p><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ambra)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;margin-top:-2px"><path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/></svg>Clicca su un servizio per scoprire tutti i dettagli</p>
   </div>
   <div class="griglia-servizi" id="grigliaServizi">
 
@@ -385,11 +393,11 @@ footer a{color:var(--ambra);text-decoration:none}
       </div>
       <input type="text" class="campo" placeholder="Di cosa hai bisogno?">
       <textarea class="campo" placeholder="Raccontaci il tuo progetto, le tue esigenze, o anche solo un'idea..."></textarea>
-      <button class="btn-invia" onclick="alert('Form in arrivo — per ora scrivi a info@nodoitalia.it')">Invia Messaggio →</button>
+      <button class="btn-invia" onclick="alert('Form in arrivo — per ora scrivi a marketing@nodoitalia.it')">Invia Messaggio →</button>
 
       <div style="display:flex;align-items:center;justify-content:center;gap:20px;margin-top:20px;padding-top:16px;border-top:1px solid var(--bordo)">
-        <a href="/cdn-cgi/l/email-protection#99f0f7fff6d9f7f6fdf6f0edf8f5f0f8b7f0ed" style="display:flex;align-items:center;gap:6px;color:var(--testo3);font-size:13px;text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--ambra)'" onmouseout="this.style.color='var(--testo3)'">
-          <span style="font-size:16px">📧</span> <span class="__cf_email__" data-cfemail="c0a9aea6af80aeafa4afa9b4a1aca9a1eea9b4">[email&#160;protected]</span>
+        <a href="mailto:marketing@nodoitalia.it" style="display:flex;align-items:center;gap:6px;color:var(--testo3);font-size:13px;text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--ambra)'" onmouseout="this.style.color='var(--testo3)'">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0l-9.75 6.5-9.75-6.5"/></svg> marketing@nodoitalia.it
         </a>
         <span style="color:var(--bordo2)">·</span>
         <a href="https://www.nodoitalia.it" style="display:flex;align-items:center;gap:6px;color:var(--testo3);font-size:13px;text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--ambra)'" onmouseout="this.style.color='var(--testo3)'">
@@ -403,4 +411,160 @@ footer a{color:var(--ambra);text-decoration:none}
 <!-- ═══ FOOTER ═══ -->
 <footer>
   <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="380 520 1060 760" preserveAspectRatio="xMidYMid meet" style="width:16px;height:12px;opacity:.4"><g transform="translate(0,1800) scale(1,-1)"><path fill="#f59e0b" fill-rule="evenodd" d="M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z"/
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="380 520 1060 760" preserveAspectRatio="xMidYMid meet" style="width:16px;height:12px;opacity:.4"><g transform="translate(0,1800) scale(1,-1)"><path fill="#f59e0b" fill-rule="evenodd" d="M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z"/></g></svg>
+  </div>
+  © 2026 NodoItalia — <a href="mailto:info@nodoitalia.it">info@nodoitalia.it</a>
+</footer>
+
+<script>
+/* ═══ CIRCUITI ANIMATI ═══ */
+(function(){
+  const cv = document.getElementById('circuitCanvas');
+  if(!cv) return;
+  const ctx = cv.getContext('2d');
+  let W, H;
+  const AMBRA = '#f59e0b';
+  const GRIGIO = '#c8c8d4';
+
+  function resize(){
+    const hero = cv.parentElement;
+    W = cv.width = hero.offsetWidth;
+    H = cv.height = hero.offsetHeight;
+    genera();
+  }
+
+  const tracce = [];
+  const nodi = [];
+  const segnali = [];
+
+  function genera(){
+    tracce.length = 0; nodi.length = 0; segnali.length = 0;
+    const cx = W/2, cy = H/2;
+    const raggio = Math.min(W,H) * 0.42;
+
+    // CPU centrale
+    nodi.push({x:cx, y:cy, r:raggio*0.12, tipo:'cpu'});
+
+    // Chip medi
+    for(let i=0;i<8;i++){
+      const ang = (Math.PI*2/8)*i + Math.random()*0.3;
+      const dist = raggio*(0.35 + Math.random()*0.25);
+      nodi.push({x:cx+Math.cos(ang)*dist, y:cy+Math.sin(ang)*dist, r:3+Math.random()*4, tipo:'chip'});
+    }
+
+    // Pin esterni
+    for(let i=0;i<20;i++){
+      const ang = (Math.PI*2/20)*i + Math.random()*0.2;
+      const dist = raggio*(0.7 + Math.random()*0.3);
+      nodi.push({x:cx+Math.cos(ang)*dist, y:cy+Math.sin(ang)*dist, r:1.5+Math.random()*2, tipo:'pin'});
+    }
+
+    // Tracce tra nodi (percorsi a 90°)
+    for(let i=1;i<nodi.length;i++){
+      const da = nodi[i];
+      let best=0, dMin=Infinity;
+      for(let j=0;j<i;j++){
+        const dx=nodi[j].x-da.x, dy=nodi[j].y-da.y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<dMin){dMin=d;best=j;}
+      }
+      const a = nodi[best];
+      const punti = [{x:da.x,y:da.y}];
+      if(Math.random()>0.5) punti.push({x:a.x,y:da.y});
+      else punti.push({x:da.x,y:a.y});
+      punti.push({x:a.x,y:a.y});
+      tracce.push({punti});
+      segnali.push({tr:tracce.length-1, p:Math.random(), v:0.001+Math.random()*0.003, r:2+Math.random()*2});
+    }
+
+    // Tracce decorative extra
+    const n = Math.floor(W/40);
+    for(let i=0;i<n;i++){
+      const punti=[];
+      if(Math.random()>0.5){
+        const y=Math.random()*H;
+        const x1=Math.random()*W*0.4;
+        const x2=x1+W*0.15+Math.random()*W*0.3;
+        const my=y+(Math.random()-0.5)*60;
+        punti.push({x:x1,y},{x:(x1+x2)/2,y},{x:(x1+x2)/2,y:my},{x:x2,y:my});
+      } else {
+        const x=Math.random()*W;
+        const y1=Math.random()*H*0.4;
+        const y2=y1+H*0.15+Math.random()*H*0.3;
+        const mx=x+(Math.random()-0.5)*60;
+        punti.push({x,y:y1},{x,y:(y1+y2)/2},{x:mx,y:(y1+y2)/2},{x:mx,y:y2});
+      }
+      tracce.push({punti});
+      segnali.push({tr:tracce.length-1, p:Math.random(), v:0.0008+Math.random()*0.002, r:1.5+Math.random()*1.5});
+    }
+  }
+
+  function lungTr(pts){let l=0;for(let i=1;i<pts.length;i++){const dx=pts[i].x-pts[i-1].x,dy=pts[i].y-pts[i-1].y;l+=Math.sqrt(dx*dx+dy*dy);}return l;}
+
+  function ptSuTr(pts,t){
+    const L=lungTr(pts);let tgt=t*L;
+    for(let i=1;i<pts.length;i++){
+      const dx=pts[i].x-pts[i-1].x,dy=pts[i].y-pts[i-1].y;
+      const seg=Math.sqrt(dx*dx+dy*dy);
+      if(tgt<=seg){const f=tgt/seg;return{x:pts[i-1].x+dx*f,y:pts[i-1].y+dy*f};}
+      tgt-=seg;
+    }
+    return pts[pts.length-1];
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // Tracce
+    ctx.lineWidth=1;ctx.strokeStyle=GRIGIO;
+    tracce.forEach(t=>{
+      ctx.beginPath();ctx.moveTo(t.punti[0].x,t.punti[0].y);
+      for(let i=1;i<t.punti.length;i++)ctx.lineTo(t.punti[i].x,t.punti[i].y);
+      ctx.stroke();
+    });
+
+    // Nodi
+    nodi.forEach(n=>{
+      if(n.tipo==='cpu'){
+        ctx.strokeStyle=AMBRA;ctx.lineWidth=1.5;
+        ctx.strokeRect(n.x-n.r,n.y-n.r,n.r*2,n.r*2);
+        for(let i=0;i<8;i++){
+          const px=n.x-n.r+(n.r*2/9)*(i+1);
+          ctx.beginPath();ctx.moveTo(px,n.y-n.r);ctx.lineTo(px,n.y-n.r-8);ctx.stroke();
+          ctx.beginPath();ctx.moveTo(px,n.y+n.r);ctx.lineTo(px,n.y+n.r+8);ctx.stroke();
+        }
+        for(let i=0;i<6;i++){
+          const py=n.y-n.r+(n.r*2/7)*(i+1);
+          ctx.beginPath();ctx.moveTo(n.x-n.r,py);ctx.lineTo(n.x-n.r-8,py);ctx.stroke();
+          ctx.beginPath();ctx.moveTo(n.x+n.r,py);ctx.lineTo(n.x+n.r+8,py);ctx.stroke();
+        }
+        ctx.lineWidth=1;
+      } else {
+        ctx.beginPath();ctx.fillStyle=n.tipo==='chip'?AMBRA:GRIGIO;
+        ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fill();
+      }
+    });
+
+    // Segnali luminosi
+    segnali.forEach(s=>{
+      const t=tracce[s.tr];if(!t)return;
+      const pt=ptSuTr(t.punti,s.p);
+      ctx.beginPath();ctx.arc(pt.x,pt.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=AMBRA;ctx.fill();
+      ctx.beginPath();ctx.arc(pt.x,pt.y,s.r*3.5,0,Math.PI*2);
+      const g=ctx.createRadialGradient(pt.x,pt.y,0,pt.x,pt.y,s.r*3.5);
+      g.addColorStop(0,'rgba(245,158,11,0.35)');g.addColorStop(1,'rgba(245,158,11,0)');
+      ctx.fillStyle=g;ctx.fill();
+      s.p+=s.v;if(s.p>1)s.p=0;
+    });
+
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  draw();
+  window.addEventListener('resize',resize);
+})();
+</script>
+</body>
+</html>
