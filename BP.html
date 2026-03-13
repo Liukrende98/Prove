@@ -109,7 +109,7 @@ input[type=number],select{width:100%;max-width:90px;padding:5px 6px;border:2px s
 <body>
 <header><div class="wrap">
   <h1>📊 Calcolatore <b>Nodo Italia</b> — 15 anni</h1>
-  <p class="sub">Cambi un numero → tutto si aggiorna. Dati salvati nel browser. <button onclick="resetAll()" style="background:none;border:1px solid var(--brd);color:var(--red);padding:3px 10px;border-radius:4px;cursor:pointer;font:11px 'DM Sans',sans-serif">Reset dati</button></p>
+  <p class="sub">Cambi un numero → tutto si aggiorna. Dati salvati nel browser. <button onclick="resetAll()" style="background:none;border:1px solid var(--brd);color:var(--red);padding:3px 10px;border-radius:4px;cursor:pointer;font:11px 'DM Sans',sans-serif">Reset dati</button> <button onclick="esporta()" style="background:none;border:1px solid var(--grn);color:var(--grn);padding:3px 10px;border-radius:4px;cursor:pointer;font:11px 'DM Sans',sans-serif">Esporta</button> <button onclick="importa()" style="background:none;border:1px solid var(--blu);color:var(--blu);padding:3px 10px;border-radius:4px;cursor:pointer;font:11px 'DM Sans',sans-serif">Importa</button></p>
 </div></header>
 <nav><div class="wrap">
   <button class="on" onclick="tab(this,'p_calc')">📝 Calcolatore</button>
@@ -517,6 +517,32 @@ function loadSaved(){
   sections.forEach(s=>s.rows.forEach(r=>{const p=patches[r.nome];if(p){if(p.tag)r.tag=p.tag;if(p.autoFrom)r.autoFrom=p.autoFrom}}));
   return true}catch(e){return false}}
 function resetAll(){if(!confirm('Cancella tutto?'))return;localStorage.removeItem(SAVE_KEY);localStorage.removeItem(CF_KEY);location.reload()}
+
+function esporta(){
+  readAllInputs();saveAll();
+  const data={bp:localStorage.getItem(SAVE_KEY),cf:localStorage.getItem(CF_KEY)};
+  const json=JSON.stringify(data);
+  // Copy to clipboard
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(json).then(()=>alert('Dati copiati negli appunti! Incollali su un altro dispositivo con il bottone Importa.')).catch(()=>fallbackExport(json));
+  } else fallbackExport(json);
+}
+function fallbackExport(json){
+  const ta=document.createElement('textarea');ta.value=json;ta.style.cssText='position:fixed;top:0;left:0;width:100%;height:50vh;z-index:9999;font-size:10px';
+  document.body.appendChild(ta);ta.select();ta.focus();
+  alert('Seleziona tutto il testo e copialo. Poi incollalo su un altro dispositivo con Importa.');
+}
+function importa(){
+  const json=prompt('Incolla qui i dati esportati:');
+  if(!json)return;
+  try{
+    const data=JSON.parse(json);
+    if(data.bp)localStorage.setItem(SAVE_KEY,data.bp);
+    if(data.cf)localStorage.setItem(CF_KEY,data.cf);
+    alert('Dati importati! Ricarico la pagina.');
+    location.reload();
+  }catch(e){alert('Errore: dati non validi. Assicurati di aver incollato tutto.')}
+}
 
 // === MOBILE TOUCH TOOLTIPS ===
 document.addEventListener('click',e=>{
