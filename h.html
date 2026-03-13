@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="Hostess.it — La piattaforma premium per hostess, steward e promoter in tutta Italia">
+<title>Hostess.it — Premium Talent Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070810;
+    --bg2: #0d0f1a;
+    --bg3: #12152a;
+    --surface: rgba(255,255,255,0.03);
+    --surface2: rgba(255,255,255,0.06);
+    --border: rgba(255,255,255,0.07);
+    --gold: #C8A86B;
+    --gold2: #E8C880;
+    --violet: #7C5CFC;
+    --violet2: #A080FF;
+    --rose: #FF5580;
+    --text: #F0EEE8;
+    --text2: #9896A4;
+    --text3: #5A5870;
+    --radius: 18px;
+    --radius-sm: 10px;
+    --font-display: 'Cormorant Garamond', serif;
+    --font-body: 'Outfit', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-weight: 300;
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── CANVAS BG ─── */
+  #bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  /* ─── NOISE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.5;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ─── NAVBAR ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    padding: 0 24px;
+    transition: all 0.4s ease;
+  }
+
+  nav.scrolled {
+    background: rgba(7,8,16,0.85);
+    backdrop-filter: blur(24px) saturate(1.5);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--gold), var(--violet));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .logo-text {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+
+  .logo-text span { color: var(--gold); }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--text); }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .btn-ghost {
+    padding: 8px 18px;
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    background: transparent;
+    color: var(--text2);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 400;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .btn-primary {
+    padding: 9px 20px;
+    border-radius: 50px;
+    background: linear-gradient(135deg, var(--gold), #A07840);
+    color: #0a0800;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    transition: all 0.3s;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px rgba(200,168,107,0.3);
+  }
+
+  .btn-menu {
+    display: none;
+    width: 40px;
+    height: 40px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 5px;
+    padding: 0;
+  }
+
+  .btn-menu span {
+    display: block;
+    width: 18px;
+    height: 1.5px;
+    background: var(--text);
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+
+  /* ─── MOBILE MENU ─── */
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(7,8,16,0.97);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+  }
+
+  .mobile-menu.open { display: flex; }
+
+  .mobile-menu a {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 300;
+    color: var(--text2);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .mobile-menu a:hover { color: var(--gold); }
+
+  .mobile-close {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-size: 28px;
+    cursor: pointer;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 120px 24px 80px;
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+  }
+
+  .hero-gradient {
+    position: absolute;
+    top: -200px;
+    left: -100px;
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(124,92,252,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    animation: floatGlow 8s ease-in-out infinite;
+  }
+
+  .hero-gradient2 {
+    position: absolute;
+    bottom: -200px;
+    right: -100px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(200,168,107,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    animation: floatGlow 10s ease-in-out infinite reverse;
+  }
+
+  @keyframes floatGlow {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(30px, -30px) scale(1.05); }
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    width: fit-content;
+    animation: fadeSlideUp 0.8s ease both;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(52px, 9vw, 110px);
+    font-weight: 300;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    max-width: 900px;
+    animation: fadeSlideUp 0.8s ease 0.1s both;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-title .line2 {
+    display: block;
+    font-weight: 600;
+  }
+
+  .hero-sub {
+    font-size: 17px;
+    color: var(--text2);
+    max-width: 480px;
+    margin-top: 24px;
+    line-height: 1.7;
+    font-weight: 300;
+    animation: fadeSlideUp 0.8s ease 0.2s both;
+  }
+
+  .hero-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 44px;
+    animation: fadeSlideUp 0.8s ease 0.3s both;
+  }
+
+  .btn-big {
+    padding: 16px 36px;
+    border-radius: 50px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    transition: all 0.3s ease;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-big-primary {
+    background: linear-gradient(135deg, var(--gold), #B08030);
+    color: #050400;
+  }
+
+  .btn-big-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px rgba(200,168,107,0.35);
+  }
+
+  .btn-big-secondary {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .btn-big-secondary:hover {
+    background: var(--surface);
+    border-color: var(--text3);
+    transform: translateY(-1px);
+  }
+
+  /* ─── STATS ─── */
+  .stats-strip {
+    position: relative;
+    z-index: 2;
+    padding: 80px 24px;
+  }
+
+  .stats-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    background: var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .stat-item {
+    background: var(--bg2);
+    padding: 48px 32px;
+    text-align: center;
+    transition: background 0.3s;
+  }
+
+  .stat-item:hover { background: var(--bg3); }
+
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: clamp(42px, 6vw, 72px);
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  .stat-num span { color: var(--gold); }
+
+  .stat-label {
+    font-size: 13px;
+    color: var(--text3);
+    margin-top: 10px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* ─── SECTION LABEL ─── */
+  .section-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text3);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .section-eyebrow::before {
+    content: '';
+    display: block;
+    width: 28px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  /* ─── HOW IT WORKS ─── */
+  .how {
+    padding: 100px 24px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .how-title {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 300;
+    color: var(--text);
+    max-width: 600px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 72px;
+  }
+
+  .how-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .how-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    background: var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .how-col {
+    background: var(--bg2);
+    padding: 56px 48px;
+  }
+
+  .how-col-badge {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+
+  .badge-company { background: rgba(200,168,107,0.12); color: var(--gold); }
+  .badge-talent { background: rgba(124,92,252,0.12); color: var(--violet2); }
+
+  .how-col-title {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 24px;
+    line-height: 1.2;
+  }
+
+  .how-steps {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .how-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step-num-gold { background: rgba(200,168,107,0.15); color: var(--gold); }
+  .step-num-violet { background: rgba(124,92,252,0.15); color: var(--violet2); }
+
+  .step-text {
+    font-size: 15px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  .step-text strong {
+    display: block;
+    color: var(--text);
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+
+  .how-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 40px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: gap 0.2s;
+  }
+
+  .how-cta-gold { color: var(--gold); }
+  .how-cta-violet { color: var(--violet2); }
+  .how-cta:hover { gap: 14px; }
+
+  /* ─── TALENT SECTION ─── */
+  .talent {
+    padding: 100px 24px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .talent-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 56px;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .talent-title {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 5vw, 60px);
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .talent-title em { font-style: italic; color: var(--violet2); }
+
+  .talent-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .talent-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    position: relative;
+    group: true;
+  }
+
+  .talent-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(124,92,252,0.3);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,92,252,0.2);
+  }
+
+  .talent-img-wrap {
+    position: relative;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    background: var(--bg3);
+  }
+
+  .talent-img-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(7,8,16,0.9) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .talent-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+    display: block;
+  }
+
+  .talent-card:hover .talent-img { transform: scale(1.06); }
+
+  .talent-avatar {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: 300;
+    color: var(--text3);
+    background: linear-gradient(135deg, var(--bg3), var(--bg2));
+  }
+
+  .talent-info {
+    padding: 16px 18px 20px;
+  }
+
+  .talent-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .talent-meta {
+    font-size: 12px;
+    color: var(--text3);
+    display: flex;
+    gap: 10px;
+  }
+
+  .talent-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 2;
+    background: rgba(7,8,16,0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+  }
+
+  /* ─── CLIENTS / TESTIMONIALS ─── */
+  .testimonials {
+    padding: 100px 24px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .testimonials-title {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 5vw, 60px);
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    max-width: 500px;
+    margin-bottom: 56px;
+  }
+
+  .testimonials-title em { font-style: italic; color: var(--gold); }
+
+  .testimonials-track {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .testimonial-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 36px 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 24px;
+    transition: all 0.3s;
+  }
+
+  .testimonial-card:hover {
+    border-color: rgba(200,168,107,0.2);
+    background: var(--bg3);
+  }
+
+  .testimonial-stars {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+
+  .star { color: var(--gold); font-size: 13px; }
+
+  .testimonial-text {
+    font-size: 15px;
+    color: var(--text2);
+    line-height: 1.75;
+    font-weight: 300;
+    font-style: italic;
+    flex: 1;
+  }
+
+  .testimonial-text::before {
+    content: '"';
+    font-family: var(--font-display);
+    font-size: 48px;
+    color: var(--gold);
+    line-height: 0;
+    vertical-align: -20px;
+    margin-right: 4px;
+    font-weight: 300;
+  }
+
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--violet), var(--gold));
+    color: white;
+    flex-shrink: 0;
+    font-family: var(--font-display);
+  }
+
+  .author-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .author-company {
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  /* ─── CTA BAND ─── */
+  .cta-band {
+    padding: 80px 24px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cta-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    padding: 80px 64px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-inner::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(200,168,107,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .cta-eyebrow {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .cta-title {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  .cta-title em { font-style: italic; color: var(--gold); }
+
+  .cta-sub {
+    font-size: 16px;
+    color: var(--text2);
+    margin-top: 16px;
+    font-weight: 300;
+    line-height: 1.7;
+    max-width: 480px;
+  }
+
+  .cta-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  /* ─── DIVIDER ─── */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ─── CITIES MARQUEE ─── */
+  .cities-strip {
+    padding: 60px 0;
+    overflow: hidden;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cities-label {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    font-weight: 400;
+  }
+
+  .cities-track {
+    display: flex;
+    gap: 0;
+    animation: marquee 25s linear infinite;
+    width: max-content;
+  }
+
+  .cities-track:hover { animation-play-state: paused; }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .city-pill {
+    padding: 10px 28px;
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    margin-right: 12px;
+    font-size: 14px;
+    color: var(--text3);
+    white-space: nowrap;
+    transition: all 0.2s;
+    cursor: default;
+    background: var(--surface);
+  }
+
+  .city-pill:hover { color: var(--gold); border-color: rgba(200,168,107,0.3); }
+
+  /* ─── FOOTER ─── */
+  footer {
+    padding: 80px 24px 48px;
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--border);
+  }
+
+  .footer-top {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 48px;
+    margin-bottom: 64px;
+  }
+
+  .footer-brand p {
+    font-size: 14px;
+    color: var(--text3);
+    line-height: 1.7;
+    margin-top: 20px;
+    max-width: 280px;
+    font-weight: 300;
+  }
+
+  .footer-col-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text2);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .footer-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .footer-links a {
+    font-size: 14px;
+    color: var(--text3);
+    text-decoration: none;
+    transition: color 0.2s;
+    font-weight: 300;
+  }
+
+  .footer-links a:hover { color: var(--text); }
+
+  .footer-bottom {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .footer-copy {
+    font-size: 13px;
+    color: var(--text3);
+    font-weight: 300;
+  }
+
+  .footer-socials {
+    display: flex;
+    gap: 12px;
+  }
+
+  .social-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    font-size: 15px;
+  }
+
+  .social-btn:hover {
+    border-color: var(--gold);
+    background: rgba(200,168,107,0.08);
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ─── MOBILE ─── */
+  @media (max-width: 768px) {
+    .nav-links, .nav-actions { display: none; }
+    .btn-menu { display: flex; }
+
+    .hero { padding: 100px 20px 60px; }
+    .hero-title { font-size: clamp(44px, 12vw, 72px); }
+    .hero-sub { font-size: 15px; }
+    .hero-ctas { flex-direction: column; }
+    .btn-big { text-align: center; }
+
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stats-strip { padding: 60px 20px; }
+
+    .how { padding: 80px 20px; }
+    .how-cols { grid-template-columns: 1fr; }
+    .how-col { padding: 40px 28px; }
+
+    .talent { padding: 80px 20px; }
+    .talent-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .talent-header { flex-direction: column; align-items: flex-start; }
+
+    .testimonials { padding: 80px 20px; }
+    .testimonials-track {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .testimonial-card { padding: 28px 24px; }
+
+    .cta-band { padding: 60px 20px; }
+    .cta-inner {
+      grid-template-columns: 1fr;
+      padding: 48px 32px;
+      gap: 36px;
+    }
+
+    .footer-top {
+      grid-template-columns: 1fr 1fr;
+      gap: 36px;
+    }
+
+    .footer-brand { grid-column: span 2; }
+
+    .footer-bottom {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .cta-btns { flex-direction: row; flex-wrap: wrap; }
+  }
+
+  @media (max-width: 480px) {
+    .talent-grid { grid-template-columns: repeat(2, 1fr); }
+    .footer-top { grid-template-columns: 1fr; }
+    .footer-brand { grid-column: span 1; }
+  }
+
+  /* ─── SCROLL PROGRESS ─── */
+  .scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--violet), var(--gold));
+    z-index: 10000;
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.1s linear;
+  }
+</style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <div class="logo-mark">H</div>
+      <span class="logo-text">Hostess<span>.it</span></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#hostess">Hostess</a></li>
+      <li><a href="#steward">Steward</a></li>
+      <li><a href="#promoter">Promoter</a></li>
+      <li><a href="#lavori">Lavori</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="#" class="btn-ghost">Login</a>
+      <a href="#" class="btn-primary">Pubblica Lavoro</a>
+    </div>
+    <button class="btn-menu" id="menuBtn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" id="menuClose">✕</button>
+  <a href="#">Hostess</a>
+  <a href="#">Steward</a>
+  <a href="#">Promoter</a>
+  <a href="#">Lavori</a>
+  <a href="#">Clienti</a>
+  <a href="#" style="color:var(--gold); font-style:italic;">Pubblica lavoro →</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-gradient"></div>
+  <div class="hero-gradient2"></div>
+  <div class="container">
+    <div class="hero-eyebrow">Platform Premium · Italia</div>
+    <h1 class="hero-title">
+      Il talento<br>
+      <em>incontra</em>
+      <span class="line2">l'opportunità</span>
+    </h1>
+    <p class="hero-sub">Oltre 80.000 hostess, steward e promoter pronti a rappresentare il tuo brand in tutta Italia. In pochi minuti.</p>
+    <div class="hero-ctas">
+      <a href="#" class="btn-big btn-big-primary">Richiedi un preventivo</a>
+      <a href="#" class="btn-big btn-big-secondary">Esplora i profili →</a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-strip">
+  <div class="stats-grid">
+    <div class="stat-item reveal">
+      <div class="stat-num"><span class="counter" data-target="80">0</span>K<span>+</span></div>
+      <div class="stat-label">Hostess registrate</div>
+    </div>
+    <div class="stat-item reveal" style="transition-delay:0.1s">
+      <div class="stat-num"><span class="counter" data-target="8">0</span>K<span>+</span></div>
+      <div class="stat-label">Steward registrati</div>
+    </div>
+    <div class="stat-item reveal" style="transition-delay:0.2s">
+      <div class="stat-num"><span class="counter" data-target="5">0</span>K<span>+</span></div>
+      <div class="stat-label">Aziende clienti</div>
+    </div>
+    <div class="stat-item reveal" style="transition-delay:0.3s">
+      <div class="stat-num"><span class="counter" data-target="20">0</span>K<span>+</span></div>
+      <div class="stat-label">Lavori completati</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- CITIES MARQUEE -->
+<section class="cities-strip">
+  <p class="cities-label">Presenti in tutta Italia</p>
+  <div class="cities-track" id="citiesTrack">
+    <span class="city-pill">Milano</span>
+    <span class="city-pill">Roma</span>
+    <span class="city-pill">Torino</span>
+    <span class="city-pill">Bologna</span>
+    <span class="city-pill">Firenze</span>
+    <span class="city-pill">Napoli</span>
+    <span class="city-pill">Verona</span>
+    <span class="city-pill">Venezia</span>
+    <span class="city-pill">Padova</span>
+    <span class="city-pill">Bergamo</span>
+    <span class="city-pill">Brescia</span>
+    <span class="city-pill">Genova</span>
+    <span class="city-pill">Palermo</span>
+    <span class="city-pill">Bari</span>
+    <span class="city-pill">Catania</span>
+    <span class="city-pill">Rimini</span>
+    <span class="city-pill">Parma</span>
+    <span class="city-pill">Udine</span>
+    <!-- duplicate for seamless loop -->
+    <span class="city-pill">Milano</span>
+    <span class="city-pill">Roma</span>
+    <span class="city-pill">Torino</span>
+    <span class="city-pill">Bologna</span>
+    <span class="city-pill">Firenze</span>
+    <span class="city-pill">Napoli</span>
+    <span class="city-pill">Verona</span>
+    <span class="city-pill">Venezia</span>
+    <span class="city-pill">Padova</span>
+    <span class="city-pill">Bergamo</span>
+    <span class="city-pill">Brescia</span>
+    <span class="city-pill">Genova</span>
+    <span class="city-pill">Palermo</span>
+    <span class="city-pill">Bari</span>
+    <span class="city-pill">Catania</span>
+    <span class="city-pill">Rimini</span>
+    <span class="city-pill">Parma</span>
+    <span class="city-pill">Udine</span>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <div class="container">
+    <div class="section-eyebrow">Come funziona</div>
+    <h2 class="how-title reveal">Semplice per <em>tutti</em>, potente per il tuo business</h2>
+    <div class="how-cols reveal">
+      <div class="how-col">
+        <span class="how-col-badge badge-company">Per Aziende</span>
+        <h3 class="how-col-title">Trova il talento giusto in 24 ore</h3>
+        <ul class="how-steps">
+          <li class="how-step">
+            <span class="step-num step-num-gold">1</span>
+            <div class="step-text">
+              <strong>Pubblica l'annuncio</strong>
+              Descrivi l'evento, la data e le competenze richieste in pochi click.
+            </div>
+          </li>
+          <li class="how-step">
+            <span class="step-num step-num-gold">2</span>
+            <div class="step-text">
+              <strong>Ricevi candidature</strong>
+              Le migliori hostess e steward si autocandidano direttamente al tuo annuncio.
+            </div>
+          </li>
+          <li class="how-step">
+            <span class="step-num step-num-gold">3</span>
+            <div class="step-text">
+              <strong>Seleziona e conferma</strong>
+              Scegli i profili con le stelle più alte e conferma in un clic.
+            </div>
+          </li>
+          <li class="how-step">
+            <span class="step-num step-num-gold">4</span>
+            <div class="step-text">
+              <strong>Pagamento garantito e sicuro</strong>
+              Gestisci tutto dalla piattaforma con pagamenti protetti.
+            </div>
+          </li>
+        </ul>
+        <a href="#" class="how-cta how-cta-gold">Pubblica il tuo lavoro <span>→</span></a>
+      </div>
+      <div class="how-col" style="background: var(--bg3);">
+        <span class="how-col-badge badge-talent">Per Talent</span>
+        <h3 class="how-col-title">Costruisci la tua carriera nel settore eventi</h3>
+        <ul class="how-steps">
+          <li class="how-step">
+            <span class="step-num step-num-violet">1</span>
+            <div class="step-text">
+              <strong>Crea il tuo profilo</strong>
+              Carica foto professionali e completa le tue informazioni. È gratuito.
+            </div>
+          </li>
+          <li class="how-step">
+            <span class="step-num step-num-violet">2</span>
+            <div class="step-text">
+              <strong>Aumenta la visibilità</strong>
+              Un profilo curato e ottime valutazioni ti portano più opportunità.
+            </div>
+          </li>
+          <li class="how-step">
+            <span class="step-num step-num-violet">3</span>
+            <div class="step-text">
+              <strong>Candidati o vieni contattato</strong>
+              Esplora gli annunci attivi o aspetta le proposte dirette dalle aziende.
+            </div>
+          </li>
+          <li class="how-step">
+            <span class="step-num step-num-violet">4</span>
+            <div class="step-text">
+              <strong>Incassa in sicurezza</strong>
+              Tutti i pagamenti sono gestiti e garantiti dalla piattaforma.
+            </div>
+          </li>
+        </ul>
+        <a href="#" class="how-cta how-cta-violet">Registrati gratis <span>→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- TALENT GRID -->
+<section class="talent" id="hostess">
+  <div class="container">
+    <div class="talent-header">
+      <div>
+        <div class="section-eyebrow">Talent in evidenza</div>
+        <h2 class="talent-title reveal">Hostess <em>premium</em><br>selezionate per te</h2>
+      </div>
+      <a href="#" class="btn-ghost">Vedi tutte →</a>
+    </div>
+    <div class="talent-grid reveal">
+      <div class="talent-card">
+        <div class="talent-img-wrap">
+          <img src="https://photos.hostess.it/e3375f07-36ac-4435-8f79-ca3e71037c30/IMG-20240710-WA0002.jpg" alt="Alice" class="talent-img" loading="lazy">
+          <div class="talent-badge">⭐ 4.9</div>
+        </div>
+        <div class="talent-info">
+          <div class="talent-name">Alice</div>
+          <div class="talent-meta"><span>28 anni</span><span>172 cm</span><span>Milano</span></div>
+        </div>
+      </div>
+      <div class="talent-card">
+        <div class="talent-img-wrap">
+          <img src="https://photos.hostess.it/89cd1d41-1e6a-4868-a61d-4498dc532d30/main.jpg" alt="Martina" class="talent-img" loading="lazy">
+          <div class="talent-badge">⭐ 5.0</div>
+        </div>
+        <div class="talent-info">
+          <div class="talent-name">Martina</div>
+          <div class="talent-meta"><span>33 anni</span><span>170 cm</span><span>Roma</span></div>
+        </div>
+      </div>
+      <div class="talent-card">
+        <div class="talent-img-wrap">
+          <img src="https://photos.hostess.it/83efb36b-43d0-48c0-b19b-9f39c5e373c8/main.jpg" alt="Elisa" class="talent-img" loading="lazy">
+          <div class="talent-badge">⭐ 4.8</div>
+        </div>
+        <div class="talent-info">
+          <div class="talent-name">Elisa</div>
+          <div class="talent-meta"><span>31 anni</span><span>170 cm</span><span>Verona</span></div>
+        </div>
+      </div>
+      <div class="talent-card">
+        <div class="talent-img-wrap">
+          <img src="https://photos.hostess.it/3b348a32-fd22-4225-acc3-8cd3ab5dce78/B0789E45-EAD2-458D-92CC-3E6B72C34A00.jpeg" alt="Tatiana Andrea" class="talent-img" loading="lazy">
+          <div class="talent-badge">⭐ 4.9</div>
+        </div>
+        <div class="talent-info">
+          <div class="talent-name">Tatiana Andrea</div>
+          <div class="talent-meta"><span>30 anni</span><span>169 cm</span><span>Milano</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="container">
+    <div class="section-eyebrow">Clienti soddisfatti</div>
+    <h2 class="testimonials-title reveal">Cosa dicono le <em>aziende</em> che ci usano</h2>
+    <div class="testimonials-track">
+      <div class="testimonial-card reveal">
+        <div>
+          <div class="testimonial-stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="testimonial-text">Il sistema è incredibilmente efficace. L'assistenza in remoto fa pensare di essere seguiti da un angelo custode. Complimenti!</p>
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar">B</div>
+          <div>
+            <div class="author-name">Brans</div>
+            <div class="author-company">Brand Manager</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal" style="transition-delay:0.1s">
+        <div>
+          <div class="testimonial-stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="testimonial-text">La praticità e la velocità con la quale si riesce a prendere contatto con i profili desiderati è straordinaria. Finalmente un esempio di eccellenza italiana!</p>
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background: linear-gradient(135deg, var(--gold), #8060C0);">U</div>
+          <div>
+            <div class="author-name">Ugolini</div>
+            <div class="author-company">Direttore Commerciale</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal" style="transition-delay:0.2s">
+        <div>
+          <div class="testimonial-stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="testimonial-text">Grazie a Hostess.it abbiamo trovato 3 hostess per il nostro evento in pochissimo tempo. Il sito è molto facile, veloce e innovativo. Lo useremo ancora!</p>
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background: linear-gradient(135deg, #FF5580, var(--violet));">C</div>
+          <div>
+            <div class="author-name">CharityStars</div>
+            <div class="author-company">Evento beneficienza</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal">
+        <div>
+          <div class="testimonial-stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="testimonial-text">Abbiamo collaborato con Hostess.it in diverse occasioni: barlady, promoter e rider. Servizio semplice e veloce, team competente. Assolutamente consigliato!</p>
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background: linear-gradient(135deg, #50C0A0, var(--gold));">W</div>
+          <div>
+            <div class="author-name">Winelivery</div>
+            <div class="author-company">Food & Beverage</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal" style="transition-delay:0.1s">
+        <div>
+          <div class="testimonial-stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="testimonial-text">La ragazza consigliata dallo staff è stata all'altezza. La prossima volta ho sicuramente un punto di riferimento. Già consigliato ad altri colleghi.</p>
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background: linear-gradient(135deg, #40A070, var(--violet));">V</div>
+          <div>
+            <div class="author-name">Vivai Cinelli</div>
+            <div class="author-company">Settore Florovivaismo</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal" style="transition-delay:0.2s">
+        <div>
+          <div class="testimonial-stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="testimonial-text">Sito molto semplice e immediato. Il personale scelto per le nostre promozioni è stato efficiente e ci ha aiutato a ottenere i risultati sperati. Servizio consigliato.</p>
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background: linear-gradient(135deg, #3090C0, var(--gold));">D</div>
+          <div>
+            <div class="author-name">Dante Medical</div>
+            <div class="author-company">Settore Medicale</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<section class="cta-band">
+  <div class="cta-inner reveal">
+    <div>
+      <span class="cta-eyebrow">Inizia oggi</span>
+      <h2 class="cta-title">Hai bisogno di hostess o steward<br>per il tuo <em>prossimo evento?</em></h2>
+      <p class="cta-sub">Crea il tuo annuncio in 5 minuti e ricevi le candidature entro 24 ore. Oltre 5.000 aziende ci hanno già scelto.</p>
+    </div>
+    <div class="cta-btns">
+      <a href="#" class="btn-big btn-big-primary">Pubblica un lavoro</a>
+      <a href="#" class="btn-big btn-big-secondary">Scopri i piani</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo" style="text-decoration:none;">
+        <div class="logo-mark">H</div>
+        <span class="logo-text">Hostess<span>.it</span></span>
+      </a>
+      <p>La piattaforma italiana per hostess, steward e promoter. Connettere talento e opportunità dal 2010.</p>
+    </div>
+    <div>
+      <div class="footer-col-title">Esplora</div>
+      <ul class="footer-links">
+        <li><a href="#">Hostess Milano</a></li>
+        <li><a href="#">Hostess Roma</a></li>
+        <li><a href="#">Hostess Torino</a></li>
+        <li><a href="#">Hostess Bologna</a></li>
+        <li><a href="#">Tutte le città →</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Supporto</div>
+      <ul class="footer-links">
+        <li><a href="#">Come funziona</a></li>
+        <li><a href="#">FAQ Aziende</a></li>
+        <li><a href="#">FAQ Talent</a></li>
+        <li><a href="#">Contatti</a></li>
+        <li><a href="#">Blog</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Legale</div>
+      <ul class="footer-links">
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Cookie Policy</a></li>
+        <li><a href="#">Termini di utilizzo</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 Hostess.it S.r.l. · P.IVA 02582020182 · Via Vittor Pisani 7, Milano</div>
+    <div class="footer-socials">
+      <a href="https://instagram.com/hostess.it" class="social-btn" aria-label="Instagram">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+          <circle cx="12" cy="12" r="4"/>
+          <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+        </svg>
+      </a>
+      <a href="https://facebook.com/hostesspuntoit" class="social-btn" aria-label="Facebook">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
+        </svg>
+      </a>
+      <a href="tel:+393208512345" class="social-btn" aria-label="Telefono">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 13.5 19.79 19.79 0 01.07 4.82 2 2 0 012.04 2.66h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 10.09a16 16 0 006 6l1.5-1.5a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7a2 2 0 011.72 2z"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ─── CANVAS BACKGROUND ───
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function createParticles() {
+    particles = [];
+    const count = Math.floor((W * H) / 18000);
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.5 + 0.3,
+        vx: (Math.random() - 0.5) * 0.2,
+        vy: (Math.random() - 0.5) * 0.2,
+        alpha: Math.random() * 0.5 + 0.1,
+        color: Math.random() > 0.6 ? '#C8A86B' : (Math.random() > 0.5 ? '#7C5CFC' : '#ffffff')
+      });
+    }
+  }
+
+  function drawParticles() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = p.alpha;
+      ctx.fill();
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0) p.x = W;
+      if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H;
+      if (p.y > H) p.y = 0;
+    });
+    ctx.globalAlpha = 1;
+
+    // draw connections
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = 'rgba(124,92,252,' + (0.05 * (1 - dist / 120)) + ')';
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(drawParticles);
+  }
+
+  resize();
+  createParticles();
+  drawParticles();
+  window.addEventListener('resize', () => { resize(); createParticles(); });
+
+  // ─── NAVBAR SCROLL ───
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 30);
+    // scroll progress
+    const prog = document.getElementById('scrollProgress');
+    const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) || 0;
+    prog.style.transform = `scaleX(${scrolled})`;
+  }, { passive: true });
+
+  // ─── MOBILE MENU ───
+  const menuBtn = document.getElementById('menuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const menuClose = document.getElementById('menuClose');
+  menuBtn.addEventListener('click', () => mobileMenu.classList.add('open'));
+  menuClose.addEventListener('click', () => mobileMenu.classList.remove('open'));
+  mobileMenu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => mobileMenu.classList.remove('open'));
+  });
+
+  // ─── INTERSECTION OBSERVER ───
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(el => observer.observe(el));
+
+  // ─── COUNTER ANIMATION ───
+  const counters = document.querySelectorAll('.counter');
+  const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const target = parseInt(entry.target.dataset.target);
+        let current = 0;
+        const step = target / 40;
+        const timer = setInterval(() => {
+          current = Math.min(current + step, target);
+          entry.target.textContent = Math.floor(current);
+          if (current >= target) clearInterval(timer);
+        }, 30);
+        counterObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(c => counterObserver.observe(c));
+
+  // ─── TOUCH-FRIENDLY HOVER ───
+  // On touch devices, make cards tappable
+  if ('ontouchstart' in window) {
+    document.querySelectorAll('.talent-card').forEach(card => {
+      card.addEventListener('touchstart', () => card.style.transform = 'translateY(-4px)', { passive: true });
+      card.addEventListener('touchend', () => card.style.transform = '', { passive: true });
+    });
+  }
+</script>
+</body>
+</html>
