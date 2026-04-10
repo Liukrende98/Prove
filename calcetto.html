@@ -235,7 +235,7 @@ input,select,textarea{font-size:16px!important}
 </head>
 <body>
 
-<script>var V="v7-sections";console.log("%c CALCETTO "+V+" ","background:#1D9E75;color:white;font-size:16px;padding:4px 8px;border-radius:4px");setTimeout(function(){var e=document.getElementById("ld");if(e)e.style.display="none"},3000)</script><div id="ld"><div class="ball-anim">⚽</div><p>Caricamento...</p></div>
+<script>var V="v8-addplayer";console.log("%c CALCETTO "+V+" ","background:#1D9E75;color:white;font-size:16px;padding:4px 8px;border-radius:4px");setTimeout(function(){var e=document.getElementById("ld");if(e)e.style.display="none"},3000)</script><div id="ld"><div class="ball-anim">⚽</div><p>Caricamento...</p></div>
 
 <!-- PASSWORD -->
 <div class="screen" id="s-pwd">
@@ -368,7 +368,10 @@ input,select,textarea{font-size:16px!important}
           <div id="tl"></div>
           <div id="gh"><div class="tc" id="ghc"></div><div class="tn" id="ghn"></div></div>
         </div>
-        <div class="bench-lbl" id="blbl">Panchina</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
+          <div class="bench-lbl" id="blbl" style="margin:0">Panchina</div>
+          <button onclick="addExtraPlayer()" style="font-size:12px;font-weight:600;color:var(--green);background:none;border:1px solid var(--green);border-radius:20px;padding:4px 10px;cursor:pointer">+ Aggiungi</button>
+        </div>
         <div class="bench-row" id="brow"></div>
         <button class="btn-primary" onclick="saveForm()">Salva formazione</button>
       </div>
@@ -694,6 +697,7 @@ const myR = rs.find(r => r.username === myName);
      <button class="vbtn forse ${myR?.stato==='forse'?'on':''}" onclick="vote('${p.id}','forse');closeModal('m-det')">Forse</button>
      <button class="vbtn no ${myR?.stato==='no'?'on':''}" onclick="vote('${p.id}','no');closeModal('m-det')">Non ci sono</button>`;
   // pitch
+  extraPlayers=[];
   console.log('formazione raw:', JSON.stringify(p.formazione));
   let saved=[];
   if(p.formazione){
@@ -753,6 +757,18 @@ function renderPitch(presenti){
   document.querySelectorAll('.bchip').forEach(el=>el.addEventListener('pointerdown',e=>dStart(e,el.dataset.player,'bench')));
   const n=Object.keys(onPitch).length;
   document.getElementById('blbl').textContent=`Panchina · ${n} in campo`;
+}
+
+function addExtraPlayer(){
+  const p=cache.find(x=>x.id===detId);
+  const presenti=(p?.risposte||[]).filter(r=>r.stato==='si').map(r=>r.username).filter(Boolean);
+  const nome=prompt('Nome del giocatore da aggiungere:');
+  if(!nome||!nome.trim())return;
+  const n=nome.trim();
+  const tutti=[...new Set([...presenti,...extraPlayers])];
+  if(tutti.includes(n)){alert(n+' è già in panchina!');return;}
+  extraPlayers.push(n);
+  renderPitch([...presenti,...extraPlayers]);
 }
 
 function dStart(e,player,from){
@@ -861,6 +877,7 @@ function tab(e,pid){
 }
 const ADMIN_PWD = 'lucarende98.';
 let modificaId=null, tipoMod=7;
+let extraPlayers=[];
 
 function setTipoMod(t){
   tipoMod=t;
