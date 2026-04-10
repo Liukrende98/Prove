@@ -151,7 +151,7 @@ input,select,textarea{font-size:16px!important}
 </head>
 <body>
 
-<div id="ld"><div class="ball-anim">⚽</div><p>Caricamento...</p></div>
+<script>var V="v4-132633";console.log("%c CALCETTO "+V+" ","background:#1D9E75;color:white;font-size:16px;padding:4px 8px;border-radius:4px");setTimeout(function(){var e=document.getElementById("ld");if(e)e.style.display="none"},3000)</script><div id="ld"><div class="ball-anim">⚽</div><p>Caricamento...</p></div>
 
 <!-- PASSWORD -->
 <div class="screen" id="s-pwd">
@@ -305,9 +305,9 @@ let cache=[];
 
 // ── INIT ──────────────────────────────────────────────────
 async function init(){
-  if(localStorage.getItem('cal_ok')!=='1'){show('s-pwd');hide('ld');return;}
+  if(localStorage.getItem('cal_ok')!=='1'){show('s-pwd');document.getElementById('ld').style.display='none';return;}
   myName=localStorage.getItem('cal_nome');
-  if(!myName){show('s-nome');hide('ld');return;}
+  if(!myName){show('s-nome');document.getElementById('ld').style.display='none';return;}
   await boot();
 }
 
@@ -325,13 +325,13 @@ async function boot(){
       myId=session.user.id;
       await sb.from('utenti').upsert({id:myId,username:myName},{onConflict:'id'});
     }
-    show('s-app'); hide('ld');
+    show('s-app'); document.getElementById('ld').style.display='none';
     document.getElementById('h-sub').textContent='Ciao '+myName+' 👋';
     await load();
     realtime();
   }catch(e){
     console.error(e);
-    show('s-app'); hide('ld');
+    show('s-app'); document.getElementById('ld').style.display='none';
     document.getElementById('h-sub').textContent='Ciao '+myName+' (offline)';
   }
 }
@@ -609,11 +609,7 @@ function goStats(){alert('Statistiche — prossimamente! 🏆');}
 document.getElementById('pwd-inp').addEventListener('keydown',e=>{if(e.key==='Enter')checkPwd();});
 document.getElementById('nome-inp').addEventListener('keydown',e=>{if(e.key==='Enter')saveName();});
 
-// avvio sicuro: loading sparisce sempre entro 3 secondi
-window.addEventListener("load", function(){
-  setTimeout(function(){ hide("ld"); }, 3000);
-  init();
-});
+init();
 </script>
 </body>
 </html>
