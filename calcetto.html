@@ -235,7 +235,7 @@ input,select,textarea{font-size:16px!important}
 </head>
 <body>
 
-<script>var V="v5-modifica";console.log("%c CALCETTO "+V+" ","background:#1D9E75;color:white;font-size:16px;padding:4px 8px;border-radius:4px");setTimeout(function(){var e=document.getElementById("ld");if(e)e.style.display="none"},3000)</script><div id="ld"><div class="ball-anim">⚽</div><p>Caricamento...</p></div>
+<script>var V="v6-editgiocata";console.log("%c CALCETTO "+V+" ","background:#1D9E75;color:white;font-size:16px;padding:4px 8px;border-radius:4px");setTimeout(function(){var e=document.getElementById("ld");if(e)e.style.display="none"},3000)</script><div id="ld"><div class="ball-anim">⚽</div><p>Caricamento...</p></div>
 
 <!-- PASSWORD -->
 <div class="screen" id="s-pwd">
@@ -685,8 +685,10 @@ marc.forEach(m => {
       </div></div>`;
   }).join('');
   // reset tabs
-  document.querySelectorAll('#m-det .tbtn').forEach((b,i)=>b.classList.toggle('on',i===0));
-  document.querySelectorAll('.tpane').forEach((p,i)=>p.classList.toggle('on',i===0));
+  // se già giocata apri su tab Formazione, altrimenti su Risposte
+  const startTab = past ? 1 : 0;
+  document.querySelectorAll('#m-det .tbtn').forEach((b,i)=>b.classList.toggle('on',i===startTab));
+  document.querySelectorAll('.tpane').forEach((p,i)=>p.classList.toggle('on',i===startTab));
   openModal('m-det');
 }
 
