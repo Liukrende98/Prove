@@ -536,7 +536,7 @@ function renderPitch(presenti){
     `<div class="bchip" data-player="${p}">${p}</div>`).join('');
   document.querySelectorAll('.bchip').forEach(el=>el.addEventListener('pointerdown',e=>dStart(e,el.dataset.player,'bench')));
   const n=Object.keys(onPitch).length;
-  document.getElementById('blbl').textContent=n>0?`Panchina · ${n} in campo`:'Panchina';
+  document.getElementById('blbl').textContent=`Panchina · ${n} in campo`;
 }
 
 function dStart(e,player,from){
@@ -583,10 +583,15 @@ function dEnd(e){
 
 async function saveForm(){
   if(!sb||!detId)return;
-  if(Object.keys(onPitch).length===0){alert('Trascina almeno un giocatore sul campo!');return;}
   const pos=Object.entries(onPitch).map(([player,p])=>({player,x:p.x,y:p.y}));
-  const{error:e1}=await sb.from('formazione').upsert({partita_id:detId,posizioni:pos},{onConflict:'partita_id'});
-  if(e1){alert('Errore salvataggio formazione: '+e1.message);return;}
+  const { error:e1 } = await sb.from('formazione').upsert(
+    { partita_id:detId, posizioni:pos },
+    { onConflict:'partita_id' }
+  );
+  if(e1){
+    alert('Errore salvataggio formazione: ' + e1.message);
+    return;
+  }
   await load();
   closeModal('m-det');
   alert('Formazione salvata!');
