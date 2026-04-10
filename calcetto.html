@@ -281,11 +281,11 @@ input,select,textarea{font-size:16px!important}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 // ── CONFIG ────────────────────────────────────────────────
-const CFG = {
-  url:      'https://qrmxnfgonkskplcpuvkg.supabase.co',
-  key:      'sb_publishable_FDuziO3GIQuFIjsRS_j6tA_0alvNHR7',
-  password: 'sbussatori'
-};
+const s = supabase.createClient(
+  'https://qrmxnfgonkskplcpuvkg.supabase.co',
+  'sb_publishable_FDuzi03GIQuFIjsRS_j6tA_0alvNHR7'
+);
+s.auth.signInAnonymously().then(r => console.log(r));
 
 const COLS=[
   {bg:'#185FA5',tx:'#E6F1FB'},{bg:'#0F6E56',tx:'#E1F5EE'},
