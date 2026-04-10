@@ -533,29 +533,6 @@ card.innerHTML=`
 }
 
 async function vote(id,stato){
-  const p = cache.find(x => x.id === id);
-  const myR = p?.risposte?.find(r => r.username === myName);
-
-  if(myR && myR.stato === stato){
-    await sb.from('risposte')
-      .delete()
-      .eq('partita_id', id)
-      .eq('username', myName);
-  } else {
-    await sb.from('risposte').upsert(
-      {
-        partita_id: id,
-        username: myName,
-        stato
-      },
-      {
-        onConflict: 'partita_id,username'
-      }
-    );
-  }
-
-  await load();
-}
 
 // ── NUOVA PARTITA ─────────────────────────────────────────
 function setTipo(t){
