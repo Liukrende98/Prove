@@ -532,7 +532,43 @@ card.innerHTML=`
   });
 }
 
-async function vote(id,stato){
+async function vote(id, stato){
+  const p = cache.find(x => x.id === id);
+  const myR = p?.risposte?.find(r => r.username === myName);
+
+  let res;
+
+  if(myR && myR.stato === stato){
+    res = await sb
+      .from('risposte')
+      .delete()
+      .eq('partita_id', id)
+      .eq('username', myName);
+  } else {
+    res = await sb
+      .from('risposte')
+      .upsert(
+        {
+          partita_id: id,
+          username: myName,
+          stato: stato
+        },
+        {
+          onConflict: 'partita_id,username'
+        }
+      );
+  }
+
+  console.log('VOTE RES:', res);
+
+  if(res.error){
+    console.error('ERRORE RISPOSTE:', res.error);
+    alert('Errore voto: ' + (res.error.message || 'errore sconosciuto'));
+    return;
+  }
+
+  await load();
+}
 
 // ── NUOVA PARTITA ─────────────────────────────────────────
 function setTipo(t){
