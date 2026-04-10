@@ -389,7 +389,7 @@ function renderList(){
   if(!cache.length){empty.style.display='block';return;}
   empty.style.display='none';
   cache.forEach(p=>{
-    const past=p.giocata||new Date(p.data_ora)<new Date();
+    const past=p.giocata===true;
     const rs=p.risposte||[];
     const si=rs.filter(r=>r.stato==='si').length;
     const forse=rs.filter(r=>r.stato==='forse').length;
@@ -471,7 +471,7 @@ function openDet(id){
   const si=rs.filter(r=>r.stato==='si').length,forse=rs.filter(r=>r.stato==='forse').length,no=rs.filter(r=>r.stato==='no').length;
   document.getElementById('det-cnt').innerHTML=`<strong>${si}</strong> ci sono · <strong>${forse}</strong> forse · <strong>${no}</strong> assenti`;
   const myR=rs.find(r=>r.utente_id===myId);
-  const past=p.giocata||new Date(p.data_ora)<new Date();
+  const past=p.giocata===true;
   document.getElementById('det-vote').innerHTML=past?'':
     `<button class="vbtn si ${myR?.stato==='si'?'on':''}" onclick="vote('${p.id}','si');closeModal('m-det')">Ci sono</button>
      <button class="vbtn forse ${myR?.stato==='forse'?'on':''}" onclick="vote('${p.id}','forse');closeModal('m-det')">Forse</button>
@@ -570,10 +570,15 @@ function dEnd(e){
 
 async function saveForm(){
   if(!sb||!detId)return;
-  const pos=Object.entries(onPitch).map(([player,p])=>({player,...p}));
-  await sb.from('formazione').upsert({partita_id:detId,posizioni:pos},{onConflict:'partita_id'});
-  await sb.from('partite').update({giocata:true}).eq('id',detId);
-  await load();alert('Formazione salvata!');
+  if(Object.keys(onPitch).length===0){alert('Trascina almeno un giocatore sul campo!');return;}
+  const pos=Object.entries(onPitch).map(([player,p])=>({player,x:p.x,y:p.y}));
+  const{error:e1}=await sb.from('formazione').upsert({partita_id:detId,posizioni:pos},{onConflict:'partita_id'});
+  if(e1){alert('Errore salvataggio formazione: '+e1.message);return;}
+  const{error:e2}=await sb.from('partite').update({giocata:true}).eq('id',detId);
+  if(e2){alert('Errore aggiornamento partita: '+e2.message);return;}
+  await load();
+  closeModal('m-det');
+  alert('Formazione salvata!');
 }
 
 // ── GOALS ─────────────────────────────────────────────────
