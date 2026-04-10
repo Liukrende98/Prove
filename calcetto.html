@@ -577,18 +577,32 @@ function setTipo(t){
   document.getElementById('t5').classList.toggle('on',t===5);
 }
 async function createPartita(){
-  const data=document.getElementById('f-data').value;
-  const luogo=document.getElementById('f-luogo').value.trim();
-  if(!data||!luogo){alert('Inserisci data e nome campo');return;}
-  const{error}=await sb.from('partite').insert({
-    proposto_da:myId,
-    data_ora:new Date(data).toISOString(),
-    luogo,tipo:tipoN,
-    indirizzo:document.getElementById('f-ind').value.trim()||null,
-    note:document.getElementById('f-note').value.trim()||null,
+  const data = document.getElementById('f-data').value;
+  const luogo = document.getElementById('f-luogo').value.trim();
+
+  if(!data || !luogo){
+    alert('Inserisci data e nome campo');
+    return;
+  }
+
+  const { error } = await sb.from('partite').insert({
+    proposto_da: myName,
+    data_ora: new Date(data).toISOString(),
+    luogo: luogo,
+    tipo: tipoN,
+    indirizzo: document.getElementById('f-ind').value.trim() || null,
+    note: document.getElementById('f-note').value.trim() || null
   });
-  if(error){alert('Errore: '+error.message);return;}
-  ['f-data','f-luogo','f-ind','f-note'].forEach(id=>document.getElementById(id).value='');
+
+  if(error){
+    alert('Errore: ' + error.message);
+    return;
+  }
+
+  ['f-data','f-luogo','f-ind','f-note'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+
   closeModal('m-nuova');
   await load();
 }
