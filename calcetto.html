@@ -420,7 +420,11 @@ function renderList(){
         <button class="vbtn no ${myR?.stato==='no'?'on':''}" onclick="vote('${p.id}','no')">Non ci sono</button>
       </div>`:''}
       ${past&&hasSc?`<div class="score-strip"><div class="sbox">${p.gol_squadra_a}</div><span style="color:var(--txt2)">—</span><div class="sbox r">${p.gol_squadra_b}</div></div>`:''}
-      <button class="detail-btn" onclick="openDet('${p.id}')">${past?'Formazione e marcatori →':'Dettaglio →'}</button>`;
+      <button class="detail-btn" onclick="openDet('${p.id}')">${past?'Formazione e marcatori →':'Dettaglio →'}</button>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        ${!past?'<button class="detail-btn" style="flex:1;color:var(--green);border-color:var(--green)" onclick="segnaGiocata(event,''+p.id+'')">Segna come giocata</button>':''}
+        <button class="detail-btn" style="flex:1;color:var(--red);border-color:var(--red)" onclick="eliminaPartita(event,'${p.id}')">Elimina</button>
+      </div>`;
     wrap.insertBefore(card,document.getElementById('empty'));
   });
 }
@@ -581,8 +585,6 @@ async function saveForm(){
   const pos=Object.entries(onPitch).map(([player,p])=>({player,x:p.x,y:p.y}));
   const{error:e1}=await sb.from('formazione').upsert({partita_id:detId,posizioni:pos},{onConflict:'partita_id'});
   if(e1){alert('Errore salvataggio formazione: '+e1.message);return;}
-  const{error:e2}=await sb.from('partite').update({giocata:true}).eq('id',detId);
-  if(e2){alert('Errore aggiornamento partita: '+e2.message);return;}
   await load();
   closeModal('m-det');
   alert('Formazione salvata!');
@@ -606,7 +608,8 @@ async function saveGoals(){
     return uid?{partita_id:detId,utente_id:uid,gol:goalData[name]||0}:null;
   }).filter(Boolean);
   if(ups.length)await sb.from('marcatori').upsert(ups,{onConflict:'partita_id,utente_id'});
-  await load();closeModal('m-det');
+  await load();
+  closeModal('m-det');
 }
 
 // ── UI ────────────────────────────────────────────────────
@@ -620,6 +623,20 @@ function tab(e,pid){
   document.querySelectorAll('#m-det .tbtn').forEach(b=>b.classList.remove('on'));
   document.querySelectorAll('.tpane').forEach(p=>p.classList.remove('on'));
   e.target.classList.add('on');document.getElementById(pid).classList.add('on');
+}
+async function segnaGiocata(e,id){
+  e.stopPropagation();
+  if(!confirm('Segna questa partita come giocata?'))return;
+  await sb.from('partite').update({giocata:true}).eq('id',id);
+  await load();
+}
+async function eliminaPartita(e,id){
+  e.stopPropagation();
+  const pwd=prompt('Inserisci la password per eliminare:');
+  if(pwd!=='lucarende98.')return;
+  if(!confirm('Elimina definitivamente questa partita?'))return;
+  await sb.from('partite').delete().eq('id',id);
+  await load();
 }
 function goStats(){
   document.querySelectorAll('.bnav-item').forEach((b,i)=>b.classList.toggle('on',i===1));
