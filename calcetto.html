@@ -609,7 +609,11 @@ function goStats(){alert('Statistiche — prossimamente! 🏆');}
 document.getElementById('pwd-inp').addEventListener('keydown',e=>{if(e.key==='Enter')checkPwd();});
 document.getElementById('nome-inp').addEventListener('keydown',e=>{if(e.key==='Enter')saveName();});
 
-init();
+// avvio sicuro: loading sparisce sempre entro 3 secondi
+window.addEventListener("load", function(){
+  setTimeout(function(){ hide("ld"); }, 3000);
+  init();
+});
 </script>
 </body>
 </html>
