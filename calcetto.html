@@ -626,10 +626,28 @@ function tab(e,pid){
   document.querySelectorAll('.tpane').forEach(p=>p.classList.remove('on'));
   e.target.classList.add('on');document.getElementById(pid).classList.add('on');
 }
+const ADMIN_PWD = 'lucarende98.';
 async function segnaGiocata(e,id){
   e.stopPropagation();
+  const pwd=prompt('Inserisci la password per segnare come giocata:');
+  if(pwd!==ADMIN_PWD){
+    alert('Password errata');
+    return;
+  }
   if(!confirm('Segna questa partita come giocata?'))return;
   await sb.from('partite').update({giocata:true}).eq('id',id);
+  await load();
+}
+
+async function eliminaPartita(e,id){
+  e.stopPropagation();
+  const pwd=prompt('Inserisci la password per eliminare:');
+  if(pwd!==ADMIN_PWD){
+    alert('Password errata');
+    return;
+  }
+  if(!confirm('Elimina definitivamente questa partita?'))return;
+  await sb.from('partite').delete().eq('id',id);
   await load();
 }
 async function eliminaPartita(e,id){
