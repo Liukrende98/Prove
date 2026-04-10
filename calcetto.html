@@ -21,257 +21,227 @@
 html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;color:var(--txt);overscroll-behavior:none}
 input,select,textarea,button{font-family:inherit;-webkit-appearance:none}
 input,select,textarea{font-size:16px!important}
-a{color:inherit;text-decoration:none}
 
-/* ── SCREEN SYSTEM ── */
 .screen{position:fixed;inset:0;display:none;flex-direction:column;background:var(--bg)}
 .screen.active{display:flex}
 
-/* ── PASSWORD ── */
+/* PASSWORD */
 #s-pwd{align-items:center;justify-content:center;background:var(--green)}
-.pwd-card{background:#fff;border-radius:24px;padding:2rem 1.5rem;width:min(320px,88vw);text-align:center}
-.pwd-ball{width:64px;height:64px;border-radius:50%;background:var(--green);color:#fff;font-size:32px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
-.pwd-card h1{font-size:22px;font-weight:700;margin-bottom:.25rem}
-.pwd-card p{font-size:14px;color:var(--txt2);margin-bottom:1.5rem}
-.pwd-input{width:100%;border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;font-size:18px;letter-spacing:.2em;text-align:center;background:#f5f5f3;outline:none;margin-bottom:.75rem}
-.pwd-input:focus{border-color:var(--green)}
-.pwd-input.shake{animation:shake .35s ease}
+.auth-card{background:#fff;border-radius:24px;padding:2rem 1.5rem;width:min(320px,88vw);text-align:center}
+.auth-ball{width:64px;height:64px;border-radius:50%;background:var(--green);color:#fff;font-size:32px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
+.auth-card h1{font-size:22px;font-weight:700;margin-bottom:.3rem;color:var(--txt)}
+.auth-card p{font-size:14px;color:var(--txt2);margin-bottom:1.5rem}
+.big-input{width:100%;border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;font-size:18px;letter-spacing:.15em;text-align:center;background:#f5f5f3;outline:none;color:var(--txt);margin-bottom:.75rem}
+.big-input:focus{border-color:var(--green);background:#fff}
+.big-input.shake{animation:shake .35s ease}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
-.btn-full{width:100%;padding:15px;border-radius:14px;border:none;background:var(--green);color:#fff;font-size:16px;font-weight:600;cursor:pointer;min-height:50px}
-.btn-full:active{background:var(--green-d)}
+.btn-primary{width:100%;padding:15px;border-radius:14px;border:none;background:var(--green);color:#fff;font-size:16px;font-weight:600;cursor:pointer;min-height:50px}
+.btn-primary:active{background:var(--green-d);transform:scale(.98)}
 
-/* ── NOME ── */
+/* NOME */
 #s-nome{align-items:center;justify-content:center;background:var(--green)}
-.nome-card{background:#fff;border-radius:24px;padding:2rem 1.5rem;width:min(320px,88vw)}
-.nome-card h1{font-size:20px;font-weight:700;margin-bottom:.5rem}
-.nome-card p{font-size:14px;color:var(--txt2);margin-bottom:1.5rem}
-.field-lbl{font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
-.field-input{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:13px 14px;font-size:16px;background:#f5f5f3;outline:none;margin-bottom:1rem}
-.field-input:focus{border-color:var(--green)}
+.lbl{font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+.std-input{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:13px 14px;font-size:16px;background:#f5f5f3;outline:none;color:var(--txt);margin-bottom:1rem}
+.std-input:focus{border-color:var(--green);background:#fff}
 
-/* ── APP ── */
+/* APP */
 #s-app{padding-top:var(--safe-top)}
 .header{background:var(--green);color:#fff;padding:14px 16px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .header-title{font-size:18px;font-weight:700}
 .header-sub{font-size:12px;opacity:.8;margin-top:1px}
-.btn-icon{width:38px;height:38px;border-radius:50%;border:none;background:rgba(255,255,255,.2);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
-.btn-icon:active{background:rgba(255,255,255,.35)}
+.icon-btn{width:38px;height:38px;border-radius:50%;border:none;background:rgba(255,255,255,.2);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.icon-btn:active{background:rgba(255,255,255,.35)}
 
-.list-wrap{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 14px calc(var(--nav-h) + 16px)}
+.list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 14px calc(var(--nav-h) + 70px)}
 
 /* MATCH CARD */
 .mcard{background:var(--card);border-radius:18px;padding:14px 16px;margin-bottom:10px;border:1px solid var(--border)}
 .mcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
-.mcard-luogo{font-size:16px;font-weight:600;color:var(--txt)}
-.mcard-sub{font-size:13px;color:var(--txt2);margin-top:2px}
-.badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;flex-shrink:0;margin-left:8px}
+.mcard-title{font-size:16px;font-weight:700;color:var(--txt)}
+.mcard-meta{font-size:13px;color:var(--txt2);margin-top:2px}
+.badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;flex-shrink:0;margin-left:6px;white-space:nowrap}
 .badge-open{background:var(--green-l);color:var(--green-d)}
-.badge-past{background:#eee;color:#777}
-.map-link{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#185FA5;margin-bottom:8px}
+.badge-past{background:#eee;color:#888}
+.map-link{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#185FA5;margin-bottom:7px;text-decoration:none}
 .chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
 .chip{display:flex;align-items:center;gap:4px;font-size:12px;padding:4px 9px;border-radius:20px;background:#f5f5f3;border:1px solid var(--border)}
 .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .dot-si{background:var(--green)}.dot-no{background:var(--red)}.dot-forse{background:var(--amber)}
-.counters{font-size:12px;color:var(--txt2);margin-bottom:10px}
-.counters strong{color:var(--txt)}
-.vote-row{display:flex;gap:7px}
-.btn-vote{flex:1;padding:10px 6px;border-radius:12px;border:1.5px solid var(--border);background:#fff;font-size:13px;font-weight:500;color:var(--txt2);cursor:pointer;min-height:44px}
-.btn-vote.si.active{background:var(--green-l);border-color:var(--green);color:var(--green-d)}
-.btn-vote.forse.active{background:#FAEEDA;border-color:var(--amber);color:#854F0B}
-.btn-vote.no.active{background:#FCEBEB;border-color:var(--red);color:#A32D2D}
-.score-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.counter{font-size:12px;color:var(--txt2);margin-bottom:10px}
+.counter strong{color:var(--txt);font-weight:600}
+.vote-row{display:flex;gap:6px}
+.vbtn{flex:1;padding:10px 4px;border-radius:12px;border:1.5px solid var(--border);background:#fff;font-size:13px;font-weight:500;color:var(--txt2);cursor:pointer;min-height:44px;transition:background .12s,border-color .12s,color .12s}
+.vbtn.si.on{background:var(--green-l);border-color:var(--green);color:var(--green-d)}
+.vbtn.forse.on{background:#FAEEDA;border-color:var(--amber);color:#854F0B}
+.vbtn.no.on{background:#FCEBEB;border-color:var(--red);color:#A32D2D}
+.score-strip{display:flex;align-items:center;gap:8px;margin-top:8px}
 .sbox{background:var(--green);color:#fff;border-radius:10px;padding:4px 14px;font-size:20px;font-weight:700}
-.sbox.b{background:var(--red)}
-.more-btn{width:100%;margin-top:10px;padding:10px;border-radius:12px;border:1px solid var(--border);background:#f5f5f3;font-size:13px;color:var(--txt2);cursor:pointer;min-height:44px}
-.more-btn:active{background:#ebebeb}
+.sbox.r{background:var(--red)}
+.detail-btn{width:100%;margin-top:10px;padding:11px;border-radius:12px;border:1px solid var(--border);background:#f5f5f3;font-size:13px;color:var(--txt2);cursor:pointer;min-height:44px;font-weight:500}
+.detail-btn:active{background:#eee}
 
 /* FAB */
-.fab{position:fixed;right:20px;bottom:calc(var(--nav-h) + 12px);width:56px;height:56px;border-radius:50%;background:var(--green);color:#fff;font-size:26px;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 16px rgba(29,158,117,.4);z-index:10}
-.fab:active{background:var(--green-d)}
+.fab{position:fixed;right:20px;bottom:calc(var(--nav-h) + 14px);width:58px;height:58px;border-radius:50%;background:var(--green);color:#fff;font-size:28px;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(29,158,117,.45);z-index:10}
+.fab:active{background:var(--green-d);transform:scale(.95)}
 
 /* BOTTOM NAV */
-.bnav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:var(--card);border-top:1px solid var(--border);display:flex;padding-bottom:var(--safe-bot)}
-.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border:none;background:none;color:var(--txt3);font-size:10px;gap:2px;cursor:pointer;padding-bottom:2px}
-.bnav-btn.active{color:var(--green)}
-.bnav-icon{font-size:22px;line-height:1}
+.bnav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:var(--card);border-top:1px solid var(--border);display:flex;padding-bottom:var(--safe-bot);z-index:10}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border:none;background:none;color:var(--txt3);font-size:10px;gap:2px;cursor:pointer;padding-bottom:2px}
+.bnav-item.on{color:var(--green)}
+.bnav-ico{font-size:22px;line-height:1}
 
-/* ── MODALS ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:none;align-items:flex-end}
-.modal-overlay.open{display:flex}
-.modal-sheet{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-height:92vh;display:flex;flex-direction:column;padding-bottom:var(--safe-bot);animation:slideUp .3s ease}
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.modal-handle{width:36px;height:4px;border-radius:2px;background:#ddd;margin:10px auto 0;flex-shrink:0}
-.modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;flex-shrink:0;border-bottom:1px solid var(--border)}
-.modal-title{font-size:17px;font-weight:700}
-.modal-close{width:30px;height:30px;border-radius:50%;border:none;background:#f5f5f3;color:var(--txt2);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.modal-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px}
+/* MODALS */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:none;align-items:flex-end}
+.overlay.open{display:flex}
+.sheet{background:var(--card);border-radius:22px 22px 0 0;width:100%;max-height:94vh;display:flex;flex-direction:column;padding-bottom:var(--safe-bot);animation:up .28s ease}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.handle{width:36px;height:4px;border-radius:2px;background:#ddd;margin:10px auto 0;flex-shrink:0}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;flex-shrink:0;border-bottom:1px solid var(--border)}
+.sheet-title{font-size:17px;font-weight:700}
+.close-btn{width:30px;height:30px;border-radius:50%;border:none;background:#f0f0ee;color:var(--txt2);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.sheet-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px}
 
 /* TABS */
-.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:14px;gap:0;flex-shrink:0}
-.tab-btn{flex:1;padding:10px 4px;font-size:14px;border:none;background:none;color:var(--txt2);border-bottom:2px solid transparent;cursor:pointer;font-weight:500;margin-bottom:-1px}
-.tab-btn.active{color:var(--green);border-bottom-color:var(--green)}
-.tab-pane{display:none}.tab-pane.active{display:block}
+.tab-bar{display:flex;border-bottom:1px solid var(--border);margin:-14px -16px 14px;flex-shrink:0}
+.tbtn{flex:1;padding:11px 4px;font-size:14px;border:none;background:none;color:var(--txt2);border-bottom:2px solid transparent;cursor:pointer;font-weight:500;margin-bottom:-1px}
+.tbtn.on{color:var(--green);border-bottom-color:var(--green)}
+.tpane{display:none}.tpane.on{display:block}
 
 /* FORM */
-.form-field{margin-bottom:14px}
-.form-lbl{font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
-.form-input{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;font-size:16px;background:#f5f5f3;outline:none;color:var(--txt)}
-.form-input:focus{border-color:var(--green);background:#fff}
+.fld{margin-bottom:14px}
+.std-input.full{width:100%}
 .toggle-row{display:flex;gap:8px}
-.toggle-opt{flex:1;padding:11px;border:1.5px solid var(--border);border-radius:12px;text-align:center;font-size:14px;font-weight:500;background:#f5f5f3;color:var(--txt2);cursor:pointer;min-height:44px}
-.toggle-opt.active{background:var(--green-l);border-color:var(--green);color:var(--green-d)}
+.topt{flex:1;padding:11px;border:1.5px solid var(--border);border-radius:12px;text-align:center;font-size:14px;font-weight:500;background:#f5f5f3;color:var(--txt2);cursor:pointer;min-height:44px}
+.topt.on{background:var(--green-l);border-color:var(--green);color:var(--green-d)}
 
-/* PITCH FREE EDITOR */
-#pitch-wrap{position:relative;width:100%;touch-action:none;border-radius:14px;overflow:hidden;margin-bottom:12px}
-#pitch-svg{width:100%;display:block}
-#tok-layer{position:absolute;inset:0;pointer-events:none}
-.ptoken{position:absolute;transform:translate(-50%,-55%);display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:all;cursor:grab;touch-action:none}
-.ptoken.dragging{opacity:.15;pointer-events:none}
-.tok-c{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:2.5px solid rgba(255,255,255,.85)}
-.tok-n{font-size:9px;color:#fff;font-weight:500;background:rgba(0,0,0,.4);border-radius:6px;padding:1px 5px;max-width:52px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:center}
-#ghost-tok{position:absolute;pointer-events:none;display:none;flex-direction:column;align-items:center;gap:2px;transform:translate(-50%,-55%);z-index:200}
-.bench-lbl{font-size:12px;font-weight:600;color:var(--txt2);margin-bottom:7px}
-#bench-wrap{display:flex;flex-wrap:wrap;gap:6px;min-height:44px;padding:10px;border:1.5px dashed var(--border);border-radius:12px;background:#f9f9f7;margin-bottom:12px}
+/* PITCH */
+#pw{position:relative;width:100%;touch-action:none;border-radius:14px;overflow:hidden;margin-bottom:12px}
+#psv{width:100%;display:block}
+#tl{position:absolute;inset:0;pointer-events:none}
+.ptok{position:absolute;transform:translate(-50%,-55%);display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:all;cursor:grab;touch-action:none}
+.ptok.dragging{opacity:.15;pointer-events:none}
+.tc{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:2.5px solid rgba(255,255,255,.85)}
+.tn{font-size:9px;color:#fff;font-weight:500;background:rgba(0,0,0,.4);border-radius:6px;padding:1px 5px;max-width:52px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:center}
+#gh{position:absolute;pointer-events:none;display:none;flex-direction:column;align-items:center;gap:2px;transform:translate(-50%,-55%);z-index:200}
+.bench-row{display:flex;flex-wrap:wrap;gap:6px;min-height:44px;padding:10px;border:1.5px dashed var(--border);border-radius:12px;background:#f9f9f7;margin-bottom:12px}
 .bchip{padding:7px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:13px;color:var(--txt);cursor:grab;touch-action:none}
 .bchip.dragging{opacity:.2}
+.bench-lbl{font-size:12px;font-weight:600;color:var(--txt2);margin-bottom:7px}
 
-/* GOAL COUNTER */
-.goal-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
-.goal-row:last-child{border-bottom:none}
-.goal-name{flex:1;font-size:15px;color:var(--txt)}
-.g-counter{display:flex;align-items:center;gap:10px}
-.g-btn{width:34px;height:34px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font-size:18px;color:var(--txt);display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:34px}
-.g-btn:active{background:#f0f0ee}
-.g-num{min-width:22px;text-align:center;font-size:16px;font-weight:700;color:var(--txt)}
+/* GOALS */
+.grow{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+.grow:last-child{border:none}
+.gname{flex:1;font-size:15px;color:var(--txt)}
+.gctr{display:flex;align-items:center;gap:10px}
+.gbtn{width:36px;height:36px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font-size:18px;color:var(--txt);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.gbtn:active{background:#f0f0ee}
+.gnum{min-width:22px;text-align:center;font-size:16px;font-weight:700}
 .score-inp-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
 .score-inp-row input{flex:1;text-align:center;font-size:24px;font-weight:700;border:1.5px solid var(--border);border-radius:12px;padding:12px;background:#f5f5f3;outline:none}
-.score-inp-row input:focus{border-color:var(--green)}
-.score-sep{font-size:20px;color:var(--txt2)}
-.empty-state{text-align:center;padding:2.5rem 1rem;color:var(--txt3);font-size:14px}
+.score-inp-row input:focus{border-color:var(--green);background:#fff}
+.score-sep{font-size:20px;color:var(--txt2);font-weight:300}
+.empty{text-align:center;padding:3rem 1rem;color:var(--txt3);font-size:14px;line-height:1.6}
 
 /* LOADING */
-#loading{position:fixed;inset:0;background:var(--green);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;color:#fff}
-#loading .ball{font-size:48px;animation:bounce .8s ease-in-out infinite alternate}
-@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-16px)}}
-#loading p{margin-top:16px;font-size:16px;opacity:.8}
+#ld{position:fixed;inset:0;background:var(--green);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;color:#fff}
+.ball-anim{font-size:52px;animation:bounce .75s ease-in-out infinite alternate}
+@keyframes bounce{to{transform:translateY(-18px)}}
+#ld p{margin-top:18px;font-size:15px;opacity:.85;font-weight:500}
 </style>
 </head>
 <body>
 
-<!-- LOADING -->
-<div id="loading"><div class="ball">⚽</div><p>Caricamento...</p></div>
+<div id="ld"><div class="ball-anim">⚽</div><p>Caricamento...</p></div>
 
-<!-- SCREEN: PASSWORD -->
+<!-- PASSWORD -->
 <div class="screen" id="s-pwd">
-  <div class="pwd-card">
-    <div class="pwd-ball">⚽</div>
+  <div class="auth-card" style="margin:auto">
+    <div class="auth-ball">⚽</div>
     <h1>Calcetto</h1>
     <p>Inserisci la password del gruppo</p>
-    <input class="pwd-input" type="password" id="pwd-inp" placeholder="••••••••" autocomplete="current-password">
-    <button class="btn-full" onclick="checkPwd()">Entra</button>
+    <input class="big-input" type="password" id="pwd-inp" placeholder="••••••••" autocomplete="current-password">
+    <button class="btn-primary" onclick="checkPwd()">Entra</button>
   </div>
 </div>
 
-<!-- SCREEN: NOME -->
+<!-- NOME -->
 <div class="screen" id="s-nome">
-  <div class="nome-card" style="margin:auto;width:min(320px,88vw)">
-    <div class="pwd-ball" style="margin-bottom:1rem">👋</div>
-    <h1>Come ti chiami?</h1>
-    <p style="font-size:14px;color:var(--txt2);margin-bottom:1.5rem">Il tuo nome apparirà nelle partite</p>
-    <div class="field-lbl">Il tuo nome</div>
-    <input class="field-input" type="text" id="nome-inp" placeholder="es. Marco" autocapitalize="words" autocomplete="given-name">
-    <button class="btn-full" onclick="saveName()">Inizia a giocare</button>
+  <div class="auth-card" style="margin:auto;text-align:left">
+    <div class="auth-ball" style="margin-bottom:1rem">👋</div>
+    <h1 style="margin-bottom:.3rem">Come ti chiami?</h1>
+    <p style="margin-bottom:1.5rem">Sarà il nome che vedranno gli altri</p>
+    <div class="lbl">Il tuo nome</div>
+    <input class="std-input" type="text" id="nome-inp" placeholder="es. Marco" autocapitalize="words">
+    <button class="btn-primary" onclick="saveName()">Inizia a giocare</button>
   </div>
 </div>
 
-<!-- SCREEN: APP -->
+<!-- APP -->
 <div class="screen" id="s-app">
   <div class="header">
     <div>
       <div class="header-title">⚽ Calcetto</div>
-      <div class="header-sub" id="header-sub">caricamento...</div>
+      <div class="header-sub" id="h-sub">caricamento...</div>
     </div>
-    <div style="display:flex;gap:8px">
-      <button class="btn-icon" onclick="showInfo()" title="Info gruppo">ℹ</button>
-    </div>
+    <button class="icon-btn" onclick="logout()" title="Esci">←</button>
   </div>
-  <div class="list-wrap" id="list-wrap">
-    <div class="empty-state" id="empty-msg" style="display:none">Nessuna partita ancora.<br>Creane una con il tasto +</div>
+  <div class="list" id="list">
+    <div class="empty" id="empty" style="display:none">Nessuna partita ancora.<br>Premi + per crearne una!</div>
   </div>
   <button class="fab" onclick="openNuova()">+</button>
   <div class="bnav">
-    <button class="bnav-btn active" id="nav-partite">
-      <span class="bnav-icon">🏟</span>Partite
-    </button>
-    <button class="bnav-btn" id="nav-stats" onclick="alert('Statistiche — prossimamente!')">
-      <span class="bnav-icon">📊</span>Stats
-    </button>
+    <button class="bnav-item on"><span class="bnav-ico">🏟</span>Partite</button>
+    <button class="bnav-item" onclick="goStats()"><span class="bnav-ico">📊</span>Stats</button>
   </div>
 </div>
 
-<!-- MODAL: NUOVA PARTITA -->
-<div class="modal-overlay" id="modal-nuova" onclick="closeModal('modal-nuova',event)">
-  <div class="modal-sheet" onclick="event.stopPropagation()">
-    <div class="modal-handle"></div>
-    <div class="modal-head">
-      <span class="modal-title">Nuova partita</span>
-      <button class="modal-close" onclick="closeModal('modal-nuova')">✕</button>
+<!-- MODAL NUOVA -->
+<div class="overlay" id="m-nuova" onclick="bgClose('m-nuova',event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="handle"></div>
+    <div class="sheet-head">
+      <span class="sheet-title">Nuova partita</span>
+      <button class="close-btn" onclick="closeModal('m-nuova')">✕</button>
     </div>
-    <div class="modal-body">
-      <div class="form-field">
-        <div class="form-lbl">Tipo</div>
+    <div class="sheet-body">
+      <div class="fld">
+        <div class="lbl">Tipo</div>
         <div class="toggle-row">
-          <div class="toggle-opt active" id="tipo7" onclick="setTipo(7)">Calcetto a 7</div>
-          <div class="toggle-opt" id="tipo5" onclick="setTipo(5)">Calcetto a 5</div>
+          <div class="topt on" id="t7" onclick="setTipo(7)">Calcetto a 7</div>
+          <div class="topt" id="t5" onclick="setTipo(5)">Calcetto a 5</div>
         </div>
       </div>
-      <div class="form-field">
-        <div class="form-lbl">Data e ora</div>
-        <input class="form-input" type="datetime-local" id="f-data">
-      </div>
-      <div class="form-field">
-        <div class="form-lbl">Nome campo</div>
-        <input class="form-input" type="text" id="f-luogo" placeholder="es. Campo Borghese">
-      </div>
-      <div class="form-field">
-        <div class="form-lbl">Indirizzo (per Maps)</div>
-        <input class="form-input" type="text" id="f-ind" placeholder="es. Via Roma 1, Bologna">
-      </div>
-      <div class="form-field">
-        <div class="form-lbl">Note</div>
-        <input class="form-input" type="text" id="f-note" placeholder="es. portate pettorina">
-      </div>
-      <button class="btn-full" style="margin-top:4px" onclick="createPartita()">Proponi partita</button>
+      <div class="fld"><div class="lbl">Data e ora</div><input class="std-input" type="datetime-local" id="f-data"></div>
+      <div class="fld"><div class="lbl">Nome campo</div><input class="std-input" type="text" id="f-luogo" placeholder="es. Campo Borghese"></div>
+      <div class="fld"><div class="lbl">Indirizzo (per Maps)</div><input class="std-input" type="text" id="f-ind" placeholder="es. Via Roma 1, Bologna"></div>
+      <div class="fld"><div class="lbl">Note</div><input class="std-input" type="text" id="f-note" placeholder="es. portate pettorina"></div>
+      <button class="btn-primary" onclick="createPartita()">Proponi partita</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: DETTAGLIO PARTITA -->
-<div class="modal-overlay" id="modal-det" onclick="closeModal('modal-det',event)">
-  <div class="modal-sheet" onclick="event.stopPropagation()" style="max-height:96vh">
-    <div class="modal-handle"></div>
-    <div class="modal-head">
-      <span class="modal-title" id="det-title">Dettaglio</span>
-      <button class="modal-close" onclick="closeModal('modal-det')">✕</button>
+<!-- MODAL DETTAGLIO -->
+<div class="overlay" id="m-det" onclick="bgClose('m-det',event)">
+  <div class="sheet" onclick="event.stopPropagation()" style="max-height:96vh">
+    <div class="handle"></div>
+    <div class="sheet-head">
+      <span class="sheet-title" id="det-title">—</span>
+      <button class="close-btn" onclick="closeModal('m-det')">✕</button>
     </div>
-    <div style="padding:0 16px;flex-shrink:0">
-      <div class="tabs" id="det-tabs">
-        <button class="tab-btn active" onclick="switchTab(event,'tp-risp')">Risposte</button>
-        <button class="tab-btn" onclick="switchTab(event,'tp-form')">Formazione</button>
-        <button class="tab-btn" onclick="switchTab(event,'tp-gol')">Marcatori</button>
+    <div class="sheet-body">
+      <div class="tab-bar">
+        <button class="tbtn on" onclick="tab(event,'tp-r')">Risposte</button>
+        <button class="tbtn" onclick="tab(event,'tp-f')">Formazione</button>
+        <button class="tbtn" onclick="tab(event,'tp-g')">Marcatori</button>
       </div>
-    </div>
-    <div class="modal-body">
-      <!-- TAB: RISPOSTE -->
-      <div id="tp-risp" class="tab-pane active">
-        <div id="det-chips" class="chips" style="margin-bottom:10px"></div>
-        <div id="det-counters" class="counters" style="margin-bottom:12px"></div>
-        <div id="det-vote-row" class="vote-row"></div>
+      <div id="tp-r" class="tpane on">
+        <div id="det-chips" class="chips" style="margin-bottom:8px"></div>
+        <div id="det-cnt" class="counter" style="margin-bottom:12px"></div>
+        <div id="det-vote" class="vote-row"></div>
       </div>
-      <!-- TAB: FORMAZIONE (FM free drag) -->
-      <div id="tp-form" class="tab-pane">
-        <div id="pitch-wrap">
-          <svg id="pitch-svg" viewBox="0 0 340 480" xmlns="http://www.w3.org/2000/svg">
+      <div id="tp-f" class="tpane">
+        <div id="pw">
+          <svg id="psv" viewBox="0 0 340 480" xmlns="http://www.w3.org/2000/svg">
             <rect width="340" height="480" fill="#1D9E75"/>
             <rect x="10" y="10" width="320" height="460" rx="4" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.2"/>
             <line x1="10" y1="240" x2="330" y2="240" stroke="rgba(255,255,255,.35)" stroke-width="1.2"/>
@@ -284,29 +254,25 @@ a{color:inherit;text-decoration:none}
             <circle cx="170" cy="82" r="2.5" fill="rgba(255,255,255,.4)"/>
             <circle cx="170" cy="398" r="2.5" fill="rgba(255,255,255,.4)"/>
           </svg>
-          <div id="tok-layer"></div>
-          <div id="ghost-tok">
-            <div class="tok-c" id="ghost-c"></div>
-            <div class="tok-n" id="ghost-n"></div>
-          </div>
+          <div id="tl"></div>
+          <div id="gh"><div class="tc" id="ghc"></div><div class="tn" id="ghn"></div></div>
         </div>
-        <div class="bench-lbl" id="bench-lbl-txt">Panchina</div>
-        <div id="bench-wrap"></div>
-        <button class="btn-full" onclick="saveFormazione()">Salva formazione</button>
+        <div class="bench-lbl" id="blbl">Panchina</div>
+        <div class="bench-row" id="brow"></div>
+        <button class="btn-primary" onclick="saveForm()">Salva formazione</button>
       </div>
-      <!-- TAB: MARCATORI -->
-      <div id="tp-gol" class="tab-pane">
-        <div class="form-field">
-          <div class="form-lbl">Risultato finale</div>
+      <div id="tp-g" class="tpane">
+        <div class="fld">
+          <div class="lbl">Risultato finale</div>
           <div class="score-inp-row">
             <input type="number" id="sc-a" min="0" max="30" placeholder="0">
             <span class="score-sep">—</span>
             <input type="number" id="sc-b" min="0" max="30" placeholder="0">
           </div>
         </div>
-        <div class="form-lbl" style="margin-bottom:10px">Gol per giocatore</div>
-        <div id="goal-list"></div>
-        <button class="btn-full" style="margin-top:12px" onclick="saveMarcatori()">Salva</button>
+        <div class="lbl" style="margin-bottom:10px">Gol per giocatore</div>
+        <div id="glist"></div>
+        <button class="btn-primary" style="margin-top:14px" onclick="saveGoals()">Salva</button>
       </div>
     </div>
   </div>
@@ -314,414 +280,335 @@ a{color:inherit;text-decoration:none}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
-// ══════════════════════════════════════════════
-//  CONFIG — sostituisci con i tuoi valori Supabase
-// ══════════════════════════════════════════════
+// ── CONFIG ────────────────────────────────────────────────
 const CFG = {
-  url:      'https://XXXXXXXX.supabase.co',
-  key:      'YOUR_ANON_KEY',
-  gruppoId: 'YOUR_GRUPPO_UUID',
+  url:      'https://qrmxnfgonkskplcpuvkg.supabase.co',
+  key:      'sb_publishable_FDuziO3GIQuFIjsRS_j6tA_0alvNHR7',
   password: 'sbussatori'
 };
 
-const PLAYER_COLORS = [
+const COLS=[
   {bg:'#185FA5',tx:'#E6F1FB'},{bg:'#0F6E56',tx:'#E1F5EE'},
   {bg:'#993C1D',tx:'#FAECE7'},{bg:'#534AB7',tx:'#EEEDFE'},
   {bg:'#BA7517',tx:'#FAEEDA'},{bg:'#72243E',tx:'#FBEAF0'},
-  {bg:'#3B6D11',tx:'#EAF3DE'},{bg:'#5F5E5A',tx:'#F1EFE8'},
-  {bg:'#185FA5',tx:'#E6F1FB'},{bg:'#993C1D',tx:'#FAECE7'},
-  {bg:'#0F6E56',tx:'#E1F5EE'},{bg:'#534AB7',tx:'#EEEDFE'},
+  {bg:'#3B6D11',tx:'#EAF3DE'},{bg:'#444441',tx:'#F1EFE8'},
 ];
-
-let sb, myName, myId, tipoNuova=7, detPartitaId=null, onPitch={}, dragSt=null;
-let partiteCache=[], risposteCache={}, formazioneCache={}, marcatoriCache={};
-
-// ══ INIT ══════════════════════════════════════
-async function init() {
-  // password check
-  if (localStorage.getItem('cal_auth') !== '1') {
-    show('s-pwd'); hide('loading'); return;
-  }
-  // nome check
-  myName = localStorage.getItem('cal_nome');
-  myId   = localStorage.getItem('cal_id');
-  if (!myName) { show('s-nome'); hide('loading'); return; }
-  await startApp();
+const pCol={};
+function col(name){
+  if(!pCol[name]) pCol[name]=COLS[Object.keys(pCol).length%COLS.length];
+  return pCol[name];
 }
 
-async function startApp() {
-  try {
-    sb = supabase.createClient(CFG.url, CFG.key);
-    // anonymous session persistente
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) {
-      const { data } = await sb.auth.signInAnonymously();
-      myId = data.user.id;
-      localStorage.setItem('cal_id', myId);
-      // inserisci profilo
-      await sb.from('utenti').upsert({ id: myId, username: myName }, { onConflict: 'id' });
+let sb, myName, myId, tipoN=7, detId=null;
+let onPitch={}, dragSt=null, goalData={};
+let cache=[];
+
+// ── INIT ──────────────────────────────────────────────────
+async function init(){
+  if(localStorage.getItem('cal_ok')!=='1'){show('s-pwd');hide('ld');return;}
+  myName=localStorage.getItem('cal_nome');
+  if(!myName){show('s-nome');hide('ld');return;}
+  await boot();
+}
+
+async function boot(){
+  try{
+    sb=supabase.createClient(CFG.url,CFG.key);
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session){
+      const {data,error}=await sb.auth.signInAnonymously();
+      if(error) throw error;
+      myId=data.user.id;
+      localStorage.setItem('cal_id',myId);
+      await sb.from('utenti').upsert({id:myId,username:myName},{onConflict:'id'});
     } else {
-      myId = session.user.id;
+      myId=session.user.id;
+      await sb.from('utenti').upsert({id:myId,username:myName},{onConflict:'id'});
     }
-    // join gruppo se non già membro
-    await sb.from('membri_gruppo').upsert({ gruppo_id: CFG.gruppoId, utente_id: myId }, { onConflict: 'gruppo_id,utente_id' });
-
-    show('s-app'); hide('loading');
-    document.getElementById('header-sub').textContent = 'Ciao ' + myName + ' 👋';
-    await loadPartite();
-    setupRealtime();
-  } catch(e) {
+    show('s-app'); hide('ld');
+    document.getElementById('h-sub').textContent='Ciao '+myName+' 👋';
+    await load();
+    realtime();
+  }catch(e){
     console.error(e);
-    // fallback offline
-    show('s-app'); hide('loading');
-    document.getElementById('header-sub').textContent = 'Ciao ' + myName + ' (offline)';
+    show('s-app'); hide('ld');
+    document.getElementById('h-sub').textContent='Ciao '+myName+' (offline)';
   }
 }
 
-// ══ AUTH ══════════════════════════════════════
-function checkPwd() {
-  const v = document.getElementById('pwd-inp').value;
-  if (v === CFG.password) {
-    localStorage.setItem('cal_auth','1');
+// ── AUTH ──────────────────────────────────────────────────
+function checkPwd(){
+  const v=document.getElementById('pwd-inp').value;
+  if(v===CFG.password){
+    localStorage.setItem('cal_ok','1');
     hide('s-pwd');
-    myName = localStorage.getItem('cal_nome');
-    if (!myName) show('s-nome'); else { show('loading'); startApp(); }
-  } else {
-    const el = document.getElementById('pwd-inp');
-    el.classList.remove('shake');
-    void el.offsetWidth;
-    el.classList.add('shake');
-    el.value = '';
+    myName=localStorage.getItem('cal_nome');
+    if(!myName){show('s-nome');}else{show('ld');boot();}
+  }else{
+    const el=document.getElementById('pwd-inp');
+    el.classList.remove('shake');void el.offsetWidth;
+    el.classList.add('shake');el.value='';
   }
 }
-function saveName() {
-  const v = document.getElementById('nome-inp').value.trim();
-  if (!v) return;
-  localStorage.setItem('cal_nome', v);
-  myName = v;
-  hide('s-nome');
-  show('loading');
-  startApp();
+function saveName(){
+  const v=document.getElementById('nome-inp').value.trim();
+  if(!v)return;
+  localStorage.setItem('cal_nome',v);myName=v;
+  hide('s-nome');show('ld');boot();
+}
+function logout(){
+  if(!confirm('Esci dall\'app?'))return;
+  localStorage.removeItem('cal_ok');
+  localStorage.removeItem('cal_nome');
+  location.reload();
 }
 
-// ══ DATA ══════════════════════════════════════
-async function loadPartite() {
-  if (!sb) return;
-  const { data, error } = await sb.from('partite')
-    .select(`*, risposte(utente_id, stato, utenti(username)), formazione(posizioni), marcatori(utente_id, gol, utenti(username))`)
-    .eq('gruppo_id', CFG.gruppoId)
-    .order('data_ora', { ascending: false });
-  if (error) { console.error(error); return; }
-  partiteCache = data || [];
+// ── DATA ──────────────────────────────────────────────────
+async function load(){
+  if(!sb)return;
+  const{data,error}=await sb.from('partite')
+    .select('*, risposte(utente_id,stato,utenti(username)), formazione(posizioni), marcatori(utente_id,gol,utenti(username))')
+    .order('data_ora',{ascending:false});
+  if(error){console.error(error);return;}
+  cache=data||[];
   renderList();
 }
 
-function setupRealtime() {
-  sb.channel('cal-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'risposte' }, () => loadPartite())
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'partite' }, () => loadPartite())
+function realtime(){
+  sb.channel('cal')
+    .on('postgres_changes',{event:'*',schema:'public',table:'risposte'},()=>load())
+    .on('postgres_changes',{event:'*',schema:'public',table:'partite'},()=>load())
     .subscribe();
 }
 
-// ══ RENDER LIST ═══════════════════════════════
-function renderList() {
-  const wrap = document.getElementById('list-wrap');
-  const empty = document.getElementById('empty-msg');
-  if (!partiteCache.length) { empty.style.display='block'; return; }
-  empty.style.display = 'none';
-
-  // rimuovi vecchie card
-  wrap.querySelectorAll('.mcard').forEach(c => c.remove());
-
-  partiteCache.forEach(p => {
-    const past = p.giocata || new Date(p.data_ora) < new Date();
-    const card = document.createElement('div');
-    card.className = 'mcard';
-    card.id = 'card-' + p.id;
-
-    const risposte = p.risposte || [];
-    const si    = risposte.filter(r=>r.stato==='si').length;
-    const forse = risposte.filter(r=>r.stato==='forse').length;
-    const no    = risposte.filter(r=>r.stato==='no').length;
-    const myR   = risposte.find(r=>r.utente_id===myId);
-
-    const chips = risposte.map(r =>
-      `<div class="chip"><div class="dot dot-${r.stato}"></div>${r.utenti?.username||'?'}</div>`
-    ).join('');
-
-    const mapUrl = p.indirizzo ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.indirizzo)}` : '';
-    const hasSc = p.gol_squadra_a !== null && p.gol_squadra_a !== undefined;
-
-    card.innerHTML = `
+// ── RENDER ────────────────────────────────────────────────
+function renderList(){
+  const wrap=document.getElementById('list');
+  const empty=document.getElementById('empty');
+  wrap.querySelectorAll('.mcard').forEach(c=>c.remove());
+  if(!cache.length){empty.style.display='block';return;}
+  empty.style.display='none';
+  cache.forEach(p=>{
+    const past=p.giocata||new Date(p.data_ora)<new Date();
+    const rs=p.risposte||[];
+    const si=rs.filter(r=>r.stato==='si').length;
+    const forse=rs.filter(r=>r.stato==='forse').length;
+    const no=rs.filter(r=>r.stato==='no').length;
+    const myR=rs.find(r=>r.utente_id===myId);
+    const chips=rs.map(r=>`<div class="chip"><div class="dot dot-${r.stato}"></div>${r.utenti?.username||'?'}</div>`).join('');
+    const mapUrl=p.indirizzo?`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.indirizzo)}`:'';
+    const hasSc=p.gol_squadra_a!=null;
+    const d=new Date(p.data_ora);
+    const df=d.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'})+' · '+d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+    const card=document.createElement('div');
+    card.className='mcard';
+    card.innerHTML=`
       <div class="mcard-top">
         <div>
-          <div class="mcard-luogo">${p.luogo} <span style="font-size:11px;color:var(--txt2);font-weight:400">· ${p.tipo}v${p.tipo}</span></div>
-          <div class="mcard-sub">${fmtDate(p.data_ora)}</div>
+          <div class="mcard-title">${p.luogo} <span style="font-size:11px;color:var(--txt2);font-weight:400">${p.tipo}v${p.tipo}</span></div>
+          <div class="mcard-meta">${df}</div>
         </div>
         <span class="badge ${past?'badge-past':'badge-open'}">${past?'giocata':'aperta'}</span>
       </div>
-      ${mapUrl ? `<a class="map-link" href="${mapUrl}" target="_blank"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>${p.indirizzo}</a><br>` : ''}
-      ${p.note ? `<div style="font-size:12px;color:var(--txt2);margin-bottom:6px">${p.note}</div>` : ''}
-      <div class="chips">${chips || '<span style="font-size:12px;color:var(--txt3)">Nessuna risposta ancora</span>'}</div>
-      <div class="counters"><strong>${si}</strong> ci sono · <strong>${forse}</strong> forse · <strong>${no}</strong> assenti</div>
-      ${!past ? `
-        <div class="vote-row">
-          <button class="btn-vote si ${myR?.stato==='si'?'active':''}" onclick="vote('${p.id}','si')">Ci sono</button>
-          <button class="btn-vote forse ${myR?.stato==='forse'?'active':''}" onclick="vote('${p.id}','forse')">Forse</button>
-          <button class="btn-vote no ${myR?.stato==='no'?'active':''}" onclick="vote('${p.id}','no')">Non ci sono</button>
-        </div>` : ''}
-      ${past && hasSc ? `<div class="score-row"><div class="sbox">${p.gol_squadra_a}</div><span style="font-size:14px;color:var(--txt2)">—</span><div class="sbox b">${p.gol_squadra_b}</div></div>` : ''}
-      ${past ? `<button class="more-btn" onclick="openDet('${p.id}')">Formazione e marcatori →</button>` : ''}
-    `;
-    wrap.insertBefore(card, document.getElementById('empty-msg'));
+      ${mapUrl?`<a class="map-link" href="${mapUrl}" target="_blank"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>${p.indirizzo}</a><br>`:''}
+      ${p.note?`<div style="font-size:12px;color:var(--txt2);margin-bottom:6px">${p.note}</div>`:''}
+      <div class="chips">${chips||'<span style="font-size:12px;color:var(--txt3)">Nessuna risposta ancora</span>'}</div>
+      <div class="counter"><strong>${si}</strong> ci sono · <strong>${forse}</strong> forse · <strong>${no}</strong> assenti</div>
+      ${!past?`<div class="vote-row">
+        <button class="vbtn si ${myR?.stato==='si'?'on':''}" onclick="vote('${p.id}','si')">Ci sono</button>
+        <button class="vbtn forse ${myR?.stato==='forse'?'on':''}" onclick="vote('${p.id}','forse')">Forse</button>
+        <button class="vbtn no ${myR?.stato==='no'?'on':''}" onclick="vote('${p.id}','no')">Non ci sono</button>
+      </div>`:''}
+      ${past&&hasSc?`<div class="score-strip"><div class="sbox">${p.gol_squadra_a}</div><span style="color:var(--txt2)">—</span><div class="sbox r">${p.gol_squadra_b}</div></div>`:''}
+      <button class="detail-btn" onclick="openDet('${p.id}')">${past?'Formazione e marcatori →':'Dettaglio →'}</button>`;
+    wrap.insertBefore(card,document.getElementById('empty'));
   });
 }
 
-async function vote(partitaId, stato) {
-  if (!sb) return;
-  await sb.from('risposte').upsert({ partita_id: partitaId, utente_id: myId, stato }, { onConflict: 'partita_id,utente_id' });
-  await loadPartite();
+async function vote(id,stato){
+  if(!sb)return;
+  await sb.from('risposte').upsert({partita_id:id,utente_id:myId,stato},{onConflict:'partita_id,utente_id'});
+  await load();
 }
 
-// ══ NUOVA PARTITA ═════════════════════════════
-function setTipo(t) {
-  tipoNuova = t;
-  document.getElementById('tipo7').classList.toggle('active', t===7);
-  document.getElementById('tipo5').classList.toggle('active', t===5);
+// ── NUOVA PARTITA ─────────────────────────────────────────
+function setTipo(t){
+  tipoN=t;
+  document.getElementById('t7').classList.toggle('on',t===7);
+  document.getElementById('t5').classList.toggle('on',t===5);
 }
-
-async function createPartita() {
-  const data  = document.getElementById('f-data').value;
-  const luogo = document.getElementById('f-luogo').value.trim();
-  if (!data || !luogo) { alert('Inserisci data e nome campo'); return; }
-  const { error } = await sb.from('partite').insert({
-    gruppo_id:   CFG.gruppoId,
-    proposto_da: myId,
-    data_ora:    new Date(data).toISOString(),
-    luogo,
-    indirizzo:   document.getElementById('f-ind').value.trim() || null,
-    note:        document.getElementById('f-note').value.trim() || null,
-    tipo:        tipoNuova,
+async function createPartita(){
+  const data=document.getElementById('f-data').value;
+  const luogo=document.getElementById('f-luogo').value.trim();
+  if(!data||!luogo){alert('Inserisci data e nome campo');return;}
+  const{error}=await sb.from('partite').insert({
+    proposto_da:myId,
+    data_ora:new Date(data).toISOString(),
+    luogo,tipo:tipoN,
+    indirizzo:document.getElementById('f-ind').value.trim()||null,
+    note:document.getElementById('f-note').value.trim()||null,
   });
-  if (error) { alert('Errore: ' + error.message); return; }
-  closeModal('modal-nuova');
-  ['f-data','f-luogo','f-ind','f-note'].forEach(id => document.getElementById(id).value='');
-  await loadPartite();
+  if(error){alert('Errore: '+error.message);return;}
+  ['f-data','f-luogo','f-ind','f-note'].forEach(id=>document.getElementById(id).value='');
+  closeModal('m-nuova');
+  await load();
 }
 
-// ══ DETTAGLIO ═════════════════════════════════
-function openDet(partitaId) {
-  detPartitaId = partitaId;
-  const p = partiteCache.find(x => x.id === partitaId);
-  if (!p) return;
-  document.getElementById('det-title').textContent = p.luogo;
-
-  // risposte tab
-  const risposte = p.risposte || [];
-  document.getElementById('det-chips').innerHTML = risposte.map(r =>
-    `<div class="chip"><div class="dot dot-${r.stato}"></div>${r.utenti?.username||'?'}</div>`
-  ).join('');
-  const si=risposte.filter(r=>r.stato==='si').length, forse=risposte.filter(r=>r.stato==='forse').length, no=risposte.filter(r=>r.stato==='no').length;
-  document.getElementById('det-counters').innerHTML = `<strong>${si}</strong> ci sono · <strong>${forse}</strong> forse · <strong>${no}</strong> assenti`;
-
-  const myR = risposte.find(r=>r.utente_id===myId);
-  const isPast = p.giocata || new Date(p.data_ora) < new Date();
-  document.getElementById('det-vote-row').innerHTML = isPast ? '' : `
-    <button class="btn-vote si ${myR?.stato==='si'?'active':''}" onclick="vote('${p.id}','si');closeModal('modal-det')">Ci sono</button>
-    <button class="btn-vote forse ${myR?.stato==='forse'?'active':''}" onclick="vote('${p.id}','forse');closeModal('modal-det')">Forse</button>
-    <button class="btn-vote no ${myR?.stato==='no'?'active':''}" onclick="vote('${p.id}','no');closeModal('modal-det')">Non ci sono</button>`;
-
-  // formazione tab
-  const savedPos = (p.formazione && p.formazione[0]) ? p.formazione[0].posizioni : [];
-  onPitch = {};
-  if (Array.isArray(savedPos)) savedPos.forEach(pp => { onPitch[pp.player] = {x:pp.x, y:pp.y}; });
-  const presenti = risposte.filter(r=>r.stato==='si').map(r=>r.utenti?.username).filter(Boolean);
+// ── DETTAGLIO ─────────────────────────────────────────────
+function openDet(id){
+  detId=id;
+  const p=cache.find(x=>x.id===id);if(!p)return;
+  document.getElementById('det-title').textContent=p.luogo;
+  // risposte
+  const rs=p.risposte||[];
+  document.getElementById('det-chips').innerHTML=rs.map(r=>`<div class="chip"><div class="dot dot-${r.stato}"></div>${r.utenti?.username||'?'}</div>`).join('');
+  const si=rs.filter(r=>r.stato==='si').length,forse=rs.filter(r=>r.stato==='forse').length,no=rs.filter(r=>r.stato==='no').length;
+  document.getElementById('det-cnt').innerHTML=`<strong>${si}</strong> ci sono · <strong>${forse}</strong> forse · <strong>${no}</strong> assenti`;
+  const myR=rs.find(r=>r.utente_id===myId);
+  const past=p.giocata||new Date(p.data_ora)<new Date();
+  document.getElementById('det-vote').innerHTML=past?'':
+    `<button class="vbtn si ${myR?.stato==='si'?'on':''}" onclick="vote('${p.id}','si');closeModal('m-det')">Ci sono</button>
+     <button class="vbtn forse ${myR?.stato==='forse'?'on':''}" onclick="vote('${p.id}','forse');closeModal('m-det')">Forse</button>
+     <button class="vbtn no ${myR?.stato==='no'?'on':''}" onclick="vote('${p.id}','no');closeModal('m-det')">Non ci sono</button>`;
+  // pitch
+  const saved=(p.formazione&&p.formazione[0])?p.formazione[0].posizioni:[];
+  onPitch={};
+  if(Array.isArray(saved)) saved.forEach(pp=>{onPitch[pp.player]={x:pp.x,y:pp.y};});
+  const presenti=rs.filter(r=>r.stato==='si').map(r=>r.utenti?.username).filter(Boolean);
   renderPitch(presenti);
-
-  // marcatori tab
-  const marc = p.marcatori || [];
-  document.getElementById('sc-a').value = p.gol_squadra_a ?? '';
-  document.getElementById('sc-b').value = p.gol_squadra_b ?? '';
-  document.getElementById('goal-list').innerHTML = presenti.map(name => {
-    const g = marc.find(m=>m.utenti?.username===name)?.gol||0;
-    return `<div class="goal-row">
-      <span class="goal-name">${name}</span>
-      <div class="g-counter">
-        <button class="g-btn" onclick="chgGoal('${name}',-1)">−</button>
-        <span class="g-num" id="gn-${name.replace(/\s/g,'_')}">${g}</span>
-        <button class="g-btn" onclick="chgGoal('${name}',1)">+</button>
-      </div>
-    </div>`;
+  // goals
+  const marc=p.marcatori||[];
+  goalData={};
+  marc.forEach(m=>{const n=m.utenti?.username;if(n)goalData[n]=m.gol;});
+  document.getElementById('sc-a').value=p.gol_squadra_a??'';
+  document.getElementById('sc-b').value=p.gol_squadra_b??'';
+  document.getElementById('glist').innerHTML=presenti.map(name=>{
+    const g=goalData[name]||0;
+    const sid=name.replace(/\s/g,'_');
+    return `<div class="grow">
+      <span class="gname">${name}</span>
+      <div class="gctr">
+        <button class="gbtn" onclick="chgG('${name}',-1)">−</button>
+        <span class="gnum" id="gn-${sid}">${g}</span>
+        <button class="gbtn" onclick="chgG('${name}',1)">+</button>
+      </div></div>`;
   }).join('');
-
   // reset tabs
-  document.querySelectorAll('#det-tabs .tab-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
-  document.querySelectorAll('.tab-pane').forEach((p,i)=>p.classList.toggle('active',i===0));
-
-  openModal('modal-det');
+  document.querySelectorAll('#m-det .tbtn').forEach((b,i)=>b.classList.toggle('on',i===0));
+  document.querySelectorAll('.tpane').forEach((p,i)=>p.classList.toggle('on',i===0));
+  openModal('m-det');
 }
 
-// ══ PITCH EDITOR ══════════════════════════════
-const PCOLORS = {};
-function getColor(name) {
-  if (!PCOLORS[name]) {
-    const keys = Object.keys(PCOLORS).length;
-    PCOLORS[name] = PLAYER_COLORS[keys % PLAYER_COLORS.length];
-  }
-  return PCOLORS[name];
-}
-
-function renderPitch(presenti=[]) {
-  const layer = document.getElementById('tok-layer');
-  layer.innerHTML = '';
-  for (const [player, pos] of Object.entries(onPitch)) {
-    const c = getColor(player);
-    const tok = document.createElement('div');
-    tok.className = 'ptoken';
-    tok.id = 'tok-'+player;
-    tok.dataset.player = player;
-    tok.style.left = pos.x+'%';
-    tok.style.top  = pos.y+'%';
-    tok.innerHTML = `<div class="tok-c" style="background:${c.bg};color:${c.tx}">${player.substring(0,3)}</div><div class="tok-n">${player}</div>`;
-    tok.addEventListener('pointerdown', e => beginDrag(e, player, 'pitch'));
+// ── PITCH ─────────────────────────────────────────────────
+function renderPitch(presenti){
+  const layer=document.getElementById('tl');layer.innerHTML='';
+  for(const[player,pos]of Object.entries(onPitch)){
+    const c=col(player);
+    const tok=document.createElement('div');
+    tok.className='ptok';tok.dataset.player=player;
+    tok.style.left=pos.x+'%';tok.style.top=pos.y+'%';
+    tok.innerHTML=`<div class="tc" style="background:${c.bg};color:${c.tx}">${player.substring(0,3)}</div><div class="tn">${player}</div>`;
+    tok.addEventListener('pointerdown',e=>dStart(e,player,'pitch'));
     layer.appendChild(tok);
   }
-  // bench
-  const inField = new Set(Object.keys(onPitch));
-  const bench = document.getElementById('bench-wrap');
-  const available = presenti.filter(p => !inField.has(p));
-  bench.innerHTML = available.map(p =>
-    `<div class="bchip" id="bchip-${p.replace(/\s/g,'_')}" data-player="${p}">${p}</div>`
-  ).join('');
-  document.querySelectorAll('.bchip').forEach(el => {
-    el.addEventListener('pointerdown', e => beginDrag(e, el.dataset.player, 'bench'));
-  });
-  const n = Object.keys(onPitch).length;
-  document.getElementById('bench-lbl-txt').textContent = n > 0 ? `Panchina · ${n} in campo` : 'Panchina';
+  const inF=new Set(Object.keys(onPitch));
+  const bench=document.getElementById('brow');
+  bench.innerHTML=presenti.filter(p=>!inF.has(p)).map(p=>
+    `<div class="bchip" data-player="${p}">${p}</div>`).join('');
+  document.querySelectorAll('.bchip').forEach(el=>el.addEventListener('pointerdown',e=>dStart(e,el.dataset.player,'bench')));
+  const n=Object.keys(onPitch).length;
+  document.getElementById('blbl').textContent=n>0?`Panchina · ${n} in campo`:'Panchina';
 }
 
-function beginDrag(e, player, from) {
+function dStart(e,player,from){
   e.preventDefault();
-  const el = e.currentTarget;
+  const el=e.currentTarget;
   el.setPointerCapture(e.pointerId);
   el.classList.add('dragging');
-  const c = getColor(player);
-  const ghost = document.getElementById('ghost-tok');
-  document.getElementById('ghost-c').style.cssText = `width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:2.5px solid rgba(255,255,255,.85);background:${c.bg};color:${c.tx}`;
-  document.getElementById('ghost-c').textContent = player.substring(0,3);
-  document.getElementById('ghost-n').textContent = player;
-  ghost.style.display = 'flex';
-  dragSt = { id:e.pointerId, player, from, el };
-  moveGhost(e.clientX, e.clientY);
-  el.addEventListener('pointermove', onDragMove);
-  el.addEventListener('pointerup',   onDragUp);
-  el.addEventListener('pointercancel', onDragUp);
+  const c=col(player);
+  const gh=document.getElementById('gh');
+  document.getElementById('ghc').style.cssText=`width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:2.5px solid rgba(255,255,255,.85);background:${c.bg};color:${c.tx}`;
+  document.getElementById('ghc').textContent=player.substring(0,3);
+  document.getElementById('ghn').textContent=player;
+  gh.style.display='flex';
+  dragSt={id:e.pointerId,player,from,el};
+  dMove2(e.clientX,e.clientY);
+  el.addEventListener('pointermove',dMove);
+  el.addEventListener('pointerup',dEnd);
+  el.addEventListener('pointercancel',dEnd);
 }
-
-function moveGhost(cx,cy) {
-  const wrap = document.getElementById('pitch-wrap');
-  const r = wrap.getBoundingClientRect();
-  const ghost = document.getElementById('ghost-tok');
-  ghost.style.left = (cx-r.left)+'px';
-  ghost.style.top  = (cy-r.top)+'px';
+function dMove(e){if(!dragSt||e.pointerId!==dragSt.id)return;e.preventDefault();dMove2(e.clientX,e.clientY);}
+function dMove2(cx,cy){
+  const r=document.getElementById('pw').getBoundingClientRect();
+  const gh=document.getElementById('gh');
+  gh.style.left=(cx-r.left)+'px';gh.style.top=(cy-r.top)+'px';
 }
-
-function onDragMove(e) {
-  if (!dragSt||e.pointerId!==dragSt.id) return;
-  e.preventDefault();
-  moveGhost(e.clientX, e.clientY);
-}
-
-function onDragUp(e) {
-  if (!dragSt||e.pointerId!==dragSt.id) return;
-  const {player,from,el} = dragSt;
+function dEnd(e){
+  if(!dragSt||e.pointerId!==dragSt.id)return;
+  const{player,from,el}=dragSt;
   el.classList.remove('dragging');
-  el.removeEventListener('pointermove',onDragMove);
-  el.removeEventListener('pointerup',onDragUp);
-  el.removeEventListener('pointercancel',onDragUp);
-  document.getElementById('ghost-tok').style.display='none';
-
-  const wrap = document.getElementById('pitch-wrap');
-  const r = wrap.getBoundingClientRect();
-  const xPct = (e.clientX-r.left)/r.width*100;
-  const yPct = (e.clientY-r.top)/r.height*100;
-  const onField = xPct>=2&&xPct<=98&&yPct>=2&&yPct<=98;
-
-  if (from==='pitch') delete onPitch[player];
-  if (onField) onPitch[player] = {x:+xPct.toFixed(1), y:+yPct.toFixed(1)};
-  dragSt = null;
-
-  // re-render con presenti attuali
-  const p = partiteCache.find(x=>x.id===detPartitaId);
-  const presenti = (p?.risposte||[]).filter(r=>r.stato==='si').map(r=>r.utenti?.username).filter(Boolean);
+  el.removeEventListener('pointermove',dMove);
+  el.removeEventListener('pointerup',dEnd);
+  el.removeEventListener('pointercancel',dEnd);
+  document.getElementById('gh').style.display='none';
+  const r=document.getElementById('pw').getBoundingClientRect();
+  const x=(e.clientX-r.left)/r.width*100;
+  const y=(e.clientY-r.top)/r.height*100;
+  if(from==='pitch')delete onPitch[player];
+  if(x>=2&&x<=98&&y>=2&&y<=98)onPitch[player]={x:+x.toFixed(1),y:+y.toFixed(1)};
+  dragSt=null;
+  const p=cache.find(x=>x.id===detId);
+  const presenti=(p?.risposte||[]).filter(r=>r.stato==='si').map(r=>r.utenti?.username).filter(Boolean);
   renderPitch(presenti);
 }
 
-async function saveFormazione() {
-  if (!sb||!detPartitaId) return;
-  const posizioni = Object.entries(onPitch).map(([player,pos]) => ({player,...pos}));
-  await sb.from('formazione').upsert({ partita_id:detPartitaId, posizioni }, { onConflict:'partita_id' });
-  await sb.from('partite').update({giocata:true}).eq('id',detPartitaId);
-  await loadPartite();
-  alert('Formazione salvata!');
+async function saveForm(){
+  if(!sb||!detId)return;
+  const pos=Object.entries(onPitch).map(([player,p])=>({player,...p}));
+  await sb.from('formazione').upsert({partita_id:detId,posizioni:pos},{onConflict:'partita_id'});
+  await sb.from('partite').update({giocata:true}).eq('id',detId);
+  await load();alert('Formazione salvata!');
 }
 
-// ══ GOL ═══════════════════════════════════════
-const goalData = {};
-function chgGoal(name, delta) {
-  goalData[name] = Math.max(0, (goalData[name]||0)+delta);
-  const el = document.getElementById('gn-'+name.replace(/\s/g,'_'));
-  if (el) el.textContent = goalData[name];
+// ── GOALS ─────────────────────────────────────────────────
+function chgG(name,d){
+  goalData[name]=Math.max(0,(goalData[name]||0)+d);
+  const el=document.getElementById('gn-'+name.replace(/\s/g,'_'));
+  if(el)el.textContent=goalData[name];
 }
-
-async function saveMarcatori() {
-  if (!sb||!detPartitaId) return;
-  const a = parseInt(document.getElementById('sc-a').value)||0;
-  const b = parseInt(document.getElementById('sc-b').value)||0;
-  await sb.from('partite').update({gol_squadra_a:a, gol_squadra_b:b, giocata:true}).eq('id',detPartitaId);
-  const p = partiteCache.find(x=>x.id===detPartitaId);
-  const presenti = (p?.risposte||[]).filter(r=>r.stato==='si').map(r=>r.utenti?.username).filter(Boolean);
-  const upserts = presenti.map(name => {
-    const uid = (p?.risposte||[]).find(r=>r.utenti?.username===name)?.utente_id;
-    return uid ? {partita_id:detPartitaId, utente_id:uid, gol:goalData[name]||0} : null;
+async function saveGoals(){
+  if(!sb||!detId)return;
+  const a=parseInt(document.getElementById('sc-a').value)||0;
+  const b=parseInt(document.getElementById('sc-b').value)||0;
+  await sb.from('partite').update({gol_squadra_a:a,gol_squadra_b:b,giocata:true}).eq('id',detId);
+  const p=cache.find(x=>x.id===detId);
+  const presenti=(p?.risposte||[]).filter(r=>r.stato==='si').map(r=>r.utenti?.username).filter(Boolean);
+  const ups=presenti.map(name=>{
+    const uid=(p?.risposte||[]).find(r=>r.utenti?.username===name)?.utente_id;
+    return uid?{partita_id:detId,utente_id:uid,gol:goalData[name]||0}:null;
   }).filter(Boolean);
-  if (upserts.length) await sb.from('marcatori').upsert(upserts, {onConflict:'partita_id,utente_id'});
-  await loadPartite();
-  closeModal('modal-det');
+  if(ups.length)await sb.from('marcatori').upsert(ups,{onConflict:'partita_id,utente_id'});
+  await load();closeModal('m-det');
 }
 
-// ══ UI HELPERS ════════════════════════════════
-function show(id)  { document.getElementById(id).classList.add('active'); }
-function hide(id)  { document.getElementById(id).classList.remove('active'); }
-function openNuova() { openModal('modal-nuova'); }
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id,e) {
-  if (e && e.target.id!==id) return;
-  document.getElementById(id).classList.remove('open');
+// ── UI ────────────────────────────────────────────────────
+function show(id){document.getElementById(id).classList.add('active');}
+function hide(id){document.getElementById(id).classList.remove('active');}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function bgClose(id,e){if(e.target.id===id)closeModal(id);}
+function openNuova(){openModal('m-nuova');}
+function tab(e,pid){
+  document.querySelectorAll('#m-det .tbtn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.tpane').forEach(p=>p.classList.remove('on'));
+  e.target.classList.add('on');document.getElementById(pid).classList.add('on');
 }
+function goStats(){alert('Statistiche — prossimamente! 🏆');}
 
-function switchTab(e, paneId) {
-  document.querySelectorAll('#det-tabs .tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
-  e.target.classList.add('active');
-  document.getElementById(paneId).classList.add('active');
-}
+// enter
+document.getElementById('pwd-inp').addEventListener('keydown',e=>{if(e.key==='Enter')checkPwd();});
+document.getElementById('nome-inp').addEventListener('keydown',e=>{if(e.key==='Enter')saveName();});
 
-function showInfo() {
-  alert(`Gruppo Calcetto\nCodice invito: carica da Supabase\n\nSei loggato come: ${myName}`);
-}
-
-function fmtDate(iso) {
-  const d = new Date(iso);
-  return d.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'}) + ' · ' +
-    d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-}
-
-// enter su password
-document.getElementById('pwd-inp').addEventListener('keydown', e => { if(e.key==='Enter') checkPwd(); });
-document.getElementById('nome-inp').addEventListener('keydown', e => { if(e.key==='Enter') saveName(); });
-
-// avvio
 init();
 </script>
 </body>
