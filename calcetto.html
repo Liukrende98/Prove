@@ -281,10 +281,11 @@ input,select,textarea{font-size:16px!important}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 // ── CONFIG ────────────────────────────────────────────────
-const s = supabase.createClient(
-  'https://qrmxnfgonkskplcpuvkg.supabase.co',
-  'sb_publishable_FDuziO3GIQuFIjsRS_j6tA_0alvNHR7'
-);
+const CFG = {
+  url:      'https://qrmxnfgonkskplcpuvkg.supabase.co',
+  key:      'sb_publishable_FDuziO3GIQuFIjsRS_j6tA_0alvNHR7',
+  password: 'sbussatori'
+};
 
 const COLS=[
   {bg:'#185FA5',tx:'#E6F1FB'},{bg:'#0F6E56',tx:'#E1F5EE'},
@@ -311,39 +312,27 @@ async function init(){
 }
 
 async function boot(){
-  // timeout di sicurezza: dopo 8 secondi mostra l'app comunque
-  const timer = setTimeout(()=>{
-    show('s-app'); hide('ld');
-    document.getElementById('h-sub').textContent = 'Ciao '+myName+' (offline)';
-  }, 8000);
-
   try{
-    sb = supabase.createClient(CFG.url, CFG.key);
-    const {data:{session}, error:sErr} = await sb.auth.getSession();
-    if(sErr) throw sErr;
-
+    sb=supabase.createClient(CFG.url,CFG.key);
+    const {data:{session}}=await sb.auth.getSession();
     if(!session){
-      const {data, error} = await sb.auth.signInAnonymously();
+      const {data,error}=await sb.auth.signInAnonymously();
       if(error) throw error;
-      myId = data.user.id;
-      localStorage.setItem('cal_id', myId);
-      await sb.from('utenti').upsert({id:myId, username:myName},{onConflict:'id'});
+      myId=data.user.id;
+      localStorage.setItem('cal_id',myId);
+      await sb.from('utenti').upsert({id:myId,username:myName},{onConflict:'id'});
     } else {
-      myId = session.user.id;
-      await sb.from('utenti').upsert({id:myId, username:myName},{onConflict:'id'});
+      myId=session.user.id;
+      await sb.from('utenti').upsert({id:myId,username:myName},{onConflict:'id'});
     }
-
-    clearTimeout(timer);
     show('s-app'); hide('ld');
-    document.getElementById('h-sub').textContent = 'Ciao '+myName+' 👋';
+    document.getElementById('h-sub').textContent='Ciao '+myName+' 👋';
     await load();
     realtime();
-
   }catch(e){
-    clearTimeout(timer);
-    console.error('Errore boot:', e);
+    console.error(e);
     show('s-app'); hide('ld');
-    document.getElementById('h-sub').textContent = 'Errore: '+e.message;
+    document.getElementById('h-sub').textContent='Ciao '+myName+' (offline)';
   }
 }
 
