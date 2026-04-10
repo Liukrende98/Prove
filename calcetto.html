@@ -386,7 +386,8 @@ function col(name){
   return pCol[name];
 }
 
-let sb, myName, myId, tipoN=7, detId=null;
+let myName, myId, tipoN=7, detId=null;
+const sb = supabase.createClient(CFG.url, CFG.key);
 let onPitch={}, dragSt=null, goalData={};
 let cache=[];
 
@@ -400,15 +401,13 @@ async function init(){
 
 async function boot(){
   try{
-    sb = supabase.createClient(CFG.url, CFG.key);
-
-    let { data: { session } } = await sb.auth.getSession();
+    let { data: { session }, error: sessionError } = await sb.auth.getSession();
+    if(sessionError) throw sessionError;
 
     if(!session){
       const { data, error } = await sb.auth.signInAnonymously();
       if(error) throw error;
 
-      session = data.session;
       myId = data.user.id;
       localStorage.setItem('cal_id', myId);
     } else {
@@ -429,9 +428,9 @@ async function boot(){
     realtime();
   } catch(e){
     console.error(e);
-    show('s-app');
     document.getElementById('ld').style.display='none';
-    document.getElementById('h-sub').textContent='Ciao ' + myName + ' (offline)';
+    alert('Errore accesso: ' + (e.message || 'errore sconosciuto'));
+    show('s-pwd');
   }
 }
 
@@ -459,23 +458,12 @@ function checkPwd(){
     el.value='';
   }
 }
-async function saveName(){
+function saveName(){
   const v = document.getElementById('nome-inp').value.trim();
   if(!v) return;
 
   localStorage.setItem('cal_nome', v);
   myName = v;
-
-  try{
-    if(!sb){
-      sb = supabase.createClient(CFG.url, CFG.key);
-    }
-    await sb.auth.signOut();
-  }catch(e){
-    console.error('Errore reset sessione:', e);
-  }
-
-  localStorage.removeItem('cal_id');
 
   hide('s-nome');
   show('ld');
@@ -485,9 +473,7 @@ async function logout(){
   if(!confirm('Esci dall\'app?')) return;
 
   try{
-    if(sb){
-      await sb.auth.signOut();
-    }
+    await sb.auth.signOut();
   }catch(e){
     console.error('Errore logout Supabase:', e);
   }
