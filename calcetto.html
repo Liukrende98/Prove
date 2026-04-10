@@ -235,7 +235,7 @@ input,select,textarea{font-size:16px!important}
 </head>
 <body>
 
-<script>var V="v6-editgiocata";console.log("%c CALCETTO "+V+" ","background:#1D9E75;color:white;font-size:16px;padding:4px 8px;border-radius:4px");setTimeout(function(){var e=document.getElementById("ld");if(e)e.style.display="none"},3000)</script><div id="ld"><div class="ball-anim">⚽</div><p>Caricamento...</p></div>
+<script>var V="v7-sections";console.log("%c CALCETTO "+V+" ","background:#1D9E75;color:white;font-size:16px;padding:4px 8px;border-radius:4px");setTimeout(function(){var e=document.getElementById("ld");if(e)e.style.display="none"},3000)</script><div id="ld"><div class="ball-anim">⚽</div><p>Caricamento...</p></div>
 
 <!-- PASSWORD -->
 <div class="screen" id="s-pwd">
@@ -510,27 +510,21 @@ function realtime(){
 }
 
 // ── RENDER ────────────────────────────────────────────────
-function renderList(){
-  const wrap=document.getElementById('list');
-  const empty=document.getElementById('empty');
-  wrap.querySelectorAll('.mcard').forEach(c=>c.remove());
-  if(!cache.length){empty.style.display='block';return;}
-  empty.style.display='none';
-  cache.forEach(p=>{
-    const past=p.giocata===true;
-    const rs=p.risposte||[];
-    const si=rs.filter(r=>r.stato==='si').length;
-    const forse=rs.filter(r=>r.stato==='forse').length;
-    const no=rs.filter(r=>r.stato==='no').length;
-const myR = rs.find(r => r.username === myName);
-const chips = rs.map(r => `<div class="chip"><div class="dot dot-${r.stato}"></div>${r.username || '?'}</div>`).join('');
-    const mapUrl=p.indirizzo?`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.indirizzo)}`:'';
-    const hasSc=p.gol_squadra_a!=null;
-    const d=new Date(p.data_ora);
-    const df=d.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'})+' · '+d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-    const card=document.createElement('div');
-    card.className='mcard';
-card.innerHTML=`
+function buildCard(p){
+  const past=p.giocata===true;
+  const rs=p.risposte||[];
+  const si=rs.filter(r=>r.stato==='si').length;
+  const forse=rs.filter(r=>r.stato==='forse').length;
+  const no=rs.filter(r=>r.stato==='no').length;
+  const myR=rs.find(r=>r.username===myName);
+  const chips=rs.map(r=>`<div class="chip"><div class="dot dot-${r.stato}"></div>${r.username||'?'}</div>`).join('');
+  const mapUrl=p.indirizzo?`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.indirizzo)}`:'';
+  const hasSc=p.gol_squadra_a!=null;
+  const d=new Date(p.data_ora);
+  const df=d.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'})+' · '+d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  const card=document.createElement('div');
+  card.className='mcard';
+  card.innerHTML=`
   <div class="mcard-top">
     <div>
       <div class="mcard-title">${p.luogo} <span style="font-size:11px;color:var(--txt2);font-weight:400">${p.tipo}v${p.tipo}</span></div>
@@ -554,8 +548,56 @@ card.innerHTML=`
     ${!past?`<button class="detail-btn" style="flex:1;color:var(--green);border-color:var(--green)" onclick="segnaGiocata(event,'${p.id}')">Giocata</button>`:''}
     <button class="detail-btn" style="flex:1;color:var(--red);border-color:var(--red)" onclick="eliminaPartita(event,'${p.id}')">Elimina</button>
   </div>`;
-    wrap.insertBefore(card,document.getElementById('empty'));
-  });
+  return card;
+}
+
+function sectionLabel(txt){
+  const d=document.createElement('div');
+  d.style.cssText='font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.07em;padding:6px 2px 8px';
+  d.textContent=txt;
+  return d;
+}
+
+function renderList(){
+  const wrap=document.getElementById('list');
+  const empty=document.getElementById('empty');
+  wrap.querySelectorAll('.mcard,.section-lbl-el,.mcard-oggi').forEach(c=>c.remove());
+  if(!cache.length){empty.style.display='block';return;}
+  empty.style.display='none';
+
+  const oggi=new Date();
+  const isOggi=p=>{const d=new Date(p.data_ora);return d.getFullYear()===oggi.getFullYear()&&d.getMonth()===oggi.getMonth()&&d.getDate()===oggi.getDate();};
+
+  const cardOggi=cache.filter(p=>!p.giocata&&isOggi(p));
+  const prossime=cache.filter(p=>!p.giocata&&!isOggi(p)&&new Date(p.data_ora)>=oggi).sort((a,b)=>new Date(a.data_ora)-new Date(b.data_ora));
+  const giocate=cache.filter(p=>p.giocata).sort((a,b)=>new Date(b.data_ora)-new Date(a.data_ora));
+
+  const anchor=document.getElementById('empty');
+
+  // ── OGGI ──
+  if(cardOggi.length){
+    const lbl=sectionLabel('Oggi');lbl.classList.add('mcard');wrap.insertBefore(lbl,anchor);
+    cardOggi.forEach(p=>{
+      const card=buildCard(p);
+      // card illuminata
+      card.style.cssText='background:#E1F5EE;border:2px solid #1D9E75;border-radius:18px;padding:14px 16px;margin-bottom:10px';
+      wrap.insertBefore(card,anchor);
+    });
+  }
+
+  // ── PROSSIME ──
+  if(prossime.length){
+    const lbl=sectionLabel('Prossime');lbl.classList.add('mcard');wrap.insertBefore(lbl,anchor);
+    prossime.forEach(p=>wrap.insertBefore(buildCard(p),anchor));
+  }
+
+  // ── GIOCATE ──
+  if(giocate.length){
+    const lbl=sectionLabel('Già giocate');lbl.classList.add('mcard');wrap.insertBefore(lbl,anchor);
+    giocate.forEach(p=>wrap.insertBefore(buildCard(p),anchor));
+  }
+
+  if(!cardOggi.length&&!prossime.length&&!giocate.length) empty.style.display='block';
 }
 
 async function vote(id, stato){
