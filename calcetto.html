@@ -312,27 +312,39 @@ async function init(){
 }
 
 async function boot(){
-  try{
-    sb=supabase.createClient(CFG.url,CFG.key);
-    const {data:{session}}=await sb.auth.getSession();
-    if(!session){
-      const {data,error}=await sb.auth.signInAnonymously();
-      if(error) throw error;
-      myId=data.user.id;
-      localStorage.setItem('cal_id',myId);
-      await sb.from('utenti').upsert({id:myId,username:myName},{onConflict:'id'});
-    } else {
-      myId=session.user.id;
-      await sb.from('utenti').upsert({id:myId,username:myName},{onConflict:'id'});
-    }
+  // timeout di sicurezza: dopo 8 secondi mostra l'app comunque
+  const timer = setTimeout(()=>{
     show('s-app'); hide('ld');
-    document.getElementById('h-sub').textContent='Ciao '+myName+' 👋';
+    document.getElementById('h-sub').textContent = 'Ciao '+myName+' (offline)';
+  }, 8000);
+
+  try{
+    sb = supabase.createClient(CFG.url, CFG.key);
+    const {data:{session}, error:sErr} = await sb.auth.getSession();
+    if(sErr) throw sErr;
+
+    if(!session){
+      const {data, error} = await sb.auth.signInAnonymously();
+      if(error) throw error;
+      myId = data.user.id;
+      localStorage.setItem('cal_id', myId);
+      await sb.from('utenti').upsert({id:myId, username:myName},{onConflict:'id'});
+    } else {
+      myId = session.user.id;
+      await sb.from('utenti').upsert({id:myId, username:myName},{onConflict:'id'});
+    }
+
+    clearTimeout(timer);
+    show('s-app'); hide('ld');
+    document.getElementById('h-sub').textContent = 'Ciao '+myName+' 👋';
     await load();
     realtime();
+
   }catch(e){
-    console.error(e);
+    clearTimeout(timer);
+    console.error('Errore boot:', e);
     show('s-app'); hide('ld');
-    document.getElementById('h-sub').textContent='Ciao '+myName+' (offline)';
+    document.getElementById('h-sub').textContent = 'Errore: '+e.message;
   }
 }
 
