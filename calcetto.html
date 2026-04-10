@@ -400,53 +400,102 @@ async function init(){
 
 async function boot(){
   try{
-    sb=supabase.createClient(CFG.url,CFG.key);
-    const {data:{session}}=await sb.auth.getSession();
+    sb = supabase.createClient(CFG.url, CFG.key);
+
+    let { data: { session } } = await sb.auth.getSession();
+
     if(!session){
-      const {data,error}=await sb.auth.signInAnonymously();
+      const { data, error } = await sb.auth.signInAnonymously();
       if(error) throw error;
-      myId=data.user.id;
-      localStorage.setItem('cal_id',myId);
-      await sb.from('utenti').upsert({id:myId,username:myName},{onConflict:'id'});
+
+      session = data.session;
+      myId = data.user.id;
+      localStorage.setItem('cal_id', myId);
     } else {
-      myId=session.user.id;
-      await sb.from('utenti').upsert({id:myId,username:myName},{onConflict:'id'});
+      myId = session.user.id;
+      localStorage.setItem('cal_id', myId);
     }
-    show('s-app'); document.getElementById('ld').style.display='none';
-    document.getElementById('h-sub').textContent='Ciao '+myName+' 👋';
+
+    await sb.from('utenti').upsert(
+      { id: myId, username: myName },
+      { onConflict: 'id' }
+    );
+
+    show('s-app');
+    document.getElementById('ld').style.display='none';
+    document.getElementById('h-sub').textContent='Ciao ' + myName + ' 👋';
+
     await load();
     realtime();
-  }catch(e){
+  } catch(e){
     console.error(e);
-    show('s-app'); document.getElementById('ld').style.display='none';
-    document.getElementById('h-sub').textContent='Ciao '+myName+' (offline)';
+    show('s-app');
+    document.getElementById('ld').style.display='none';
+    document.getElementById('h-sub').textContent='Ciao ' + myName + ' (offline)';
   }
 }
 
 // ── AUTH ──────────────────────────────────────────────────
 function checkPwd(){
-  const v=document.getElementById('pwd-inp').value;
-  if(v===CFG.password){
+  const v = document.getElementById('pwd-inp').value;
+
+  if(v === CFG.password){
     localStorage.setItem('cal_ok','1');
     hide('s-pwd');
-    myName=localStorage.getItem('cal_nome');
-    if(!myName){show('s-nome');}else{show('ld');boot();}
+
+    myName = localStorage.getItem('cal_nome');
+
+    if(!myName){
+      show('s-nome');
+    }else{
+      show('ld');
+      boot();
+    }
   }else{
-    const el=document.getElementById('pwd-inp');
-    el.classList.remove('shake');void el.offsetWidth;
-    el.classList.add('shake');el.value='';
+    const el = document.getElementById('pwd-inp');
+    el.classList.remove('shake');
+    void el.offsetWidth;
+    el.classList.add('shake');
+    el.value='';
   }
 }
-function saveName(){
-  const v=document.getElementById('nome-inp').value.trim();
-  if(!v)return;
-  localStorage.setItem('cal_nome',v);myName=v;
-  hide('s-nome');show('ld');boot();
+async function saveName(){
+  const v = document.getElementById('nome-inp').value.trim();
+  if(!v) return;
+
+  localStorage.setItem('cal_nome', v);
+  myName = v;
+
+  try{
+    if(!sb){
+      sb = supabase.createClient(CFG.url, CFG.key);
+    }
+    await sb.auth.signOut();
+  }catch(e){
+    console.error('Errore reset sessione:', e);
+  }
+
+  localStorage.removeItem('cal_id');
+
+  hide('s-nome');
+  show('ld');
+  boot();
 }
-function logout(){
-  if(!confirm('Esci dall\'app?'))return;
+async function logout(){
+  if(!confirm('Esci dall\'app?')) return;
+
+  try{
+    if(sb){
+      await sb.auth.signOut();
+    }
+  }catch(e){
+    console.error('Errore logout Supabase:', e);
+  }
+
   localStorage.removeItem('cal_ok');
   localStorage.removeItem('cal_nome');
+  localStorage.removeItem('cal_id');
+
   location.reload();
 }
 
