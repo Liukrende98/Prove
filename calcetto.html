@@ -157,6 +157,7 @@ input,select,textarea{font-size:16px!important}
   flex:1;
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
   padding:14px 16px;
   min-height:0;
 }
@@ -180,7 +181,14 @@ input,select,textarea{font-size:16px!important}
 .topt.on{background:var(--green-l);border-color:var(--green);color:var(--green-d)}
 
 /* PITCH */
-#pw{position:relative;width:100%;touch-action:none;border-radius:14px;overflow:hidden;margin-bottom:12px}
+#pw{
+  position:relative;
+  width:100%;
+  touch-action:pan-y;
+  border-radius:14px;
+  overflow:hidden;
+  margin-bottom:12px;
+}
 #psv{width:100%;display:block}
 #tl{position:absolute;inset:0;pointer-events:none}
 .ptok{position:absolute;transform:translate(-50%,-55%);display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:all;cursor:grab;touch-action:none}
@@ -188,7 +196,18 @@ input,select,textarea{font-size:16px!important}
 .tc{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:2.5px solid rgba(255,255,255,.85)}
 .tn{font-size:9px;color:#fff;font-weight:500;background:rgba(0,0,0,.4);border-radius:6px;padding:1px 5px;max-width:52px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:center}
 #gh{position:absolute;pointer-events:none;display:none;flex-direction:column;align-items:center;gap:2px;transform:translate(-50%,-55%);z-index:200}
-.bench-row{display:flex;flex-wrap:wrap;gap:6px;min-height:44px;padding:10px;border:1.5px dashed var(--border);border-radius:12px;background:#f9f9f7;margin-bottom:12px}
+.bench-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  min-height:44px;
+  padding:10px;
+  border:1.5px dashed var(--border);
+  border-radius:12px;
+  background:#f9f9f7;
+  margin-bottom:12px;
+  touch-action:pan-y;
+}
 .bchip{padding:7px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:13px;color:var(--txt);cursor:grab;touch-action:none}
 .bchip.dragging{opacity:.2}
 .bench-lbl{font-size:12px;font-weight:600;color:var(--txt2);margin-bottom:7px}
