@@ -404,29 +404,29 @@ function renderList(){
     const df=d.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'})+' · '+d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
     const card=document.createElement('div');
     card.className='mcard';
-    card.innerHTML=`
-      <div class="mcard-top">
-        <div>
-          <div class="mcard-title">${p.luogo} <span style="font-size:11px;color:var(--txt2);font-weight:400">${p.tipo}v${p.tipo}</span></div>
-          <div class="mcard-meta">${df}</div>
-        </div>
-        <span class="badge ${past?'badge-past':'badge-open'}">${past?'giocata':'aperta'}</span>
-      </div>
-      ${mapUrl?`<a class="map-link" href="${mapUrl}" target="_blank"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>${p.indirizzo}</a><br>`:''}
-      ${p.note?`<div style="font-size:12px;color:var(--txt2);margin-bottom:6px">${p.note}</div>`:''}
-      <div class="chips">${chips||'<span style="font-size:12px;color:var(--txt3)">Nessuna risposta ancora</span>'}</div>
-      <div class="counter"><strong>${si}</strong> ci sono · <strong>${forse}</strong> forse · <strong>${no}</strong> assenti</div>
-      ${!past?`<div class="vote-row">
-        <button class="vbtn si ${myR?.stato==='si'?'on':''}" onclick="vote('${p.id}','si')">Ci sono</button>
-        <button class="vbtn forse ${myR?.stato==='forse'?'on':''}" onclick="vote('${p.id}','forse')">Forse</button>
-        <button class="vbtn no ${myR?.stato==='no'?'on':''}" onclick="vote('${p.id}','no')">Non ci sono</button>
-      </div>`:''}
-      ${past&&hasSc?`<div class="score-strip"><div class="sbox">${p.gol_squadra_a}</div><span style="color:var(--txt2)">—</span><div class="sbox r">${p.gol_squadra_b}</div></div>`:''}
-      <button class="detail-btn" onclick="openDet('${p.id}')">${past?'Formazione e marcatori →':'Dettaglio →'}</button>
-      <div style="display:flex;gap:6px;margin-top:6px">
-        ${!past?`<button class="detail-btn" style="flex:1;color:var(--green);border-color:var(--green)" onclick="segnaGiocata(event,'${p.id}')">Segna come giocata</button>`:''}
-        <button class="detail-btn" style="flex:1;color:var(--red);border-color:var(--red)" onclick="eliminaPartita(event,'${p.id}')">Elimina</button>
-      </div>
+card.innerHTML=`
+  <div class="mcard-top">
+    <div>
+      <div class="mcard-title">${p.luogo} <span style="font-size:11px;color:var(--txt2);font-weight:400">${p.tipo}v${p.tipo}</span></div>
+      <div class="mcard-meta">${df}</div>
+    </div>
+    <span class="badge ${past?'badge-past':'badge-open'}">${past?'giocata':'aperta'}</span>
+  </div>
+  ${mapUrl?`<a class="map-link" href="${mapUrl}" target="_blank"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>${p.indirizzo}</a><br>`:''}
+  ${p.note?`<div style="font-size:12px;color:var(--txt2);margin-bottom:6px">${p.note}</div>`:''}
+  <div class="chips">${chips||'<span style="font-size:12px;color:var(--txt3)">Nessuna risposta ancora</span>'}</div>
+  <div class="counter"><strong>${si}</strong> ci sono · <strong>${forse}</strong> forse · <strong>${no}</strong> assenti</div>
+  ${!past?`<div class="vote-row">
+    <button class="vbtn si ${myR?.stato==='si'?'on':''}" onclick="vote('${p.id}','si')">Ci sono</button>
+    <button class="vbtn forse ${myR?.stato==='forse'?'on':''}" onclick="vote('${p.id}','forse')">Forse</button>
+    <button class="vbtn no ${myR?.stato==='no'?'on':''}" onclick="vote('${p.id}','no')">Non ci sono</button>
+  </div>`:''}
+  ${past&&hasSc?`<div class="score-strip"><div class="sbox">${p.gol_squadra_a}</div><span style="color:var(--txt2)">—</span><div class="sbox r">${p.gol_squadra_b}</div></div>`:''}
+  <button class="detail-btn" onclick="openDet('${p.id}')">${past?'Formazione e marcatori →':'Dettaglio →'}</button>
+  <div style="display:flex;gap:6px;margin-top:6px">
+    ${!past?`<button class="detail-btn" style="flex:1;color:var(--green);border-color:var(--green)" onclick="segnaGiocata(event,'${p.id}')">Segna come giocata</button>`:''}
+    <button class="detail-btn" style="flex:1;color:var(--red);border-color:var(--red)" onclick="eliminaPartita(event,'${p.id}')">Elimina</button>
+  </div>`;
     wrap.insertBefore(card,document.getElementById('empty'));
   });
 }
