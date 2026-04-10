@@ -386,52 +386,33 @@ function col(name){
   return pCol[name];
 }
 
-let myName, myId, tipoN=7, detId=null;
+let myName, tipoN=7, detId=null;
 const sb = supabase.createClient(CFG.url, CFG.key);
 let onPitch={}, dragSt=null, goalData={};
 let cache=[];
 
 // ── INIT ──────────────────────────────────────────────────
 async function init(){
-  if(localStorage.getItem('cal_ok')!=='1'){show('s-pwd');document.getElementById('ld').style.display='none';return;}
-  myName=localStorage.getItem('cal_nome');
-  if(!myName){show('s-nome');document.getElementById('ld').style.display='none';return;}
-  await boot();
-}
-
-async function boot(){
-  try{
-    let { data: { session }, error: sessionError } = await sb.auth.getSession();
-    if(sessionError) throw sessionError;
-
-    if(!session){
-      const { data, error } = await sb.auth.signInAnonymously();
-      if(error) throw error;
-
-      myId = data.user.id;
-      localStorage.setItem('cal_id', myId);
-    } else {
-      myId = session.user.id;
-      localStorage.setItem('cal_id', myId);
-    }
-
-    await sb.from('utenti').upsert(
-      { id: myId, username: myName },
-      { onConflict: 'id' }
-    );
-
-    show('s-app');
-    document.getElementById('ld').style.display='none';
-    document.getElementById('h-sub').textContent='Ciao ' + myName + ' 👋';
-
-    await load();
-    realtime();
-  } catch(e){
-    console.error(e);
-    document.getElementById('ld').style.display='none';
-    alert('Errore accesso: ' + (e.message || 'errore sconosciuto'));
+  if(localStorage.getItem('cal_ok')!=='1'){
     show('s-pwd');
+    document.getElementById('ld').style.display='none';
+    return;
   }
+
+  myName = localStorage.getItem('cal_nome');
+
+  if(!myName){
+    show('s-nome');
+    document.getElementById('ld').style.display='none';
+    return;
+  }
+
+  show('s-app');
+  document.getElementById('ld').style.display='none';
+  document.getElementById('h-sub').textContent='Ciao ' + myName + ' 👋';
+
+  await load();
+  realtime();
 }
 
 // ── AUTH ──────────────────────────────────────────────────
@@ -447,8 +428,10 @@ function checkPwd(){
     if(!myName){
       show('s-nome');
     }else{
-      show('ld');
-      boot();
+      show('s-app');
+      document.getElementById('h-sub').textContent='Ciao ' + myName + ' 👋';
+      load();
+      realtime();
     }
   }else{
     const el = document.getElementById('pwd-inp');
@@ -458,6 +441,7 @@ function checkPwd(){
     el.value='';
   }
 }
+  
 function saveName(){
   const v = document.getElementById('nome-inp').value.trim();
   if(!v) return;
@@ -466,21 +450,18 @@ function saveName(){
   myName = v;
 
   hide('s-nome');
-  show('ld');
-  boot();
-}
-async function logout(){
-  if(!confirm('Esci dall\'app?')) return;
+  show('s-app');
+  document.getElementById('h-sub').textContent='Ciao ' + myName + ' 👋';
 
-  try{
-    await sb.auth.signOut();
-  }catch(e){
-    console.error('Errore logout Supabase:', e);
-  }
+  load();
+  realtime();
+}
+  
+function logout(){
+  if(!confirm('Esci dall\'app?')) return;
 
   localStorage.removeItem('cal_ok');
   localStorage.removeItem('cal_nome');
-  localStorage.removeItem('cal_id');
 
   location.reload();
 }
@@ -488,9 +469,9 @@ async function logout(){
 // ── DATA ──────────────────────────────────────────────────
 async function load(){
   if(!sb)return;
-  const{data,error}=await sb.from('partite')
-    .select('*, risposte(utente_id,stato,utenti(username)), formazione(posizioni), marcatori(utente_id,gol,utenti(username))')
-    .order('data_ora',{ascending:false});
+const { data, error } = await sb.from('partite')
+  .select('*, risposte(username,stato), formazione(posizioni), marcatori(username,gol)')
+  .order('data_ora',{ascending:false});
   if(error){console.error(error);return;}
   cache=data||[];
   renderList();
@@ -516,8 +497,8 @@ function renderList(){
     const si=rs.filter(r=>r.stato==='si').length;
     const forse=rs.filter(r=>r.stato==='forse').length;
     const no=rs.filter(r=>r.stato==='no').length;
-    const myR=rs.find(r=>r.utente_id===myId);
-    const chips=rs.map(r=>`<div class="chip"><div class="dot dot-${r.stato}"></div>${r.utenti?.username||'?'}</div>`).join('');
+const myR = rs.find(r => r.username === myName);
+const chips = rs.map(r => `<div class="chip"><div class="dot dot-${r.stato}"></div>${r.username || '?'}</div>`).join('');
     const mapUrl=p.indirizzo?`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.indirizzo)}`:'';
     const hasSc=p.gol_squadra_a!=null;
     const d=new Date(p.data_ora);
@@ -552,14 +533,27 @@ card.innerHTML=`
 }
 
 async function vote(id,stato){
-  if(!sb)return;
-  const p=cache.find(x=>x.id===id);
-  const myR=p?.risposte?.find(r=>r.utente_id===myId);
-  if(myR&&myR.stato===stato){
-    await sb.from('risposte').delete().eq('partita_id',id).eq('utente_id',myId);
+  const p = cache.find(x => x.id === id);
+  const myR = p?.risposte?.find(r => r.username === myName);
+
+  if(myR && myR.stato === stato){
+    await sb.from('risposte')
+      .delete()
+      .eq('partita_id', id)
+      .eq('username', myName);
   } else {
-    await sb.from('risposte').upsert({partita_id:id,utente_id:myId,stato},{onConflict:'partita_id,utente_id'});
+    await sb.from('risposte').upsert(
+      {
+        partita_id: id,
+        username: myName,
+        stato
+      },
+      {
+        onConflict: 'partita_id,username'
+      }
+    );
   }
+
   await load();
 }
 
@@ -593,10 +587,12 @@ function openDet(id){
   document.getElementById('det-title').textContent=p.luogo;
   // risposte
   const rs=p.risposte||[];
-  document.getElementById('det-chips').innerHTML=rs.map(r=>`<div class="chip"><div class="dot dot-${r.stato}"></div>${r.utenti?.username||'?'}</div>`).join('');
+document.getElementById('det-chips').innerHTML = rs.map(r =>
+  `<div class="chip"><div class="dot dot-${r.stato}"></div>${r.username || '?'}</div>`
+).join('');
   const si=rs.filter(r=>r.stato==='si').length,forse=rs.filter(r=>r.stato==='forse').length,no=rs.filter(r=>r.stato==='no').length;
   document.getElementById('det-cnt').innerHTML=`<strong>${si}</strong> ci sono · <strong>${forse}</strong> forse · <strong>${no}</strong> assenti`;
-  const myR=rs.find(r=>r.utente_id===myId);
+const myR = rs.find(r => r.username === myName);
   const past=p.giocata===true;
   document.getElementById('det-vote').innerHTML=past?'':
     `<button class="vbtn si ${myR?.stato==='si'?'on':''}" onclick="vote('${p.id}','si');closeModal('m-det')">Ci sono</button>
@@ -613,12 +609,15 @@ function openDet(id){
   onPitch={};
   if(Array.isArray(saved)) saved.forEach(function(pp){if(pp&&pp.player)onPitch[pp.player]={x:pp.x,y:pp.y};});
   console.log('onPitch:', JSON.stringify(onPitch));
-  const presenti=rs.filter(r=>r.stato==='si').map(r=>r.utenti?.username).filter(Boolean);
+const presenti = rs.filter(r => r.stato === 'si').map(r => r.username).filter(Boolean);
   renderPitch(presenti);
   // goals
   const marc=p.marcatori||[];
   goalData={};
-  marc.forEach(m=>{const n=m.utenti?.username;if(n)goalData[n]=m.gol;});
+marc.forEach(m => {
+  const n = m.username;
+  if(n) goalData[n] = m.gol;
+});
   document.getElementById('sc-a').value=p.gol_squadra_a??'';
   document.getElementById('sc-b').value=p.gol_squadra_b??'';
   document.getElementById('glist').innerHTML=presenti.map(name=>{
@@ -697,7 +696,7 @@ function dEnd(e){
   if(x>=2&&x<=98&&y>=2&&y<=98)onPitch[player]={x:+x.toFixed(1),y:+y.toFixed(1)};
   dragSt=null;
   const p=cache.find(x=>x.id===detId);
-  const presenti=(p?.risposte||[]).filter(r=>r.stato==='si').map(r=>r.utenti?.username).filter(Boolean);
+const presenti = (p?.risposte || []).filter(r => r.stato === 'si').map(r => r.username).filter(Boolean);
   renderPitch(presenti);
 }
 
@@ -724,17 +723,29 @@ function chgG(name,d){
   if(el)el.textContent=goalData[name];
 }
 async function saveGoals(){
-  if(!sb||!detId)return;
-  const a=parseInt(document.getElementById('sc-a').value)||0;
-  const b=parseInt(document.getElementById('sc-b').value)||0;
-  await sb.from('partite').update({gol_squadra_a:a,gol_squadra_b:b,giocata:true}).eq('id',detId);
-  const p=cache.find(x=>x.id===detId);
-  const presenti=(p?.risposte||[]).filter(r=>r.stato==='si').map(r=>r.utenti?.username).filter(Boolean);
-  const ups=presenti.map(name=>{
-    const uid=(p?.risposte||[]).find(r=>r.utenti?.username===name)?.utente_id;
-    return uid?{partita_id:detId,utente_id:uid,gol:goalData[name]||0}:null;
-  }).filter(Boolean);
-  if(ups.length)await sb.from('marcatori').upsert(ups,{onConflict:'partita_id,utente_id'});
+  const a = parseInt(document.getElementById('sc-a').value) || 0;
+  const b = parseInt(document.getElementById('sc-b').value) || 0;
+
+  await sb.from('partite')
+    .update({ gol_squadra_a:a, gol_squadra_b:b, giocata:true })
+    .eq('id', detId);
+
+  const p = cache.find(x => x.id === detId);
+  const presenti = (p?.risposte || [])
+    .filter(r => r.stato === 'si')
+    .map(r => r.username)
+    .filter(Boolean);
+
+  const ups = presenti.map(name => ({
+    partita_id: detId,
+    username: name,
+    gol: goalData[name] || 0
+  }));
+
+  if(ups.length){
+    await sb.from('marcatori').upsert(ups, { onConflict:'partita_id,username' });
+  }
+
   await load();
   closeModal('m-det');
 }
@@ -800,12 +811,12 @@ function renderStats(){
   const stats={};
   giocate.forEach(p=>{
     (p.risposte||[]).filter(r=>r.stato==='si').forEach(r=>{
-      const n=r.utenti&&r.utenti.username||'?';
+const n = r.username || '?';
       if(!stats[n])stats[n]={presenze:0,gol:0};
       stats[n].presenze++;
     });
     (p.marcatori||[]).forEach(m=>{
-      const n=m.utenti&&m.utenti.username||'?';
+const n = m.username || '?';
       if(!stats[n])stats[n]={presenze:0,gol:0};
       stats[n].gol+=(m.gol||0);
     });
