@@ -235,7 +235,7 @@ input,select,textarea{font-size:16px!important}
 </head>
 <body>
 
-<script>var V="v4-132633";console.log("%c CALCETTO "+V+" ","background:#1D9E75;color:white;font-size:16px;padding:4px 8px;border-radius:4px");setTimeout(function(){var e=document.getElementById("ld");if(e)e.style.display="none"},3000)</script><div id="ld"><div class="ball-anim">⚽</div><p>Caricamento...</p></div>
+<script>var V="v5-modifica";console.log("%c CALCETTO "+V+" ","background:#1D9E75;color:white;font-size:16px;padding:4px 8px;border-radius:4px");setTimeout(function(){var e=document.getElementById("ld");if(e)e.style.display="none"},3000)</script><div id="ld"><div class="ball-anim">⚽</div><p>Caricamento...</p></div>
 
 <!-- PASSWORD -->
 <div class="screen" id="s-pwd">
@@ -300,6 +300,31 @@ input,select,textarea{font-size:16px!important}
       <div class="fld"><div class="lbl">Indirizzo (per Maps)</div><input class="std-input" type="text" id="f-ind" placeholder="es. Via Roma 1, Bologna"></div>
       <div class="fld"><div class="lbl">Note</div><input class="std-input" type="text" id="f-note" placeholder="es. portate pettorina"></div>
       <button class="btn-primary" onclick="createPartita()">Proponi partita</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL MODIFICA PARTITA -->
+<div class="overlay" id="m-modifica" onclick="bgClose('m-modifica',event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="handle"></div>
+    <div class="sheet-head">
+      <span class="sheet-title">Modifica partita</span>
+      <button class="close-btn" onclick="closeModal('m-modifica')">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="fld">
+        <div class="lbl">Tipo</div>
+        <div class="toggle-row">
+          <div class="topt" id="m7" onclick="setTipoMod(7)">Calcetto a 7</div>
+          <div class="topt" id="m5" onclick="setTipoMod(5)">Calcetto a 5</div>
+        </div>
+      </div>
+      <div class="fld"><div class="lbl">Data e ora</div><input class="std-input" type="datetime-local" id="m-data"></div>
+      <div class="fld"><div class="lbl">Nome campo</div><input class="std-input" type="text" id="m-luogo" placeholder="es. Campo Borghese"></div>
+      <div class="fld"><div class="lbl">Indirizzo (per Maps)</div><input class="std-input" type="text" id="m-ind" placeholder="es. Via Roma 1, Bologna"></div>
+      <div class="fld"><div class="lbl">Note</div><input class="std-input" type="text" id="m-note" placeholder="es. portate pettorina"></div>
+      <button class="btn-primary" onclick="saveModifica()">Salva modifiche</button>
     </div>
   </div>
 </div>
@@ -525,7 +550,8 @@ card.innerHTML=`
   ${past&&hasSc?`<div class="score-strip"><div class="sbox">${p.gol_squadra_a}</div><span style="color:var(--txt2)">—</span><div class="sbox r">${p.gol_squadra_b}</div></div>`:''}
   <button class="detail-btn" onclick="openDet('${p.id}')">${past?'Formazione e marcatori →':'Dettaglio →'}</button>
   <div style="display:flex;gap:6px;margin-top:6px">
-    ${!past?`<button class="detail-btn" style="flex:1;color:var(--green);border-color:var(--green)" onclick="segnaGiocata(event,'${p.id}')">Segna come giocata</button>`:''}
+    <button class="detail-btn" style="flex:1" onclick="openModifica(event,'${p.id}')">Modifica</button>
+    ${!past?`<button class="detail-btn" style="flex:1;color:var(--green);border-color:var(--green)" onclick="segnaGiocata(event,'${p.id}')">Giocata</button>`:''}
     <button class="detail-btn" style="flex:1;color:var(--red);border-color:var(--red)" onclick="eliminaPartita(event,'${p.id}')">Elimina</button>
   </div>`;
     wrap.insertBefore(card,document.getElementById('empty'));
@@ -790,6 +816,51 @@ function tab(e,pid){
   e.target.classList.add('on');document.getElementById(pid).classList.add('on');
 }
 const ADMIN_PWD = 'lucarende98.';
+let modificaId=null, tipoMod=7;
+
+function setTipoMod(t){
+  tipoMod=t;
+  document.getElementById('m7').classList.toggle('on',t===7);
+  document.getElementById('m5').classList.toggle('on',t===5);
+}
+
+function openModifica(e,id){
+  e.stopPropagation();
+  const p=cache.find(x=>x.id===id);
+  if(!p)return;
+  modificaId=id;
+  tipoMod=p.tipo||7;
+  document.getElementById('m7').classList.toggle('on',tipoMod===7);
+  document.getElementById('m5').classList.toggle('on',tipoMod===5);
+  // popola i campi
+  const d=new Date(p.data_ora);
+  // formato datetime-local: YYYY-MM-DDTHH:MM
+  const pad=n=>String(n).padStart(2,'0');
+  const local=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
+  document.getElementById('m-data').value=local;
+  document.getElementById('m-luogo').value=p.luogo||'';
+  document.getElementById('m-ind').value=p.indirizzo||'';
+  document.getElementById('m-note').value=p.note||'';
+  openModal('m-modifica');
+}
+
+async function saveModifica(){
+  if(!sb||!modificaId)return;
+  const data=document.getElementById('m-data').value;
+  const luogo=document.getElementById('m-luogo').value.trim();
+  if(!data||!luogo){alert('Inserisci data e nome campo');return;}
+  const{error}=await sb.from('partite').update({
+    data_ora: new Date(data).toISOString(),
+    luogo,
+    tipo: tipoMod,
+    indirizzo: document.getElementById('m-ind').value.trim()||null,
+    note: document.getElementById('m-note').value.trim()||null,
+  }).eq('id',modificaId);
+  if(error){alert('Errore: '+error.message);return;}
+  closeModal('m-modifica');
+  await load();
+}
+
 async function segnaGiocata(e,id){
   e.stopPropagation();
   const pwd=prompt('Inserisci la password per segnare come giocata:');
