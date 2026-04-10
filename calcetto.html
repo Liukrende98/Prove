@@ -224,7 +224,7 @@ input,select,textarea{font-size:16px!important}
 
 <!-- MODAL DETTAGLIO -->
 <div class="overlay" id="m-det" onclick="bgClose('m-det',event)">
-  <div class="sheet" onclick="event.stopPropagation()" style="max-height:96vh">
+  <div class="sheet sheet-det" onclick="event.stopPropagation()">
     <div class="handle"></div>
     <div class="sheet-head">
       <span class="sheet-title" id="det-title">—</span>
@@ -236,11 +236,13 @@ input,select,textarea{font-size:16px!important}
         <button class="tbtn" onclick="tab(event,'tp-f')">Formazione</button>
         <button class="tbtn" onclick="tab(event,'tp-g')">Marcatori</button>
       </div>
+
       <div id="tp-r" class="tpane on">
         <div id="det-chips" class="chips" style="margin-bottom:8px"></div>
         <div id="det-cnt" class="counter" style="margin-bottom:12px"></div>
         <div id="det-vote" class="vote-row"></div>
       </div>
+
       <div id="tp-f" class="tpane">
         <div id="pw">
           <svg id="psv" viewBox="0 0 340 480" xmlns="http://www.w3.org/2000/svg">
@@ -263,6 +265,7 @@ input,select,textarea{font-size:16px!important}
         <div class="bench-row" id="brow"></div>
         <button class="btn-primary" onclick="saveForm()">Salva formazione</button>
       </div>
+
       <div id="tp-g" class="tpane">
         <div class="fld">
           <div class="lbl">Risultato finale</div>
