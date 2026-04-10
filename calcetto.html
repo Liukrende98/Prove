@@ -477,9 +477,16 @@ function openDet(id){
      <button class="vbtn forse ${myR?.stato==='forse'?'on':''}" onclick="vote('${p.id}','forse');closeModal('m-det')">Forse</button>
      <button class="vbtn no ${myR?.stato==='no'?'on':''}" onclick="vote('${p.id}','no');closeModal('m-det')">Non ci sono</button>`;
   // pitch
-  const saved=(p.formazione&&p.formazione[0])?p.formazione[0].posizioni:[];
+  console.log('formazione raw:', JSON.stringify(p.formazione));
+  let saved=[];
+  if(p.formazione){
+    if(Array.isArray(p.formazione)&&p.formazione[0]) saved=p.formazione[0].posizioni||[];
+    else if(p.formazione.posizioni) saved=p.formazione.posizioni;
+  }
+  console.log('saved posizioni:', JSON.stringify(saved));
   onPitch={};
-  if(Array.isArray(saved)) saved.forEach(pp=>{onPitch[pp.player]={x:pp.x,y:pp.y};});
+  if(Array.isArray(saved)) saved.forEach(function(pp){if(pp&&pp.player)onPitch[pp.player]={x:pp.x,y:pp.y};});
+  console.log('onPitch:', JSON.stringify(onPitch));
   const presenti=rs.filter(r=>r.stato==='si').map(r=>r.utenti?.username).filter(Boolean);
   renderPitch(presenti);
   // goals
