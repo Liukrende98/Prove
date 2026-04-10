@@ -95,13 +95,76 @@ input,select,textarea{font-size:16px!important}
 /* MODALS */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:none;align-items:flex-end}
 .overlay.open{display:flex}
-.sheet{background:var(--card);border-radius:22px 22px 0 0;width:100%;max-height:94vh;display:flex;flex-direction:column;padding-bottom:var(--safe-bot);animation:up .28s ease}
-@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.handle{width:36px;height:4px;border-radius:2px;background:#ddd;margin:10px auto 0;flex-shrink:0}
-.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;flex-shrink:0;border-bottom:1px solid var(--border)}
-.sheet-title{font-size:17px;font-weight:700}
-.close-btn{width:30px;height:30px;border-radius:50%;border:none;background:#f0f0ee;color:var(--txt2);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.sheet-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px}
+.sheet{
+  background:var(--card);
+  border-radius:22px 22px 0 0;
+  width:100%;
+  height:min(88dvh,88vh);
+  max-height:min(88dvh,88vh);
+  display:flex;
+  flex-direction:column;
+  padding-bottom:var(--safe-bot);
+  animation:up .28s ease;
+}
+
+@keyframes up{
+  from{transform:translateY(100%)}
+  to{transform:translateY(0)}
+}
+
+.handle{
+  width:36px;
+  height:4px;
+  border-radius:2px;
+  background:#ddd;
+  margin:10px auto 0;
+  flex-shrink:0;
+}
+
+.sheet-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 16px 10px;
+  flex-shrink:0;
+  border-bottom:1px solid var(--border);
+  position:sticky;
+  top:0;
+  background:var(--card);
+  z-index:5;
+}
+
+.sheet-title{
+  font-size:17px;
+  font-weight:700;
+}
+
+.close-btn{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  border:none;
+  background:#f0f0ee;
+  color:var(--txt2);
+  font-size:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+
+.sheet-body{
+  flex:1;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:14px 16px;
+  min-height:0;
+}
+
+.sheet-det{
+  height:min(88dvh,88vh);
+  max-height:min(88dvh,88vh);
+}
 
 /* TABS */
 .tab-bar{display:flex;border-bottom:1px solid var(--border);margin:-14px -16px 14px;flex-shrink:0}
@@ -654,14 +717,6 @@ async function eliminaPartita(e,id){
     alert('Password errata');
     return;
   }
-  if(!confirm('Elimina definitivamente questa partita?'))return;
-  await sb.from('partite').delete().eq('id',id);
-  await load();
-}
-async function eliminaPartita(e,id){
-  e.stopPropagation();
-  const pwd=prompt('Inserisci la password per eliminare:');
-  if(pwd!=='lucarende98.')return;
   if(!confirm('Elimina definitivamente questa partita?'))return;
   await sb.from('partite').delete().eq('id',id);
   await load();
