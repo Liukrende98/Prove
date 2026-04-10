@@ -586,7 +586,6 @@ async function createPartita(){
   }
 
   const { error } = await sb.from('partite').insert({
-    proposto_da: myName,
     data_ora: new Date(data).toISOString(),
     luogo: luogo,
     tipo: tipoN,
@@ -595,6 +594,7 @@ async function createPartita(){
   });
 
   if(error){
+    console.error(error);
     alert('Errore: ' + error.message);
     return;
   }
