@@ -190,7 +190,7 @@ input,select,textarea{font-size:16px!important}
   </div>
   <button class="fab" onclick="openNuova()">+</button>
   <div class="bnav">
-    <button class="bnav-item on"><span class="bnav-ico">🏟</span>Partite</button>
+    <button class="bnav-item on" onclick="goPartite()"><span class="bnav-ico">🏟</span>Partite</button>
     <button class="bnav-item" onclick="goStats()"><span class="bnav-ico">📊</span>Stats</button>
   </div>
 </div>
@@ -427,7 +427,13 @@ function renderList(){
 
 async function vote(id,stato){
   if(!sb)return;
-  await sb.from('risposte').upsert({partita_id:id,utente_id:myId,stato},{onConflict:'partita_id,utente_id'});
+  const p=cache.find(x=>x.id===id);
+  const myR=p?.risposte?.find(r=>r.utente_id===myId);
+  if(myR&&myR.stato===stato){
+    await sb.from('risposte').delete().eq('partita_id',id).eq('utente_id',myId);
+  } else {
+    await sb.from('risposte').upsert({partita_id:id,utente_id:myId,stato},{onConflict:'partita_id,utente_id'});
+  }
   await load();
 }
 
@@ -603,7 +609,72 @@ function tab(e,pid){
   document.querySelectorAll('.tpane').forEach(p=>p.classList.remove('on'));
   e.target.classList.add('on');document.getElementById(pid).classList.add('on');
 }
-function goStats(){alert('Statistiche — prossimamente! 🏆');}
+function goStats(){
+  document.querySelectorAll('.bnav-item').forEach((b,i)=>b.classList.toggle('on',i===1));
+  document.getElementById('list').querySelectorAll('.mcard').forEach(c=>c.remove());
+  document.getElementById('empty').style.display='none';
+  renderStats();
+}
+function goPartite(){
+  document.querySelectorAll('.bnav-item').forEach((b,i)=>b.classList.toggle('on',i===0));
+  document.getElementById('list').querySelectorAll('.stats-wrap').forEach(c=>c.remove());
+  renderList();
+}
+function renderStats(){
+  const wrap=document.getElementById('list');
+  wrap.querySelectorAll('.stats-wrap').forEach(c=>c.remove());
+  const giocate=cache.filter(p=>p.giocata);
+  if(!giocate.length){
+    const d=document.createElement('div');
+    d.className='stats-wrap';
+    d.style.cssText='text-align:center;padding:3rem 1rem;color:var(--txt3);font-size:14px';
+    d.textContent='Nessuna partita giocata ancora.';
+    wrap.appendChild(d);return;
+  }
+  const stats={};
+  giocate.forEach(p=>{
+    (p.risposte||[]).filter(r=>r.stato==='si').forEach(r=>{
+      const n=r.utenti&&r.utenti.username||'?';
+      if(!stats[n])stats[n]={presenze:0,gol:0};
+      stats[n].presenze++;
+    });
+    (p.marcatori||[]).forEach(m=>{
+      const n=m.utenti&&m.utenti.username||'?';
+      if(!stats[n])stats[n]={presenze:0,gol:0};
+      stats[n].gol+=(m.gol||0);
+    });
+  });
+  const sorted=Object.entries(stats).sort((a,b)=>b[1].gol-a[1].gol||b[1].presenze-a[1].presenze);
+  const totGol=giocate.reduce((s,p)=>{return s+(p.marcatori||[]).reduce((a,m)=>a+(m.gol||0),0);},0);
+  const div=document.createElement('div');
+  div.className='stats-wrap';
+  let html='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px">';
+  html+='<div style="background:var(--card);border-radius:14px;padding:14px;border:1px solid var(--border);text-align:center">';
+  html+='<div style="font-size:28px;font-weight:700;color:var(--green)">'+giocate.length+'</div>';
+  html+='<div style="font-size:12px;color:var(--txt2);margin-top:2px">partite giocate</div></div>';
+  html+='<div style="background:var(--card);border-radius:14px;padding:14px;border:1px solid var(--border);text-align:center">';
+  html+='<div style="font-size:28px;font-weight:700;color:var(--green)">'+totGol+'</div>';
+  html+='<div style="font-size:12px;color:var(--txt2);margin-top:2px">gol totali</div></div></div>';
+  html+='<div style="background:var(--card);border-radius:14px;border:1px solid var(--border);overflow:hidden">';
+  html+='<div style="padding:11px 14px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:1fr 60px 48px">';
+  html+='<span style="font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.04em">Giocatore</span>';
+  html+='<span style="font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;text-align:center">Presenze</span>';
+  html+='<span style="font-size:11px;font-weight:600;color:var(--green);text-transform:uppercase;text-align:center">Gol</span></div>';
+  sorted.forEach(function(entry,i){
+    var name=entry[0],s=entry[1];
+    var isMe=name===myName;
+    var border=i<sorted.length-1?'border-bottom:1px solid var(--border);':'';
+    html+='<div style="padding:11px 14px;'+border+'display:grid;grid-template-columns:1fr 60px 48px;align-items:center">';
+    html+='<div style="display:flex;align-items:center;gap:8px">';
+    html+='<div style="width:26px;height:26px;border-radius:50%;background:var(--green-l);color:var(--green-d);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(i+1)+'</div>';
+    html+='<span style="font-size:15px;font-weight:'+(isMe?'700':'400')+';color:var(--txt)">'+name+(isMe?' 👤':'')+'</span></div>';
+    html+='<span style="font-size:14px;color:var(--txt2);text-align:center">'+s.presenze+'</span>';
+    html+='<span style="font-size:16px;font-weight:700;color:'+(s.gol>0?'var(--green)':'var(--txt3)')+';text-align:center">'+s.gol+'</span></div>';
+  });
+  html+='</div>';
+  div.innerHTML=html;
+  wrap.appendChild(div);
+}
 
 // enter
 document.getElementById('pwd-inp').addEventListener('keydown',e=>{if(e.key==='Enter')checkPwd();});
