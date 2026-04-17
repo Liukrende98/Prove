@@ -2,7 +2,10 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0a">
 <title>Configuratore Carpenteria</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,14 +40,12 @@
     --accent-2:    #ffae3d;
     --accent-glow: rgba(255,106,26,0.35);
     --success:     #4ade80;
-    --warn:        #facc15;
+    --selected:    rgba(255,106,26,0.12);
     --mono: 'JetBrains Mono', ui-monospace, monospace;
     --display: 'Unbounded', sans-serif;
     --body: 'Manrope', system-ui, sans-serif;
   }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body {
     height: 100%;
     overflow: hidden;
@@ -54,8 +55,8 @@
     font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
   }
-
   body::before {
     content: "";
     position: fixed;
@@ -75,24 +76,25 @@
     background: radial-gradient(ellipse 60% 40% at 60% 45%, rgba(255,106,26,0.06), transparent 60%);
     z-index: 0;
   }
-
   .app {
     position: relative;
     z-index: 1;
     height: 100vh;
+    height: 100dvh;
     display: grid;
     grid-template-rows: 72px 1fr;
   }
 
-  /* ============ HEADER ============ */
+  /* HEADER */
   header {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
     padding: 0 28px;
     border-bottom: 1px solid var(--line);
-    background: rgba(10,10,10,0.8);
+    background: rgba(10,10,10,0.88);
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
   .brand {
     font-family: var(--display);
@@ -109,10 +111,13 @@
     background: var(--accent);
     box-shadow: 0 0 14px var(--accent-glow);
     border-radius: 50%;
+    animation: pulse 2.4s ease-in-out infinite;
   }
-  .title-block {
-    text-align: center;
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 14px var(--accent-glow); }
+    50%     { box-shadow: 0 0 20px var(--accent-glow), 0 0 4px var(--accent); }
   }
+  .title-block { text-align: center; }
   .title-block .kicker {
     font-family: var(--mono);
     font-size: 10px;
@@ -128,9 +133,7 @@
     text-transform: uppercase;
     margin-top: 2px;
   }
-  .title-block .title .accent {
-    color: var(--accent);
-  }
+  .title-block .title .accent { color: var(--accent); }
   .header-right {
     justify-self: end;
     font-family: var(--mono);
@@ -140,45 +143,70 @@
     display: flex;
     gap: 18px;
   }
-  .header-right span b {
-    color: var(--text);
+  .header-right span b { color: var(--text); font-weight: 500; }
+
+  /* MOBILE TABS */
+  .mobile-tabs {
+    display: none;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel-solid);
+  }
+  .mtab {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 13px 8px;
+    cursor: pointer;
+    position: relative;
     font-weight: 500;
+    transition: color 0.2s;
+  }
+  .mtab.active { color: var(--text); }
+  .mtab.active::after {
+    content: "";
+    position: absolute;
+    left: 20%; right: 20%;
+    bottom: 0;
+    height: 2px;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent-glow);
+  }
+  .mtab .dot {
+    display: inline-block;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.5;
+    margin-right: 8px;
+    vertical-align: middle;
   }
 
-  /* ============ LAYOUT ============ */
+  /* LAYOUT */
   main {
     display: grid;
     grid-template-columns: 340px 1fr 420px;
     min-height: 0;
   }
-
-  .col {
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
+  .col { min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
   .col-left  { border-right: 1px solid var(--line); background: var(--panel-solid); }
   .col-mid   { position: relative; }
   .col-right { border-left: 1px solid var(--line); background: var(--panel-solid); }
-
   .col-scroll {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
     padding: 26px 22px;
+    -webkit-overflow-scrolling: touch;
   }
   .col-scroll::-webkit-scrollbar { width: 8px; }
   .col-scroll::-webkit-scrollbar-track { background: transparent; }
-  .col-scroll::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.08);
-    border-radius: 4px;
-  }
-  .col-scroll::-webkit-scrollbar-thumb:hover {
-    background: rgba(255,255,255,0.15);
-  }
+  .col-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
 
-  /* ============ SECTION HEADERS ============ */
   .section-label {
     font-family: var(--mono);
     font-size: 10px;
@@ -196,25 +224,17 @@
     height: 1px;
     background: var(--accent);
   }
-  .section-label:not(:first-child) {
-    margin-top: 32px;
-  }
+  .section-label:not(:first-child) { margin-top: 32px; }
 
-  /* ============ SLIDERS ============ */
-  .param {
-    margin-bottom: 22px;
-  }
+  /* SLIDERS */
+  .param { margin-bottom: 22px; }
   .param-row {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
     margin-bottom: 8px;
   }
-  .param-label {
-    font-size: 13px;
-    color: var(--text-dim);
-    font-weight: 500;
-  }
+  .param-label { font-size: 13px; color: var(--text-dim); font-weight: 500; }
   .param-value {
     font-family: var(--mono);
     font-size: 15px;
@@ -222,12 +242,7 @@
     color: var(--text);
     letter-spacing: 0.02em;
   }
-  .param-value .unit {
-    color: var(--text-dim-2);
-    font-size: 11px;
-    margin-left: 3px;
-  }
-
+  .param-value .unit { color: var(--text-dim-2); font-size: 11px; margin-left: 3px; }
   input[type="range"] {
     -webkit-appearance: none;
     appearance: none;
@@ -241,28 +256,20 @@
   input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 18px;
-    height: 18px;
+    width: 20px; height: 20px;
     border-radius: 50%;
     background: var(--text);
     border: 3px solid var(--accent);
     box-shadow: 0 0 0 4px rgba(255,106,26,0.08), 0 2px 8px rgba(0,0,0,0.5);
     cursor: grab;
-    transition: transform 0.15s ease;
-  }
-  input[type="range"]::-webkit-slider-thumb:active {
-    cursor: grabbing;
-    transform: scale(1.15);
   }
   input[type="range"]::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
+    width: 20px; height: 20px;
     border-radius: 50%;
     background: var(--text);
     border: 3px solid var(--accent);
     cursor: grab;
   }
-
   .param-range-bounds {
     display: flex;
     justify-content: space-between;
@@ -273,7 +280,7 @@
     letter-spacing: 0.08em;
   }
 
-  /* ============ SELECT ============ */
+  /* SELECT */
   select {
     width: 100%;
     background: rgba(255,255,255,0.03);
@@ -282,34 +289,33 @@
     color: var(--text);
     font-family: var(--body);
     font-size: 13px;
-    padding: 10px 12px;
+    padding: 12px;
     cursor: pointer;
     font-weight: 500;
     outline: none;
     appearance: none;
+    -webkit-appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239a948a' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 12px center;
     padding-right: 32px;
   }
-  select:hover { border-color: var(--line-2); }
-  select:focus { border-color: var(--accent); }
   select option { background: var(--bg-3); color: var(--text); }
 
-  /* ============ CHECKBOXES ============ */
+  /* CHECKBOXES */
   .check {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 11px 12px;
+    padding: 13px 12px;
     border: 1px solid var(--line);
     border-radius: 4px;
     cursor: pointer;
     transition: border-color 0.15s, background 0.15s;
     margin-bottom: 7px;
     background: rgba(255,255,255,0.015);
+    user-select: none;
   }
-  .check:hover { border-color: var(--line-2); background: rgba(255,255,255,0.03); }
   .check.active {
     border-color: rgba(255,106,26,0.5);
     background: rgba(255,106,26,0.06);
@@ -317,14 +323,12 @@
   .check input[type="checkbox"] {
     -webkit-appearance: none;
     appearance: none;
-    width: 16px;
-    height: 16px;
+    width: 18px; height: 18px;
     border: 1.5px solid var(--line-2);
     border-radius: 3px;
     cursor: pointer;
     position: relative;
     flex-shrink: 0;
-    transition: all 0.15s;
   }
   .check input[type="checkbox"]:checked {
     background: var(--accent);
@@ -333,27 +337,16 @@
   .check input[type="checkbox"]:checked::after {
     content: "";
     position: absolute;
-    left: 4px;
-    top: 1px;
-    width: 5px;
-    height: 9px;
+    left: 5px; top: 1px;
+    width: 5px; height: 10px;
     border-right: 2px solid #000;
     border-bottom: 2px solid #000;
     transform: rotate(45deg);
   }
-  .check-label {
-    font-size: 13px;
-    color: var(--text);
-    font-weight: 500;
-    flex: 1;
-  }
-  .check-note {
-    font-size: 10px;
-    color: var(--text-dim-2);
-    font-family: var(--mono);
-  }
+  .check-label { font-size: 13px; color: var(--text); font-weight: 500; flex: 1; }
+  .check-note { font-size: 10px; color: var(--text-dim-2); font-family: var(--mono); }
 
-  /* ============ 3D VIEWPORT ============ */
+  /* 3D VIEWPORT */
   .viewport-wrap {
     position: relative;
     width: 100%;
@@ -367,16 +360,11 @@
     display: block;
     width: 100% !important;
     height: 100% !important;
+    touch-action: none;
   }
-  .viewport-overlay {
-    position: absolute;
-    pointer-events: none;
-  }
-  .overlay-hero {
-    top: 28px;
-    left: 32px;
-    pointer-events: none;
-  }
+  .viewport-overlay { position: absolute; pointer-events: none; }
+
+  .overlay-hero { top: 28px; left: 32px; }
   .overlay-hero .pezzo-name {
     font-family: var(--display);
     font-size: 11px;
@@ -395,12 +383,7 @@
     margin-top: 4px;
     line-height: 1.1;
   }
-  .overlay-hero .pezzo-capacity {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    margin-top: 10px;
-  }
+  .overlay-hero .pezzo-capacity { display: flex; align-items: baseline; gap: 8px; margin-top: 10px; }
   .overlay-hero .pezzo-capacity .num {
     font-family: var(--mono);
     font-size: 44px;
@@ -417,34 +400,8 @@
     letter-spacing: 0.1em;
   }
 
-  .overlay-crosshair {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 32px;
-    height: 32px;
-    opacity: 0.15;
-  }
-  .overlay-crosshair::before,
-  .overlay-crosshair::after {
-    content: "";
-    position: absolute;
-    background: var(--text);
-  }
-  .overlay-crosshair::before {
-    left: 50%; top: 0; bottom: 0;
-    width: 1px;
-    transform: translateX(-0.5px);
-  }
-  .overlay-crosshair::after {
-    top: 50%; left: 0; right: 0;
-    height: 1px;
-    transform: translateY(-0.5px);
-  }
-
   .overlay-corner-tl, .overlay-corner-tr, .overlay-corner-bl, .overlay-corner-br {
-    width: 18px;
-    height: 18px;
+    width: 18px; height: 18px;
     border-color: var(--text-dim-2);
     opacity: 0.4;
   }
@@ -453,53 +410,97 @@
   .overlay-corner-bl { bottom: 18px; left: 18px; border-bottom: 1px solid; border-left: 1px solid; }
   .overlay-corner-br { bottom: 18px; right: 18px; border-bottom: 1px solid; border-right: 1px solid; }
 
+  /* DEV PANEL */
   .overlay-dev {
     bottom: 26px;
     right: 26px;
-    width: 220px;
+    width: 260px;
     padding: 14px 14px 12px;
-    background: rgba(10,10,10,0.75);
+    background: rgba(10,10,10,0.82);
     border: 1px solid var(--line-2);
-    border-radius: 4px;
+    border-radius: 6px;
     backdrop-filter: blur(8px);
-    pointer-events: none;
+    -webkit-backdrop-filter: blur(8px);
+    pointer-events: auto;
+    transition: border-color 0.2s;
   }
-  .overlay-dev-label {
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 0.25em;
-    color: var(--text-dim-2);
-    text-transform: uppercase;
-    margin-bottom: 8px;
+  .overlay-dev.has-selection {
+    border-color: rgba(255,106,26,0.5);
+    box-shadow: 0 0 32px rgba(255,106,26,0.12);
+  }
+  .overlay-dev-head {
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
   }
-  .overlay-dev-label .tag {
-    color: var(--accent);
-  }
-  .overlay-dev svg {
-    width: 100%;
-    height: 120px;
-  }
-  .overlay-dev .angle-text {
-    font-family: var(--mono);
-    font-size: 11px;
-    fill: var(--text);
-  }
-  .overlay-dev .dim-text {
+  .overlay-dev-head .dev-code {
     font-family: var(--mono);
     font-size: 9px;
-    fill: var(--text-dim);
+    letter-spacing: 0.22em;
+    color: var(--accent);
+    text-transform: uppercase;
+    line-height: 1.2;
   }
+  .overlay-dev-head .dev-label {
+    font-family: var(--body);
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 600;
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+  .overlay-dev-head .dev-close {
+    background: none;
+    border: 1px solid var(--line-2);
+    color: var(--text-dim);
+    width: 22px; height: 22px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    flex-shrink: 0;
+    font-family: var(--mono);
+    display: none;
+  }
+  .overlay-dev.has-selection .dev-close { display: block; }
+  .overlay-dev-svg {
+    width: 100%;
+    height: 110px;
+    display: block;
+  }
+  .overlay-dev-svg .s-fill { fill: rgba(255,106,26,0.08); stroke: var(--accent); stroke-width: 1.2; }
+  .overlay-dev-svg .s-ref  { stroke: rgba(255,255,255,0.15); stroke-dasharray: 2,3; stroke-width: 0.6; fill: none; }
+  .overlay-dev-svg .s-dim  { stroke: rgba(255,255,255,0.35); stroke-width: 0.5; fill: none; }
+  .overlay-dev-svg text.dim-lbl { font-family: var(--mono); font-size: 9px; fill: var(--text); }
+  .overlay-dev-svg text.dim-sub { font-family: var(--mono); font-size: 7.5px; fill: var(--text-dim); }
+  .overlay-dev-dims {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 14px;
+  }
+  .dim-item { display: flex; flex-direction: column; gap: 2px; }
+  .dim-item .k {
+    font-family: var(--mono);
+    font-size: 8.5px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim-2);
+    text-transform: uppercase;
+  }
+  .dim-item .v {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .dim-item .v .u { color: var(--text-dim-2); font-size: 9px; margin-left: 2px; }
 
-  .overlay-axis {
-    bottom: 26px;
-    left: 26px;
-    display: flex;
-    align-items: flex-end;
-    gap: 14px;
-    pointer-events: none;
-  }
+  .overlay-axis { bottom: 26px; left: 26px; display: flex; align-items: flex-end; gap: 14px; }
   .axis-info {
     font-family: var(--mono);
     font-size: 10px;
@@ -520,19 +521,15 @@
     line-height: 1.8;
     text-transform: uppercase;
   }
+  .overlay-hint .tap-hint { color: var(--accent); font-weight: 600; }
 
-  /* ============ BOM ============ */
+  /* BOM */
   .bom-summary {
     padding: 22px 24px 18px;
     background: linear-gradient(to bottom, rgba(255,106,26,0.04), transparent);
     border-bottom: 1px solid var(--line);
   }
-  .bom-summary-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 10px;
-  }
+  .bom-summary-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
   .bom-summary-row:last-of-type { margin-bottom: 0; }
   .bom-summary-label {
     font-family: var(--mono);
@@ -547,14 +544,8 @@
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.01em;
   }
-  .bom-summary-value.hero {
-    font-size: 36px;
-    color: var(--text);
-  }
-  .bom-summary-value.med {
-    font-size: 18px;
-    color: var(--text);
-  }
+  .bom-summary-value.hero { font-size: 36px; color: var(--text); }
+  .bom-summary-value.med  { font-size: 18px; color: var(--text); }
   .bom-summary-value .unit {
     font-size: 0.5em;
     color: var(--text-dim);
@@ -563,20 +554,8 @@
     letter-spacing: 0.1em;
   }
 
-  .bom-table-wrap {
-    flex: 1;
-    overflow-y: auto;
-    min-height: 0;
-  }
-  .bom-table-wrap::-webkit-scrollbar { width: 8px; }
-  .bom-table-wrap::-webkit-scrollbar-track { background: transparent; }
-  .bom-table-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
-
-  .bom-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-  }
+  .bom-table-wrap { flex: 1; overflow-y: auto; min-height: 0; -webkit-overflow-scrolling: touch; }
+  .bom-table { width: 100%; border-collapse: collapse; font-size: 12px; }
   .bom-table thead th {
     position: sticky;
     top: 0;
@@ -596,27 +575,25 @@
   .bom-table tbody tr {
     border-bottom: 1px solid rgba(255,255,255,0.04);
     transition: background 0.15s;
+    cursor: pointer;
   }
   .bom-table tbody tr:hover { background: rgba(255,106,26,0.04); }
-  .bom-table tbody tr.level-0 { background: rgba(255,255,255,0.02); }
+  .bom-table tbody tr.selected {
+    background: var(--selected);
+    border-left: 2px solid var(--accent);
+  }
+  .bom-table tbody tr.selected td:first-child { padding-left: 8px; }
+  .bom-table tbody tr.level-0 { background: rgba(255,255,255,0.02); cursor: default; }
   .bom-table tbody tr.level-0 td { padding-top: 13px; padding-bottom: 13px; }
-  .bom-table tbody tr.level-0 td:first-child { color: var(--text); font-weight: 700; font-family: var(--display); letter-spacing: 0.05em; font-size: 11px; text-transform: uppercase; }
+  .bom-table tbody tr.level-0 td:first-child {
+    color: var(--text); font-weight: 700;
+    font-family: var(--display); letter-spacing: 0.05em;
+    font-size: 11px; text-transform: uppercase;
+  }
   .bom-table tbody tr.level-1 td:first-child { color: var(--text); font-weight: 600; }
   .bom-table tbody tr.level-2 td:first-child { color: var(--text-dim); }
   .bom-table tbody tr.level-3 td:first-child { color: var(--text-dim-2); font-size: 11px; }
-
-  .bom-table td {
-    padding: 8px 10px;
-    font-family: var(--body);
-    font-weight: 400;
-    vertical-align: middle;
-  }
-  .bom-table td.mono {
-    font-family: var(--mono);
-    font-variant-numeric: tabular-nums;
-    font-size: 11px;
-    color: var(--text-dim);
-  }
+  .bom-table td { padding: 9px 10px; font-family: var(--body); vertical-align: middle; }
   .bom-table td.num {
     text-align: right;
     font-family: var(--mono);
@@ -632,10 +609,7 @@
     margin-right: 6px;
     opacity: 0.75;
   }
-  .bom-tree-ind {
-    display: inline-block;
-    width: 0;
-  }
+  .bom-tree-ind { display: inline-block; width: 0; }
   .bom-table tr.level-1 .bom-tree-ind { width: 12px; }
   .bom-table tr.level-2 .bom-tree-ind { width: 24px; }
   .bom-table tr.level-3 .bom-tree-ind { width: 36px; }
@@ -646,16 +620,10 @@
     font-family: var(--mono);
     font-size: 10px;
   }
+  @keyframes rowIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+  .bom-table tbody tr.new-row { animation: rowIn 0.35s ease-out; }
 
-  @keyframes rowIn {
-    from { opacity: 0; transform: translateX(-8px); }
-    to   { opacity: 1; transform: translateX(0); }
-  }
-  .bom-table tbody tr.new-row {
-    animation: rowIn 0.35s ease-out;
-  }
-
-  /* ============ EXPORT BUTTONS ============ */
+  /* EXPORT */
   .export-bar {
     padding: 16px 20px;
     border-top: 1px solid var(--line);
@@ -669,7 +637,7 @@
     align-items: center;
     justify-content: center;
     gap: 7px;
-    padding: 11px 10px;
+    padding: 12px 10px;
     background: rgba(255,255,255,0.03);
     border: 1px solid var(--line);
     border-radius: 4px;
@@ -687,20 +655,15 @@
     color: var(--accent);
     background: rgba(255,106,26,0.05);
   }
-  .btn:active { transform: translateY(1px); }
   .btn svg { width: 12px; height: 12px; flex-shrink: 0; }
   .btn.primary {
     background: var(--accent);
     color: #000;
     border-color: var(--accent);
   }
-  .btn.primary:hover {
-    background: var(--accent-2);
-    border-color: var(--accent-2);
-    color: #000;
-  }
+  .btn.primary:hover { background: var(--accent-2); border-color: var(--accent-2); color: #000; }
 
-  /* ============ TOAST ============ */
+  /* TOAST */
   .toast {
     position: fixed;
     bottom: 30px;
@@ -721,15 +684,11 @@
     z-index: 100;
     box-shadow: 0 10px 30px rgba(0,0,0,0.4);
   }
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .toast::before {
     content: "";
     display: inline-block;
-    width: 6px;
-    height: 6px;
+    width: 6px; height: 6px;
     background: var(--success);
     border-radius: 50%;
     margin-right: 10px;
@@ -737,7 +696,7 @@
     box-shadow: 0 0 8px rgba(74,222,128,0.6);
   }
 
-  /* ============ SMALL ============ */
+  /* MISC */
   .hint-line {
     font-size: 11px;
     color: var(--text-dim-2);
@@ -746,7 +705,6 @@
     margin-bottom: 16px;
     line-height: 1.5;
   }
-
   .virola-count {
     display: flex;
     justify-content: space-between;
@@ -759,6 +717,72 @@
   }
   .virola-count .label { color: var(--text-dim); }
   .virola-count .val { font-family: var(--mono); color: var(--accent); font-weight: 600; }
+
+  /* ============ MOBILE ============ */
+  @media (max-width: 900px) {
+    .app { grid-template-rows: 52px auto 1fr; }
+    header { padding: 0 16px; grid-template-columns: auto 1fr auto; }
+    .brand { font-size: 10px; letter-spacing: 0.18em; gap: 8px; }
+    .title-block .kicker { display: none; }
+    .title-block .title { font-size: 12px; letter-spacing: 0.14em; margin-top: 0; }
+    .header-right { font-size: 9px; gap: 10px; }
+    .header-right span:nth-child(1) { display: none; }
+
+    .mobile-tabs { display: grid; }
+
+    main {
+      grid-template-columns: 1fr;
+      grid-template-rows: 58vh 1fr;
+      min-height: 0;
+    }
+    .col-mid { order: 1; grid-row: 1; }
+    .col-left, .col-right {
+      grid-row: 2;
+      grid-column: 1;
+      border: none;
+      border-top: 1px solid var(--line);
+      display: none;
+    }
+    .col-left.m-active, .col-right.m-active { display: flex; }
+    .col-scroll { padding: 20px 16px; }
+
+    .overlay-hero { top: 18px; left: 20px; }
+    .overlay-hero .pezzo-name { font-size: 9px; letter-spacing: 0.25em; }
+    .overlay-hero .pezzo-desc { font-size: 20px; }
+    .overlay-hero .pezzo-capacity { margin-top: 6px; gap: 6px; }
+    .overlay-hero .pezzo-capacity .num { font-size: 30px; }
+    .overlay-hero .pezzo-capacity .unit { font-size: 10px; }
+    .overlay-hint { top: 18px; right: 20px; font-size: 8px; letter-spacing: 0.1em; line-height: 1.5; }
+    .overlay-axis { bottom: 16px; left: 18px; }
+    .axis-info { font-size: 9px; }
+    .axis-info .num { font-size: 12px; }
+    .overlay-dev { bottom: 16px; right: 16px; width: 196px; padding: 10px 10px 8px; }
+    .overlay-dev-head { margin-bottom: 8px; padding-bottom: 8px; }
+    .overlay-dev-head .dev-code { font-size: 8px; letter-spacing: 0.18em; }
+    .overlay-dev-head .dev-label { font-size: 10.5px; }
+    .overlay-dev-head .dev-close { width: 20px; height: 20px; font-size: 12px; }
+    .overlay-dev-svg { height: 82px; }
+    .overlay-dev-dims { gap: 3px 10px; margin-top: 7px; }
+    .dim-item .k { font-size: 7.5px; letter-spacing: 0.15em; }
+    .dim-item .v { font-size: 11px; }
+
+    .overlay-corner-tl, .overlay-corner-tr, .overlay-corner-bl, .overlay-corner-br { width: 12px; height: 12px; }
+    .overlay-corner-tl, .overlay-corner-tr { top: 10px; }
+    .overlay-corner-tl { left: 10px; } .overlay-corner-tr { right: 10px; }
+    .overlay-corner-bl, .overlay-corner-br { bottom: 10px; }
+    .overlay-corner-bl { left: 10px; } .overlay-corner-br { right: 10px; }
+
+    .bom-summary { padding: 18px 18px 14px; }
+    .bom-summary-value.hero { font-size: 28px; }
+    .bom-summary-value.med { font-size: 15px; }
+    .export-bar { padding: 12px 14px; }
+    .btn { padding: 13px 8px; font-size: 9px; letter-spacing: 0.12em; }
+  }
+  @media (max-width: 400px) {
+    .overlay-dev { width: 170px; }
+    .overlay-hero .pezzo-desc { font-size: 17px; }
+    .overlay-hero .pezzo-capacity .num { font-size: 25px; }
+  }
 </style>
 </head>
 <body>
@@ -767,7 +791,7 @@
   <header>
     <div class="brand">
       <span class="brand-dot"></span>
-      <span>OFFICINA · CARPENTERIA PESANTE</span>
+      <span>OFFICINA · CARPENTERIA</span>
     </div>
     <div class="title-block">
       <div class="kicker">Preventivazione Rapida</div>
@@ -775,49 +799,44 @@
     </div>
     <div class="header-right">
       <span>REV <b>A.01</b></span>
-      <span>SCALA <b>1:1</b></span>
       <span>UNI <b>EN 10025</b></span>
     </div>
   </header>
 
+  <nav class="mobile-tabs">
+    <button class="mtab active" data-mtab="geom"><span class="dot"></span>Geometria</button>
+    <button class="mtab"        data-mtab="bom"><span class="dot"></span>Distinta</button>
+  </nav>
+
   <main>
-    <!-- ====== LEFT: PARAMETERS ====== -->
-    <aside class="col col-left">
+    <aside class="col col-left m-active" data-mtab="geom">
       <div class="col-scroll">
         <div class="section-label">Geometria principale</div>
 
         <div class="param">
-          <div class="param-row">
-            <span class="param-label">Ø Superiore</span>
-            <span class="param-value"><span id="val-dsup">2000</span><span class="unit">mm</span></span>
-          </div>
+          <div class="param-row"><span class="param-label">Ø Superiore</span>
+            <span class="param-value"><span id="val-dsup">2000</span><span class="unit">mm</span></span></div>
           <input type="range" id="sl-dsup" min="500" max="3000" step="10" value="2000">
           <div class="param-range-bounds"><span>500</span><span>3000</span></div>
         </div>
 
         <div class="param">
-          <div class="param-row">
-            <span class="param-label">Ø Inferiore</span>
-            <span class="param-value"><span id="val-dinf">1400</span><span class="unit">mm</span></span>
-          </div>
+          <div class="param-row"><span class="param-label">Ø Inferiore</span>
+            <span class="param-value"><span id="val-dinf">1400</span><span class="unit">mm</span></span></div>
           <input type="range" id="sl-dinf" min="500" max="3000" step="10" value="1400">
           <div class="param-range-bounds"><span>500</span><span>3000</span></div>
         </div>
 
         <div class="param">
-          <div class="param-row">
-            <span class="param-label">Altezza</span>
-            <span class="param-value"><span id="val-h">2200</span><span class="unit">mm</span></span>
-          </div>
+          <div class="param-row"><span class="param-label">Altezza</span>
+            <span class="param-value"><span id="val-h">2200</span><span class="unit">mm</span></span></div>
           <input type="range" id="sl-h" min="800" max="3500" step="10" value="2200">
           <div class="param-range-bounds"><span>800</span><span>3500</span></div>
         </div>
 
         <div class="param">
-          <div class="param-row">
-            <span class="param-label">Spessore mantello</span>
-            <span class="param-value"><span id="val-sp">15</span><span class="unit">mm</span></span>
-          </div>
+          <div class="param-row"><span class="param-label">Spessore mantello</span>
+            <span class="param-value"><span id="val-sp">15</span><span class="unit">mm</span></span></div>
           <input type="range" id="sl-sp" min="8" max="25" step="1" value="15">
           <div class="param-range-bounds"><span>8</span><span>25</span></div>
         </div>
@@ -830,25 +849,21 @@
         </select>
 
         <div class="section-label">Accessori</div>
-
         <label class="check active" data-check="becco">
           <input type="checkbox" id="chk-becco" checked>
           <span class="check-label">Becco di colata</span>
           <span class="check-note">+rinf.</span>
         </label>
-
         <label class="check active" data-check="bocchello">
           <input type="checkbox" id="chk-bocchello" checked>
           <span class="check-label">Bocchello laterale</span>
           <span class="check-note">DN150</span>
         </label>
-
         <label class="check active" data-check="perni">
           <input type="checkbox" id="chk-perni" checked>
           <span class="check-label">Perni di rotazione</span>
           <span class="check-note">2×Ø120</span>
         </label>
-
         <label class="check" data-check="golfari">
           <input type="checkbox" id="chk-golfari">
           <span class="check-label">Golfari sollevamento</span>
@@ -870,7 +885,6 @@
       </div>
     </aside>
 
-    <!-- ====== CENTER: 3D VIEWPORT ====== -->
     <section class="col col-mid">
       <div class="viewport-wrap" id="vp">
         <canvas id="three-canvas"></canvas>
@@ -879,82 +893,63 @@
         <div class="viewport-overlay overlay-corner-tr"></div>
         <div class="viewport-overlay overlay-corner-bl"></div>
         <div class="viewport-overlay overlay-corner-br"></div>
-        <div class="viewport-overlay overlay-crosshair"></div>
 
         <div class="viewport-overlay overlay-hero">
           <div class="pezzo-name">Modello · Rev. A</div>
           <div class="pezzo-desc">Siviera<br>di Colata</div>
           <div class="pezzo-capacity">
-            <span class="num" id="hero-capacity">2.400</span>
+            <span class="num" id="hero-capacity">0</span>
             <span class="unit">LITRI</span>
           </div>
         </div>
 
         <div class="viewport-overlay overlay-hint">
-          Trascina: ruota<br>
-          Rotella: zoom
+          <span class="tap-hint">Tap su componente</span><br>
+          Trascina · Ruota<br>
+          Pinch · Zoom
         </div>
 
         <div class="viewport-overlay overlay-axis">
-          <div class="axis-info">
-            H · <span class="num" id="axis-h">2200</span>
-          </div>
+          <div class="axis-info">H · <span class="num" id="axis-h">2200</span></div>
         </div>
 
-        <div class="viewport-overlay overlay-dev">
-          <div class="overlay-dev-label">
-            <span>Sviluppo Virola 1</span>
-            <span class="tag" id="dev-angle-tag">α 47,3°</span>
+        <div class="overlay-dev viewport-overlay" id="dev-panel">
+          <div class="overlay-dev-head">
+            <div>
+              <div class="dev-code" id="dev-code">VIR-01</div>
+              <div class="dev-label" id="dev-label">Virola 1</div>
+            </div>
+            <button class="dev-close" id="dev-close" title="Chiudi selezione">✕</button>
           </div>
-          <svg id="dev-svg" viewBox="-110 -110 220 125" preserveAspectRatio="xMidYMid meet">
-            <path id="dev-path" fill="rgba(255,106,26,0.08)" stroke="#ff6a1a" stroke-width="1.2"/>
-            <line id="dev-r1" stroke="rgba(255,255,255,0.15)" stroke-dasharray="2,3" stroke-width="0.6"/>
-            <line id="dev-r2" stroke="rgba(255,255,255,0.15)" stroke-dasharray="2,3" stroke-width="0.6"/>
-            <text id="dev-angle-text" class="angle-text" text-anchor="middle"></text>
-            <text id="dev-r1-text" class="dim-text"></text>
-          </svg>
+          <svg class="overlay-dev-svg" id="dev-svg" viewBox="-120 -60 240 110" preserveAspectRatio="xMidYMid meet"></svg>
+          <div class="overlay-dev-dims" id="dev-dims"></div>
         </div>
       </div>
     </section>
 
-    <!-- ====== RIGHT: BOM ====== -->
-    <aside class="col col-right">
+    <aside class="col col-right" data-mtab="bom">
       <div class="bom-summary">
         <div class="bom-summary-row">
           <span class="bom-summary-label">Peso Totale</span>
-          <span class="bom-summary-value hero">
-            <span id="sum-peso">0</span><span class="unit">KG</span>
-          </span>
+          <span class="bom-summary-value hero"><span id="sum-peso">0</span><span class="unit">KG</span></span>
         </div>
         <div class="bom-summary-row">
           <span class="bom-summary-label">Lamiera</span>
-          <span class="bom-summary-value med">
-            <span id="sum-lamiera">0</span><span class="unit">M²</span>
-          </span>
+          <span class="bom-summary-value med"><span id="sum-lamiera">0</span><span class="unit">M²</span></span>
         </div>
         <div class="bom-summary-row">
           <span class="bom-summary-label">Saldatura</span>
-          <span class="bom-summary-value med">
-            <span id="sum-saldatura">0</span><span class="unit">M</span>
-          </span>
+          <span class="bom-summary-value med"><span id="sum-saldatura">0</span><span class="unit">M</span></span>
         </div>
         <div class="bom-summary-row">
           <span class="bom-summary-label">Pezzi</span>
-          <span class="bom-summary-value med">
-            <span id="sum-pezzi">0</span>
-          </span>
+          <span class="bom-summary-value med"><span id="sum-pezzi">0</span></span>
         </div>
       </div>
 
       <div class="bom-table-wrap">
         <table class="bom-table">
-          <thead>
-            <tr>
-              <th>Descrizione</th>
-              <th class="num">Qtà</th>
-              <th class="num">Kg</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Descrizione</th><th class="num">Qtà</th><th class="num">Kg</th></tr></thead>
           <tbody id="bom-body"></tbody>
         </table>
       </div>
@@ -962,23 +957,18 @@
       <div class="export-bar">
         <button class="btn" id="btn-csv" title="Esporta distinta gerarchica CSV">
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="2" y="2" width="12" height="12" rx="1"/>
-            <path d="M2 6h12M2 10h12M6 2v12M10 2v12"/>
-          </svg>
-          CSV
+            <rect x="2" y="2" width="12" height="12" rx="1"/><path d="M2 6h12M2 10h12M6 2v12M10 2v12"/>
+          </svg>CSV
         </button>
-        <button class="btn" id="btn-dxf" title="Esporta sviluppi DXF (virola 1)">
+        <button class="btn" id="btn-dxf" title="Esporta sviluppo DXF">
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M2 14l5-12 3 8 2-3 2 7H2z"/>
-          </svg>
-          DXF
+          </svg>DXF
         </button>
         <button class="btn primary" id="btn-pdf" title="Esporta preventivo PDF">
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M3 1h7l3 3v11H3z"/>
-            <path d="M10 1v3h3"/>
-          </svg>
-          PDF
+            <path d="M3 1h7l3 3v11H3z"/><path d="M10 1v3h3"/>
+          </svg>PDF
         </button>
       </div>
     </aside>
@@ -991,94 +981,64 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-/* ============================================================
-   STATE
-   ============================================================ */
+/* ============ STATE ============ */
 const state = {
   diametroSup: 2000,
   diametroInf: 1400,
   altezza:     2200,
   spessore:    15,
   materiale:   'S355J2',
-  accessori: {
-    becco: true,
-    bocchello: true,
-    perni: true,
-    golfari: false
-  }
+  accessori: { becco: true, bocchello: true, perni: true, golfari: false }
 };
+const DENS = 7850;
 
-const DENS = 7850; // kg/m³ acciaio
-
-/* ============================================================
-   HELPERS
-   ============================================================ */
-function fmt(n, dec = 0) {
+/* ============ HELPERS ============ */
+const fmt = (n, dec = 0) => {
   if (n === undefined || n === null || isNaN(n)) return '—';
-  return new Intl.NumberFormat('it-IT', {
-    minimumFractionDigits: dec,
-    maximumFractionDigits: dec
-  }).format(n);
-}
-function fmtCsv(n, dec = 2) {
+  return new Intl.NumberFormat('it-IT', { minimumFractionDigits: dec, maximumFractionDigits: dec }).format(n);
+};
+const fmtCsv = (n, dec = 2) => {
   if (n === undefined || n === null || isNaN(n)) return '';
   return n.toFixed(dec).replace('.', ',');
-}
+};
 
-/* ============================================================
-   CALCULATIONS
-   ============================================================ */
+/* ============ CALCS ============ */
 function calcCapacity() {
-  const R = state.diametroSup/2/1000;
-  const r = state.diametroInf/2/1000;
-  const h = state.altezza/1000;
-  const volume = (Math.PI/3) * h * (R*R + R*r + r*r); // m³
-  return volume * 1000; // litri
+  const R = state.diametroSup/2/1000, r = state.diametroInf/2/1000, h = state.altezza/1000;
+  return (Math.PI/3) * h * (R*R + R*r + r*r) * 1000;
 }
-
 function calcVirolaData(rBot, rTop, h) {
   const Rmax = Math.max(rBot, rTop);
   const Rmin = Math.min(rBot, rTop);
   const apotema = Math.sqrt(h*h + (Rmax-Rmin)*(Rmax-Rmin));
+  const denom = (Rmax - Rmin) || 0.0001;
   const angoloFull = 360 * (Rmax - Rmin) / apotema;
-  const L1 = Rmax * apotema / (Rmax - Rmin || 0.0001); // outer radius of sviluppo
-  const L2 = L1 - apotema;
-  const area = Math.PI * (rBot + rTop) * apotema; // mm²
-  return { apotema, angoloFull, L1, L2, area };
+  const L1 = Rmax * apotema / denom;
+  const L2 = Rmin * apotema / denom;
+  const area = Math.PI * (rBot + rTop) * apotema;
+  return { apotema, angoloFull, L1, L2, area, Rmax, Rmin };
 }
 
-/* ============================================================
-   BOM GENERATION (rule engine)
-   ============================================================ */
+/* ============ BOM GEN ============ */
 function generateBOM() {
   const items = [];
   let nextId = 1;
-
   const Rsup = state.diametroSup / 2;
   const Rinf = state.diametroInf / 2;
-  const H    = state.altezza;
-  const sp   = state.spessore;
-  const mat  = state.materiale;
+  const H = state.altezza;
+  const sp = state.spessore;
+  const mat = state.materiale;
   const capacityL = calcCapacity();
 
-  // ROOT
   const rootId = nextId++;
-  items.push({
-    level: 0, parentId: null, id: rootId,
+  items.push({ level: 0, parentId: null, id: rootId,
     codice: `SIV-${Math.round(capacityL/100)*100}`,
     descrizione: `Siviera di colata ${fmt(capacityL)} L`,
-    qta: 1, materiale: '',
-    note: 'Assieme principale'
-  });
+    qta: 1, note: 'Assieme principale' });
 
-  // MANTELLO
   const mantId = nextId++;
-  items.push({
-    level: 1, parentId: rootId, id: mantId,
-    codice: 'MNT-001',
-    descrizione: 'Mantello conico',
-    qta: 1, note: 'Sotto-assieme'
-  });
+  items.push({ level: 1, parentId: rootId, id: mantId,
+    codice: 'MNT-001', descrizione: 'Mantello conico', qta: 1, note: 'Sotto-assieme' });
 
   const nV = Math.max(1, Math.ceil(H / 1500));
   const hV = H / nV;
@@ -1091,10 +1051,9 @@ function generateBOM() {
     const area = v.area / 1e6;
     const peso = area * (sp/1000) * DENS;
     const splitSemi = 2*Rmax > 1500;
-
     const virId = nextId++;
-    items.push({
-      level: 2, parentId: mantId, id: virId,
+
+    items.push({ level: 2, parentId: mantId, id: virId,
       codice: `VIR-${String(i+1).padStart(2,'0')}`,
       descrizione: nV === 1 ? 'Virola unica' : `Virola ${i+1} di ${nV}`,
       qta: 1,
@@ -1104,206 +1063,155 @@ function generateBOM() {
       pesoTot:   peso,
       sviluppo_m2: splitSemi ? null : area,
       larghezza: splitSemi ? null : v.apotema,
-      note: splitSemi
-        ? `Ø=${fmt(2*Rmax)} mm → 2 semilune`
-        : `Sviluppo α=${fmt(v.angoloFull,1)}°`
-    });
+      note: splitSemi ? `Ø=${fmt(2*Rmax)} mm → 2 semilune` : `Sviluppo α=${fmt(v.angoloFull,1)}°` });
 
     if (splitSemi) {
       ['SX','DX'].forEach(lato => {
-        items.push({
-          level: 3, parentId: virId, id: nextId++,
+        items.push({ level: 3, parentId: virId, id: nextId++,
           codice: `VIR-${String(i+1).padStart(2,'0')}-${lato}`,
           descrizione: `Semiluna ${lato==='SX'?'sinistra':'destra'}`,
           qta: 1, materiale: mat, spessore: sp,
           pesoUnit: peso/2, pesoTot: peso/2,
-          sviluppo_m2: area/2,
-          larghezza: v.apotema,
-          note: `Settore α/2=${fmt(v.angoloFull/2,1)}°`
-        });
+          sviluppo_m2: area/2, larghezza: v.apotema,
+          note: `Settore α/2=${fmt(v.angoloFull/2,1)}°` });
       });
     }
   }
 
-  // FONDO
   const spFondo = sp + 5;
   const areaFondo = Math.PI * Rinf * Rinf / 1e6;
   const pesoFondo = areaFondo * (spFondo/1000) * DENS;
-  items.push({
-    level: 1, parentId: rootId, id: nextId++,
+  items.push({ level: 1, parentId: rootId, id: nextId++,
     codice: 'FND-001', descrizione: 'Fondo piano', qta: 1,
     materiale: mat, spessore: spFondo,
     pesoUnit: pesoFondo, pesoTot: pesoFondo,
     sviluppo_m2: areaFondo,
     lunghezza: 2*Rinf, larghezza: 2*Rinf,
-    note: `Piastra Ø${fmt(2*Rinf)} mm`
-  });
+    note: `Piastra Ø${fmt(2*Rinf)} mm` });
 
-  // RINFORZI ORIZZONTALI
   const nRinf = Math.max(0, Math.floor(H / 800));
   if (nRinf > 0) {
     const rgId = nextId++;
-    items.push({
-      level: 1, parentId: rootId, id: rgId,
+    items.push({ level: 1, parentId: rootId, id: rgId,
       codice: 'RNF-H', descrizione: 'Rinforzi orizzontali',
-      qta: nRinf, note: `n° ${nRinf} anelli, passo ~${fmt(H/(nRinf+1))} mm`
-    });
+      qta: nRinf, note: `n° ${nRinf} anelli, passo ~${fmt(H/(nRinf+1))} mm` });
     for (let i = 0; i < nRinf; i++) {
       const zLev = H * (i+1) / (nRinf+1);
       const rAtZ = Rinf + (Rsup - Rinf) * zLev / H;
       const sezW = 80, sezT = 15;
       const circ = 2 * Math.PI * rAtZ;
       const pesoA = (circ/1000) * (sezW/1000) * (sezT/1000) * DENS;
-      items.push({
-        level: 2, parentId: rgId, id: nextId++,
+      items.push({ level: 2, parentId: rgId, id: nextId++,
         codice: `RNF-H-${String(i+1).padStart(2,'0')}`,
         descrizione: `Anello ${i+1}`,
         qta: 1, materiale: mat, spessore: sezT,
         pesoUnit: pesoA, pesoTot: pesoA,
         lunghezza: circ, larghezza: sezW,
-        note: `Piatto ${sezW}×${sezT}, calandrato Ø${fmt(2*rAtZ)}`
-      });
+        note: `Piatto ${sezW}×${sezT}, calandrato Ø${fmt(2*rAtZ)}` });
     }
   }
 
-  // RINFORZI VERTICALI (se virole sono spezzate)
   const maxD = Math.max(state.diametroSup, state.diametroInf);
   if (maxD > 1500) {
     const rvId = nextId++;
-    items.push({
-      level: 1, parentId: rootId, id: rvId,
+    items.push({ level: 1, parentId: rootId, id: rvId,
       codice: 'RNF-V', descrizione: 'Rinforzi verticali',
-      qta: 2, note: 'Copertura saldature semilune'
-    });
+      qta: 2, note: 'Copertura saldature semilune' });
     const sezW = 80, sezT = 15;
     const pesoV = (H/1000) * (sezW/1000) * (sezT/1000) * DENS;
     for (let i = 0; i < 2; i++) {
-      items.push({
-        level: 2, parentId: rvId, id: nextId++,
+      items.push({ level: 2, parentId: rvId, id: nextId++,
         codice: `RNF-V-${String(i+1).padStart(2,'0')}`,
         descrizione: `Piatto verticale ${i+1}`,
         qta: 1, materiale: mat, spessore: sezT,
         pesoUnit: pesoV, pesoTot: pesoV,
         lunghezza: H, larghezza: sezW,
-        note: `Piatto ${sezW}×${sezT}, lungh. ${fmt(H)}`
-      });
+        note: `Piatto ${sezW}×${sezT}, lungh. ${fmt(H)}` });
     }
   }
 
-  // ACCESSORI
   if (state.accessori.becco) {
     const bcId = nextId++;
-    items.push({
-      level: 1, parentId: rootId, id: bcId,
-      codice: 'BCO-001', descrizione: 'Becco di colata',
-      qta: 1, note: 'Sotto-assieme'
-    });
-    items.push({
-      level: 2, parentId: bcId, id: nextId++,
+    items.push({ level: 1, parentId: rootId, id: bcId,
+      codice: 'BCO-001', descrizione: 'Becco di colata', qta: 1, note: 'Sotto-assieme' });
+    items.push({ level: 2, parentId: bcId, id: nextId++,
       codice: 'BCO-LAM', descrizione: 'Lamiera sagomata becco',
       qta: 1, materiale: mat, spessore: sp + 5,
-      pesoUnit: 42.5, pesoTot: 42.5,
-      sviluppo_m2: 0.42,
-      note: 'Taglio sagoma + piegatura'
-    });
-    items.push({
-      level: 2, parentId: bcId, id: nextId++,
+      pesoUnit: 42.5, pesoTot: 42.5, sviluppo_m2: 0.42,
+      lunghezza: 950, larghezza: 450,
+      note: 'Taglio sagoma + piegatura' });
+    items.push({ level: 2, parentId: bcId, id: nextId++,
       codice: 'BCO-RNF', descrizione: 'Rinforzo UPN 100',
-      qta: 2, materiale: 'S275JR', lunghezza: 450,
-      pesoUnit: 4.8, pesoTot: 9.6,
-      note: 'Profilo UPN 100 L=450'
-    });
+      qta: 2, materiale: 'S275JR',
+      lunghezza: 450, pesoUnit: 4.8, pesoTot: 9.6,
+      note: 'Profilo UPN 100 L=450' });
   }
 
   if (state.accessori.bocchello) {
     const boId = nextId++;
-    items.push({
-      level: 1, parentId: rootId, id: boId,
-      codice: 'BOC-001', descrizione: 'Bocchello laterale DN150',
-      qta: 1, note: 'Sotto-assieme'
-    });
-    items.push({
-      level: 2, parentId: boId, id: nextId++,
+    items.push({ level: 1, parentId: rootId, id: boId,
+      codice: 'BOC-001', descrizione: 'Bocchello laterale DN150', qta: 1, note: 'Sotto-assieme' });
+    items.push({ level: 2, parentId: boId, id: nextId++,
       codice: 'BOC-TUB', descrizione: 'Tubo Ø168,3 × 10',
       qta: 1, materiale: mat, spessore: 10,
-      lunghezza: 200, pesoUnit: 7.8, pesoTot: 7.8,
-      note: 'Tubo strutturale'
-    });
-    items.push({
-      level: 2, parentId: boId, id: nextId++,
+      lunghezza: 200, larghezza: Math.PI*168.3,
+      pesoUnit: 7.8, pesoTot: 7.8, note: 'Tubo strutturale' });
+    items.push({ level: 2, parentId: boId, id: nextId++,
       codice: 'BOC-FLG', descrizione: 'Flangia DN150 PN16',
       qta: 1, materiale: 'S275JR',
       pesoUnit: 5.2, pesoTot: 5.2,
-      note: 'Flangia piana forata'
-    });
+      lunghezza: 280, larghezza: 280,
+      note: 'Flangia piana forata' });
   }
 
   if (state.accessori.perni) {
     const pnId = nextId++;
-    items.push({
-      level: 1, parentId: rootId, id: pnId,
-      codice: 'PRN-001', descrizione: 'Perni di rotazione',
-      qta: 2, note: 'Sotto-assieme'
-    });
-    items.push({
-      level: 2, parentId: pnId, id: nextId++,
+    items.push({ level: 1, parentId: rootId, id: pnId,
+      codice: 'PRN-001', descrizione: 'Perni di rotazione', qta: 2, note: 'Sotto-assieme' });
+    items.push({ level: 2, parentId: pnId, id: nextId++,
       codice: 'PRN-TND', descrizione: 'Tondo Ø120 tornito',
       qta: 2, materiale: 'C45',
-      lunghezza: 300, pesoUnit: 28.5, pesoTot: 57,
-      note: 'Tornitura + foratura'
-    });
-    items.push({
-      level: 2, parentId: pnId, id: nextId++,
+      lunghezza: 300, larghezza: 120,
+      pesoUnit: 28.5, pesoTot: 57, note: 'Tornitura + foratura' });
+    items.push({ level: 2, parentId: pnId, id: nextId++,
       codice: 'PRN-PLT', descrizione: 'Piastra rinforzo perno',
       qta: 2, materiale: mat, spessore: sp + 5,
-      pesoUnit: 18.2, pesoTot: 36.4,
-      note: `Piatto 400×400×${sp+5}`
-    });
+      lunghezza: 400, larghezza: 400,
+      pesoUnit: 18.2, pesoTot: 36.4, note: `Piatto 400×400×${sp+5}` });
   }
 
   if (state.accessori.golfari) {
-    items.push({
-      level: 1, parentId: rootId, id: nextId++,
+    items.push({ level: 1, parentId: rootId, id: nextId++,
       codice: 'GLF-001', descrizione: 'Golfari sollevamento M36',
       qta: 4, materiale: 'C15',
       pesoUnit: 1.2, pesoTot: 4.8,
-      note: 'UNI EN ISO 3266 normalizzato'
-    });
+      note: 'UNI EN ISO 3266 normalizzato' });
   }
 
-  // Rollup pesi: le foglie hanno pesoTot = pesoUnit × qta (totale per l'item).
-  // I container accumulano la somma dei figli. Si naviga l'albero dalla radice.
-  const rollupWeight = (id) => {
+  const rollup = (id) => {
     const item = items.find(it => it.id === id);
     if (!item) return 0;
     const children = items.filter(it => it.parentId === id);
     if (children.length === 0) return (item.pesoTot || 0);
     let sum = 0;
-    for (const ch of children) sum += rollupWeight(ch.id);
-    // Per virole spezzate, pesoTot è già = somma semilune; idempotente.
+    for (const ch of children) sum += rollup(ch.id);
     item.pesoTot = sum;
     return sum;
   };
-  const totWeight = rollupWeight(rootId);
-
-  // Sviluppo lamiera totale
+  const totWeight = rollup(rootId);
   const totArea = items.reduce((s, it) => s + (it.sviluppo_m2 || 0), 0);
 
-  // Saldatura approssimativa: somma circonferenze virole + saldature semilune + fondo + accessori
   let weldM = 0;
-  // Virole-to-virole saldature circolari
   for (let i = 0; i < nV; i++) {
     const r1 = Rinf + (Rsup - Rinf) * (i / nV);
     const r2 = Rinf + (Rsup - Rinf) * ((i+1) / nV);
     if (i > 0) weldM += 2 * Math.PI * r1 / 1000;
     if (2*Math.max(r1,r2) > 1500) {
       const apot = Math.sqrt(hV*hV + (r1-r2)*(r1-r2));
-      weldM += 2 * apot / 1000; // 2 cordoni radiali
+      weldM += 2 * apot / 1000;
     }
   }
-  // Fondo-mantello
   weldM += 2 * Math.PI * Rinf / 1000;
-  // Accessori stimati
   if (state.accessori.becco) weldM += 2.5;
   if (state.accessori.bocchello) weldM += 0.55;
   if (state.accessori.perni) weldM += 5.2;
@@ -1312,11 +1220,8 @@ function generateBOM() {
   return { items, totalWeight: totWeight, totalArea: totArea, weldM };
 }
 
-/* ============================================================
-   RENDER BOM TABLE
-   ============================================================ */
+/* ============ BOM RENDER ============ */
 let lastItemIds = new Set();
-
 function renderBOM(bom) {
   const body = document.getElementById('bom-body');
   body.innerHTML = '';
@@ -1326,6 +1231,7 @@ function renderBOM(bom) {
     currentIds.add(it.id);
     const tr = document.createElement('tr');
     tr.className = `level-${it.level}`;
+    tr.dataset.codice = it.codice || '';
     if (!lastItemIds.has(it.id) && lastItemIds.size > 0) tr.classList.add('new-row');
 
     const tdDesc = document.createElement('td');
@@ -1340,7 +1246,6 @@ function renderBOM(bom) {
     const tdQta = document.createElement('td');
     tdQta.className = 'num';
     tdQta.textContent = it.qta ?? '';
-
     const tdPeso = document.createElement('td');
     tdPeso.className = 'num';
     tdPeso.textContent = it.pesoTot ? fmt(it.pesoTot, 1) : '—';
@@ -1348,15 +1253,21 @@ function renderBOM(bom) {
     tr.appendChild(tdDesc);
     tr.appendChild(tdQta);
     tr.appendChild(tdPeso);
+
+    if (it.codice && it.level >= 1) {
+      tr.addEventListener('click', () => selectByCode(it.codice));
+    }
     body.appendChild(tr);
   }
   lastItemIds = currentIds;
 
-  // Summary numbers
   animateNum('sum-peso', bom.totalWeight, 0);
   animateNum('sum-lamiera', bom.totalArea, 1);
   animateNum('sum-saldatura', bom.weldM, 1);
-  animateNum('sum-pezzi', bom.items.filter(it => it.level >= 2 && !bom.items.some(c => c.parentId===it.id)).reduce((s,it)=>s+(it.qta||0),0), 0);
+  const pezzi = bom.items
+    .filter(it => !bom.items.some(c => c.parentId === it.id))
+    .reduce((s, it) => s + (it.qta || 0), 0);
+  animateNum('sum-pezzi', pezzi, 0);
 }
 
 function animateNum(id, to, dec = 0) {
@@ -1375,20 +1286,18 @@ function animateNum(id, to, dec = 0) {
   requestAnimationFrame(step);
 }
 
-/* ============================================================
-   THREE.JS SCENE
-   ============================================================ */
+/* ============ THREE.JS ============ */
 let scene, camera, renderer, controls;
 let sivieraGroup;
 let autoRotate = true;
 let rotateResumeTimer = null;
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
 
 function initThree() {
   const canvas = document.getElementById('three-canvas');
-  const wrap   = document.getElementById('vp');
-
+  const wrap = document.getElementById('vp');
   scene = new THREE.Scene();
-
   const w = wrap.clientWidth, h = wrap.clientHeight;
   camera = new THREE.PerspectiveCamera(38, w/h, 50, 30000);
   camera.position.set(5500, 2800, 5500);
@@ -1399,38 +1308,25 @@ function initThree() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.0;
 
-  // LIGHTS (warm workshop atmosphere)
   scene.add(new THREE.HemisphereLight(0x4a4038, 0x0a0a0a, 0.45));
-
   const key = new THREE.DirectionalLight(0xffd9a8, 1.7);
-  key.position.set(2500, 4000, 2500);
-  scene.add(key);
-
+  key.position.set(2500, 4000, 2500); scene.add(key);
   const fill = new THREE.DirectionalLight(0x8098b0, 0.5);
-  fill.position.set(-2500, 2000, -1500);
-  scene.add(fill);
-
+  fill.position.set(-2500, 2000, -1500); scene.add(fill);
   const rim = new THREE.DirectionalLight(0xff7a30, 0.8);
-  rim.position.set(-800, 400, -3000);
-  scene.add(rim);
+  rim.position.set(-800, 400, -3000); scene.add(rim);
 
-  // GROUND
-  const groundGeo = new THREE.CircleGeometry(7000, 64);
-  const groundMat = new THREE.MeshStandardMaterial({
-    color: 0x0c0c0c, metalness: 0.6, roughness: 0.85
-  });
-  const ground = new THREE.Mesh(groundGeo, groundMat);
+  const ground = new THREE.Mesh(
+    new THREE.CircleGeometry(7000, 64),
+    new THREE.MeshStandardMaterial({ color: 0x0c0c0c, metalness: 0.6, roughness: 0.85 })
+  );
   ground.rotation.x = -Math.PI / 2;
   scene.add(ground);
-
-  // FLOOR GRID (subtle)
   const grid = new THREE.GridHelper(6000, 24, 0x222222, 0x161616);
   grid.position.y = 1;
   scene.add(grid);
 
-  // CONTROLS
   controls = new OrbitControls(camera, canvas);
   controls.target.set(0, state.altezza * 0.45, 0);
   controls.enableDamping = true;
@@ -1438,22 +1334,22 @@ function initThree() {
   controls.minDistance = 1500;
   controls.maxDistance = 15000;
   controls.maxPolarAngle = Math.PI / 2 + 0.1;
+  controls.enablePan = false;
   controls.addEventListener('start', () => {
     autoRotate = false;
     if (rotateResumeTimer) clearTimeout(rotateResumeTimer);
   });
   controls.addEventListener('end', () => {
     if (rotateResumeTimer) clearTimeout(rotateResumeTimer);
-    rotateResumeTimer = setTimeout(() => { autoRotate = true; }, 3500);
+    rotateResumeTimer = setTimeout(() => { if (!selectedCode) autoRotate = true; }, 3500);
   });
 
-  // GROUP
   sivieraGroup = new THREE.Group();
   scene.add(sivieraGroup);
 
+  setupPicking(canvas);
   buildSiviera();
   animate();
-
   window.addEventListener('resize', onResize);
 }
 
@@ -1465,7 +1361,345 @@ function onResize() {
   renderer.setSize(w, h, false);
 }
 
-function makeSteelMaterial(shade = 0.45, rough = 0.5) {
+/* ============ PICKING ============ */
+let pointerDownPos = null;
+function setupPicking(canvas) {
+  canvas.addEventListener('pointerdown', (e) => {
+    pointerDownPos = { x: e.clientX, y: e.clientY, t: performance.now() };
+  });
+  canvas.addEventListener('pointerup', (e) => {
+    if (!pointerDownPos) return;
+    const dx = e.clientX - pointerDownPos.x;
+    const dy = e.clientY - pointerDownPos.y;
+    const dt = performance.now() - pointerDownPos.t;
+    pointerDownPos = null;
+    if (dx*dx + dy*dy > 36 || dt > 500) return;
+    const rect = canvas.getBoundingClientRect();
+    pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    pointer.y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
+    raycaster.setFromCamera(pointer, camera);
+    const meshes = [];
+    sivieraGroup.traverse(o => { if (o.isMesh && o.userData && o.userData.codice) meshes.push(o); });
+    const hits = raycaster.intersectObjects(meshes, false);
+    if (hits.length > 0) selectByCode(hits[0].object.userData.codice);
+    else deselect();
+  });
+  document.getElementById('dev-close').addEventListener('click', (e) => {
+    e.stopPropagation(); deselect();
+  });
+}
+
+/* ============ SELECTION ============ */
+let selectedCode = null;
+
+function setMeshHighlight(mesh, on) {
+  if (!mesh || !mesh.material || !mesh.material.emissive) return;
+  if (on) {
+    mesh.material.emissive.setHex(0xff4510);
+    mesh.material.emissiveIntensity = 0.85;
+  } else {
+    mesh.material.emissive.setHex(0x000000);
+    mesh.material.emissiveIntensity = 0;
+  }
+}
+function clearAllHighlights() {
+  sivieraGroup.traverse(o => { if (o.isMesh) setMeshHighlight(o, false); });
+}
+function highlightBomRow(code) {
+  document.querySelectorAll('#bom-body tr.selected').forEach(tr => tr.classList.remove('selected'));
+  if (!code) return;
+  const row = document.querySelector(`#bom-body tr[data-codice="${code}"]`);
+  if (row) {
+    row.classList.add('selected');
+    row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+}
+
+function selectByCode(code) {
+  if (!code) return deselect();
+  selectedCode = code;
+  clearAllHighlights();
+  autoRotate = false;
+  if (rotateResumeTimer) clearTimeout(rotateResumeTimer);
+
+  const matched = [];
+  sivieraGroup.traverse(o => {
+    if (o.isMesh && o.userData && o.userData.codice === code) {
+      setMeshHighlight(o, true);
+      matched.push(o);
+    }
+  });
+  // Container senza mesh propria: evidenzia i discendenti
+  if (matched.length === 0 && window._lastBOM) {
+    const parent = window._lastBOM.items.find(it => it.codice === code);
+    if (parent) {
+      const descendants = [];
+      const collect = (pid) => {
+        for (const ch of window._lastBOM.items) {
+          if (ch.parentId === pid) {
+            if (ch.codice) descendants.push(ch.codice);
+            collect(ch.id);
+          }
+        }
+      };
+      collect(parent.id);
+      sivieraGroup.traverse(o => {
+        if (o.isMesh && o.userData && descendants.includes(o.userData.codice)) {
+          setMeshHighlight(o, true);
+          matched.push(o);
+        }
+      });
+    }
+  }
+  highlightBomRow(code);
+  renderDevPanel(code);
+  document.getElementById('dev-panel').classList.add('has-selection');
+}
+
+function deselect() {
+  selectedCode = null;
+  clearAllHighlights();
+  highlightBomRow(null);
+  renderDevPanel(null);
+  document.getElementById('dev-panel').classList.remove('has-selection');
+  if (rotateResumeTimer) clearTimeout(rotateResumeTimer);
+  rotateResumeTimer = setTimeout(() => { autoRotate = true; }, 2500);
+}
+
+/* ============ DEV PANEL ============ */
+function renderDevPanel(code) {
+  const svg = document.getElementById('dev-svg');
+  const codeEl = document.getElementById('dev-code');
+  const labelEl = document.getElementById('dev-label');
+  const dimsEl = document.getElementById('dev-dims');
+
+  let bomItem = null;
+  if (code && window._lastBOM) bomItem = window._lastBOM.items.find(it => it.codice === code);
+  if (!bomItem && window._lastBOM) {
+    bomItem = window._lastBOM.items.find(it => it.codice && it.codice.startsWith('VIR-') && !it.codice.includes('-SX') && !it.codice.includes('-DX'))
+           || window._lastBOM.items.find(it => it.codice && it.codice.startsWith('VIR-'));
+  }
+  if (!bomItem) {
+    svg.innerHTML = ''; codeEl.textContent = '—'; labelEl.textContent = 'Nessun componente'; dimsEl.innerHTML = '';
+    return;
+  }
+  codeEl.textContent = bomItem.codice;
+  labelEl.textContent = bomItem.descrizione;
+  const sv = deriveSviluppo(bomItem);
+  drawSviluppo(svg, sv);
+  renderDims(dimsEl, sv, bomItem);
+}
+
+function deriveSviluppo(it) {
+  const code = it.codice || '';
+  if (code.startsWith('VIR-') && (code.endsWith('-SX') || code.endsWith('-DX'))) {
+    const i = parseInt(code.slice(4, 6), 10) - 1;
+    return computeVirolaSviluppo(i, true);
+  }
+  if (code.startsWith('VIR-')) {
+    const i = parseInt(code.slice(4, 6), 10) - 1;
+    return computeVirolaSviluppo(i, false);
+  }
+  if (code === 'FND-001') {
+    return { type: 'circle', diameter: state.diametroInf, thickness: state.spessore + 5 };
+  }
+  if (code.startsWith('RNF-H-')) {
+    return { type: 'rect', base: it.lunghezza, height: it.larghezza, thickness: it.spessore,
+      baseLabel: 'Circonferenza', heightLabel: 'Larghezza' };
+  }
+  if (code.startsWith('RNF-V-')) {
+    return { type: 'rect', base: it.lunghezza, height: it.larghezza, thickness: it.spessore,
+      baseLabel: 'Lunghezza', heightLabel: 'Larghezza' };
+  }
+  if (code === 'BOC-TUB') {
+    return { type: 'rect', base: it.larghezza, height: it.lunghezza, thickness: it.spessore,
+      baseLabel: 'Sviluppo π·D', heightLabel: 'Altezza tubo' };
+  }
+  if (code === 'BOC-FLG' || code === 'PRN-PLT') {
+    return { type: 'rect', base: it.larghezza, height: it.lunghezza, thickness: it.spessore,
+      baseLabel: 'Base', heightLabel: 'Altezza' };
+  }
+  if (code === 'BCO-LAM') {
+    return { type: 'rect', base: it.larghezza, height: it.lunghezza, thickness: it.spessore,
+      baseLabel: 'Larghezza sviluppo', heightLabel: 'Lunghezza' };
+  }
+  if (code === 'PRN-TND') {
+    return { type: 'solid', base: it.larghezza, height: it.lunghezza,
+      baseLabel: 'Ø', heightLabel: 'Lunghezza' };
+  }
+  if (code === 'BCO-RNF') {
+    return { type: 'upn', height: it.lunghezza, profile: 'UPN 100', heightLabel: 'Lunghezza' };
+  }
+  if (code === 'GLF-001') return { type: 'commercial', label: 'M36 normalizzato' };
+  return { type: 'container' };
+}
+
+function computeVirolaSviluppo(i, isSemi) {
+  const Rsup = state.diametroSup / 2;
+  const Rinf = state.diametroInf / 2;
+  const H = state.altezza;
+  const nV = Math.max(1, Math.ceil(H / 1500));
+  const hV = H / nV;
+  const r1 = Rinf + (Rsup - Rinf) * (i / nV);
+  const r2 = Rinf + (Rsup - Rinf) * ((i+1) / nV);
+  const v = calcVirolaData(r1, r2, hV);
+  const alpha = isSemi ? v.angoloFull / 2 : v.angoloFull;
+  const arcOuter = v.L1 * (alpha * Math.PI/180);
+  const arcInner = v.L2 * (alpha * Math.PI/180);
+  return {
+    type: 'sector',
+    L1: v.L1, L2: v.L2, alpha,
+    apotema: v.apotema,
+    arcOuter, arcInner,
+    thickness: state.spessore,
+    rMax: v.Rmax, rMin: v.Rmin
+  };
+}
+
+function drawSviluppo(svg, sv) {
+  svg.setAttribute('viewBox', '-120 -60 240 110');
+  svg.innerHTML = '';
+  const NS = 'http://www.w3.org/2000/svg';
+  const add = (tag, attrs, text) => {
+    const el = document.createElementNS(NS, tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    if (text !== undefined) el.textContent = text;
+    svg.appendChild(el);
+    return el;
+  };
+
+  if (sv.type === 'sector') {
+    const maxSide = 100;
+    const scale = maxSide / sv.L1;
+    const L1 = sv.L1 * scale;
+    const L2 = sv.L2 * scale;
+    const aRad = sv.alpha * Math.PI / 180;
+    const a1 = -aRad/2 - Math.PI/2;
+    const a2 =  aRad/2 - Math.PI/2;
+    const x1a = Math.cos(a1)*L1, y1a = Math.sin(a1)*L1;
+    const x2a = Math.cos(a2)*L1, y2a = Math.sin(a2)*L1;
+    const x1b = Math.cos(a1)*L2, y1b = Math.sin(a1)*L2;
+    const x2b = Math.cos(a2)*L2, y2b = Math.sin(a2)*L2;
+    const large = sv.alpha > 180 ? 1 : 0;
+    const d = `M ${x1a} ${y1a} A ${L1} ${L1} 0 ${large} 1 ${x2a} ${y2a} L ${x2b} ${y2b} A ${L2} ${L2} 0 ${large} 0 ${x1b} ${y1b} Z`;
+    add('path', { class: 's-fill', d });
+    add('line', { class: 's-ref', x1: 0, y1: 0, x2: x1a, y2: y1a });
+    add('line', { class: 's-ref', x1: 0, y1: 0, x2: x2a, y2: y2a });
+    add('text', { class: 'dim-lbl', 'text-anchor': 'middle', x: 0, y: -(L1+L2)/2 + 4 }, `α ${fmt(sv.alpha,1)}°`);
+    add('text', { class: 'dim-sub', 'text-anchor': 'middle', x: 0, y: -L1 - 4 }, `arco ${fmt(sv.arcOuter)} mm`);
+    svg.setAttribute('viewBox', `-115 ${-L1 - 18} 230 ${L1 + 30}`);
+    return;
+  }
+
+  if (sv.type === 'rect' || sv.type === 'solid') {
+    const base = sv.base || 200;
+    const height = sv.height || 100;
+    const ratio = base / height;
+    let w, h;
+    if (ratio > 2.0) { w = 200; h = 200 / ratio; }
+    else { h = 80; w = 80 * ratio; }
+    if (w > 200) { w = 200; h = 200 / ratio; }
+    if (h > 80)  { h = 80; w = 80 * ratio; }
+    const x = -w/2, y = -h/2;
+    add('rect', { class: 's-fill', x, y, width: w, height: h });
+    const dy = y + h + 12;
+    add('line', { class: 's-dim', x1: x, y1: dy, x2: x+w, y2: dy });
+    add('line', { class: 's-dim', x1: x, y1: dy-3, x2: x, y2: dy+3 });
+    add('line', { class: 's-dim', x1: x+w, y1: dy-3, x2: x+w, y2: dy+3 });
+    add('text', { class: 'dim-lbl', 'text-anchor': 'middle', x: 0, y: dy + 8 }, `${fmt(base)}`);
+    const dx = x + w + 10;
+    add('line', { class: 's-dim', x1: dx, y1: y, x2: dx, y2: y+h });
+    add('line', { class: 's-dim', x1: dx-3, y1: y, x2: dx+3, y2: y });
+    add('line', { class: 's-dim', x1: dx-3, y1: y+h, x2: dx+3, y2: y+h });
+    add('text', { class: 'dim-lbl', 'text-anchor': 'start', x: dx + 4, y: y + h/2 + 3 }, `${fmt(height)}`);
+    svg.setAttribute('viewBox', `-125 -50 245 100`);
+    return;
+  }
+
+  if (sv.type === 'upn') {
+    const wUpn = 150, hUpn = 50;
+    const xu = -wUpn/2, yu = -hUpn/2;
+    const path = `M ${xu} ${yu} L ${xu+wUpn} ${yu} L ${xu+wUpn} ${yu+8} L ${xu+8} ${yu+8} L ${xu+8} ${yu+hUpn-8} L ${xu+wUpn} ${yu+hUpn-8} L ${xu+wUpn} ${yu+hUpn} L ${xu} ${yu+hUpn} Z`;
+    add('path', { class: 's-fill', d: path });
+    add('text', { class: 'dim-lbl', 'text-anchor': 'middle', x: 0, y: yu - 6 }, sv.profile || 'UPN');
+    svg.setAttribute('viewBox', '-110 -50 220 95');
+    return;
+  }
+
+  if (sv.type === 'circle') {
+    const r = 42;
+    add('circle', { class: 's-fill', cx: 0, cy: 0, r });
+    add('line', { class: 's-dim', x1: -r, y1: 0, x2: r, y2: 0 });
+    add('line', { class: 's-dim', x1: -r, y1: -3, x2: -r, y2: 3 });
+    add('line', { class: 's-dim', x1: r, y1: -3, x2: r, y2: 3 });
+    add('text', { class: 'dim-lbl', 'text-anchor': 'middle', x: 0, y: -6 }, `Ø ${fmt(sv.diameter)}`);
+    svg.setAttribute('viewBox', '-70 -55 140 110');
+    return;
+  }
+
+  if (sv.type === 'commercial') {
+    add('circle', { class: 's-fill', cx: 0, cy: 0, r: 25 });
+    add('rect', { class: 's-fill', x: -8, y: -40, width: 16, height: 18 });
+    add('text', { class: 'dim-sub', 'text-anchor': 'middle', x: 0, y: 48 }, 'Componente commerciale');
+    svg.setAttribute('viewBox', '-60 -55 120 110');
+    return;
+  }
+
+  add('text', { class: 'dim-sub', 'text-anchor': 'middle', x: 0, y: 0 }, 'Sotto-assieme');
+  add('text', { class: 'dim-sub', 'text-anchor': 'middle', x: 0, y: 14 }, '(selezione multipla)');
+  svg.setAttribute('viewBox', '-60 -15 120 40');
+}
+
+function renderDims(el, sv, item) {
+  el.innerHTML = '';
+  const addDim = (k, v, u = 'mm') => {
+    const d = document.createElement('div');
+    d.className = 'dim-item';
+    d.innerHTML = `<div class="k">${k}</div><div class="v">${v}<span class="u">${u}</span></div>`;
+    el.appendChild(d);
+  };
+  const addText = (k, v) => {
+    const d = document.createElement('div');
+    d.className = 'dim-item';
+    d.innerHTML = `<div class="k">${k}</div><div class="v">${v}</div>`;
+    el.appendChild(d);
+  };
+
+  if (sv.type === 'sector') {
+    addDim('Arco base', fmt(sv.arcOuter));
+    addDim('Altezza', fmt(sv.apotema));
+    addText('Angolo', `${fmt(sv.alpha,1)}°`);
+    addDim('Spessore', fmt(sv.thickness));
+    if (item.pesoTot) addDim('Peso', fmt(item.pesoTot,1), 'kg');
+  } else if (sv.type === 'rect') {
+    addDim(sv.baseLabel || 'Base', fmt(sv.base));
+    addDim(sv.heightLabel || 'Altezza', fmt(sv.height));
+    if (sv.thickness) addDim('Spessore', fmt(sv.thickness));
+    if (item.pesoTot) addDim('Peso', fmt(item.pesoTot,1), 'kg');
+  } else if (sv.type === 'solid') {
+    addDim(sv.baseLabel || 'Ø', fmt(sv.base));
+    addDim(sv.heightLabel || 'Lunghezza', fmt(sv.height));
+    if (item.pesoTot) addDim('Peso', fmt(item.pesoTot,1), 'kg');
+  } else if (sv.type === 'upn') {
+    addText('Profilo', sv.profile || 'UPN');
+    if (sv.height) addDim(sv.heightLabel || 'Lunghezza', fmt(sv.height));
+    if (item.pesoTot) addDim('Peso', fmt(item.pesoTot,1), 'kg');
+  } else if (sv.type === 'circle') {
+    addDim('Diametro', fmt(sv.diameter));
+    if (sv.thickness) addDim('Spessore', fmt(sv.thickness));
+    if (item.pesoTot) addDim('Peso', fmt(item.pesoTot,1), 'kg');
+  } else if (sv.type === 'commercial') {
+    addText('Tipo', 'Normalizzato');
+    addText('Qtà', `${item.qta || 1} pz`);
+    if (item.pesoTot) addDim('Peso', fmt(item.pesoTot,1), 'kg');
+  } else {
+    if (item.qta) addText('Qtà', `${item.qta} pz`);
+    if (item.pesoTot) addDim('Peso', fmt(item.pesoTot,1), 'kg');
+  }
+}
+
+/* ============ 3D BUILD ============ */
+function steelMat(shade = 0.45, rough = 0.5) {
   return new THREE.MeshStandardMaterial({
     color: new THREE.Color(shade, shade, shade),
     metalness: 0.88,
@@ -1475,7 +1709,6 @@ function makeSteelMaterial(shade = 0.45, rough = 0.5) {
 }
 
 function buildSiviera() {
-  // Dispose previous
   while (sivieraGroup.children.length) {
     const c = sivieraGroup.children.pop();
     c.traverse?.(o => {
@@ -1486,174 +1719,138 @@ function buildSiviera() {
 
   const Rsup = state.diametroSup / 2;
   const Rinf = state.diametroInf / 2;
-  const H    = state.altezza;
-
-  const matMantle = makeSteelMaterial(0.30, 0.55);
-  const matRing   = makeSteelMaterial(0.42, 0.38);
-  const matDark   = makeSteelMaterial(0.22, 0.65);
-  const matBright = makeSteelMaterial(0.55, 0.32);
-
-  // MANTELLO (LatheGeometry con spessore simulato)
-  const outer = [];
-  outer.push(new THREE.Vector2(Rinf, 0));
-  outer.push(new THREE.Vector2(Rsup, H));
-  const mantGeo = new THREE.LatheGeometry(outer, 72, 0, Math.PI * 2);
-  const mantello = new THREE.Mesh(mantGeo, matMantle);
-  sivieraGroup.add(mantello);
-
-  // Top lip (flange superiore)
-  const topLipGeo = new THREE.TorusGeometry(Rsup, 28, 10, 72);
-  const topLip = new THREE.Mesh(topLipGeo, matRing);
-  topLip.position.y = H;
-  topLip.rotation.x = Math.PI / 2;
-  sivieraGroup.add(topLip);
-
-  // Bottom lip
-  const botLip = new THREE.Mesh(new THREE.TorusGeometry(Rinf, 24, 10, 72), matRing);
-  botLip.rotation.x = Math.PI / 2;
-  sivieraGroup.add(botLip);
-
-  // FONDO
-  const fondoGeo = new THREE.CylinderGeometry(Rinf, Rinf, 20, 64);
-  const fondo = new THREE.Mesh(fondoGeo, matDark);
-  fondo.position.y = 10;
-  sivieraGroup.add(fondo);
-
-  // VIROLE saldature (cerchi visibili sul mantello)
+  const H = state.altezza;
   const nV = Math.max(1, Math.ceil(H / 1500));
+  const hV = H / nV;
+  const maxD = Math.max(state.diametroSup, state.diametroInf);
+  const splitSemi = maxD > 1500;
+
+  const mkMesh = (geom, mat, code, parent = null) => {
+    const mesh = new THREE.Mesh(geom, mat);
+    mesh.userData = { codice: code };
+    (parent || sivieraGroup).add(mesh);
+    return mesh;
+  };
+
+  // VIROLE (split in semilune se serve)
+  for (let i = 0; i < nV; i++) {
+    const r1 = Rinf + (Rsup - Rinf) * (i / nV);
+    const r2 = Rinf + (Rsup - Rinf) * ((i+1) / nV);
+    const yBase = H * i / nV;
+    const pts = [new THREE.Vector2(r1, 0), new THREE.Vector2(r2, hV)];
+    if (splitSemi) {
+      const geoSX = new THREE.LatheGeometry(pts, 36, Math.PI/2, Math.PI);
+      const geoDX = new THREE.LatheGeometry(pts, 36, -Math.PI/2, Math.PI);
+      const mSX = mkMesh(geoSX, steelMat(0.30, 0.55), `VIR-${String(i+1).padStart(2,'0')}-SX`);
+      const mDX = mkMesh(geoDX, steelMat(0.30, 0.55), `VIR-${String(i+1).padStart(2,'0')}-DX`);
+      mSX.position.y = yBase; mDX.position.y = yBase;
+    } else {
+      const geo = new THREE.LatheGeometry(pts, 64, 0, Math.PI * 2);
+      const m = mkMesh(geo, steelMat(0.30, 0.55), `VIR-${String(i+1).padStart(2,'0')}`);
+      m.position.y = yBase;
+    }
+  }
+
+  // Saldature orizzontali (non selezionabili)
   for (let i = 1; i < nV; i++) {
     const zLev = H * i / nV;
     const rAtZ = Rinf + (Rsup - Rinf) * zLev / H;
-    const weld = new THREE.Mesh(
-      new THREE.TorusGeometry(rAtZ + 2, 8, 8, 72),
-      matBright
-    );
+    const weld = new THREE.Mesh(new THREE.TorusGeometry(rAtZ + 2, 7, 8, 72), steelMat(0.55, 0.32));
     weld.position.y = zLev;
     weld.rotation.x = Math.PI / 2;
+    weld.userData = {};
     sivieraGroup.add(weld);
   }
 
-  // RINFORZI ORIZZONTALI (anelli sporgenti)
+  const topLip = new THREE.Mesh(new THREE.TorusGeometry(Rsup, 28, 10, 72), steelMat(0.42, 0.38));
+  topLip.position.y = H; topLip.rotation.x = Math.PI / 2; topLip.userData = {};
+  sivieraGroup.add(topLip);
+
+  const botLip = new THREE.Mesh(new THREE.TorusGeometry(Rinf, 24, 10, 72), steelMat(0.42, 0.38));
+  botLip.rotation.x = Math.PI / 2; botLip.userData = {};
+  sivieraGroup.add(botLip);
+
+  // FONDO
+  const fondoMesh = mkMesh(new THREE.CylinderGeometry(Rinf, Rinf, 20, 64), steelMat(0.22, 0.65), 'FND-001');
+  fondoMesh.position.y = 10;
+
+  // RINFORZI H
   const nRinf = Math.max(0, Math.floor(H / 800));
   for (let i = 0; i < nRinf; i++) {
     const zLev = H * (i+1) / (nRinf+1);
     const rAtZ = Rinf + (Rsup - Rinf) * zLev / H;
-    const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(rAtZ + 20, 40, 6, 72),
-      matRing
-    );
+    const ring = mkMesh(new THREE.TorusGeometry(rAtZ + 20, 40, 6, 72), steelMat(0.42, 0.38),
+      `RNF-H-${String(i+1).padStart(2,'0')}`);
     ring.position.y = zLev;
     ring.rotation.x = Math.PI / 2;
-    sivieraGroup.add(ring);
   }
 
-  // RINFORZI VERTICALI (se semilune)
-  const maxD = Math.max(state.diametroSup, state.diametroInf);
-  if (maxD > 1500) {
-    for (const angle of [0, Math.PI]) {
-      // costruisce una striscia che segue la conicità
-      const stripPoints = [];
-      stripPoints.push(new THREE.Vector2(Rinf + 10, 0));
-      stripPoints.push(new THREE.Vector2(Rsup + 10, H));
-      const stripGeo = new THREE.LatheGeometry(stripPoints, 6, angle - 0.06, 0.12);
-      const strip = new THREE.Mesh(stripGeo, matRing);
-      sivieraGroup.add(strip);
+  // RINFORZI V
+  if (splitSemi) {
+    const codes = ['RNF-V-01','RNF-V-02'];
+    [0, Math.PI].forEach((angle, idx) => {
+      const stripPts = [new THREE.Vector2(Rinf + 12, 0), new THREE.Vector2(Rsup + 12, H)];
+      const stripGeo = new THREE.LatheGeometry(stripPts, 8, angle - 0.06, 0.12);
+      mkMesh(stripGeo, steelMat(0.42, 0.38), codes[idx]);
+    });
+  }
+
+  // BECCO
+  if (state.accessori.becco) {
+    const beccoAngle = Math.PI * 0.25;
+    const rAtTop = Rsup;
+    const becco = mkMesh(new THREE.BoxGeometry(420, 200, 280), steelMat(0.30, 0.55), 'BCO-LAM');
+    becco.position.set((rAtTop + 120) * Math.cos(beccoAngle), H - 90, (rAtTop + 120) * Math.sin(beccoAngle));
+    becco.rotation.y = -beccoAngle + Math.PI/2;
+
+    const spout = mkMesh(new THREE.BoxGeometry(180, 30, 220), steelMat(0.55, 0.32), 'BCO-LAM');
+    spout.position.set((rAtTop + 280) * Math.cos(beccoAngle), H - 5, (rAtTop + 280) * Math.sin(beccoAngle));
+    spout.rotation.y = -beccoAngle + Math.PI/2;
+
+    for (let k = -1; k <= 1; k += 2) {
+      const rnf = mkMesh(new THREE.BoxGeometry(40, 40, 220), steelMat(0.42, 0.38), 'BCO-RNF');
+      const off = 155;
+      rnf.position.set(
+        (rAtTop + 120) * Math.cos(beccoAngle) + k*off*Math.cos(beccoAngle+Math.PI/2),
+        H - 90,
+        (rAtTop + 120) * Math.sin(beccoAngle) + k*off*Math.sin(beccoAngle+Math.PI/2)
+      );
+      rnf.rotation.y = -beccoAngle + Math.PI/2;
     }
   }
 
-  // BECCO DI COLATA
-  if (state.accessori.becco) {
-    const beccoGroup = new THREE.Group();
-    const beccoAngle = Math.PI * 0.25;
-
-    const beccoShape = new THREE.BoxGeometry(420, 200, 280);
-    const becco = new THREE.Mesh(beccoShape, matMantle);
-    const rAtTop = Rsup;
-    becco.position.set(
-      (rAtTop + 120) * Math.cos(beccoAngle),
-      H - 90,
-      (rAtTop + 120) * Math.sin(beccoAngle)
-    );
-    becco.rotation.y = -beccoAngle + Math.PI/2;
-    beccoGroup.add(becco);
-
-    // Spout tip
-    const spout = new THREE.Mesh(
-      new THREE.BoxGeometry(180, 30, 220),
-      matBright
-    );
-    spout.position.set(
-      (rAtTop + 280) * Math.cos(beccoAngle),
-      H - 5,
-      (rAtTop + 280) * Math.sin(beccoAngle)
-    );
-    spout.rotation.y = -beccoAngle + Math.PI/2;
-    beccoGroup.add(spout);
-
-    sivieraGroup.add(beccoGroup);
-  }
-
-  // BOCCHELLO LATERALE
+  // BOCCHELLO
   if (state.accessori.bocchello) {
-    const bocGroup = new THREE.Group();
     const bocAngle = -Math.PI * 0.55;
     const rAtLow = Rinf + (Rsup - Rinf) * (200/H);
-
-    const tube = new THREE.Mesh(
-      new THREE.CylinderGeometry(90, 90, 320, 24),
-      matRing
-    );
     const dx = Math.cos(bocAngle), dz = Math.sin(bocAngle);
     const pBase = new THREE.Vector3(rAtLow * dx, 200, rAtLow * dz);
     const offset = 180;
+
+    const tube = mkMesh(new THREE.CylinderGeometry(90, 90, 320, 24), steelMat(0.42, 0.38), 'BOC-TUB');
     tube.position.set(pBase.x + offset*dx, pBase.y, pBase.z + offset*dz);
     tube.lookAt(pBase.x + 10000*dx, pBase.y, pBase.z + 10000*dz);
     tube.rotateX(Math.PI/2);
-    bocGroup.add(tube);
 
-    const flange = new THREE.Mesh(
-      new THREE.CylinderGeometry(140, 140, 30, 24),
-      matBright
-    );
+    const flange = mkMesh(new THREE.CylinderGeometry(140, 140, 30, 24), steelMat(0.55, 0.32), 'BOC-FLG');
     flange.position.set(pBase.x + (offset+170)*dx, pBase.y, pBase.z + (offset+170)*dz);
     flange.lookAt(pBase.x + 10000*dx, pBase.y, pBase.z + 10000*dz);
     flange.rotateX(Math.PI/2);
-    bocGroup.add(flange);
-
-    sivieraGroup.add(bocGroup);
   }
 
-  // PERNI DI ROTAZIONE
+  // PERNI
   if (state.accessori.perni) {
     for (const dir of [-1, 1]) {
-      const perniGroup = new THREE.Group();
       const rAtMid = Rinf + (Rsup - Rinf) * 0.55;
       const yMid = H * 0.55;
-
-      const plate = new THREE.Mesh(
-        new THREE.BoxGeometry(30, 420, 420),
-        matRing
-      );
+      const plate = mkMesh(new THREE.BoxGeometry(30, 420, 420), steelMat(0.42, 0.38), 'PRN-PLT');
       plate.position.set(dir * rAtMid, yMid, 0);
-      perniGroup.add(plate);
-
-      const perno = new THREE.Mesh(
-        new THREE.CylinderGeometry(65, 65, 380, 24),
-        matBright
-      );
+      const perno = mkMesh(new THREE.CylinderGeometry(65, 65, 380, 24), steelMat(0.55, 0.32), 'PRN-TND');
       perno.position.set(dir * (rAtMid + 190), yMid, 0);
       perno.rotation.z = Math.PI/2;
-      perniGroup.add(perno);
-
-      const spall = new THREE.Mesh(
-        new THREE.CylinderGeometry(85, 85, 30, 24),
-        matRing
-      );
+      const spall = mkMesh(new THREE.CylinderGeometry(85, 85, 30, 24), steelMat(0.42, 0.38), 'PRN-TND');
       spall.position.set(dir * (rAtMid + 15), yMid, 0);
       spall.rotation.z = Math.PI/2;
-      perniGroup.add(spall);
-
-      sivieraGroup.add(perniGroup);
     }
   }
 
@@ -1662,35 +1859,35 @@ function buildSiviera() {
     for (let i = 0; i < 4; i++) {
       const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
       const g = new THREE.Group();
-      const base = new THREE.Mesh(
-        new THREE.BoxGeometry(90, 30, 70),
-        matRing
-      );
+      const base = new THREE.Mesh(new THREE.BoxGeometry(90, 30, 70), steelMat(0.42, 0.38));
       base.position.y = 15;
+      base.userData = { codice: 'GLF-001' };
       g.add(base);
-      const ring = new THREE.Mesh(
-        new THREE.TorusGeometry(30, 9, 8, 16),
-        matBright
-      );
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(30, 9, 8, 16), steelMat(0.55, 0.32));
       ring.position.y = 55;
       ring.rotation.x = Math.PI / 2;
       ring.rotation.y = a;
+      ring.userData = { codice: 'GLF-001' };
       g.add(ring);
       g.position.set(Rsup * 0.93 * Math.cos(a), H + 20, Rsup * 0.93 * Math.sin(a));
       sivieraGroup.add(g);
     }
   }
 
-  // Update controls target
   if (controls) controls.target.set(0, H * 0.45, 0);
 
-  // Auto-fit camera on first build only
   if (!buildSiviera._initialized) {
     const maxDim = Math.max(state.diametroSup, state.diametroInf, state.altezza);
     const d = maxDim * 2.3;
     camera.position.set(d, d * 0.55, d);
     camera.lookAt(0, H * 0.45, 0);
     buildSiviera._initialized = true;
+  }
+
+  if (selectedCode) {
+    sivieraGroup.traverse(o => {
+      if (o.isMesh && o.userData && o.userData.codice === selectedCode) setMeshHighlight(o, true);
+    });
   }
 }
 
@@ -1701,66 +1898,8 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-/* ============================================================
-   SVILUPPO 2D (svg overlay)
-   ============================================================ */
-function updateSvilupppo2D() {
-  const Rsup = state.diametroSup / 2;
-  const Rinf = state.diametroInf / 2;
-  const H = state.altezza;
-  const nV = Math.max(1, Math.ceil(H / 1500));
-  const hV = H / nV;
-
-  const r1 = Rinf;
-  const r2 = Rinf + (Rsup - Rinf) * (1 / nV);
-  const v = calcVirolaData(r1, r2, hV);
-  const Rmax = Math.max(r1, r2);
-  const splitSemi = 2*Rmax > 1500;
-
-  let alpha = v.angoloFull;
-  if (splitSemi) alpha = alpha / 2;
-
-  // Scale to fit 90 unit radius in SVG viewBox
-  const scale = 90 / v.L1;
-  const L1 = v.L1 * scale;
-  const L2 = v.L2 * scale;
-
-  // centered sector, opening upward (from -alpha/2 to +alpha/2 around vertical axis pointing down)
-  const aRad = alpha * Math.PI / 180;
-  const a1 = -aRad/2 - Math.PI/2;
-  const a2 =  aRad/2 - Math.PI/2;
-
-  const x1a = Math.cos(a1) * L1, y1a = Math.sin(a1) * L1;
-  const x2a = Math.cos(a2) * L1, y2a = Math.sin(a2) * L1;
-  const x1b = Math.cos(a1) * L2, y1b = Math.sin(a1) * L2;
-  const x2b = Math.cos(a2) * L2, y2b = Math.sin(a2) * L2;
-
-  const large = alpha > 180 ? 1 : 0;
-  const d = `M ${x1a} ${y1a} A ${L1} ${L1} 0 ${large} 1 ${x2a} ${y2a} L ${x2b} ${y2b} A ${L2} ${L2} 0 ${large} 0 ${x1b} ${y1b} Z`;
-
-  document.getElementById('dev-path').setAttribute('d', d);
-  document.getElementById('dev-r1').setAttribute('x1', 0);
-  document.getElementById('dev-r1').setAttribute('y1', 0);
-  document.getElementById('dev-r1').setAttribute('x2', x1a);
-  document.getElementById('dev-r1').setAttribute('y2', y1a);
-  document.getElementById('dev-r2').setAttribute('x1', 0);
-  document.getElementById('dev-r2').setAttribute('y1', 0);
-  document.getElementById('dev-r2').setAttribute('x2', x2a);
-  document.getElementById('dev-r2').setAttribute('y2', y2a);
-
-  const at = document.getElementById('dev-angle-text');
-  at.setAttribute('x', 0);
-  at.setAttribute('y', -((L1 + L2)/2) + 4);
-  at.textContent = `α ${fmt(alpha, 1)}°`;
-
-  document.getElementById('dev-angle-tag').textContent = `α ${fmt(alpha,1)}°`;
-}
-
-/* ============================================================
-   UPDATE ALL
-   ============================================================ */
+/* ============ UPDATE ALL ============ */
 function updateAll() {
-  // update labels
   document.getElementById('val-dsup').textContent = fmt(state.diametroSup);
   document.getElementById('val-dinf').textContent = fmt(state.diametroInf);
   document.getElementById('val-h').textContent = fmt(state.altezza);
@@ -1772,68 +1911,51 @@ function updateAll() {
   const maxD = Math.max(state.diametroSup, state.diametroInf);
   document.getElementById('val-semi').textContent = maxD > 1500 ? 2 : 1;
 
-  // update hero capacity
-  const cap = calcCapacity();
-  animateNum('hero-capacity', cap, 0);
-
-  // update 3D
-  buildSiviera();
-
-  // update development 2D
-  updateSvilupppo2D();
-
-  // regen BOM
+  animateNum('hero-capacity', calcCapacity(), 0);
   const bom = generateBOM();
-  renderBOM(bom);
   window._lastBOM = bom;
+  buildSiviera();
+  renderBOM(bom);
+
+  if (selectedCode) {
+    const exists = bom.items.some(it => it.codice === selectedCode);
+    let hasMesh = false;
+    sivieraGroup.traverse(o => { if (o.isMesh && o.userData && o.userData.codice === selectedCode) hasMesh = true; });
+    if (!exists && !hasMesh) deselect();
+    else renderDevPanel(selectedCode);
+  } else {
+    renderDevPanel(null);
+  }
 }
 
-/* ============================================================
-   EXPORT: CSV (gerarchico, ; separator, , decimal, UTF-8 BOM)
-   ============================================================ */
+/* ============ EXPORTS ============ */
 function exportCSV() {
   const bom = window._lastBOM;
   if (!bom) return;
   const cols = ['Livello','IDPadre','IDPezzo','Codice','Descrizione','Qta','Materiale','Spessore','PesoUnit','PesoTot','Sviluppo_m2','Lunghezza','Larghezza','Note'];
   const lines = [cols.join(';')];
-
   for (const it of bom.items) {
     const indent = '  '.repeat(it.level);
-    const row = [
-      it.level,
-      it.parentId ?? '',
-      it.id,
-      it.codice ?? '',
-      indent + (it.descrizione ?? ''),
-      it.qta ?? '',
-      it.materiale ?? '',
-      fmtCsv(it.spessore, 0),
-      fmtCsv(it.pesoUnit, 2),
-      fmtCsv(it.pesoTot, 2),
-      fmtCsv(it.sviluppo_m2, 3),
-      fmtCsv(it.lunghezza, 0),
-      fmtCsv(it.larghezza, 0),
+    lines.push([
+      it.level, it.parentId ?? '', it.id,
+      it.codice ?? '', indent + (it.descrizione ?? ''),
+      it.qta ?? '', it.materiale ?? '',
+      fmtCsv(it.spessore, 0), fmtCsv(it.pesoUnit, 2), fmtCsv(it.pesoTot, 2),
+      fmtCsv(it.sviluppo_m2, 3), fmtCsv(it.lunghezza, 0), fmtCsv(it.larghezza, 0),
       (it.note ?? '').replace(/;/g, ',')
-    ];
-    lines.push(row.join(';'));
+    ].join(';'));
   }
-
   const csv = '\uFEFF' + lines.join('\r\n');
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
-  triggerDownload(blob, `distinta_siviera_${timestamp()}.csv`);
+  triggerDownload(new Blob([csv], {type:'text/csv;charset=utf-8'}), `distinta_siviera_${timestamp()}.csv`);
   toast('CSV distinta gerarchica esportato');
 }
 
-/* ============================================================
-   EXPORT: DXF (sviluppo virola 1, annular sector)
-   ============================================================ */
 function exportDXF() {
   const Rsup = state.diametroSup / 2;
   const Rinf = state.diametroInf / 2;
   const H = state.altezza;
   const nV = Math.max(1, Math.ceil(H / 1500));
   const hV = H / nV;
-
   const r1 = Rinf;
   const r2 = Rinf + (Rsup - Rinf) * (1 / nV);
   const v = calcVirolaData(r1, r2, hV);
@@ -1841,164 +1963,100 @@ function exportDXF() {
   const splitSemi = 2*Rmax > 1500;
   let alpha = v.angoloFull;
   if (splitSemi) alpha = alpha / 2;
-
   const L1 = v.L1, L2 = v.L2;
-  const aRad = alpha * Math.PI / 180;
-  const a1 = -aRad/2;
-  const a2 =  aRad/2;
-
-  const x1a = Math.cos(a1) * L1, y1a = Math.sin(a1) * L1;
-  const x2a = Math.cos(a2) * L1, y2a = Math.sin(a2) * L1;
-  const x1b = Math.cos(a1) * L2, y1b = Math.sin(a1) * L2;
-  const x2b = Math.cos(a2) * L2, y2b = Math.sin(a2) * L2;
-
-  // DXF minimo R12
   const dxf = [];
-  const p = (code, val) => { dxf.push(code); dxf.push(val); };
-  p(0,'SECTION'); p(2,'HEADER');
-  p(9,'$INSUNITS'); p(70, 4); // millimeters
-  p(0,'ENDSEC');
+  const p = (c, val) => { dxf.push(c); dxf.push(val); };
+  p(0,'SECTION'); p(2,'HEADER'); p(9,'$INSUNITS'); p(70,4); p(0,'ENDSEC');
   p(0,'SECTION'); p(2,'ENTITIES');
-
-  // Outer arc
-  p(0,'ARC'); p(8,'SVILUPPO');
-  p(10, 0); p(20, 0); p(30, 0);
-  p(40, L1);
-  p(50, alpha===360?0:(-alpha/2));
-  p(51, alpha===360?360:(alpha/2));
-
-  // Inner arc
-  p(0,'ARC'); p(8,'SVILUPPO');
-  p(10, 0); p(20, 0); p(30, 0);
-  p(40, L2);
-  p(50, alpha===360?0:(-alpha/2));
-  p(51, alpha===360?360:(alpha/2));
-
-  // Radial lines (only if not full circle)
-  if (alpha < 360) {
-    p(0,'LINE'); p(8,'SVILUPPO');
-    p(10, x1b); p(20, y1b); p(30, 0);
-    p(11, x1a); p(21, y1a); p(31, 0);
-
-    p(0,'LINE'); p(8,'SVILUPPO');
-    p(10, x2b); p(20, y2b); p(30, 0);
-    p(11, x2a); p(21, y2a); p(31, 0);
-  }
-
-  // Text label
-  p(0,'TEXT'); p(8,'QUOTE');
-  p(10, 0); p(20, -(L1+L2)/2); p(30, 0);
-  p(40, 40);
-  p(1, `ALPHA=${fmt(alpha,2)}°`);
-
+  p(0,'ARC'); p(8,'SVILUPPO'); p(10,0); p(20,0); p(30,0); p(40,L1); p(50,-alpha/2); p(51,alpha/2);
+  p(0,'ARC'); p(8,'SVILUPPO'); p(10,0); p(20,0); p(30,0); p(40,L2); p(50,-alpha/2); p(51,alpha/2);
+  const aRad = alpha * Math.PI / 180;
+  const x1a = Math.cos(-aRad/2)*L1, y1a = Math.sin(-aRad/2)*L1;
+  const x2a = Math.cos( aRad/2)*L1, y2a = Math.sin( aRad/2)*L1;
+  const x1b = Math.cos(-aRad/2)*L2, y1b = Math.sin(-aRad/2)*L2;
+  const x2b = Math.cos( aRad/2)*L2, y2b = Math.sin( aRad/2)*L2;
+  p(0,'LINE'); p(8,'SVILUPPO'); p(10,x1b); p(20,y1b); p(30,0); p(11,x1a); p(21,y1a); p(31,0);
+  p(0,'LINE'); p(8,'SVILUPPO'); p(10,x2b); p(20,y2b); p(30,0); p(11,x2a); p(21,y2a); p(31,0);
+  p(0,'TEXT'); p(8,'QUOTE'); p(10,0); p(20,-(L1+L2)/2); p(30,0); p(40,40); p(1,`ALPHA=${fmt(alpha,2)}°`);
   p(0,'ENDSEC'); p(0,'EOF');
-
   const txt = dxf.map((v,i)=> i%2===0 ? String(v).padStart(3,' ') : String(v)).join('\r\n');
-  const blob = new Blob([txt], {type:'application/dxf'});
-  triggerDownload(blob, `sviluppo_virola1_${timestamp()}.dxf`);
+  triggerDownload(new Blob([txt], {type:'application/dxf'}), `sviluppo_virola1_${timestamp()}.dxf`);
   toast('DXF sviluppo virola 1 esportato');
 }
 
-/* ============================================================
-   EXPORT: PDF
-   ============================================================ */
 function exportPDF() {
   const bom = window._lastBOM;
   if (!bom) return;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({unit:'mm', format:'a4'});
-
   const now = new Date();
   const dateStr = now.toLocaleDateString('it-IT');
   const timeStr = now.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
   const cap = calcCapacity();
 
-  // Header
   doc.setFillColor(10,10,10);
   doc.rect(0, 0, 210, 32, 'F');
   doc.setTextColor(235,230,220);
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(18);
+  doc.setFont('helvetica','bold'); doc.setFontSize(18);
   doc.text('PREVENTIVO CARPENTERIA', 15, 15);
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(9);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9);
   doc.setTextColor(154,148,138);
   doc.text('Siviera di colata · Configuratore rapido', 15, 21);
-  doc.setTextColor(255,106,26);
-  doc.setFont('helvetica','bold');
+  doc.setTextColor(255,106,26); doc.setFont('helvetica','bold');
   doc.text(`${dateStr}  ${timeStr}`, 195, 15, {align:'right'});
-  doc.setTextColor(154,148,138);
-  doc.setFont('helvetica','normal');
+  doc.setTextColor(154,148,138); doc.setFont('helvetica','normal');
   doc.text('Rev. A.01', 195, 21, {align:'right'});
 
-  // Hero
-  doc.setTextColor(20,20,20);
-  doc.setFontSize(28);
-  doc.setFont('helvetica','bold');
+  doc.setTextColor(20,20,20); doc.setFontSize(28); doc.setFont('helvetica','bold');
   doc.text(`${fmt(cap)} L`, 15, 50);
-  doc.setFontSize(11);
-  doc.setFont('helvetica','normal');
-  doc.setTextColor(120,120,120);
-  doc.text(`Siviera ${fmt(state.diametroSup)}·${fmt(state.diametroInf)}·H${fmt(state.altezza)}  mm  —  ${state.materiale}`, 15, 57);
+  doc.setFontSize(11); doc.setFont('helvetica','normal'); doc.setTextColor(120,120,120);
+  doc.text(`Siviera ${fmt(state.diametroSup)}·${fmt(state.diametroInf)}·H${fmt(state.altezza)} mm — ${state.materiale}`, 15, 57);
 
-  // Parametri
   doc.setDrawColor(220,220,220);
   doc.line(15, 65, 195, 65);
-  doc.setFontSize(9);
-  doc.setTextColor(120,120,120);
-  doc.setFont('helvetica','bold');
+  doc.setFontSize(9); doc.setTextColor(120,120,120); doc.setFont('helvetica','bold');
   doc.text('PARAMETRI GEOMETRICI', 15, 72);
   doc.setFont('helvetica','normal');
-  doc.setTextColor(40,40,40);
-
   const params = [
-    ['Ø Superiore',  `${fmt(state.diametroSup)} mm`],
-    ['Ø Inferiore',  `${fmt(state.diametroInf)} mm`],
-    ['Altezza',      `${fmt(state.altezza)} mm`],
-    ['Spessore',     `${fmt(state.spessore)} mm`],
-    ['Materiale',    state.materiale],
-    ['Capacità',     `${fmt(cap)} L`]
+    ['Ø Superiore', `${fmt(state.diametroSup)} mm`],
+    ['Ø Inferiore', `${fmt(state.diametroInf)} mm`],
+    ['Altezza',     `${fmt(state.altezza)} mm`],
+    ['Spessore',    `${fmt(state.spessore)} mm`],
+    ['Materiale',   state.materiale],
+    ['Capacità',    `${fmt(cap)} L`]
   ];
   let yy = 79;
   for (let i = 0; i < params.length; i++) {
     const col = i % 2;
     const row = Math.floor(i/2);
     const x = 15 + col * 90;
-    doc.setTextColor(120,120,120);
-    doc.text(params[i][0], x, yy + row * 6);
-    doc.setTextColor(30,30,30);
-    doc.setFont('helvetica','bold');
+    doc.setTextColor(120,120,120); doc.text(params[i][0], x, yy + row * 6);
+    doc.setTextColor(30,30,30); doc.setFont('helvetica','bold');
     doc.text(params[i][1], x + 40, yy + row * 6);
     doc.setFont('helvetica','normal');
   }
 
-  // Totali
   const yTot = yy + 22;
   doc.line(15, yTot, 195, yTot);
-  doc.setFontSize(9);
-  doc.setTextColor(120,120,120);
-  doc.setFont('helvetica','bold');
+  doc.setFontSize(9); doc.setTextColor(120,120,120); doc.setFont('helvetica','bold');
   doc.text('TOTALI CALCOLATI', 15, yTot + 7);
   doc.setFont('helvetica','normal');
   const totals = [
-    ['Peso totale',      `${fmt(bom.totalWeight, 1)} kg`],
-    ['Lamiera',          `${fmt(bom.totalArea, 2)} m²`],
-    ['Saldatura',        `${fmt(bom.weldM, 1)} m`],
-    ['Voci distinta',    `${bom.items.length}`]
+    ['Peso totale',   `${fmt(bom.totalWeight, 1)} kg`],
+    ['Lamiera',       `${fmt(bom.totalArea, 2)} m²`],
+    ['Saldatura',     `${fmt(bom.weldM, 1)} m`],
+    ['Voci distinta', `${bom.items.length}`]
   ];
   for (let i = 0; i < totals.length; i++) {
     const col = i % 2;
     const row = Math.floor(i/2);
     const x = 15 + col * 90;
-    doc.setTextColor(120,120,120);
-    doc.text(totals[i][0], x, yTot + 14 + row * 6);
-    doc.setTextColor(30,30,30);
-    doc.setFont('helvetica','bold');
+    doc.setTextColor(120,120,120); doc.text(totals[i][0], x, yTot + 14 + row * 6);
+    doc.setTextColor(30,30,30); doc.setFont('helvetica','bold');
     doc.text(totals[i][1], x + 40, yTot + 14 + row * 6);
     doc.setFont('helvetica','normal');
   }
 
-  // Distinta table
   const tableRows = bom.items.map(it => [
     '  '.repeat(it.level) + (it.codice || ''),
     '  '.repeat(it.level) + (it.descrizione || ''),
@@ -2014,19 +2072,8 @@ function exportPDF() {
     head: [['Codice','Descrizione','Qtà','Materiale','Sp','Peso kg','Note']],
     body: tableRows,
     theme: 'plain',
-    styles: {
-      font:'helvetica', fontSize: 7.5,
-      cellPadding: {top:1.8, right:2, bottom:1.8, left:2},
-      lineColor: [225,225,225],
-      lineWidth: 0.1
-    },
-    headStyles: {
-      fillColor: [10,10,10],
-      textColor: [255,255,255],
-      fontStyle: 'bold',
-      fontSize: 7.5,
-      halign: 'left'
-    },
+    styles: { font:'helvetica', fontSize: 7.5, cellPadding: {top:1.8, right:2, bottom:1.8, left:2}, lineColor: [225,225,225], lineWidth: 0.1 },
+    headStyles: { fillColor: [10,10,10], textColor: [255,255,255], fontStyle: 'bold', fontSize: 7.5, halign: 'left' },
     columnStyles: {
       0: {cellWidth: 25, font:'courier', fontSize:7},
       1: {cellWidth: 58},
@@ -2039,39 +2086,26 @@ function exportPDF() {
     didParseCell: (data) => {
       if (data.section === 'body') {
         const it = bom.items[data.row.index];
-        if (it && it.level === 0) {
-          data.cell.styles.fillColor = [245,245,245];
-          data.cell.styles.fontStyle = 'bold';
-        }
-        if (it && it.level === 1) {
-          data.cell.styles.fontStyle = 'bold';
-        }
+        if (it && it.level === 0) { data.cell.styles.fillColor = [245,245,245]; data.cell.styles.fontStyle = 'bold'; }
+        if (it && it.level === 1) { data.cell.styles.fontStyle = 'bold'; }
       }
     },
     margin: {left:15, right:15}
   });
 
-  // Footer
   const pageH = doc.internal.pageSize.height;
-  doc.setFontSize(7);
-  doc.setTextColor(150,150,150);
+  doc.setFontSize(7); doc.setTextColor(150,150,150);
   doc.text('Generato con Configuratore Carpenteria · Documento preliminare non vincolante', 15, pageH - 8);
   doc.text(`${dateStr}`, 195, pageH - 8, {align:'right'});
-
   doc.save(`preventivo_siviera_${timestamp()}.pdf`);
   toast('PDF preventivo generato');
 }
 
-/* ============================================================
-   UTILS
-   ============================================================ */
 function triggerDownload(blob, name) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url;
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click();
   setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 200);
 }
 function timestamp() {
@@ -2085,16 +2119,11 @@ function toast(msg) {
   setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-/* ============================================================
-   EVENT BINDINGS
-   ============================================================ */
+/* ============ EVENTS ============ */
 function bindEvents() {
   const bindSlider = (id, key) => {
     const el = document.getElementById(id);
-    el.addEventListener('input', () => {
-      state[key] = parseInt(el.value, 10);
-      updateAll();
-    });
+    el.addEventListener('input', () => { state[key] = parseInt(el.value, 10); updateAll(); });
   };
   bindSlider('sl-dsup', 'diametroSup');
   bindSlider('sl-dinf', 'diametroInf');
@@ -2102,8 +2131,7 @@ function bindEvents() {
   bindSlider('sl-sp',   'spessore');
 
   document.getElementById('sel-mat').addEventListener('change', (e) => {
-    state.materiale = e.target.value;
-    updateAll();
+    state.materiale = e.target.value; updateAll();
   });
 
   const bindCheck = (id, key) => {
@@ -2123,11 +2151,20 @@ function bindEvents() {
   document.getElementById('btn-csv').addEventListener('click', exportCSV);
   document.getElementById('btn-dxf').addEventListener('click', exportDXF);
   document.getElementById('btn-pdf').addEventListener('click', exportPDF);
+
+  document.querySelectorAll('.mtab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const t = btn.dataset.mtab;
+      document.querySelectorAll('.mtab').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('aside[data-mtab]').forEach(el => {
+        el.classList.toggle('m-active', el.dataset.mtab === t);
+      });
+      setTimeout(onResize, 10);
+    });
+  });
 }
 
-/* ============================================================
-   INIT
-   ============================================================ */
+/* ============ INIT ============ */
 window.addEventListener('DOMContentLoaded', () => {
   initThree();
   bindEvents();
