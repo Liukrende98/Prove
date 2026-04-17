@@ -1,0 +1,2139 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Configuratore Carpenteria</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<style>
+  :root {
+    --bg:          #0a0a0a;
+    --bg-2:        #121212;
+    --bg-3:        #1a1a1a;
+    --panel:       rgba(20,20,20,0.65);
+    --panel-solid: #141414;
+    --line:        rgba(255,255,255,0.08);
+    --line-2:      rgba(255,255,255,0.15);
+    --text:        #ebe6dc;
+    --text-dim:    #9a948a;
+    --text-dim-2:  #6a655d;
+    --accent:      #ff6a1a;
+    --accent-2:    #ffae3d;
+    --accent-glow: rgba(255,106,26,0.35);
+    --success:     #4ade80;
+    --warn:        #facc15;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --display: 'Unbounded', sans-serif;
+    --body: 'Manrope', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 48px 48px;
+    z-index: 0;
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse 60% 40% at 60% 45%, rgba(255,106,26,0.06), transparent 60%);
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    display: grid;
+    grid-template-rows: 72px 1fr;
+  }
+
+  /* ============ HEADER ============ */
+  header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 0 28px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(10,10,10,0.8);
+    backdrop-filter: blur(10px);
+  }
+  .brand {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.22em;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand-dot {
+    width: 9px; height: 9px;
+    background: var(--accent);
+    box-shadow: 0 0 14px var(--accent-glow);
+    border-radius: 50%;
+  }
+  .title-block {
+    text-align: center;
+  }
+  .title-block .kicker {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--text-dim-2);
+    text-transform: uppercase;
+  }
+  .title-block .title {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 17px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .title-block .title .accent {
+    color: var(--accent);
+  }
+  .header-right {
+    justify-self: end;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    display: flex;
+    gap: 18px;
+  }
+  .header-right span b {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* ============ LAYOUT ============ */
+  main {
+    display: grid;
+    grid-template-columns: 340px 1fr 420px;
+    min-height: 0;
+  }
+
+  .col {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .col-left  { border-right: 1px solid var(--line); background: var(--panel-solid); }
+  .col-mid   { position: relative; }
+  .col-right { border-left: 1px solid var(--line); background: var(--panel-solid); }
+
+  .col-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 26px 22px;
+  }
+  .col-scroll::-webkit-scrollbar { width: 8px; }
+  .col-scroll::-webkit-scrollbar-track { background: transparent; }
+  .col-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+  }
+  .col-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.15);
+  }
+
+  /* ============ SECTION HEADERS ============ */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    color: var(--text-dim-2);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::before {
+    content: "";
+    width: 16px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .section-label:not(:first-child) {
+    margin-top: 32px;
+  }
+
+  /* ============ SLIDERS ============ */
+  .param {
+    margin-bottom: 22px;
+  }
+  .param-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+  .param-label {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+  .param-value {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+  .param-value .unit {
+    color: var(--text-dim-2);
+    font-size: 11px;
+    margin-left: 3px;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--text);
+    border: 3px solid var(--accent);
+    box-shadow: 0 0 0 4px rgba(255,106,26,0.08), 0 2px 8px rgba(0,0,0,0.5);
+    cursor: grab;
+    transition: transform 0.15s ease;
+  }
+  input[type="range"]::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    transform: scale(1.15);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--text);
+    border: 3px solid var(--accent);
+    cursor: grab;
+  }
+
+  .param-range-bounds {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim-2);
+    letter-spacing: 0.08em;
+  }
+
+  /* ============ SELECT ============ */
+  select {
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 13px;
+    padding: 10px 12px;
+    cursor: pointer;
+    font-weight: 500;
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239a948a' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+  select:hover { border-color: var(--line-2); }
+  select:focus { border-color: var(--accent); }
+  select option { background: var(--bg-3); color: var(--text); }
+
+  /* ============ CHECKBOXES ============ */
+  .check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    margin-bottom: 7px;
+    background: rgba(255,255,255,0.015);
+  }
+  .check:hover { border-color: var(--line-2); background: rgba(255,255,255,0.03); }
+  .check.active {
+    border-color: rgba(255,106,26,0.5);
+    background: rgba(255,106,26,0.06);
+  }
+  .check input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--line-2);
+    border-radius: 3px;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .check input[type="checkbox"]:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .check input[type="checkbox"]:checked::after {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 5px;
+    height: 9px;
+    border-right: 2px solid #000;
+    border-bottom: 2px solid #000;
+    transform: rotate(45deg);
+  }
+  .check-label {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 500;
+    flex: 1;
+  }
+  .check-note {
+    font-size: 10px;
+    color: var(--text-dim-2);
+    font-family: var(--mono);
+  }
+
+  /* ============ 3D VIEWPORT ============ */
+  .viewport-wrap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 70% 60% at 50% 60%, rgba(255,106,26,0.07), transparent 70%),
+      linear-gradient(to bottom, #0c0c0c 0%, #060606 100%);
+  }
+  #three-canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+  }
+  .viewport-overlay {
+    position: absolute;
+    pointer-events: none;
+  }
+  .overlay-hero {
+    top: 28px;
+    left: 32px;
+    pointer-events: none;
+  }
+  .overlay-hero .pezzo-name {
+    font-family: var(--display);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    color: var(--text-dim-2);
+    text-transform: uppercase;
+  }
+  .overlay-hero .pezzo-desc {
+    font-family: var(--display);
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    text-transform: uppercase;
+    margin-top: 4px;
+    line-height: 1.1;
+  }
+  .overlay-hero .pezzo-capacity {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .overlay-hero .pezzo-capacity .num {
+    font-family: var(--mono);
+    font-size: 44px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .overlay-hero .pezzo-capacity .unit {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .overlay-crosshair {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 32px;
+    height: 32px;
+    opacity: 0.15;
+  }
+  .overlay-crosshair::before,
+  .overlay-crosshair::after {
+    content: "";
+    position: absolute;
+    background: var(--text);
+  }
+  .overlay-crosshair::before {
+    left: 50%; top: 0; bottom: 0;
+    width: 1px;
+    transform: translateX(-0.5px);
+  }
+  .overlay-crosshair::after {
+    top: 50%; left: 0; right: 0;
+    height: 1px;
+    transform: translateY(-0.5px);
+  }
+
+  .overlay-corner-tl, .overlay-corner-tr, .overlay-corner-bl, .overlay-corner-br {
+    width: 18px;
+    height: 18px;
+    border-color: var(--text-dim-2);
+    opacity: 0.4;
+  }
+  .overlay-corner-tl { top: 18px; left: 18px; border-top: 1px solid; border-left: 1px solid; }
+  .overlay-corner-tr { top: 18px; right: 18px; border-top: 1px solid; border-right: 1px solid; }
+  .overlay-corner-bl { bottom: 18px; left: 18px; border-bottom: 1px solid; border-left: 1px solid; }
+  .overlay-corner-br { bottom: 18px; right: 18px; border-bottom: 1px solid; border-right: 1px solid; }
+
+  .overlay-dev {
+    bottom: 26px;
+    right: 26px;
+    width: 220px;
+    padding: 14px 14px 12px;
+    background: rgba(10,10,10,0.75);
+    border: 1px solid var(--line-2);
+    border-radius: 4px;
+    backdrop-filter: blur(8px);
+    pointer-events: none;
+  }
+  .overlay-dev-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: var(--text-dim-2);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .overlay-dev-label .tag {
+    color: var(--accent);
+  }
+  .overlay-dev svg {
+    width: 100%;
+    height: 120px;
+  }
+  .overlay-dev .angle-text {
+    font-family: var(--mono);
+    font-size: 11px;
+    fill: var(--text);
+  }
+  .overlay-dev .dim-text {
+    font-family: var(--mono);
+    font-size: 9px;
+    fill: var(--text-dim);
+  }
+
+  .overlay-axis {
+    bottom: 26px;
+    left: 26px;
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    pointer-events: none;
+  }
+  .axis-info {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .axis-info .num { color: var(--text); font-size: 14px; font-weight: 500; }
+
+  .overlay-hint {
+    top: 28px;
+    right: 32px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim-2);
+    letter-spacing: 0.15em;
+    text-align: right;
+    line-height: 1.8;
+    text-transform: uppercase;
+  }
+
+  /* ============ BOM ============ */
+  .bom-summary {
+    padding: 22px 24px 18px;
+    background: linear-gradient(to bottom, rgba(255,106,26,0.04), transparent);
+    border-bottom: 1px solid var(--line);
+  }
+  .bom-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .bom-summary-row:last-of-type { margin-bottom: 0; }
+  .bom-summary-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  .bom-summary-value {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .bom-summary-value.hero {
+    font-size: 36px;
+    color: var(--text);
+  }
+  .bom-summary-value.med {
+    font-size: 18px;
+    color: var(--text);
+  }
+  .bom-summary-value .unit {
+    font-size: 0.5em;
+    color: var(--text-dim);
+    margin-left: 4px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+  }
+
+  .bom-table-wrap {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+  }
+  .bom-table-wrap::-webkit-scrollbar { width: 8px; }
+  .bom-table-wrap::-webkit-scrollbar-track { background: transparent; }
+  .bom-table-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+  .bom-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .bom-table thead th {
+    position: sticky;
+    top: 0;
+    background: var(--panel-solid);
+    text-align: left;
+    padding: 12px 10px 10px;
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--text-dim-2);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--line);
+    z-index: 5;
+  }
+  .bom-table thead th.num { text-align: right; }
+  .bom-table tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.15s;
+  }
+  .bom-table tbody tr:hover { background: rgba(255,106,26,0.04); }
+  .bom-table tbody tr.level-0 { background: rgba(255,255,255,0.02); }
+  .bom-table tbody tr.level-0 td { padding-top: 13px; padding-bottom: 13px; }
+  .bom-table tbody tr.level-0 td:first-child { color: var(--text); font-weight: 700; font-family: var(--display); letter-spacing: 0.05em; font-size: 11px; text-transform: uppercase; }
+  .bom-table tbody tr.level-1 td:first-child { color: var(--text); font-weight: 600; }
+  .bom-table tbody tr.level-2 td:first-child { color: var(--text-dim); }
+  .bom-table tbody tr.level-3 td:first-child { color: var(--text-dim-2); font-size: 11px; }
+
+  .bom-table td {
+    padding: 8px 10px;
+    font-family: var(--body);
+    font-weight: 400;
+    vertical-align: middle;
+  }
+  .bom-table td.mono {
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .bom-table td.num {
+    text-align: right;
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+    color: var(--text);
+  }
+  .bom-table td .code {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    margin-right: 6px;
+    opacity: 0.75;
+  }
+  .bom-tree-ind {
+    display: inline-block;
+    width: 0;
+  }
+  .bom-table tr.level-1 .bom-tree-ind { width: 12px; }
+  .bom-table tr.level-2 .bom-tree-ind { width: 24px; }
+  .bom-table tr.level-3 .bom-tree-ind { width: 36px; }
+  .bom-tree-mark {
+    display: inline-block;
+    color: var(--text-dim-2);
+    margin-right: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+  }
+
+  @keyframes rowIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .bom-table tbody tr.new-row {
+    animation: rowIn 0.35s ease-out;
+  }
+
+  /* ============ EXPORT BUTTONS ============ */
+  .export-bar {
+    padding: 16px 20px;
+    border-top: 1px solid var(--line);
+    background: var(--panel-solid);
+    display: flex;
+    gap: 8px;
+  }
+  .btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 11px 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(255,106,26,0.05);
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn svg { width: 12px; height: 12px; flex-shrink: 0; }
+  .btn.primary {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+  }
+  .btn.primary:hover {
+    background: var(--accent-2);
+    border-color: var(--accent-2);
+    color: #000;
+  }
+
+  /* ============ TOAST ============ */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    padding: 12px 22px;
+    background: var(--bg-3);
+    border: 1px solid var(--line-2);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 100;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .toast::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--success);
+    border-radius: 50%;
+    margin-right: 10px;
+    vertical-align: middle;
+    box-shadow: 0 0 8px rgba(74,222,128,0.6);
+  }
+
+  /* ============ SMALL ============ */
+  .hint-line {
+    font-size: 11px;
+    color: var(--text-dim-2);
+    font-style: italic;
+    margin-top: -4px;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  .virola-count {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.015);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  .virola-count .label { color: var(--text-dim); }
+  .virola-count .val { font-family: var(--mono); color: var(--accent); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span>OFFICINA · CARPENTERIA PESANTE</span>
+    </div>
+    <div class="title-block">
+      <div class="kicker">Preventivazione Rapida</div>
+      <div class="title">Siviera <span class="accent">·</span> Configuratore</div>
+    </div>
+    <div class="header-right">
+      <span>REV <b>A.01</b></span>
+      <span>SCALA <b>1:1</b></span>
+      <span>UNI <b>EN 10025</b></span>
+    </div>
+  </header>
+
+  <main>
+    <!-- ====== LEFT: PARAMETERS ====== -->
+    <aside class="col col-left">
+      <div class="col-scroll">
+        <div class="section-label">Geometria principale</div>
+
+        <div class="param">
+          <div class="param-row">
+            <span class="param-label">Ø Superiore</span>
+            <span class="param-value"><span id="val-dsup">2000</span><span class="unit">mm</span></span>
+          </div>
+          <input type="range" id="sl-dsup" min="500" max="3000" step="10" value="2000">
+          <div class="param-range-bounds"><span>500</span><span>3000</span></div>
+        </div>
+
+        <div class="param">
+          <div class="param-row">
+            <span class="param-label">Ø Inferiore</span>
+            <span class="param-value"><span id="val-dinf">1400</span><span class="unit">mm</span></span>
+          </div>
+          <input type="range" id="sl-dinf" min="500" max="3000" step="10" value="1400">
+          <div class="param-range-bounds"><span>500</span><span>3000</span></div>
+        </div>
+
+        <div class="param">
+          <div class="param-row">
+            <span class="param-label">Altezza</span>
+            <span class="param-value"><span id="val-h">2200</span><span class="unit">mm</span></span>
+          </div>
+          <input type="range" id="sl-h" min="800" max="3500" step="10" value="2200">
+          <div class="param-range-bounds"><span>800</span><span>3500</span></div>
+        </div>
+
+        <div class="param">
+          <div class="param-row">
+            <span class="param-label">Spessore mantello</span>
+            <span class="param-value"><span id="val-sp">15</span><span class="unit">mm</span></span>
+          </div>
+          <input type="range" id="sl-sp" min="8" max="25" step="1" value="15">
+          <div class="param-range-bounds"><span>8</span><span>25</span></div>
+        </div>
+
+        <div class="section-label">Materiale</div>
+        <select id="sel-mat">
+          <option value="S235JR">S235JR — Acciaio base</option>
+          <option value="S275JR">S275JR — Strutturale medio</option>
+          <option value="S355J2" selected>S355J2 — Strutturale alto carico</option>
+        </select>
+
+        <div class="section-label">Accessori</div>
+
+        <label class="check active" data-check="becco">
+          <input type="checkbox" id="chk-becco" checked>
+          <span class="check-label">Becco di colata</span>
+          <span class="check-note">+rinf.</span>
+        </label>
+
+        <label class="check active" data-check="bocchello">
+          <input type="checkbox" id="chk-bocchello" checked>
+          <span class="check-label">Bocchello laterale</span>
+          <span class="check-note">DN150</span>
+        </label>
+
+        <label class="check active" data-check="perni">
+          <input type="checkbox" id="chk-perni" checked>
+          <span class="check-label">Perni di rotazione</span>
+          <span class="check-note">2×Ø120</span>
+        </label>
+
+        <label class="check" data-check="golfari">
+          <input type="checkbox" id="chk-golfari">
+          <span class="check-label">Golfari sollevamento</span>
+          <span class="check-note">4×M36</span>
+        </label>
+
+        <div class="section-label">Calcolo automatico</div>
+        <div class="virola-count">
+          <span class="label">Virole mantello</span>
+          <span class="val"><span id="val-nvir">2</span> pz</span>
+        </div>
+        <div class="hint-line" style="margin-top:10px">Suddivisione automatica<br>per altezza &gt; 1500 mm/virola.</div>
+
+        <div class="virola-count">
+          <span class="label">Semilune per virola</span>
+          <span class="val"><span id="val-semi">2</span> pz</span>
+        </div>
+        <div class="hint-line" style="margin-top:10px">Suddivisione automatica<br>per Ø &gt; 1500 mm.</div>
+      </div>
+    </aside>
+
+    <!-- ====== CENTER: 3D VIEWPORT ====== -->
+    <section class="col col-mid">
+      <div class="viewport-wrap" id="vp">
+        <canvas id="three-canvas"></canvas>
+
+        <div class="viewport-overlay overlay-corner-tl"></div>
+        <div class="viewport-overlay overlay-corner-tr"></div>
+        <div class="viewport-overlay overlay-corner-bl"></div>
+        <div class="viewport-overlay overlay-corner-br"></div>
+        <div class="viewport-overlay overlay-crosshair"></div>
+
+        <div class="viewport-overlay overlay-hero">
+          <div class="pezzo-name">Modello · Rev. A</div>
+          <div class="pezzo-desc">Siviera<br>di Colata</div>
+          <div class="pezzo-capacity">
+            <span class="num" id="hero-capacity">2.400</span>
+            <span class="unit">LITRI</span>
+          </div>
+        </div>
+
+        <div class="viewport-overlay overlay-hint">
+          Trascina: ruota<br>
+          Rotella: zoom
+        </div>
+
+        <div class="viewport-overlay overlay-axis">
+          <div class="axis-info">
+            H · <span class="num" id="axis-h">2200</span>
+          </div>
+        </div>
+
+        <div class="viewport-overlay overlay-dev">
+          <div class="overlay-dev-label">
+            <span>Sviluppo Virola 1</span>
+            <span class="tag" id="dev-angle-tag">α 47,3°</span>
+          </div>
+          <svg id="dev-svg" viewBox="-110 -110 220 125" preserveAspectRatio="xMidYMid meet">
+            <path id="dev-path" fill="rgba(255,106,26,0.08)" stroke="#ff6a1a" stroke-width="1.2"/>
+            <line id="dev-r1" stroke="rgba(255,255,255,0.15)" stroke-dasharray="2,3" stroke-width="0.6"/>
+            <line id="dev-r2" stroke="rgba(255,255,255,0.15)" stroke-dasharray="2,3" stroke-width="0.6"/>
+            <text id="dev-angle-text" class="angle-text" text-anchor="middle"></text>
+            <text id="dev-r1-text" class="dim-text"></text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== RIGHT: BOM ====== -->
+    <aside class="col col-right">
+      <div class="bom-summary">
+        <div class="bom-summary-row">
+          <span class="bom-summary-label">Peso Totale</span>
+          <span class="bom-summary-value hero">
+            <span id="sum-peso">0</span><span class="unit">KG</span>
+          </span>
+        </div>
+        <div class="bom-summary-row">
+          <span class="bom-summary-label">Lamiera</span>
+          <span class="bom-summary-value med">
+            <span id="sum-lamiera">0</span><span class="unit">M²</span>
+          </span>
+        </div>
+        <div class="bom-summary-row">
+          <span class="bom-summary-label">Saldatura</span>
+          <span class="bom-summary-value med">
+            <span id="sum-saldatura">0</span><span class="unit">M</span>
+          </span>
+        </div>
+        <div class="bom-summary-row">
+          <span class="bom-summary-label">Pezzi</span>
+          <span class="bom-summary-value med">
+            <span id="sum-pezzi">0</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="bom-table-wrap">
+        <table class="bom-table">
+          <thead>
+            <tr>
+              <th>Descrizione</th>
+              <th class="num">Qtà</th>
+              <th class="num">Kg</th>
+            </tr>
+          </thead>
+          <tbody id="bom-body"></tbody>
+        </table>
+      </div>
+
+      <div class="export-bar">
+        <button class="btn" id="btn-csv" title="Esporta distinta gerarchica CSV">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="2" width="12" height="12" rx="1"/>
+            <path d="M2 6h12M2 10h12M6 2v12M10 2v12"/>
+          </svg>
+          CSV
+        </button>
+        <button class="btn" id="btn-dxf" title="Esporta sviluppi DXF (virola 1)">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M2 14l5-12 3 8 2-3 2 7H2z"/>
+          </svg>
+          DXF
+        </button>
+        <button class="btn primary" id="btn-pdf" title="Esporta preventivo PDF">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M3 1h7l3 3v11H3z"/>
+            <path d="M10 1v3h3"/>
+          </svg>
+          PDF
+        </button>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<div class="toast" id="toast">File generato</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const state = {
+  diametroSup: 2000,
+  diametroInf: 1400,
+  altezza:     2200,
+  spessore:    15,
+  materiale:   'S355J2',
+  accessori: {
+    becco: true,
+    bocchello: true,
+    perni: true,
+    golfari: false
+  }
+};
+
+const DENS = 7850; // kg/m³ acciaio
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function fmt(n, dec = 0) {
+  if (n === undefined || n === null || isNaN(n)) return '—';
+  return new Intl.NumberFormat('it-IT', {
+    minimumFractionDigits: dec,
+    maximumFractionDigits: dec
+  }).format(n);
+}
+function fmtCsv(n, dec = 2) {
+  if (n === undefined || n === null || isNaN(n)) return '';
+  return n.toFixed(dec).replace('.', ',');
+}
+
+/* ============================================================
+   CALCULATIONS
+   ============================================================ */
+function calcCapacity() {
+  const R = state.diametroSup/2/1000;
+  const r = state.diametroInf/2/1000;
+  const h = state.altezza/1000;
+  const volume = (Math.PI/3) * h * (R*R + R*r + r*r); // m³
+  return volume * 1000; // litri
+}
+
+function calcVirolaData(rBot, rTop, h) {
+  const Rmax = Math.max(rBot, rTop);
+  const Rmin = Math.min(rBot, rTop);
+  const apotema = Math.sqrt(h*h + (Rmax-Rmin)*(Rmax-Rmin));
+  const angoloFull = 360 * (Rmax - Rmin) / apotema;
+  const L1 = Rmax * apotema / (Rmax - Rmin || 0.0001); // outer radius of sviluppo
+  const L2 = L1 - apotema;
+  const area = Math.PI * (rBot + rTop) * apotema; // mm²
+  return { apotema, angoloFull, L1, L2, area };
+}
+
+/* ============================================================
+   BOM GENERATION (rule engine)
+   ============================================================ */
+function generateBOM() {
+  const items = [];
+  let nextId = 1;
+
+  const Rsup = state.diametroSup / 2;
+  const Rinf = state.diametroInf / 2;
+  const H    = state.altezza;
+  const sp   = state.spessore;
+  const mat  = state.materiale;
+  const capacityL = calcCapacity();
+
+  // ROOT
+  const rootId = nextId++;
+  items.push({
+    level: 0, parentId: null, id: rootId,
+    codice: `SIV-${Math.round(capacityL/100)*100}`,
+    descrizione: `Siviera di colata ${fmt(capacityL)} L`,
+    qta: 1, materiale: '',
+    note: 'Assieme principale'
+  });
+
+  // MANTELLO
+  const mantId = nextId++;
+  items.push({
+    level: 1, parentId: rootId, id: mantId,
+    codice: 'MNT-001',
+    descrizione: 'Mantello conico',
+    qta: 1, note: 'Sotto-assieme'
+  });
+
+  const nV = Math.max(1, Math.ceil(H / 1500));
+  const hV = H / nV;
+
+  for (let i = 0; i < nV; i++) {
+    const r1 = Rinf + (Rsup - Rinf) * (i / nV);
+    const r2 = Rinf + (Rsup - Rinf) * ((i+1) / nV);
+    const Rmax = Math.max(r1, r2);
+    const v = calcVirolaData(r1, r2, hV);
+    const area = v.area / 1e6;
+    const peso = area * (sp/1000) * DENS;
+    const splitSemi = 2*Rmax > 1500;
+
+    const virId = nextId++;
+    items.push({
+      level: 2, parentId: mantId, id: virId,
+      codice: `VIR-${String(i+1).padStart(2,'0')}`,
+      descrizione: nV === 1 ? 'Virola unica' : `Virola ${i+1} di ${nV}`,
+      qta: 1,
+      materiale: splitSemi ? '' : mat,
+      spessore:  splitSemi ? null : sp,
+      pesoUnit:  splitSemi ? null : peso,
+      pesoTot:   peso,
+      sviluppo_m2: splitSemi ? null : area,
+      larghezza: splitSemi ? null : v.apotema,
+      note: splitSemi
+        ? `Ø=${fmt(2*Rmax)} mm → 2 semilune`
+        : `Sviluppo α=${fmt(v.angoloFull,1)}°`
+    });
+
+    if (splitSemi) {
+      ['SX','DX'].forEach(lato => {
+        items.push({
+          level: 3, parentId: virId, id: nextId++,
+          codice: `VIR-${String(i+1).padStart(2,'0')}-${lato}`,
+          descrizione: `Semiluna ${lato==='SX'?'sinistra':'destra'}`,
+          qta: 1, materiale: mat, spessore: sp,
+          pesoUnit: peso/2, pesoTot: peso/2,
+          sviluppo_m2: area/2,
+          larghezza: v.apotema,
+          note: `Settore α/2=${fmt(v.angoloFull/2,1)}°`
+        });
+      });
+    }
+  }
+
+  // FONDO
+  const spFondo = sp + 5;
+  const areaFondo = Math.PI * Rinf * Rinf / 1e6;
+  const pesoFondo = areaFondo * (spFondo/1000) * DENS;
+  items.push({
+    level: 1, parentId: rootId, id: nextId++,
+    codice: 'FND-001', descrizione: 'Fondo piano', qta: 1,
+    materiale: mat, spessore: spFondo,
+    pesoUnit: pesoFondo, pesoTot: pesoFondo,
+    sviluppo_m2: areaFondo,
+    lunghezza: 2*Rinf, larghezza: 2*Rinf,
+    note: `Piastra Ø${fmt(2*Rinf)} mm`
+  });
+
+  // RINFORZI ORIZZONTALI
+  const nRinf = Math.max(0, Math.floor(H / 800));
+  if (nRinf > 0) {
+    const rgId = nextId++;
+    items.push({
+      level: 1, parentId: rootId, id: rgId,
+      codice: 'RNF-H', descrizione: 'Rinforzi orizzontali',
+      qta: nRinf, note: `n° ${nRinf} anelli, passo ~${fmt(H/(nRinf+1))} mm`
+    });
+    for (let i = 0; i < nRinf; i++) {
+      const zLev = H * (i+1) / (nRinf+1);
+      const rAtZ = Rinf + (Rsup - Rinf) * zLev / H;
+      const sezW = 80, sezT = 15;
+      const circ = 2 * Math.PI * rAtZ;
+      const pesoA = (circ/1000) * (sezW/1000) * (sezT/1000) * DENS;
+      items.push({
+        level: 2, parentId: rgId, id: nextId++,
+        codice: `RNF-H-${String(i+1).padStart(2,'0')}`,
+        descrizione: `Anello ${i+1}`,
+        qta: 1, materiale: mat, spessore: sezT,
+        pesoUnit: pesoA, pesoTot: pesoA,
+        lunghezza: circ, larghezza: sezW,
+        note: `Piatto ${sezW}×${sezT}, calandrato Ø${fmt(2*rAtZ)}`
+      });
+    }
+  }
+
+  // RINFORZI VERTICALI (se virole sono spezzate)
+  const maxD = Math.max(state.diametroSup, state.diametroInf);
+  if (maxD > 1500) {
+    const rvId = nextId++;
+    items.push({
+      level: 1, parentId: rootId, id: rvId,
+      codice: 'RNF-V', descrizione: 'Rinforzi verticali',
+      qta: 2, note: 'Copertura saldature semilune'
+    });
+    const sezW = 80, sezT = 15;
+    const pesoV = (H/1000) * (sezW/1000) * (sezT/1000) * DENS;
+    for (let i = 0; i < 2; i++) {
+      items.push({
+        level: 2, parentId: rvId, id: nextId++,
+        codice: `RNF-V-${String(i+1).padStart(2,'0')}`,
+        descrizione: `Piatto verticale ${i+1}`,
+        qta: 1, materiale: mat, spessore: sezT,
+        pesoUnit: pesoV, pesoTot: pesoV,
+        lunghezza: H, larghezza: sezW,
+        note: `Piatto ${sezW}×${sezT}, lungh. ${fmt(H)}`
+      });
+    }
+  }
+
+  // ACCESSORI
+  if (state.accessori.becco) {
+    const bcId = nextId++;
+    items.push({
+      level: 1, parentId: rootId, id: bcId,
+      codice: 'BCO-001', descrizione: 'Becco di colata',
+      qta: 1, note: 'Sotto-assieme'
+    });
+    items.push({
+      level: 2, parentId: bcId, id: nextId++,
+      codice: 'BCO-LAM', descrizione: 'Lamiera sagomata becco',
+      qta: 1, materiale: mat, spessore: sp + 5,
+      pesoUnit: 42.5, pesoTot: 42.5,
+      sviluppo_m2: 0.42,
+      note: 'Taglio sagoma + piegatura'
+    });
+    items.push({
+      level: 2, parentId: bcId, id: nextId++,
+      codice: 'BCO-RNF', descrizione: 'Rinforzo UPN 100',
+      qta: 2, materiale: 'S275JR', lunghezza: 450,
+      pesoUnit: 4.8, pesoTot: 9.6,
+      note: 'Profilo UPN 100 L=450'
+    });
+  }
+
+  if (state.accessori.bocchello) {
+    const boId = nextId++;
+    items.push({
+      level: 1, parentId: rootId, id: boId,
+      codice: 'BOC-001', descrizione: 'Bocchello laterale DN150',
+      qta: 1, note: 'Sotto-assieme'
+    });
+    items.push({
+      level: 2, parentId: boId, id: nextId++,
+      codice: 'BOC-TUB', descrizione: 'Tubo Ø168,3 × 10',
+      qta: 1, materiale: mat, spessore: 10,
+      lunghezza: 200, pesoUnit: 7.8, pesoTot: 7.8,
+      note: 'Tubo strutturale'
+    });
+    items.push({
+      level: 2, parentId: boId, id: nextId++,
+      codice: 'BOC-FLG', descrizione: 'Flangia DN150 PN16',
+      qta: 1, materiale: 'S275JR',
+      pesoUnit: 5.2, pesoTot: 5.2,
+      note: 'Flangia piana forata'
+    });
+  }
+
+  if (state.accessori.perni) {
+    const pnId = nextId++;
+    items.push({
+      level: 1, parentId: rootId, id: pnId,
+      codice: 'PRN-001', descrizione: 'Perni di rotazione',
+      qta: 2, note: 'Sotto-assieme'
+    });
+    items.push({
+      level: 2, parentId: pnId, id: nextId++,
+      codice: 'PRN-TND', descrizione: 'Tondo Ø120 tornito',
+      qta: 2, materiale: 'C45',
+      lunghezza: 300, pesoUnit: 28.5, pesoTot: 57,
+      note: 'Tornitura + foratura'
+    });
+    items.push({
+      level: 2, parentId: pnId, id: nextId++,
+      codice: 'PRN-PLT', descrizione: 'Piastra rinforzo perno',
+      qta: 2, materiale: mat, spessore: sp + 5,
+      pesoUnit: 18.2, pesoTot: 36.4,
+      note: `Piatto 400×400×${sp+5}`
+    });
+  }
+
+  if (state.accessori.golfari) {
+    items.push({
+      level: 1, parentId: rootId, id: nextId++,
+      codice: 'GLF-001', descrizione: 'Golfari sollevamento M36',
+      qta: 4, materiale: 'C15',
+      pesoUnit: 1.2, pesoTot: 4.8,
+      note: 'UNI EN ISO 3266 normalizzato'
+    });
+  }
+
+  // Rollup pesi: le foglie hanno pesoTot = pesoUnit × qta (totale per l'item).
+  // I container accumulano la somma dei figli. Si naviga l'albero dalla radice.
+  const rollupWeight = (id) => {
+    const item = items.find(it => it.id === id);
+    if (!item) return 0;
+    const children = items.filter(it => it.parentId === id);
+    if (children.length === 0) return (item.pesoTot || 0);
+    let sum = 0;
+    for (const ch of children) sum += rollupWeight(ch.id);
+    // Per virole spezzate, pesoTot è già = somma semilune; idempotente.
+    item.pesoTot = sum;
+    return sum;
+  };
+  const totWeight = rollupWeight(rootId);
+
+  // Sviluppo lamiera totale
+  const totArea = items.reduce((s, it) => s + (it.sviluppo_m2 || 0), 0);
+
+  // Saldatura approssimativa: somma circonferenze virole + saldature semilune + fondo + accessori
+  let weldM = 0;
+  // Virole-to-virole saldature circolari
+  for (let i = 0; i < nV; i++) {
+    const r1 = Rinf + (Rsup - Rinf) * (i / nV);
+    const r2 = Rinf + (Rsup - Rinf) * ((i+1) / nV);
+    if (i > 0) weldM += 2 * Math.PI * r1 / 1000;
+    if (2*Math.max(r1,r2) > 1500) {
+      const apot = Math.sqrt(hV*hV + (r1-r2)*(r1-r2));
+      weldM += 2 * apot / 1000; // 2 cordoni radiali
+    }
+  }
+  // Fondo-mantello
+  weldM += 2 * Math.PI * Rinf / 1000;
+  // Accessori stimati
+  if (state.accessori.becco) weldM += 2.5;
+  if (state.accessori.bocchello) weldM += 0.55;
+  if (state.accessori.perni) weldM += 5.2;
+  if (state.accessori.golfari) weldM += 0.8;
+
+  return { items, totalWeight: totWeight, totalArea: totArea, weldM };
+}
+
+/* ============================================================
+   RENDER BOM TABLE
+   ============================================================ */
+let lastItemIds = new Set();
+
+function renderBOM(bom) {
+  const body = document.getElementById('bom-body');
+  body.innerHTML = '';
+  const currentIds = new Set();
+
+  for (const it of bom.items) {
+    currentIds.add(it.id);
+    const tr = document.createElement('tr');
+    tr.className = `level-${it.level}`;
+    if (!lastItemIds.has(it.id) && lastItemIds.size > 0) tr.classList.add('new-row');
+
+    const tdDesc = document.createElement('td');
+    const ind = '<span class="bom-tree-ind"></span>';
+    const mark = it.level === 0 ? ''
+              : it.level === 1 ? '<span class="bom-tree-mark">├</span>'
+              : it.level === 2 ? '<span class="bom-tree-mark">├─</span>'
+              : '<span class="bom-tree-mark">└─</span>';
+    const code = it.codice ? `<span class="code">${it.codice}</span>` : '';
+    tdDesc.innerHTML = `${ind}${mark}${code}${it.descrizione}`;
+
+    const tdQta = document.createElement('td');
+    tdQta.className = 'num';
+    tdQta.textContent = it.qta ?? '';
+
+    const tdPeso = document.createElement('td');
+    tdPeso.className = 'num';
+    tdPeso.textContent = it.pesoTot ? fmt(it.pesoTot, 1) : '—';
+
+    tr.appendChild(tdDesc);
+    tr.appendChild(tdQta);
+    tr.appendChild(tdPeso);
+    body.appendChild(tr);
+  }
+  lastItemIds = currentIds;
+
+  // Summary numbers
+  animateNum('sum-peso', bom.totalWeight, 0);
+  animateNum('sum-lamiera', bom.totalArea, 1);
+  animateNum('sum-saldatura', bom.weldM, 1);
+  animateNum('sum-pezzi', bom.items.filter(it => it.level >= 2 && !bom.items.some(c => c.parentId===it.id)).reduce((s,it)=>s+(it.qta||0),0), 0);
+}
+
+function animateNum(id, to, dec = 0) {
+  const el = document.getElementById(id);
+  const from = parseFloat((el.dataset.val || '0')) || 0;
+  const start = performance.now();
+  const dur = 350;
+  function step(now) {
+    const t = Math.min(1, (now - start) / dur);
+    const e = 1 - Math.pow(1 - t, 3);
+    const v = from + (to - from) * e;
+    el.textContent = fmt(v, dec);
+    if (t < 1) requestAnimationFrame(step);
+    else el.dataset.val = to;
+  }
+  requestAnimationFrame(step);
+}
+
+/* ============================================================
+   THREE.JS SCENE
+   ============================================================ */
+let scene, camera, renderer, controls;
+let sivieraGroup;
+let autoRotate = true;
+let rotateResumeTimer = null;
+
+function initThree() {
+  const canvas = document.getElementById('three-canvas');
+  const wrap   = document.getElementById('vp');
+
+  scene = new THREE.Scene();
+
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  camera = new THREE.PerspectiveCamera(38, w/h, 50, 30000);
+  camera.position.set(5500, 2800, 5500);
+  camera.lookAt(0, 1100, 0);
+
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setSize(w, h, false);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+
+  // LIGHTS (warm workshop atmosphere)
+  scene.add(new THREE.HemisphereLight(0x4a4038, 0x0a0a0a, 0.45));
+
+  const key = new THREE.DirectionalLight(0xffd9a8, 1.7);
+  key.position.set(2500, 4000, 2500);
+  scene.add(key);
+
+  const fill = new THREE.DirectionalLight(0x8098b0, 0.5);
+  fill.position.set(-2500, 2000, -1500);
+  scene.add(fill);
+
+  const rim = new THREE.DirectionalLight(0xff7a30, 0.8);
+  rim.position.set(-800, 400, -3000);
+  scene.add(rim);
+
+  // GROUND
+  const groundGeo = new THREE.CircleGeometry(7000, 64);
+  const groundMat = new THREE.MeshStandardMaterial({
+    color: 0x0c0c0c, metalness: 0.6, roughness: 0.85
+  });
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI / 2;
+  scene.add(ground);
+
+  // FLOOR GRID (subtle)
+  const grid = new THREE.GridHelper(6000, 24, 0x222222, 0x161616);
+  grid.position.y = 1;
+  scene.add(grid);
+
+  // CONTROLS
+  controls = new OrbitControls(camera, canvas);
+  controls.target.set(0, state.altezza * 0.45, 0);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.minDistance = 1500;
+  controls.maxDistance = 15000;
+  controls.maxPolarAngle = Math.PI / 2 + 0.1;
+  controls.addEventListener('start', () => {
+    autoRotate = false;
+    if (rotateResumeTimer) clearTimeout(rotateResumeTimer);
+  });
+  controls.addEventListener('end', () => {
+    if (rotateResumeTimer) clearTimeout(rotateResumeTimer);
+    rotateResumeTimer = setTimeout(() => { autoRotate = true; }, 3500);
+  });
+
+  // GROUP
+  sivieraGroup = new THREE.Group();
+  scene.add(sivieraGroup);
+
+  buildSiviera();
+  animate();
+
+  window.addEventListener('resize', onResize);
+}
+
+function onResize() {
+  const wrap = document.getElementById('vp');
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  camera.aspect = w/h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h, false);
+}
+
+function makeSteelMaterial(shade = 0.45, rough = 0.5) {
+  return new THREE.MeshStandardMaterial({
+    color: new THREE.Color(shade, shade, shade),
+    metalness: 0.88,
+    roughness: rough,
+    side: THREE.DoubleSide
+  });
+}
+
+function buildSiviera() {
+  // Dispose previous
+  while (sivieraGroup.children.length) {
+    const c = sivieraGroup.children.pop();
+    c.traverse?.(o => {
+      if (o.geometry) o.geometry.dispose();
+      if (o.material) { Array.isArray(o.material) ? o.material.forEach(m=>m.dispose()) : o.material.dispose(); }
+    });
+  }
+
+  const Rsup = state.diametroSup / 2;
+  const Rinf = state.diametroInf / 2;
+  const H    = state.altezza;
+
+  const matMantle = makeSteelMaterial(0.30, 0.55);
+  const matRing   = makeSteelMaterial(0.42, 0.38);
+  const matDark   = makeSteelMaterial(0.22, 0.65);
+  const matBright = makeSteelMaterial(0.55, 0.32);
+
+  // MANTELLO (LatheGeometry con spessore simulato)
+  const outer = [];
+  outer.push(new THREE.Vector2(Rinf, 0));
+  outer.push(new THREE.Vector2(Rsup, H));
+  const mantGeo = new THREE.LatheGeometry(outer, 72, 0, Math.PI * 2);
+  const mantello = new THREE.Mesh(mantGeo, matMantle);
+  sivieraGroup.add(mantello);
+
+  // Top lip (flange superiore)
+  const topLipGeo = new THREE.TorusGeometry(Rsup, 28, 10, 72);
+  const topLip = new THREE.Mesh(topLipGeo, matRing);
+  topLip.position.y = H;
+  topLip.rotation.x = Math.PI / 2;
+  sivieraGroup.add(topLip);
+
+  // Bottom lip
+  const botLip = new THREE.Mesh(new THREE.TorusGeometry(Rinf, 24, 10, 72), matRing);
+  botLip.rotation.x = Math.PI / 2;
+  sivieraGroup.add(botLip);
+
+  // FONDO
+  const fondoGeo = new THREE.CylinderGeometry(Rinf, Rinf, 20, 64);
+  const fondo = new THREE.Mesh(fondoGeo, matDark);
+  fondo.position.y = 10;
+  sivieraGroup.add(fondo);
+
+  // VIROLE saldature (cerchi visibili sul mantello)
+  const nV = Math.max(1, Math.ceil(H / 1500));
+  for (let i = 1; i < nV; i++) {
+    const zLev = H * i / nV;
+    const rAtZ = Rinf + (Rsup - Rinf) * zLev / H;
+    const weld = new THREE.Mesh(
+      new THREE.TorusGeometry(rAtZ + 2, 8, 8, 72),
+      matBright
+    );
+    weld.position.y = zLev;
+    weld.rotation.x = Math.PI / 2;
+    sivieraGroup.add(weld);
+  }
+
+  // RINFORZI ORIZZONTALI (anelli sporgenti)
+  const nRinf = Math.max(0, Math.floor(H / 800));
+  for (let i = 0; i < nRinf; i++) {
+    const zLev = H * (i+1) / (nRinf+1);
+    const rAtZ = Rinf + (Rsup - Rinf) * zLev / H;
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(rAtZ + 20, 40, 6, 72),
+      matRing
+    );
+    ring.position.y = zLev;
+    ring.rotation.x = Math.PI / 2;
+    sivieraGroup.add(ring);
+  }
+
+  // RINFORZI VERTICALI (se semilune)
+  const maxD = Math.max(state.diametroSup, state.diametroInf);
+  if (maxD > 1500) {
+    for (const angle of [0, Math.PI]) {
+      // costruisce una striscia che segue la conicità
+      const stripPoints = [];
+      stripPoints.push(new THREE.Vector2(Rinf + 10, 0));
+      stripPoints.push(new THREE.Vector2(Rsup + 10, H));
+      const stripGeo = new THREE.LatheGeometry(stripPoints, 6, angle - 0.06, 0.12);
+      const strip = new THREE.Mesh(stripGeo, matRing);
+      sivieraGroup.add(strip);
+    }
+  }
+
+  // BECCO DI COLATA
+  if (state.accessori.becco) {
+    const beccoGroup = new THREE.Group();
+    const beccoAngle = Math.PI * 0.25;
+
+    const beccoShape = new THREE.BoxGeometry(420, 200, 280);
+    const becco = new THREE.Mesh(beccoShape, matMantle);
+    const rAtTop = Rsup;
+    becco.position.set(
+      (rAtTop + 120) * Math.cos(beccoAngle),
+      H - 90,
+      (rAtTop + 120) * Math.sin(beccoAngle)
+    );
+    becco.rotation.y = -beccoAngle + Math.PI/2;
+    beccoGroup.add(becco);
+
+    // Spout tip
+    const spout = new THREE.Mesh(
+      new THREE.BoxGeometry(180, 30, 220),
+      matBright
+    );
+    spout.position.set(
+      (rAtTop + 280) * Math.cos(beccoAngle),
+      H - 5,
+      (rAtTop + 280) * Math.sin(beccoAngle)
+    );
+    spout.rotation.y = -beccoAngle + Math.PI/2;
+    beccoGroup.add(spout);
+
+    sivieraGroup.add(beccoGroup);
+  }
+
+  // BOCCHELLO LATERALE
+  if (state.accessori.bocchello) {
+    const bocGroup = new THREE.Group();
+    const bocAngle = -Math.PI * 0.55;
+    const rAtLow = Rinf + (Rsup - Rinf) * (200/H);
+
+    const tube = new THREE.Mesh(
+      new THREE.CylinderGeometry(90, 90, 320, 24),
+      matRing
+    );
+    const dx = Math.cos(bocAngle), dz = Math.sin(bocAngle);
+    const pBase = new THREE.Vector3(rAtLow * dx, 200, rAtLow * dz);
+    const offset = 180;
+    tube.position.set(pBase.x + offset*dx, pBase.y, pBase.z + offset*dz);
+    tube.lookAt(pBase.x + 10000*dx, pBase.y, pBase.z + 10000*dz);
+    tube.rotateX(Math.PI/2);
+    bocGroup.add(tube);
+
+    const flange = new THREE.Mesh(
+      new THREE.CylinderGeometry(140, 140, 30, 24),
+      matBright
+    );
+    flange.position.set(pBase.x + (offset+170)*dx, pBase.y, pBase.z + (offset+170)*dz);
+    flange.lookAt(pBase.x + 10000*dx, pBase.y, pBase.z + 10000*dz);
+    flange.rotateX(Math.PI/2);
+    bocGroup.add(flange);
+
+    sivieraGroup.add(bocGroup);
+  }
+
+  // PERNI DI ROTAZIONE
+  if (state.accessori.perni) {
+    for (const dir of [-1, 1]) {
+      const perniGroup = new THREE.Group();
+      const rAtMid = Rinf + (Rsup - Rinf) * 0.55;
+      const yMid = H * 0.55;
+
+      const plate = new THREE.Mesh(
+        new THREE.BoxGeometry(30, 420, 420),
+        matRing
+      );
+      plate.position.set(dir * rAtMid, yMid, 0);
+      perniGroup.add(plate);
+
+      const perno = new THREE.Mesh(
+        new THREE.CylinderGeometry(65, 65, 380, 24),
+        matBright
+      );
+      perno.position.set(dir * (rAtMid + 190), yMid, 0);
+      perno.rotation.z = Math.PI/2;
+      perniGroup.add(perno);
+
+      const spall = new THREE.Mesh(
+        new THREE.CylinderGeometry(85, 85, 30, 24),
+        matRing
+      );
+      spall.position.set(dir * (rAtMid + 15), yMid, 0);
+      spall.rotation.z = Math.PI/2;
+      perniGroup.add(spall);
+
+      sivieraGroup.add(perniGroup);
+    }
+  }
+
+  // GOLFARI
+  if (state.accessori.golfari) {
+    for (let i = 0; i < 4; i++) {
+      const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
+      const g = new THREE.Group();
+      const base = new THREE.Mesh(
+        new THREE.BoxGeometry(90, 30, 70),
+        matRing
+      );
+      base.position.y = 15;
+      g.add(base);
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(30, 9, 8, 16),
+        matBright
+      );
+      ring.position.y = 55;
+      ring.rotation.x = Math.PI / 2;
+      ring.rotation.y = a;
+      g.add(ring);
+      g.position.set(Rsup * 0.93 * Math.cos(a), H + 20, Rsup * 0.93 * Math.sin(a));
+      sivieraGroup.add(g);
+    }
+  }
+
+  // Update controls target
+  if (controls) controls.target.set(0, H * 0.45, 0);
+
+  // Auto-fit camera on first build only
+  if (!buildSiviera._initialized) {
+    const maxDim = Math.max(state.diametroSup, state.diametroInf, state.altezza);
+    const d = maxDim * 2.3;
+    camera.position.set(d, d * 0.55, d);
+    camera.lookAt(0, H * 0.45, 0);
+    buildSiviera._initialized = true;
+  }
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (autoRotate) sivieraGroup.rotation.y += 0.0025;
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+/* ============================================================
+   SVILUPPO 2D (svg overlay)
+   ============================================================ */
+function updateSvilupppo2D() {
+  const Rsup = state.diametroSup / 2;
+  const Rinf = state.diametroInf / 2;
+  const H = state.altezza;
+  const nV = Math.max(1, Math.ceil(H / 1500));
+  const hV = H / nV;
+
+  const r1 = Rinf;
+  const r2 = Rinf + (Rsup - Rinf) * (1 / nV);
+  const v = calcVirolaData(r1, r2, hV);
+  const Rmax = Math.max(r1, r2);
+  const splitSemi = 2*Rmax > 1500;
+
+  let alpha = v.angoloFull;
+  if (splitSemi) alpha = alpha / 2;
+
+  // Scale to fit 90 unit radius in SVG viewBox
+  const scale = 90 / v.L1;
+  const L1 = v.L1 * scale;
+  const L2 = v.L2 * scale;
+
+  // centered sector, opening upward (from -alpha/2 to +alpha/2 around vertical axis pointing down)
+  const aRad = alpha * Math.PI / 180;
+  const a1 = -aRad/2 - Math.PI/2;
+  const a2 =  aRad/2 - Math.PI/2;
+
+  const x1a = Math.cos(a1) * L1, y1a = Math.sin(a1) * L1;
+  const x2a = Math.cos(a2) * L1, y2a = Math.sin(a2) * L1;
+  const x1b = Math.cos(a1) * L2, y1b = Math.sin(a1) * L2;
+  const x2b = Math.cos(a2) * L2, y2b = Math.sin(a2) * L2;
+
+  const large = alpha > 180 ? 1 : 0;
+  const d = `M ${x1a} ${y1a} A ${L1} ${L1} 0 ${large} 1 ${x2a} ${y2a} L ${x2b} ${y2b} A ${L2} ${L2} 0 ${large} 0 ${x1b} ${y1b} Z`;
+
+  document.getElementById('dev-path').setAttribute('d', d);
+  document.getElementById('dev-r1').setAttribute('x1', 0);
+  document.getElementById('dev-r1').setAttribute('y1', 0);
+  document.getElementById('dev-r1').setAttribute('x2', x1a);
+  document.getElementById('dev-r1').setAttribute('y2', y1a);
+  document.getElementById('dev-r2').setAttribute('x1', 0);
+  document.getElementById('dev-r2').setAttribute('y1', 0);
+  document.getElementById('dev-r2').setAttribute('x2', x2a);
+  document.getElementById('dev-r2').setAttribute('y2', y2a);
+
+  const at = document.getElementById('dev-angle-text');
+  at.setAttribute('x', 0);
+  at.setAttribute('y', -((L1 + L2)/2) + 4);
+  at.textContent = `α ${fmt(alpha, 1)}°`;
+
+  document.getElementById('dev-angle-tag').textContent = `α ${fmt(alpha,1)}°`;
+}
+
+/* ============================================================
+   UPDATE ALL
+   ============================================================ */
+function updateAll() {
+  // update labels
+  document.getElementById('val-dsup').textContent = fmt(state.diametroSup);
+  document.getElementById('val-dinf').textContent = fmt(state.diametroInf);
+  document.getElementById('val-h').textContent = fmt(state.altezza);
+  document.getElementById('val-sp').textContent = fmt(state.spessore);
+  document.getElementById('axis-h').textContent = fmt(state.altezza);
+
+  const nV = Math.max(1, Math.ceil(state.altezza / 1500));
+  document.getElementById('val-nvir').textContent = nV;
+  const maxD = Math.max(state.diametroSup, state.diametroInf);
+  document.getElementById('val-semi').textContent = maxD > 1500 ? 2 : 1;
+
+  // update hero capacity
+  const cap = calcCapacity();
+  animateNum('hero-capacity', cap, 0);
+
+  // update 3D
+  buildSiviera();
+
+  // update development 2D
+  updateSvilupppo2D();
+
+  // regen BOM
+  const bom = generateBOM();
+  renderBOM(bom);
+  window._lastBOM = bom;
+}
+
+/* ============================================================
+   EXPORT: CSV (gerarchico, ; separator, , decimal, UTF-8 BOM)
+   ============================================================ */
+function exportCSV() {
+  const bom = window._lastBOM;
+  if (!bom) return;
+  const cols = ['Livello','IDPadre','IDPezzo','Codice','Descrizione','Qta','Materiale','Spessore','PesoUnit','PesoTot','Sviluppo_m2','Lunghezza','Larghezza','Note'];
+  const lines = [cols.join(';')];
+
+  for (const it of bom.items) {
+    const indent = '  '.repeat(it.level);
+    const row = [
+      it.level,
+      it.parentId ?? '',
+      it.id,
+      it.codice ?? '',
+      indent + (it.descrizione ?? ''),
+      it.qta ?? '',
+      it.materiale ?? '',
+      fmtCsv(it.spessore, 0),
+      fmtCsv(it.pesoUnit, 2),
+      fmtCsv(it.pesoTot, 2),
+      fmtCsv(it.sviluppo_m2, 3),
+      fmtCsv(it.lunghezza, 0),
+      fmtCsv(it.larghezza, 0),
+      (it.note ?? '').replace(/;/g, ',')
+    ];
+    lines.push(row.join(';'));
+  }
+
+  const csv = '\uFEFF' + lines.join('\r\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  triggerDownload(blob, `distinta_siviera_${timestamp()}.csv`);
+  toast('CSV distinta gerarchica esportato');
+}
+
+/* ============================================================
+   EXPORT: DXF (sviluppo virola 1, annular sector)
+   ============================================================ */
+function exportDXF() {
+  const Rsup = state.diametroSup / 2;
+  const Rinf = state.diametroInf / 2;
+  const H = state.altezza;
+  const nV = Math.max(1, Math.ceil(H / 1500));
+  const hV = H / nV;
+
+  const r1 = Rinf;
+  const r2 = Rinf + (Rsup - Rinf) * (1 / nV);
+  const v = calcVirolaData(r1, r2, hV);
+  const Rmax = Math.max(r1, r2);
+  const splitSemi = 2*Rmax > 1500;
+  let alpha = v.angoloFull;
+  if (splitSemi) alpha = alpha / 2;
+
+  const L1 = v.L1, L2 = v.L2;
+  const aRad = alpha * Math.PI / 180;
+  const a1 = -aRad/2;
+  const a2 =  aRad/2;
+
+  const x1a = Math.cos(a1) * L1, y1a = Math.sin(a1) * L1;
+  const x2a = Math.cos(a2) * L1, y2a = Math.sin(a2) * L1;
+  const x1b = Math.cos(a1) * L2, y1b = Math.sin(a1) * L2;
+  const x2b = Math.cos(a2) * L2, y2b = Math.sin(a2) * L2;
+
+  // DXF minimo R12
+  const dxf = [];
+  const p = (code, val) => { dxf.push(code); dxf.push(val); };
+  p(0,'SECTION'); p(2,'HEADER');
+  p(9,'$INSUNITS'); p(70, 4); // millimeters
+  p(0,'ENDSEC');
+  p(0,'SECTION'); p(2,'ENTITIES');
+
+  // Outer arc
+  p(0,'ARC'); p(8,'SVILUPPO');
+  p(10, 0); p(20, 0); p(30, 0);
+  p(40, L1);
+  p(50, alpha===360?0:(-alpha/2));
+  p(51, alpha===360?360:(alpha/2));
+
+  // Inner arc
+  p(0,'ARC'); p(8,'SVILUPPO');
+  p(10, 0); p(20, 0); p(30, 0);
+  p(40, L2);
+  p(50, alpha===360?0:(-alpha/2));
+  p(51, alpha===360?360:(alpha/2));
+
+  // Radial lines (only if not full circle)
+  if (alpha < 360) {
+    p(0,'LINE'); p(8,'SVILUPPO');
+    p(10, x1b); p(20, y1b); p(30, 0);
+    p(11, x1a); p(21, y1a); p(31, 0);
+
+    p(0,'LINE'); p(8,'SVILUPPO');
+    p(10, x2b); p(20, y2b); p(30, 0);
+    p(11, x2a); p(21, y2a); p(31, 0);
+  }
+
+  // Text label
+  p(0,'TEXT'); p(8,'QUOTE');
+  p(10, 0); p(20, -(L1+L2)/2); p(30, 0);
+  p(40, 40);
+  p(1, `ALPHA=${fmt(alpha,2)}°`);
+
+  p(0,'ENDSEC'); p(0,'EOF');
+
+  const txt = dxf.map((v,i)=> i%2===0 ? String(v).padStart(3,' ') : String(v)).join('\r\n');
+  const blob = new Blob([txt], {type:'application/dxf'});
+  triggerDownload(blob, `sviluppo_virola1_${timestamp()}.dxf`);
+  toast('DXF sviluppo virola 1 esportato');
+}
+
+/* ============================================================
+   EXPORT: PDF
+   ============================================================ */
+function exportPDF() {
+  const bom = window._lastBOM;
+  if (!bom) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:'mm', format:'a4'});
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('it-IT');
+  const timeStr = now.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  const cap = calcCapacity();
+
+  // Header
+  doc.setFillColor(10,10,10);
+  doc.rect(0, 0, 210, 32, 'F');
+  doc.setTextColor(235,230,220);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(18);
+  doc.text('PREVENTIVO CARPENTERIA', 15, 15);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.setTextColor(154,148,138);
+  doc.text('Siviera di colata · Configuratore rapido', 15, 21);
+  doc.setTextColor(255,106,26);
+  doc.setFont('helvetica','bold');
+  doc.text(`${dateStr}  ${timeStr}`, 195, 15, {align:'right'});
+  doc.setTextColor(154,148,138);
+  doc.setFont('helvetica','normal');
+  doc.text('Rev. A.01', 195, 21, {align:'right'});
+
+  // Hero
+  doc.setTextColor(20,20,20);
+  doc.setFontSize(28);
+  doc.setFont('helvetica','bold');
+  doc.text(`${fmt(cap)} L`, 15, 50);
+  doc.setFontSize(11);
+  doc.setFont('helvetica','normal');
+  doc.setTextColor(120,120,120);
+  doc.text(`Siviera ${fmt(state.diametroSup)}·${fmt(state.diametroInf)}·H${fmt(state.altezza)}  mm  —  ${state.materiale}`, 15, 57);
+
+  // Parametri
+  doc.setDrawColor(220,220,220);
+  doc.line(15, 65, 195, 65);
+  doc.setFontSize(9);
+  doc.setTextColor(120,120,120);
+  doc.setFont('helvetica','bold');
+  doc.text('PARAMETRI GEOMETRICI', 15, 72);
+  doc.setFont('helvetica','normal');
+  doc.setTextColor(40,40,40);
+
+  const params = [
+    ['Ø Superiore',  `${fmt(state.diametroSup)} mm`],
+    ['Ø Inferiore',  `${fmt(state.diametroInf)} mm`],
+    ['Altezza',      `${fmt(state.altezza)} mm`],
+    ['Spessore',     `${fmt(state.spessore)} mm`],
+    ['Materiale',    state.materiale],
+    ['Capacità',     `${fmt(cap)} L`]
+  ];
+  let yy = 79;
+  for (let i = 0; i < params.length; i++) {
+    const col = i % 2;
+    const row = Math.floor(i/2);
+    const x = 15 + col * 90;
+    doc.setTextColor(120,120,120);
+    doc.text(params[i][0], x, yy + row * 6);
+    doc.setTextColor(30,30,30);
+    doc.setFont('helvetica','bold');
+    doc.text(params[i][1], x + 40, yy + row * 6);
+    doc.setFont('helvetica','normal');
+  }
+
+  // Totali
+  const yTot = yy + 22;
+  doc.line(15, yTot, 195, yTot);
+  doc.setFontSize(9);
+  doc.setTextColor(120,120,120);
+  doc.setFont('helvetica','bold');
+  doc.text('TOTALI CALCOLATI', 15, yTot + 7);
+  doc.setFont('helvetica','normal');
+  const totals = [
+    ['Peso totale',      `${fmt(bom.totalWeight, 1)} kg`],
+    ['Lamiera',          `${fmt(bom.totalArea, 2)} m²`],
+    ['Saldatura',        `${fmt(bom.weldM, 1)} m`],
+    ['Voci distinta',    `${bom.items.length}`]
+  ];
+  for (let i = 0; i < totals.length; i++) {
+    const col = i % 2;
+    const row = Math.floor(i/2);
+    const x = 15 + col * 90;
+    doc.setTextColor(120,120,120);
+    doc.text(totals[i][0], x, yTot + 14 + row * 6);
+    doc.setTextColor(30,30,30);
+    doc.setFont('helvetica','bold');
+    doc.text(totals[i][1], x + 40, yTot + 14 + row * 6);
+    doc.setFont('helvetica','normal');
+  }
+
+  // Distinta table
+  const tableRows = bom.items.map(it => [
+    '  '.repeat(it.level) + (it.codice || ''),
+    '  '.repeat(it.level) + (it.descrizione || ''),
+    it.qta ?? '',
+    it.materiale ?? '',
+    it.spessore ? `${it.spessore}` : '',
+    it.pesoTot ? fmt(it.pesoTot,1) : '',
+    it.note ?? ''
+  ]);
+
+  doc.autoTable({
+    startY: yTot + 34,
+    head: [['Codice','Descrizione','Qtà','Materiale','Sp','Peso kg','Note']],
+    body: tableRows,
+    theme: 'plain',
+    styles: {
+      font:'helvetica', fontSize: 7.5,
+      cellPadding: {top:1.8, right:2, bottom:1.8, left:2},
+      lineColor: [225,225,225],
+      lineWidth: 0.1
+    },
+    headStyles: {
+      fillColor: [10,10,10],
+      textColor: [255,255,255],
+      fontStyle: 'bold',
+      fontSize: 7.5,
+      halign: 'left'
+    },
+    columnStyles: {
+      0: {cellWidth: 25, font:'courier', fontSize:7},
+      1: {cellWidth: 58},
+      2: {cellWidth: 10, halign:'right'},
+      3: {cellWidth: 20},
+      4: {cellWidth: 10, halign:'right'},
+      5: {cellWidth: 15, halign:'right'},
+      6: {cellWidth: 'auto', textColor: [120,120,120], fontSize:7}
+    },
+    didParseCell: (data) => {
+      if (data.section === 'body') {
+        const it = bom.items[data.row.index];
+        if (it && it.level === 0) {
+          data.cell.styles.fillColor = [245,245,245];
+          data.cell.styles.fontStyle = 'bold';
+        }
+        if (it && it.level === 1) {
+          data.cell.styles.fontStyle = 'bold';
+        }
+      }
+    },
+    margin: {left:15, right:15}
+  });
+
+  // Footer
+  const pageH = doc.internal.pageSize.height;
+  doc.setFontSize(7);
+  doc.setTextColor(150,150,150);
+  doc.text('Generato con Configuratore Carpenteria · Documento preliminare non vincolante', 15, pageH - 8);
+  doc.text(`${dateStr}`, 195, pageH - 8, {align:'right'});
+
+  doc.save(`preventivo_siviera_${timestamp()}.pdf`);
+  toast('PDF preventivo generato');
+}
+
+/* ============================================================
+   UTILS
+   ============================================================ */
+function triggerDownload(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 200);
+}
+function timestamp() {
+  const d = new Date();
+  return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}_${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}`;
+}
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ============================================================
+   EVENT BINDINGS
+   ============================================================ */
+function bindEvents() {
+  const bindSlider = (id, key) => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', () => {
+      state[key] = parseInt(el.value, 10);
+      updateAll();
+    });
+  };
+  bindSlider('sl-dsup', 'diametroSup');
+  bindSlider('sl-dinf', 'diametroInf');
+  bindSlider('sl-h',    'altezza');
+  bindSlider('sl-sp',   'spessore');
+
+  document.getElementById('sel-mat').addEventListener('change', (e) => {
+    state.materiale = e.target.value;
+    updateAll();
+  });
+
+  const bindCheck = (id, key) => {
+    const el = document.getElementById(id);
+    const lbl = el.closest('.check');
+    el.addEventListener('change', () => {
+      state.accessori[key] = el.checked;
+      lbl.classList.toggle('active', el.checked);
+      updateAll();
+    });
+  };
+  bindCheck('chk-becco',     'becco');
+  bindCheck('chk-bocchello', 'bocchello');
+  bindCheck('chk-perni',     'perni');
+  bindCheck('chk-golfari',   'golfari');
+
+  document.getElementById('btn-csv').addEventListener('click', exportCSV);
+  document.getElementById('btn-dxf').addEventListener('click', exportDXF);
+  document.getElementById('btn-pdf').addEventListener('click', exportPDF);
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+window.addEventListener('DOMContentLoaded', () => {
+  initThree();
+  bindEvents();
+  updateAll();
+});
+</script>
+
+</body>
+</html>
