@@ -732,18 +732,39 @@
 
     main {
       grid-template-columns: 1fr;
-      grid-template-rows: 58vh 1fr;
       min-height: 0;
     }
-    .col-mid { order: 1; grid-row: 1; }
-    .col-left, .col-right {
+    /* Tab Geometria: 3D sopra + parametri sotto */
+    main.tab-geom {
+      grid-template-rows: 58vh 1fr;
+    }
+    main.tab-geom .col-mid {
+      display: block;
+      grid-row: 1;
+      grid-column: 1;
+    }
+    main.tab-geom .col-left {
+      display: flex;
       grid-row: 2;
       grid-column: 1;
       border: none;
       border-top: 1px solid var(--line);
-      display: none;
     }
-    .col-left.m-active, .col-right.m-active { display: flex; }
+    main.tab-geom .col-right { display: none; }
+
+    /* Tab Distinta: solo distinta a tutto schermo */
+    main.tab-bom {
+      grid-template-rows: 1fr;
+    }
+    main.tab-bom .col-mid,
+    main.tab-bom .col-left { display: none; }
+    main.tab-bom .col-right {
+      display: flex;
+      grid-row: 1;
+      grid-column: 1;
+      border: none;
+    }
+
     .col-scroll { padding: 20px 16px; }
 
     .overlay-hero { top: 18px; left: 20px; }
@@ -777,6 +798,49 @@
     .bom-summary-value.med { font-size: 15px; }
     .export-bar { padding: 12px 14px; }
     .btn { padding: 13px 8px; font-size: 9px; letter-spacing: 0.12em; }
+
+    /* Distinta a tutto schermo — grafica ottimizzata */
+    main.tab-bom .bom-summary {
+      padding: 20px 22px 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 22px;
+    }
+    main.tab-bom .bom-summary-row {
+      flex-direction: column;
+      align-items: flex-start;
+      margin-bottom: 0;
+      gap: 5px;
+    }
+    main.tab-bom .bom-summary-row:first-child {
+      grid-column: 1 / -1;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+    main.tab-bom .bom-summary-label {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+    }
+    main.tab-bom .bom-summary-value.hero { font-size: 44px; line-height: 1; }
+    main.tab-bom .bom-summary-value.med  { font-size: 22px; line-height: 1; }
+
+    main.tab-bom .bom-table thead th {
+      padding: 14px 16px 12px;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+    }
+    main.tab-bom .bom-table td {
+      padding: 12px 16px;
+      font-size: 13px;
+    }
+    main.tab-bom .bom-table td.num { font-size: 12px; }
+    main.tab-bom .bom-table td .code { font-size: 10px; }
+    main.tab-bom .bom-table tr.level-0 td { padding-top: 15px; padding-bottom: 15px; }
+    main.tab-bom .bom-table tr.level-0 td:first-child { font-size: 12px; }
+    main.tab-bom .bom-table tr.level-3 td:first-child { font-size: 12px; }
+
+    main.tab-bom .export-bar { padding: 14px 18px; gap: 10px; }
+    main.tab-bom .btn { padding: 15px 10px; font-size: 10px; letter-spacing: 0.15em; }
   }
   @media (max-width: 400px) {
     .overlay-dev { width: 170px; }
@@ -808,8 +872,8 @@
     <button class="mtab"        data-mtab="bom"><span class="dot"></span>Distinta</button>
   </nav>
 
-  <main>
-    <aside class="col col-left m-active" data-mtab="geom">
+  <main class="tab-geom">
+    <aside class="col col-left" data-mtab="geom">
       <div class="col-scroll">
         <div class="section-label">Geometria principale</div>
 
@@ -1824,18 +1888,20 @@ function buildSiviera() {
     const bocAngle = -Math.PI * 0.55;
     const rAtLow = Rinf + (Rsup - Rinf) * (200/H);
     const dx = Math.cos(bocAngle), dz = Math.sin(bocAngle);
-    const pBase = new THREE.Vector3(rAtLow * dx, 200, rAtLow * dz);
+    const yLow = 200;
     const offset = 180;
+    // Orientazione: asse Y del cilindro deve puntare in direzione (dx, 0, dz)
+    // Uso quaternion per evitare dipendenze dal world space (bug lookAt con gruppo ruotato)
+    const axisY = new THREE.Vector3(0, 1, 0);
+    const dir   = new THREE.Vector3(dx, 0, dz);
 
     const tube = mkMesh(new THREE.CylinderGeometry(90, 90, 320, 24), steelMat(0.42, 0.38), 'BOC-TUB');
-    tube.position.set(pBase.x + offset*dx, pBase.y, pBase.z + offset*dz);
-    tube.lookAt(pBase.x + 10000*dx, pBase.y, pBase.z + 10000*dz);
-    tube.rotateX(Math.PI/2);
+    tube.position.set(rAtLow*dx + offset*dx, yLow, rAtLow*dz + offset*dz);
+    tube.quaternion.setFromUnitVectors(axisY, dir);
 
     const flange = mkMesh(new THREE.CylinderGeometry(140, 140, 30, 24), steelMat(0.55, 0.32), 'BOC-FLG');
-    flange.position.set(pBase.x + (offset+170)*dx, pBase.y, pBase.z + (offset+170)*dz);
-    flange.lookAt(pBase.x + 10000*dx, pBase.y, pBase.z + 10000*dz);
-    flange.rotateX(Math.PI/2);
+    flange.position.set(rAtLow*dx + (offset+170)*dx, yLow, rAtLow*dz + (offset+170)*dz);
+    flange.quaternion.setFromUnitVectors(axisY, dir);
   }
 
   // PERNI
@@ -2156,9 +2222,9 @@ function bindEvents() {
     btn.addEventListener('click', () => {
       const t = btn.dataset.mtab;
       document.querySelectorAll('.mtab').forEach(b => b.classList.toggle('active', b === btn));
-      document.querySelectorAll('aside[data-mtab]').forEach(el => {
-        el.classList.toggle('m-active', el.dataset.mtab === t);
-      });
+      const mainEl = document.querySelector('main');
+      mainEl.classList.remove('tab-geom', 'tab-bom');
+      mainEl.classList.add('tab-' + t);
       setTimeout(onResize, 10);
     });
   });
