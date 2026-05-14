@@ -2,7 +2,9 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="format-detection" content="telephone=no" />
 <meta name="description" content="Everyday Health — Sano, ogni pasto, senza pensarci. Consulenze nutrizionali con prima call gratuita." />
 <title>Everyday Health — Sano, ogni pasto, senza pensarci</title>
 
@@ -12,22 +14,26 @@
 
 <style>
   :root{
-    --bg:#F5F1EC;
-    --surface:#EFE6DC;
-    --surface-2:#E4D9F0;
-    --accent:#B8A4E3;
-    --accent-2:#8B6FD1;
-    --chrome:#E8E4EE;
+    --bg:#F0E8D6;
+    --surface:#E8DEC5;
+    --surface-2:#D8E2C8;
+    --accent:#7B9B6E;
+    --accent-2:#4F6B46;
+    --chrome:#C8B89A;
     --warm:#F4C896;
-    --text:#2A2530;
-    --text-mute:#6B6478;
-    --line:#DCD3C8;
+    --text:#2A3520;
+    --text-mute:#6B7860;
+    --line:#D8CDB8;
     --font-display:'Fraunces',serif;
     --font-body:'Inter',system-ui,sans-serif;
   }
 
   *{margin:0;padding:0;box-sizing:border-box}
-  html,body{background:var(--bg);color:var(--text);font-family:var(--font-body);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  html,body{background:var(--bg);color:var(--text);font-family:var(--font-body);overflow-x:hidden;-webkit-font-smoothing:antialiased;
+    touch-action:pan-y;        /* blocca pinch-zoom e double-tap zoom su mobile */
+    overscroll-behavior:none;  /* blocca rubber-band */
+    -webkit-text-size-adjust:100%;
+  }
   body{font-size:16px;line-height:1.5}
 
   h1,h2,h3{font-family:var(--font-display);font-weight:400;letter-spacing:-0.02em;line-height:1.05}
@@ -66,21 +72,21 @@
   .scene--centered p{margin:1rem auto 0}
 
   /* Manifesto card */
-  .manifesto{background:rgba(245,241,236,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:24px;padding:2.5rem;max-width:560px}
+  .manifesto{background:rgba(240,232,214,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:24px;padding:2.5rem;max-width:560px}
   .manifesto h2{margin-bottom:1.2rem}
   .manifesto p{color:var(--text-mute);font-size:1.05rem}
 
   /* Scaffale — card prodotti */
   .shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:2.5rem}
-  .shelf .item{background:rgba(245,241,236,.7);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;padding:1.4rem;transition:transform .4s cubic-bezier(.22,1,.36,1),box-shadow .4s}
-  .shelf .item:hover{transform:translateY(-4px);box-shadow:0 12px 32px -12px rgba(139,111,209,.25);border-color:var(--accent)}
+  .shelf .item{background:rgba(240,232,214,.7);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;padding:1.4rem;transition:transform .4s cubic-bezier(.22,1,.36,1),box-shadow .4s}
+  .shelf .item:hover{transform:translateY(-4px);box-shadow:0 12px 32px -12px rgba(79,107,70,.25);border-color:var(--accent)}
   .shelf .item .cat{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-2);margin-bottom:.6rem}
   .shelf .item h3{font-size:1.15rem;margin-bottom:.4rem}
   .shelf .item p{font-size:.9rem;color:var(--text-mute);max-width:none}
 
   /* Testimonianze */
   .testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:2rem}
-  .testimonials blockquote{background:rgba(245,241,236,.78);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;padding:1.6rem;font-family:var(--font-display);font-size:1.1rem;line-height:1.4;color:var(--text)}
+  .testimonials blockquote{background:rgba(240,232,214,.78);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;padding:1.6rem;font-family:var(--font-display);font-size:1.1rem;line-height:1.4;color:var(--text)}
   .testimonials cite{display:block;margin-top:1rem;font-style:normal;font-family:var(--font-body);font-size:.85rem;color:var(--text-mute)}
 
   /* Booking */
@@ -98,12 +104,12 @@
   textarea{resize:vertical;min-height:80px}
 
   /* Modalità chip */
-  .mode-group{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
-  .mode-chip{position:relative;cursor:pointer}
+  .mode-group{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;align-items:stretch}
+  .mode-chip{position:relative;cursor:pointer;display:block;width:100%;min-width:0}
   .mode-chip input{position:absolute;opacity:0;pointer-events:none}
-  .mode-chip .chip{display:flex;flex-direction:column;align-items:flex-start;padding:1rem 1.2rem;border:1px solid var(--line);border-radius:14px;background:var(--bg);transition:all .25s}
-  .mode-chip .chip strong{font-size:.95rem;font-weight:500;color:var(--text);margin-bottom:.2rem}
-  .mode-chip .chip span{font-size:.78rem;color:var(--text-mute)}
+  .mode-chip .chip{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:1rem 1.2rem;border:1px solid var(--line);border-radius:14px;background:var(--bg);transition:all .25s;width:100%;height:100%;box-sizing:border-box;min-width:0}
+  .mode-chip .chip strong{font-size:.95rem;font-weight:500;color:var(--text);margin-bottom:.2rem;line-height:1.2}
+  .mode-chip .chip span{font-size:.78rem;color:var(--text-mute);line-height:1.3}
   .mode-chip input:checked + .chip{border-color:var(--accent);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--accent)}
 
   #address-field{display:none}
@@ -132,8 +138,8 @@
 
   /* CTA buttons */
   .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.95rem 1.6rem;border-radius:999px;font-family:var(--font-body);font-size:.95rem;font-weight:500;cursor:pointer;border:none;transition:all .3s cubic-bezier(.22,1,.36,1);text-decoration:none}
-  .btn-primary{background:var(--accent-2);color:#fff;box-shadow:0 4px 16px -4px rgba(139,111,209,.4)}
-  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 32px -8px rgba(139,111,209,.5)}
+  .btn-primary{background:var(--accent-2);color:#fff;box-shadow:0 4px 16px -4px rgba(79,107,70,.4)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 32px -8px rgba(79,107,70,.5)}
   .btn-primary:active{transform:translateY(0)}
   .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
   .btn-ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
@@ -162,11 +168,11 @@
   footer .footer-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:3rem}
   @media (max-width:768px){footer .footer-grid{grid-template-columns:1fr}}
   footer h4{font-family:var(--font-display);font-size:1.4rem;font-weight:400;margin-bottom:.8rem}
-  footer p{color:rgba(245,241,236,.7);max-width:38ch}
+  footer p{color:rgba(240,232,214,.7);max-width:38ch}
   footer .col h5{font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem}
-  footer .col a{display:block;color:rgba(245,241,236,.85);text-decoration:none;font-size:.95rem;padding:.3rem 0;transition:color .2s}
+  footer .col a{display:block;color:rgba(240,232,214,.85);text-decoration:none;font-size:.95rem;padding:.3rem 0;transition:color .2s}
   footer .col a:hover{color:var(--accent)}
-  footer .bottom{max-width:1200px;margin:3rem auto 0;padding-top:2rem;border-top:1px solid rgba(245,241,236,.15);font-size:.8rem;color:rgba(245,241,236,.5)}
+  footer .bottom{max-width:1200px;margin:3rem auto 0;padding-top:2rem;border-top:1px solid rgba(240,232,214,.15);font-size:.8rem;color:rgba(240,232,214,.5)}
 
   /* Loader */
   #loader{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity .8s ease, visibility .8s ease}
@@ -421,12 +427,71 @@
   <div class="bottom">© 2026 Everyday Health · Tutti i contenuti hanno scopo informativo, non sostituiscono consulto medico.</div>
 </footer>
 
-<!-- Scroll restoration: ogni reload parte sempre dall'alto -->
+<!-- LOCK SCROLL fisico: body position:fixed durante il loader, scroll fisicamente impossibile -->
+<style>
+  html.is-locked, body.is-locked {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+  }
+</style>
 <script>
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-  window.scrollTo(0, 0);
-  window.addEventListener('beforeunload', () => window.scrollTo(0, 0));
-  window.addEventListener('pageshow', () => window.scrollTo(0, 0));
+
+  // Lock fisico immediato — body non può scrollare finché non sblocchiamo
+  document.documentElement.classList.add('is-locked');
+  document.documentElement.style.scrollBehavior = 'auto';
+
+  function _forceTop() {
+    window.scrollTo(0, 0);
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+  }
+  _forceTop();
+
+  // Al pageshow (bfcache restore) rilock + reset
+  window.addEventListener('pageshow', (e) => {
+    document.documentElement.classList.add('is-locked');
+    _forceTop();
+    setTimeout(_unlock, 800);
+  });
+  window.addEventListener('beforeunload', _forceTop);
+  window.addEventListener('pagehide', _forceTop);
+
+  // Quando il body è disponibile, lockalo
+  function _addBodyLock() {
+    if (document.body) document.body.classList.add('is-locked');
+    else setTimeout(_addBodyLock, 10);
+  }
+  _addBodyLock();
+
+  // RAF loop che forza scroll=0 durante il lock
+  let _lockUntil = performance.now() + 1500;
+  function _rafLock() {
+    _forceTop();
+    if (performance.now() < _lockUntil) requestAnimationFrame(_rafLock);
+  }
+  requestAnimationFrame(_rafLock);
+
+  // Unlock dopo che loader finisce (loader dura 2400ms, sblocco a 2500ms)
+  function _unlock() {
+    _forceTop();
+    document.documentElement.classList.remove('is-locked');
+    if (document.body) document.body.classList.remove('is-locked');
+    _forceTop();
+    // Notifica module script di refreshare ScrollTrigger (le misure erano fake durante il lock)
+    window.dispatchEvent(new Event('scroll-unlocked'));
+  }
+  window.addEventListener('load', () => {
+    setTimeout(_unlock, 2500);
+  });
+  // Fallback unlock se load impiega troppo
+  setTimeout(_unlock, 4000);
 </script>
 
 <!-- IMPORTMAP & SCRIPTS -->
@@ -461,6 +526,13 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 RectAreaLightUniformsLib.init();
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Refresh ScrollTrigger appena il body si sblocca (misure erano fake con position:fixed)
+window.addEventListener('scroll-unlocked', () => {
+  window.scrollTo(0, 0);
+  if (ScrollTrigger) ScrollTrigger.refresh(true);
+  window.scrollTo(0, 0);
+});
 
 /* ============ MOBILE DETECTION + QUALITY TIER ============ */
 const IS_MOBILE = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 820;
@@ -584,8 +656,8 @@ overheadSpot.shadow.blurSamples = 20;
 scene.add(overheadSpot);
 scene.add(overheadSpot.target);
 
-// Fill lilla freddo dal lato opposto alla finestra
-const rim = new THREE.PointLight(0xC8B6FF, 0.5, 8);
+// Fill verde salvia dal lato opposto alla finestra (palette beige/verde)
+const rim = new THREE.PointLight(0xB8D0A8, 0.5, 8);
 rim.position.set(-3.5, 2.0, -1);
 scene.add(rim);
 
@@ -628,50 +700,107 @@ for (let i = 0; i < 4; i++) {
 scene.add(godRays);
 
 /* ============ TEXTURE PROCEDURALI ============ */
-// Pavimento: parquet in legno chiaro con striature
+// Pavimento parquet: tavole lunghe sfalsate, legno noce scuro elegante
 function makeParquetTexture(size = 1024) {
   const c = document.createElement('canvas'); c.width = c.height = size;
   const ctx = c.getContext('2d');
-  // base
-  ctx.fillStyle = '#C9A87C'; ctx.fillRect(0, 0, size, size);
-  // tavole orizzontali
-  const plankH = size / 8, plankW = size / 2.5;
-  for (let row = 0; row < 9; row++) {
-    const offset = (row % 2) * (plankW / 2);
-    for (let col = -1; col < 4; col++) {
-      const x = col * plankW + offset;
-      const y = row * plankH;
-      // base color con leggera variazione
-      const lightness = 0.85 + Math.random() * 0.3;
-      ctx.fillStyle = `rgba(201, 168, 124, ${lightness})`;
+  ctx.fillStyle = '#2A1810'; ctx.fillRect(0, 0, size, size);
+  // Tavole verticali lunghe (5 colonne) sfalsate
+  const plankW = size / 5;
+  const plankH = size / 1.4;  // lunghe ma non infinite
+  for (let col = 0; col < 6; col++) {
+    const xOffset = col * plankW;
+    const yShift = (col % 2) * (plankH * 0.4);
+    for (let row = -1; row < 3; row++) {
+      const x = xOffset;
+      const y = row * plankH + yShift;
+      // Variazione casuale per tavola — toni di noce scuro
+      const r = 55 + Math.random() * 35;   // 55–90
+      const gg = 35 + Math.random() * 25;  // 35–60
+      const bb = 22 + Math.random() * 20;  // 22–42
+      ctx.fillStyle = `rgb(${r}, ${gg}, ${bb})`;
       ctx.fillRect(x, y, plankW, plankH);
-      // venature (striature scure)
-      ctx.globalAlpha = 0.18;
-      for (let v = 0; v < 8; v++) {
+      // VENATURE scure (verticali, lunghe e sottili)
+      for (let v = 0; v < 30; v++) {
+        ctx.globalAlpha = 0.20 + Math.random() * 0.18;
+        const vx = x + Math.random() * plankW;
+        const vy = y + Math.random() * plankH * 0.3;
+        const len = plankH * (0.4 + Math.random() * 0.5);
+        ctx.fillStyle = '#100805';
+        ctx.fillRect(vx, vy, 0.4 + Math.random() * 1.0, len);
+      }
+      // Venature più chiare (zone fibra)
+      for (let v = 0; v < 12; v++) {
+        ctx.globalAlpha = 0.10 + Math.random() * 0.08;
         const vx = x + Math.random() * plankW;
         const vy = y + Math.random() * plankH;
-        ctx.fillStyle = '#6F4825';
-        ctx.fillRect(vx, vy, 0.6 + Math.random() * 1.2, plankH * (0.3 + Math.random() * 0.5));
+        ctx.fillStyle = '#8B5A30';
+        ctx.fillRect(vx, vy, 0.3 + Math.random() * 0.7, plankH * (0.3 + Math.random() * 0.4));
+      }
+      // Nodi del legno (cerchi scuri occasionali)
+      if (Math.random() > 0.6) {
+        ctx.globalAlpha = 0.55;
+        ctx.fillStyle = '#0A0500';
+        const nx = x + Math.random() * plankW;
+        const ny = y + Math.random() * plankH;
+        ctx.beginPath();
+        ctx.ellipse(nx, ny, 3 + Math.random()*5, 2 + Math.random()*3, Math.random()*Math.PI, 0, Math.PI*2);
+        ctx.fill();
       }
       ctx.globalAlpha = 1;
-      // bordo plank (giuntura)
-      ctx.strokeStyle = 'rgba(80, 50, 25, 0.45)';
-      ctx.lineWidth = 1.4;
-      ctx.strokeRect(x, y, plankW, plankH);
+      // Giuntura tavola (linea nera profonda)
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(x, y); ctx.lineTo(x + plankW, y); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, y + plankH); ctx.lineTo(x + plankW, y + plankH); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x + plankW, y); ctx.lineTo(x + plankW, y + plankH); ctx.stroke();
     }
   }
-  // noise overlay
+  // Noise leggero
   const img = ctx.getImageData(0, 0, size, size);
   for (let i = 0; i < img.data.length; i += 4) {
-    const n = (Math.random() - 0.5) * 18;
-    img.data[i] += n; img.data[i+1] += n; img.data[i+2] += n;
+    const n = (Math.random() - 0.5) * 12;
+    img.data[i] += n; img.data[i+1] += n * 0.7; img.data[i+2] += n * 0.5;
   }
   ctx.putImageData(img, 0, 0);
   const tex = new THREE.CanvasTexture(c);
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-  tex.repeat.set(2, 2);
+  tex.repeat.set(3, 3);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return tex;
+}
+
+// Normal map procedurale del pavimento — giunture profonde tra tavole
+function makeFloorNormalTexture(size = 1024) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = 'rgb(128, 128, 255)';
+  ctx.fillRect(0, 0, size, size);
+  // Giunture verticali tra tavole (5 colonne sfalsate)
+  const plankW = size / 5;
+  for (let col = 0; col < 5; col++) {
+    const x = col * plankW;
+    ctx.fillStyle = 'rgb(80, 128, 220)';  // depth verso il basso
+    ctx.fillRect(x - 1, 0, 3, size);
+  }
+  // Giunture orizzontali sfalsate
+  const plankH = size / 1.4;
+  for (let col = 0; col < 6; col++) {
+    const yShift = (col % 2) * (plankH * 0.4);
+    for (let row = 0; row < 3; row++) {
+      const y = row * plankH + yShift;
+      const x = col * plankW;
+      ctx.fillStyle = 'rgb(80, 128, 220)';
+      ctx.fillRect(x, y - 1, plankW, 3);
+    }
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(3, 3);
   return tex;
 }
 
@@ -810,6 +939,71 @@ function makeTravertineTexture(size = 1024) {
   return tex;
 }
 
+// Subway tile texture per backsplash cucina (piastrelle bianche metro)
+function makeSubwayTileTexture(size = 1024) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  // Grout (fuga) color scuro
+  ctx.fillStyle = '#9A8E80';
+  ctx.fillRect(0, 0, size, size);
+  // Tiles 2:1 ratio, sfalsati di metà
+  const tileW = size / 3;     // 3 tiles in larghezza
+  const tileH = size / 6;     // 6 tiles in altezza (ratio 2:1)
+  const groutPx = 4;
+  for (let row = 0; row < 7; row++) {
+    const offset = (row % 2) * (tileW / 2);
+    for (let col = -1; col < 5; col++) {
+      const x = col * tileW + offset;
+      const y = row * tileH;
+      // Tile con gradient sottile (riflesso)
+      const tileGrad = ctx.createLinearGradient(x, y, x, y + tileH);
+      tileGrad.addColorStop(0, '#F8F2E8');
+      tileGrad.addColorStop(0.6, '#EFE8DC');
+      tileGrad.addColorStop(1, '#E5DED0');
+      ctx.fillStyle = tileGrad;
+      ctx.fillRect(x + groutPx, y + groutPx, tileW - groutPx*2, tileH - groutPx*2);
+      // Riflesso angolo (highlight)
+      ctx.globalAlpha = 0.4;
+      const highlight = ctx.createLinearGradient(x, y, x + tileW * 0.3, y + tileH * 0.3);
+      highlight.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
+      highlight.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      ctx.fillStyle = highlight;
+      ctx.fillRect(x + groutPx, y + groutPx, tileW - groutPx*2, tileH - groutPx*2);
+      ctx.globalAlpha = 1;
+    }
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(2, 1);
+  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return tex;
+}
+
+// Normal map subway tile (fughe profonde tra piastrelle)
+function makeSubwayTileNormalTexture(size = 512) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = 'rgb(128, 128, 255)';
+  ctx.fillRect(0, 0, size, size);
+  const tileW = size / 3, tileH = size / 6, groutPx = 4;
+  for (let row = 0; row < 7; row++) {
+    const offset = (row % 2) * (tileW / 2);
+    for (let col = -1; col < 5; col++) {
+      const x = col * tileW + offset;
+      const y = row * tileH;
+      // Fughe = depth (blu più scuro)
+      ctx.fillStyle = 'rgb(80, 128, 220)';
+      ctx.fillRect(x, y, tileW, groutPx);     // top fuga
+      ctx.fillRect(x, y, groutPx, tileH);     // left fuga
+    }
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(2, 1);
+  return tex;
+}
+
 // Normal map travertino (pori e striature)
 function makeTravertineNormalTexture(size = 512) {
   const c = document.createElement('canvas'); c.width = c.height = size;
@@ -885,23 +1079,17 @@ function setupTex(tex, { srgb = false, repeat = [1, 1] } = {}) {
   return tex;
 }
 
-// Pavimento legno NERO ebano — diffuse map wood tinted dark + normal + roughness + AO
+// Pavimento parquet legno noce scuro (texture procedurale dettagliata + normal map)
 const parquetTex = makeParquetTexture();
+const floorNormalTex = makeFloorNormalTexture();
 const floorMat = new THREE.MeshStandardMaterial({
   map: parquetTex,
-  color: 0x2A1A12,   // dark ebony tint — moltiplica il diffuse map = legno scurissimo
-  roughness: 0.45,
-  metalness: 0.08,
-  envMapIntensity: 0.9,
+  normalMap: floorNormalTex,
+  normalScale: new THREE.Vector2(1.2, 1.2),
+  roughness: 0.48,
+  metalness: 0.06,
+  envMapIntensity: 0.95,
 });
-texLoader.load(floorAssetPath + 'wood_table_001_diff' + floorSuffix,
-  (tex) => { setupTex(tex, { srgb: true, repeat: [5, 5] }); floorMat.map = tex; floorMat.needsUpdate = true; });
-texLoader.load(floorAssetPath + 'wood_table_001_nor_gl' + floorSuffix,
-  (tex) => { setupTex(tex, { repeat: [5, 5] }); floorMat.normalMap = tex; floorMat.normalScale = new THREE.Vector2(0.8, 0.8); floorMat.needsUpdate = true; });
-texLoader.load(floorAssetPath + 'wood_table_001_rough' + floorSuffix,
-  (tex) => { setupTex(tex, { repeat: [5, 5] }); floorMat.roughnessMap = tex; floorMat.needsUpdate = true; });
-texLoader.load(floorAssetPath + 'wood_table_001_ao' + floorSuffix,
-  (tex) => { setupTex(tex, { repeat: [5, 5] }); floorMat.aoMap = tex; floorMat.aoMapIntensity = 0.8; floorMat.needsUpdate = true; });
 const floor = new THREE.Mesh(new THREE.PlaneGeometry(16, 16), floorMat);
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
@@ -944,8 +1132,14 @@ wallBack.receiveShadow = true;
 roomGroup.add(wallBack);
 
 // Materiali cucina
+// Cabinet laccato lucido crema-verde (palette beige-verde)
 const cabinetMat = new THREE.MeshPhysicalMaterial({
-  color: 0xF2EBE0, roughness: 0.35, clearcoat: 0.4, clearcoatRoughness: 0.2
+  color: 0xE8E0CC,
+  roughness: 0.22,
+  clearcoat: 0.85,
+  clearcoatRoughness: 0.10,
+  reflectivity: 0.55,
+  envMapIntensity: 1.1,
 });
 const counterMat = new THREE.MeshPhysicalMaterial({
   map: makeMarbleTexture(), color: 0xFFFFFF, roughness: 0.18, clearcoat: 0.7, clearcoatRoughness: 0.1, envMapIntensity: 1.2
@@ -970,21 +1164,33 @@ const sinkMat = new THREE.MeshPhysicalMaterial({
 });
 const knobMat = new THREE.MeshPhysicalMaterial({ color: 0xC8B89A, roughness: 0.2, metalness: 0.9 });
 
-// MOBILI BASE (sotto piano lavoro) — 4 moduli affiancati
+// MOBILI BASE — 4 moduli con ante Shaker (cornice in rilievo)
 const baseWidth = 1.5, baseHeight = 0.8, baseDepth = 0.6;
+const FRAME_W = 0.06, FRAME_THICK = 0.006;  // cornice shaker: larghezza + sporgenza
 for (let i = -2; i < 2; i++) {
+  const cx = i * (baseWidth + 0.005) + baseWidth/2;
+  // Pannello principale anta
   const cabBase = new THREE.Mesh(new THREE.BoxGeometry(baseWidth, baseHeight, baseDepth), cabinetMat);
-  cabBase.position.set(i * (baseWidth + 0.005) + baseWidth/2, baseHeight/2 + 0.04, kitchenZ - baseDepth/2);
+  cabBase.position.set(cx, baseHeight/2 + 0.04, kitchenZ - baseDepth/2);
   cabBase.castShadow = true; cabBase.receiveShadow = true;
   kitchen.add(cabBase);
-  // Linea giuntura tra ante (verticale al centro)
-  const seam = new THREE.Mesh(new THREE.BoxGeometry(0.003, baseHeight*0.9, 0.005),
-    new THREE.MeshStandardMaterial({ color: 0xD8CDB8 }));
-  seam.position.set(i * (baseWidth + 0.005) + baseWidth/2, baseHeight/2 + 0.04, kitchenZ - baseDepth + 0.001);
-  kitchen.add(seam);
-  // Maniglia (barra cromata orizzontale)
-  const handle = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.018, 0.02), knobMat);
-  handle.position.set(i * (baseWidth + 0.005) + baseWidth/2, baseHeight - 0.08, kitchenZ - baseDepth + 0.005);
+  // Cornice Shaker: 4 lati che sporgono dal pannello
+  const frontZ = kitchenZ - baseDepth + FRAME_THICK/2;
+  const frameTop = new THREE.Mesh(new THREE.BoxGeometry(baseWidth - 0.01, FRAME_W, FRAME_THICK), cabinetMat);
+  frameTop.position.set(cx, baseHeight - FRAME_W/2 + 0.04, frontZ);
+  kitchen.add(frameTop);
+  const frameBot = new THREE.Mesh(new THREE.BoxGeometry(baseWidth - 0.01, FRAME_W, FRAME_THICK), cabinetMat);
+  frameBot.position.set(cx, 0.04 + FRAME_W/2, frontZ);
+  kitchen.add(frameBot);
+  const frameLeft = new THREE.Mesh(new THREE.BoxGeometry(FRAME_W, baseHeight - FRAME_W*2, FRAME_THICK), cabinetMat);
+  frameLeft.position.set(cx - baseWidth/2 + FRAME_W/2, baseHeight/2 + 0.04, frontZ);
+  kitchen.add(frameLeft);
+  const frameRight = new THREE.Mesh(new THREE.BoxGeometry(FRAME_W, baseHeight - FRAME_W*2, FRAME_THICK), cabinetMat);
+  frameRight.position.set(cx + baseWidth/2 - FRAME_W/2, baseHeight/2 + 0.04, frontZ);
+  kitchen.add(frameRight);
+  // Maniglia barra cromata
+  const handle = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.018, 0.025), knobMat);
+  handle.position.set(cx, baseHeight - 0.10, frontZ + 0.012);
   kitchen.add(handle);
 }
 
@@ -1020,23 +1226,50 @@ spoutEnd.position.set(-1.4, baseHeight + 0.04 + 0.18, kitchenZ - baseDepth + 0.2
 spoutEnd.rotation.x = Math.PI / 2;
 kitchen.add(spoutEnd);
 
-// BACKSPLASH (parete tra piano e pensili — marmo)
-const backsplash = new THREE.Mesh(new THREE.PlaneGeometry(6.5, 0.65), counterMat.clone());
+// BACKSPLASH — piastrelle subway tile bianche (texture procedurale + normal map)
+const subwayTileTex = makeSubwayTileTexture();
+const subwayNormalTex = makeSubwayTileNormalTexture();
+const backsplashMat = new THREE.MeshPhysicalMaterial({
+  map: subwayTileTex,
+  normalMap: subwayNormalTex,
+  normalScale: new THREE.Vector2(1.0, 1.0),
+  roughness: 0.22,
+  clearcoat: 0.7,
+  clearcoatRoughness: 0.12,
+  reflectivity: 0.45,
+  envMapIntensity: 1.0,
+});
+const backsplash = new THREE.Mesh(new THREE.PlaneGeometry(6.5, 0.65), backsplashMat);
 backsplash.position.set(0, baseHeight + 0.04 + 0.05 + 0.325, -5.99);
 backsplash.receiveShadow = true;
 kitchen.add(backsplash);
 
-// PENSILI ALTI (4 moduli)
+// PENSILI ALTI — 4 moduli con ante Shaker
 const upperHeight = 0.85, upperDepth = 0.38;
 const upperY = baseHeight + 0.04 + 0.05 + 0.65 + upperHeight/2;
 for (let i = -2; i < 2; i++) {
+  const cx = i * (baseWidth + 0.005) + baseWidth/2;
   const cabUp = new THREE.Mesh(new THREE.BoxGeometry(baseWidth, upperHeight, upperDepth), cabinetMat);
-  cabUp.position.set(i * (baseWidth + 0.005) + baseWidth/2, upperY, kitchenZ - upperDepth/2 - 0.20);
+  cabUp.position.set(cx, upperY, kitchenZ - upperDepth/2 - 0.20);
   cabUp.castShadow = true; cabUp.receiveShadow = true;
   kitchen.add(cabUp);
-  // Maniglia bassa
-  const upHandle = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.015, 0.018), knobMat);
-  upHandle.position.set(i * (baseWidth + 0.005) + baseWidth/2, upperY - upperHeight/2 + 0.08, kitchenZ - upperDepth - 0.19);
+  // Cornice Shaker
+  const upFrontZ = kitchenZ - upperDepth - 0.20 + FRAME_THICK/2;
+  const ft = new THREE.Mesh(new THREE.BoxGeometry(baseWidth - 0.01, FRAME_W, FRAME_THICK), cabinetMat);
+  ft.position.set(cx, upperY + upperHeight/2 - FRAME_W/2, upFrontZ);
+  kitchen.add(ft);
+  const fb = new THREE.Mesh(new THREE.BoxGeometry(baseWidth - 0.01, FRAME_W, FRAME_THICK), cabinetMat);
+  fb.position.set(cx, upperY - upperHeight/2 + FRAME_W/2, upFrontZ);
+  kitchen.add(fb);
+  const fl = new THREE.Mesh(new THREE.BoxGeometry(FRAME_W, upperHeight - FRAME_W*2, FRAME_THICK), cabinetMat);
+  fl.position.set(cx - baseWidth/2 + FRAME_W/2, upperY, upFrontZ);
+  kitchen.add(fl);
+  const fr = new THREE.Mesh(new THREE.BoxGeometry(FRAME_W, upperHeight - FRAME_W*2, FRAME_THICK), cabinetMat);
+  fr.position.set(cx + baseWidth/2 - FRAME_W/2, upperY, upFrontZ);
+  kitchen.add(fr);
+  // Maniglia
+  const upHandle = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.015, 0.022), knobMat);
+  upHandle.position.set(cx, upperY - upperHeight/2 + 0.10, upFrontZ + 0.012);
   kitchen.add(upHandle);
 }
 
