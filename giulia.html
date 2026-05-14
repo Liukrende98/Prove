@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Everyday Health — Sano, ogni pasto, senza pensarci. Consulenze nutrizionali con prima call gratuita." />
+<title>Everyday Health — Sano, ogni pasto, senza pensarci</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#F5F1EC;
+    --surface:#EFE6DC;
+    --surface-2:#E4D9F0;
+    --accent:#B8A4E3;
+    --accent-2:#8B6FD1;
+    --chrome:#E8E4EE;
+    --warm:#F4C896;
+    --text:#2A2530;
+    --text-mute:#6B6478;
+    --line:#DCD3C8;
+    --font-display:'Fraunces',serif;
+    --font-body:'Inter',system-ui,sans-serif;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:var(--bg);color:var(--text);font-family:var(--font-body);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  body{font-size:16px;line-height:1.5}
+
+  h1,h2,h3{font-family:var(--font-display);font-weight:400;letter-spacing:-0.02em;line-height:1.05}
+  h1{font-size:clamp(2.4rem,5.8vw,5rem)}
+  h2{font-size:clamp(1.8rem,4vw,3.4rem)}
+  h3{font-size:clamp(1.3rem,2.4vw,2rem)}
+  p{max-width:46ch}
+  em{font-style:italic;color:var(--accent-2)}
+
+  /* Layout 3D fisso */
+  #canvas-wrap{position:fixed;inset:0;width:100vw;height:100vh;z-index:1;pointer-events:none}
+  #canvas-wrap canvas{display:block;width:100%!important;height:100%!important}
+
+  /* Scroll spacer + scene overlay */
+  #scroll-root{position:relative;z-index:2}
+  .scene{min-height:100vh;display:flex;align-items:center;padding:8vh 6vw;position:relative}
+  .scene .inner{max-width:1200px;width:100%;margin:0 auto}
+  .scene .label{font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-2);margin-bottom:1.4rem;display:inline-block}
+
+  /* Scena 1 — Hero */
+  .scene--hero{justify-content:flex-start}
+  .scene--hero .inner{max-width:640px}
+  .scene--hero h1{margin-bottom:1.2rem}
+  .scene--hero p.sub{color:var(--text-mute);font-size:1.15rem;margin-bottom:2rem;max-width:34ch}
+  .scroll-hint{position:absolute;bottom:5vh;left:50%;transform:translateX(-50%);font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-mute);opacity:.7}
+  .scroll-hint::after{content:"";display:block;width:1px;height:32px;background:var(--text-mute);margin:.8rem auto 0;animation:scrollPulse 2s ease-in-out infinite}
+  @keyframes scrollPulse{0%,100%{transform:scaleY(1);transform-origin:top}50%{transform:scaleY(.3);transform-origin:top}}
+
+  /* Scene di transizione "vuote" lasciano spazio al 3D */
+  .scene--narrative{justify-content:flex-end;text-align:right}
+  .scene--narrative .inner{max-width:520px}
+  .scene--narrative p{margin-left:auto}
+
+  .scene--centered{justify-content:center;text-align:center}
+  .scene--centered .inner{max-width:640px}
+  .scene--centered p{margin:1rem auto 0}
+
+  /* Manifesto card */
+  .manifesto{background:rgba(245,241,236,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:24px;padding:2.5rem;max-width:560px}
+  .manifesto h2{margin-bottom:1.2rem}
+  .manifesto p{color:var(--text-mute);font-size:1.05rem}
+
+  /* Scaffale — card prodotti */
+  .shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:2.5rem}
+  .shelf .item{background:rgba(245,241,236,.7);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;padding:1.4rem;transition:transform .4s cubic-bezier(.22,1,.36,1),box-shadow .4s}
+  .shelf .item:hover{transform:translateY(-4px);box-shadow:0 12px 32px -12px rgba(139,111,209,.25);border-color:var(--accent)}
+  .shelf .item .cat{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-2);margin-bottom:.6rem}
+  .shelf .item h3{font-size:1.15rem;margin-bottom:.4rem}
+  .shelf .item p{font-size:.9rem;color:var(--text-mute);max-width:none}
+
+  /* Testimonianze */
+  .testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:2rem}
+  .testimonials blockquote{background:rgba(245,241,236,.78);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;padding:1.6rem;font-family:var(--font-display);font-size:1.1rem;line-height:1.4;color:var(--text)}
+  .testimonials cite{display:block;margin-top:1rem;font-style:normal;font-family:var(--font-body);font-size:.85rem;color:var(--text-mute)}
+
+  /* Booking */
+  .booking{background:#fff;border:1px solid var(--line);border-radius:24px;padding:2.5rem;max-width:720px;margin:0 auto;box-shadow:0 24px 64px -24px rgba(40,30,50,.12)}
+  .booking h2{text-align:center;margin-bottom:.6rem}
+  .booking .sub{text-align:center;color:var(--text-mute);margin:0 auto 2rem;max-width:38ch}
+
+  .booking form{display:grid;gap:1.2rem}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  @media (max-width:600px){.form-row{grid-template-columns:1fr}}
+
+  label{display:block;font-size:.82rem;letter-spacing:.06em;color:var(--text-mute);margin-bottom:.35rem;font-weight:500}
+  input,select,textarea{width:100%;padding:.85rem 1rem;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:.95rem;transition:border-color .2s,background .2s}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);background:#fff}
+  textarea{resize:vertical;min-height:80px}
+
+  /* Modalità chip */
+  .mode-group{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+  .mode-chip{position:relative;cursor:pointer}
+  .mode-chip input{position:absolute;opacity:0;pointer-events:none}
+  .mode-chip .chip{display:flex;flex-direction:column;align-items:flex-start;padding:1rem 1.2rem;border:1px solid var(--line);border-radius:14px;background:var(--bg);transition:all .25s}
+  .mode-chip .chip strong{font-size:.95rem;font-weight:500;color:var(--text);margin-bottom:.2rem}
+  .mode-chip .chip span{font-size:.78rem;color:var(--text-mute)}
+  .mode-chip input:checked + .chip{border-color:var(--accent);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--accent)}
+
+  #address-field{display:none}
+  #address-field.show{display:block;animation:slideDown .35s cubic-bezier(.22,1,.36,1)}
+  @keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+  /* Calendar */
+  .calendar{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:1.2rem}
+  .calendar-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+  .calendar-head strong{font-size:1rem;font-family:var(--font-display);font-weight:500}
+  .calendar-head button{background:none;border:1px solid var(--line);width:32px;height:32px;border-radius:50%;cursor:pointer;color:var(--text);font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
+  .calendar-head button:hover{background:var(--surface-2);border-color:var(--accent)}
+  .calendar-head button:disabled{opacity:.3;cursor:not-allowed}
+  .calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .calendar-grid .dow{font-size:.7rem;letter-spacing:.1em;color:var(--text-mute);text-align:center;text-transform:uppercase;padding:.4rem 0}
+  .calendar-grid .day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:.88rem;border-radius:8px;cursor:pointer;border:1px solid transparent;transition:all .18s;background:transparent}
+  .calendar-grid .day:hover:not(.disabled):not(.selected){background:var(--surface-2)}
+  .calendar-grid .day.disabled{color:var(--line);cursor:not-allowed}
+  .calendar-grid .day.today{font-weight:600;color:var(--accent-2)}
+  .calendar-grid .day.selected{background:var(--accent);color:#fff;border-color:var(--accent-2)}
+
+  .time-slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:.5rem;margin-top:1rem}
+  .time-slot{padding:.6rem .8rem;border:1px solid var(--line);border-radius:10px;cursor:pointer;text-align:center;font-size:.85rem;transition:all .2s;background:var(--bg)}
+  .time-slot:hover{border-color:var(--accent);background:var(--surface-2)}
+  .time-slot.selected{background:var(--accent);color:#fff;border-color:var(--accent-2)}
+
+  /* CTA buttons */
+  .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.95rem 1.6rem;border-radius:999px;font-family:var(--font-body);font-size:.95rem;font-weight:500;cursor:pointer;border:none;transition:all .3s cubic-bezier(.22,1,.36,1);text-decoration:none}
+  .btn-primary{background:var(--accent-2);color:#fff;box-shadow:0 4px 16px -4px rgba(139,111,209,.4)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 32px -8px rgba(139,111,209,.5)}
+  .btn-primary:active{transform:translateY(0)}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+  .btn-ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+  .btn-ghost:hover{background:var(--surface-2);border-color:var(--accent)}
+
+  /* Sticky booking CTA */
+  .sticky-cta{position:fixed;bottom:1.5rem;right:1.5rem;z-index:50;opacity:0;transform:translateY(20px);transition:opacity .5s,transform .5s;pointer-events:none}
+  .sticky-cta.show{opacity:1;transform:translateY(0);pointer-events:auto}
+
+  /* Header */
+  header{position:fixed;top:0;left:0;right:0;z-index:40;padding:1.5rem 6vw;display:flex;align-items:center;justify-content:space-between;mix-blend-mode:difference;color:#fff}
+  header .logo{font-family:var(--font-display);font-weight:500;font-size:1.15rem;letter-spacing:.02em}
+  header nav{display:flex;gap:2rem;font-size:.85rem;letter-spacing:.04em}
+  header a{color:inherit;text-decoration:none;opacity:.8;transition:opacity .2s}
+  header a:hover{opacity:1}
+  @media (max-width:768px){header nav{display:none}}
+
+  /* Success state */
+  .success{text-align:center;padding:2rem}
+  .success svg{width:64px;height:64px;margin:0 auto 1.5rem;display:block}
+  .success h3{margin-bottom:.6rem}
+  .success p{color:var(--text-mute);margin:0 auto}
+
+  /* Footer */
+  footer{position:relative;z-index:2;background:var(--text);color:var(--bg);padding:4rem 6vw 2.5rem;margin-top:6rem}
+  footer .footer-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:3rem}
+  @media (max-width:768px){footer .footer-grid{grid-template-columns:1fr}}
+  footer h4{font-family:var(--font-display);font-size:1.4rem;font-weight:400;margin-bottom:.8rem}
+  footer p{color:rgba(245,241,236,.7);max-width:38ch}
+  footer .col h5{font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem}
+  footer .col a{display:block;color:rgba(245,241,236,.85);text-decoration:none;font-size:.95rem;padding:.3rem 0;transition:color .2s}
+  footer .col a:hover{color:var(--accent)}
+  footer .bottom{max-width:1200px;margin:3rem auto 0;padding-top:2rem;border-top:1px solid rgba(245,241,236,.15);font-size:.8rem;color:rgba(245,241,236,.5)}
+
+  /* Loader */
+  #loader{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity .8s ease, visibility .8s ease}
+  #loader.hidden{opacity:0;visibility:hidden}
+  #loader .logo-l{font-family:var(--font-display);font-size:2rem;font-weight:400;letter-spacing:-.02em;opacity:0;animation:fadeUp 1.2s .2s forwards}
+  #loader .progress{width:120px;height:1px;background:var(--line);margin-top:2rem;overflow:hidden;position:relative;opacity:0;animation:fadeUp 1.2s .6s forwards}
+  #loader .progress::after{content:"";position:absolute;inset:0;background:var(--accent-2);transform-origin:left;animation:progress 2.4s ease-in-out forwards}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes progress{0%{transform:scaleX(0)}100%{transform:scaleX(1)}}
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important;transition:none!important}
+    #canvas-wrap{display:none}
+    .scene{background:var(--bg)}
+  }
+
+  /* Selection */
+  ::selection{background:var(--accent);color:#fff}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="logo-l">Everyday Health</div>
+  <div class="progress"></div>
+</div>
+
+<header>
+  <div class="logo">Everyday Health</div>
+  <nav>
+    <a href="#manifesto">Filosofia</a>
+    <a href="#scaffale">Cosa preparo</a>
+    <a href="#booking">Prenota</a>
+  </nav>
+</header>
+
+<div id="canvas-wrap"></div>
+
+<a href="#booking" class="sticky-cta">
+  <button class="btn btn-primary">Prenota la chiamata</button>
+</a>
+
+<main id="scroll-root">
+
+  <!-- Scena 1 — Hero -->
+  <section class="scene scene--hero" data-scene="1">
+    <div class="inner">
+      <span class="label">Everyday Health</span>
+      <h1>Sano,<br>ogni pasto,<br><em>senza pensarci.</em></h1>
+      <p class="sub">Shaker componibili, primi, contorni, secondi e dolci proteici. Preparati con metodo da una nutrizionista, pensati per le tue giornate vere.</p>
+    </div>
+    <div class="scroll-hint">Scorri</div>
+  </section>
+
+  <!-- Scena 2 — Avvicinamento (testo minimal a lato) -->
+  <section class="scene scene--narrative" data-scene="2">
+    <div class="inner">
+      <span class="label">07:42</span>
+      <h2>La colazione<br>è già pronta.</h2>
+      <p style="color:var(--text-mute);margin-top:1rem">Cappuccino, biscotti integrali, niente padelle. 380 kcal, 22g di proteine. Lo apri, lo bevi, esci di casa.</p>
+    </div>
+  </section>
+
+  <!-- Scena 3 — Yogurt bowl (mid-morning) -->
+  <section class="scene scene--narrative" data-scene="3">
+    <div class="inner">
+      <span class="label">10:30 — spuntino</span>
+      <h2>Yogurt, frutti rossi,<br><em>granola vera.</em></h2>
+      <p style="color:var(--text-mute);margin-top:1rem">Quando alle 11 di solito crolli. Niente barrette di marketing, solo ingredienti che riconosci. 18g di proteine.</p>
+    </div>
+  </section>
+
+  <!-- Scena 4 — Pasta integrale (pranzo) -->
+  <section class="scene scene--narrative" data-scene="4">
+    <div class="inner">
+      <span class="label">13:15 — pranzo</span>
+      <h2>Pasta vera.<br>Anche al martedì.</h2>
+      <p style="color:var(--text-mute);margin-top:1rem">Integrale, porzionata, pronta in 4 minuti. Pomodoro fresco, basilico, parmigiano. Non è una rinuncia — è il pranzo.</p>
+    </div>
+  </section>
+
+  <!-- Scena 5 — Secondo (cena) -->
+  <section class="scene scene--narrative" data-scene="5" id="manifesto">
+    <div class="inner">
+      <span class="label">20:00 — cena</span>
+      <h2>Petto di pollo,<br>broccoli, carote.</h2>
+      <p style="color:var(--text-mute);margin-top:1rem">Già grigliato, già porzionato. La cena che faresti tu — senza la mezz'ora ai fornelli quando rientri stanca.</p>
+    </div>
+  </section>
+
+  <!-- Scena 6 — Cheesecake proteica -->
+  <section class="scene scene--narrative" data-scene="6">
+    <div class="inner">
+      <span class="label">Dopo cena</span>
+      <h2>Cheesecake.<br><em>Sì, davvero.</em></h2>
+      <p style="color:var(--text-mute);margin-top:1rem">Proteina del siero, ricotta magra, lampone fresco. 14g di proteine a fetta. Una domenica dentro un giovedì sera.</p>
+    </div>
+  </section>
+
+  <!-- Scena 7 — Shaker fine giornata -->
+  <section class="scene scene--narrative" data-scene="7" id="scaffale">
+    <div class="inner">
+      <span class="label">Sempre, ovunque</span>
+      <h2>Lo shaker<br>componibile.</h2>
+      <p style="color:var(--text-mute);margin-top:1rem">5 basi, 12 add-on. Lo prepari la domenica, lo bevi mercoledì. 320 kcal, 28g di proteine, dura 5 giorni in frigo.</p>
+    </div>
+  </section>
+
+  <!-- Scena 8 — Manifesto -->
+  <section class="scene" data-scene="8">
+    <div class="inner" style="display:flex;justify-content:flex-start">
+      <div class="manifesto">
+        <span class="label">Chi c'è dietro</span>
+        <h2>Non è marketing.<br>È <em>clinica.</em></h2>
+        <p>Sono una nutrizionista. Lavoro con donne che hanno smesso di voler stravolgere tutto, e iniziato a chiedersi cosa serve davvero. Le ricette sono mie, testate, replicabili. Niente miracoli, niente divieti — solo metodo.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scena 9 — Testimonianze -->
+  <section class="scene" data-scene="9">
+    <div class="inner">
+      <span class="label">Hanno smesso di saltare i pasti</span>
+      <div class="testimonials">
+        <blockquote>
+          "Ho smesso di pranzare alle undici e mezza perché stavo morendo. Bastava cambiare due cose."
+          <cite>— Giulia, 31, project manager</cite>
+        </blockquote>
+        <blockquote>
+          "Pensavo dovessi stravolgere tutto. Mi ha sistemato la cena. È bastato."
+          <cite>— Sara, 34, avvocato</cite>
+        </blockquote>
+        <blockquote>
+          "Arrivare a casa la sera e avere la cena pronta — non ho parole. Non torno indietro."
+          <cite>— Federica, 29, designer</cite>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scena 10 — Booking -->
+  <section class="scene" data-scene="10" id="booking">
+    <div class="inner">
+      <div class="booking">
+        <span class="label" style="display:block;text-align:center">Consulenza</span>
+        <h2>Parliamone venti minuti.</h2>
+        <p class="sub">Prima call gratuita, online o in presenza. Capiamo insieme dov'è il problema. Niente vendite, niente impegno.</p>
+
+        <form id="booking-form">
+          <div>
+            <label>Modalità della consulenza</label>
+            <div class="mode-group">
+              <label class="mode-chip">
+                <input type="radio" name="mode" value="video" checked>
+                <div class="chip">
+                  <strong>Videochiamata</strong>
+                  <span>20 min via Zoom · ovunque tu sia</span>
+                </div>
+              </label>
+              <label class="mode-chip">
+                <input type="radio" name="mode" value="in-person">
+                <div class="chip">
+                  <strong>In presenza</strong>
+                  <span>20 min in studio · indirizzo sotto</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div id="address-field">
+            <label for="address">Dove vorresti incontrarci (indirizzo o zona)</label>
+            <input type="text" id="address" name="address" placeholder="es. Milano centro, Porta Romana...">
+          </div>
+
+          <div>
+            <label>Scegli una data</label>
+            <div class="calendar">
+              <div class="calendar-head">
+                <button type="button" id="cal-prev" aria-label="Mese precedente">‹</button>
+                <strong id="cal-month"></strong>
+                <button type="button" id="cal-next" aria-label="Mese successivo">›</button>
+              </div>
+              <div class="calendar-grid" id="cal-grid"></div>
+            </div>
+          </div>
+
+          <div id="time-section" style="display:none">
+            <label>Scegli un orario</label>
+            <div class="time-slots" id="time-slots"></div>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label for="name">Il tuo nome</label>
+              <input type="text" id="name" name="name" required placeholder="Maria Rossi">
+            </div>
+            <div>
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required placeholder="maria@email.it">
+            </div>
+          </div>
+
+          <div>
+            <label for="phone">Telefono <span style="opacity:.5">(opzionale)</span></label>
+            <input type="tel" id="phone" name="phone" placeholder="+39 333 1234567">
+          </div>
+
+          <div>
+            <label for="note">Qualcosa che vuoi farmi sapere prima? <span style="opacity:.5">(opzionale)</span></label>
+            <textarea id="note" name="note" placeholder="Allergie, obiettivi, contesto..."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="justify-self:center;margin-top:.5rem" id="submit-btn" disabled>
+            Conferma prenotazione
+          </button>
+        </form>
+
+        <div class="success" id="success" style="display:none">
+          <svg viewBox="0 0 64 64" fill="none" stroke="var(--accent-2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="32" cy="32" r="28"/>
+            <path d="M20 33 L29 42 L46 24"/>
+          </svg>
+          <h3>Ci sentiamo presto.</h3>
+          <p>Ti ho mandato una mail di conferma con tutti i dettagli. Se non la vedi entro 5 minuti, controlla lo spam.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div>
+      <h4>Everyday Health</h4>
+      <p>Sano, ogni pasto, senza pensarci. Una nutrizionista, sei famiglie di piatti, le tue giornate vere.</p>
+    </div>
+    <div class="col">
+      <h5>Esplora</h5>
+      <a href="#manifesto">Filosofia</a>
+      <a href="#scaffale">Cosa preparo</a>
+      <a href="#booking">Prenota</a>
+    </div>
+    <div class="col">
+      <h5>Contatti</h5>
+      <a href="mailto:ciao@everydayhealth.it">ciao@everydayhealth.it</a>
+      <a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://tiktok.com" target="_blank" rel="noopener">TikTok</a>
+    </div>
+  </div>
+  <div class="bottom">© 2026 Everyday Health · Tutti i contenuti hanno scopo informativo, non sostituiscono consulto medico.</div>
+</footer>
+
+<!-- IMPORTMAP & SCRIPTS -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.165.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.165.0/examples/jsm/"
+  }
+}
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
+
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+RectAreaLightUniformsLib.init();
+
+gsap.registerPlugin(ScrollTrigger);
+
+/* ============ LENIS SMOOTH SCROLL ============ */
+const lenis = new Lenis({
+  duration: 1.2,
+  easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  smoothWheel: true,
+  smoothTouch: false,
+});
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add(t => lenis.raf(t * 1000));
+gsap.ticker.lagSmoothing(0);
+
+/* ============ THREE.JS SCENE ============ */
+const canvasWrap = document.getElementById('canvas-wrap');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;  // ACES gestisce meglio gli highlight
+renderer.toneMappingExposure = 0.85;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+canvasWrap.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+// Fog sottile color crema-caldo per profondità cinematografica
+scene.fog = new THREE.Fog(0xEEE2D0, 7, 18);
+scene.background = new THREE.Color(0xF5EFE3);
+
+const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 60);
+// Posizione iniziale: PARALLELA al terreno, distante dal tavolo
+camera.position.set(0, 0.85, 6.5);
+const camTarget = new THREE.Vector3(0, 0.72, 0);
+camera.lookAt(camTarget);
+
+// Environment per riflessi cromature
+const pmremGenerator = new THREE.PMREMGenerator(renderer);
+const envMap = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environment = envMap;
+scene.environmentIntensity = 0.5;
+
+/* ============ LIGHTING ============ */
+// Hemi molto leggera per riempire le ombre senza appiattire
+const hemi = new THREE.HemisphereLight(0xE8DCFF, 0x3A2E2A, 0.22);
+scene.add(hemi);
+
+// RECT AREA LIGHT — simula la finestra (lato destro). Luce calda dell'alba.
+const windowLight = new THREE.RectAreaLight(0xFFE0B5, 3.5, 2.2, 1.7);
+windowLight.position.set(6.7, 1.85, 1.5);
+windowLight.rotation.y = -Math.PI / 2;
+windowLight.lookAt(0, 0.8, 0);
+scene.add(windowLight);
+
+// Directional come supporto per le ombre vere (RectAreaLight non genera ombre)
+const sunShadow = new THREE.DirectionalLight(0xFFE0B5, 1.6);
+sunShadow.position.set(5, 4, 2.5);
+sunShadow.target.position.set(0, 0.7, 0);
+sunShadow.castShadow = true;
+sunShadow.shadow.mapSize.set(2048, 2048);
+sunShadow.shadow.bias = -0.0002;
+sunShadow.shadow.normalBias = 0.015;
+sunShadow.shadow.camera.left = -3;
+sunShadow.shadow.camera.right = 3;
+sunShadow.shadow.camera.top = 3;
+sunShadow.shadow.camera.bottom = -3;
+sunShadow.shadow.camera.near = 0.5;
+sunShadow.shadow.camera.far = 16;
+sunShadow.shadow.radius = 4;  // ombre più morbide
+scene.add(sunShadow);
+scene.add(sunShadow.target);
+
+// Spot dall'alto sopra il piatto frontale — drammatizza la vista top-down
+const overheadSpot = new THREE.SpotLight(0xFFF4E0, 1.8, 7, Math.PI/4.5, 0.6, 1.4);
+overheadSpot.position.set(0, 3.6, 0.62);
+overheadSpot.target.position.set(0, 0.74, 0.62);
+overheadSpot.castShadow = true;
+overheadSpot.shadow.mapSize.set(1024, 1024);
+overheadSpot.shadow.bias = -0.0003;
+overheadSpot.shadow.radius = 3;
+scene.add(overheadSpot);
+scene.add(overheadSpot.target);
+
+// Fill lilla freddo dal lato opposto alla finestra
+const rim = new THREE.PointLight(0xC8B6FF, 0.5, 8);
+rim.position.set(-3.5, 2.0, -1);
+scene.add(rim);
+
+// Bounce dal pavimento (simula GI debole)
+const bounce = new THREE.PointLight(0xF4E0C0, 0.25, 5);
+bounce.position.set(0, 0.15, 0.5);
+scene.add(bounce);
+
+/* ============ GOD RAYS (light shafts dalla finestra) ============ */
+// Piani trasparenti additivi che simulano raggi di luce volumetrica
+function makeRayTexture() {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 256;
+  const ctx = c.getContext('2d');
+  const grad = ctx.createLinearGradient(128, 0, 128, 256);
+  grad.addColorStop(0, 'rgba(255, 230, 180, 0)');
+  grad.addColorStop(0.3, 'rgba(255, 230, 180, 0.45)');
+  grad.addColorStop(0.7, 'rgba(255, 230, 180, 0.25)');
+  grad.addColorStop(1, 'rgba(255, 230, 180, 0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 256, 256);
+  const t = new THREE.CanvasTexture(c);
+  return t;
+}
+const rayMat = new THREE.MeshBasicMaterial({
+  map: makeRayTexture(),
+  blending: THREE.AdditiveBlending,
+  transparent: true,
+  depthWrite: false,
+  opacity: 0.45,
+  side: THREE.DoubleSide,
+});
+const godRays = new THREE.Group();
+for (let i = 0; i < 4; i++) {
+  const ray = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 6), rayMat);
+  ray.position.set(5 - i*0.4, 1.5, 0.3 + i*0.5);
+  ray.rotation.z = -Math.PI/2.5 - i*0.05;
+  ray.rotation.y = -Math.PI/3;
+  godRays.add(ray);
+}
+scene.add(godRays);
+
+/* ============ TEXTURE PROCEDURALI ============ */
+// Pavimento: parquet in legno chiaro con striature
+function makeParquetTexture(size = 1024) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  // base
+  ctx.fillStyle = '#C9A87C'; ctx.fillRect(0, 0, size, size);
+  // tavole orizzontali
+  const plankH = size / 8, plankW = size / 2.5;
+  for (let row = 0; row < 9; row++) {
+    const offset = (row % 2) * (plankW / 2);
+    for (let col = -1; col < 4; col++) {
+      const x = col * plankW + offset;
+      const y = row * plankH;
+      // base color con leggera variazione
+      const lightness = 0.85 + Math.random() * 0.3;
+      ctx.fillStyle = `rgba(201, 168, 124, ${lightness})`;
+      ctx.fillRect(x, y, plankW, plankH);
+      // venature (striature scure)
+      ctx.globalAlpha = 0.18;
+      for (let v = 0; v < 8; v++) {
+        const vx = x + Math.random() * plankW;
+        const vy = y + Math.random() * plankH;
+        ctx.fillStyle = '#6F4825';
+        ctx.fillRect(vx, vy, 0.6 + Math.random() * 1.2, plankH * (0.3 + Math.random() * 0.5));
+      }
+      ctx.globalAlpha = 1;
+      // bordo plank (giuntura)
+      ctx.strokeStyle = 'rgba(80, 50, 25, 0.45)';
+      ctx.lineWidth = 1.4;
+      ctx.strokeRect(x, y, plankW, plankH);
+    }
+  }
+  // noise overlay
+  const img = ctx.getImageData(0, 0, size, size);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const n = (Math.random() - 0.5) * 18;
+    img.data[i] += n; img.data[i+1] += n; img.data[i+2] += n;
+  }
+  ctx.putImageData(img, 0, 0);
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(2, 2);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return tex;
+}
+
+// Parete: intonaco granuloso color crema
+function makePlasterTexture(size = 512) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#F4F0EA'; ctx.fillRect(0, 0, size, size);
+  // granulosità noise
+  const img = ctx.getImageData(0, 0, size, size);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const n = (Math.random() - 0.5) * 22;
+    img.data[i] += n; img.data[i+1] += n*0.9; img.data[i+2] += n*0.7;
+  }
+  ctx.putImageData(img, 0, 0);
+  // macchioline casuali
+  for (let i = 0; i < 80; i++) {
+    ctx.globalAlpha = 0.08 + Math.random()*0.05;
+    ctx.fillStyle = '#A89880';
+    ctx.beginPath();
+    ctx.arc(Math.random()*size, Math.random()*size, 1 + Math.random()*2, 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(3, 1.5);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+// Tavolo: marmo lilla con venature
+function makeMarbleTexture(size = 1024) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  // base bianco-crema
+  const gradient = ctx.createLinearGradient(0, 0, size, size);
+  gradient.addColorStop(0, '#F8F2EC');
+  gradient.addColorStop(0.5, '#F2EBE2');
+  gradient.addColorStop(1, '#F6EFE8');
+  ctx.fillStyle = gradient; ctx.fillRect(0, 0, size, size);
+  // venature lilla
+  ctx.strokeStyle = '#B8A4D4';
+  for (let i = 0; i < 6; i++) {
+    ctx.globalAlpha = 0.15 + Math.random()*0.25;
+    ctx.lineWidth = 0.6 + Math.random()*2;
+    ctx.beginPath();
+    let x = Math.random() * size;
+    let y = Math.random() * size;
+    ctx.moveTo(x, y);
+    for (let s = 0; s < 30; s++) {
+      x += (Math.random()-0.5) * 60;
+      y += (Math.random()-0.5) * 60;
+      ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+  // venature più scure
+  ctx.strokeStyle = '#8B6FB0';
+  for (let i = 0; i < 3; i++) {
+    ctx.globalAlpha = 0.2;
+    ctx.lineWidth = 0.4 + Math.random();
+    ctx.beginPath();
+    let x = Math.random() * size, y = Math.random() * size;
+    ctx.moveTo(x, y);
+    for (let s = 0; s < 40; s++) {
+      x += (Math.random()-0.5) * 40;
+      y += (Math.random()-0.5) * 40;
+      ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return tex;
+}
+
+/* ============ ROOM ============ */
+const roomGroup = new THREE.Group();
+scene.add(roomGroup);
+
+// Pavimento parquet
+const parquetTex = makeParquetTexture();
+const floorMat = new THREE.MeshStandardMaterial({
+  map: parquetTex,
+  roughness: 0.65,
+  metalness: 0.0,
+});
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(16, 16), floorMat);
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+roomGroup.add(floor);
+
+// Tappeto sotto il tavolo (cerchio off-white)
+const rugMat = new THREE.MeshStandardMaterial({ color: 0xEAE0D0, roughness: 0.95 });
+const rug = new THREE.Mesh(new THREE.CircleGeometry(1.8, 64), rugMat);
+rug.rotation.x = -Math.PI / 2;
+rug.position.y = 0.003;
+rug.receiveShadow = true;
+roomGroup.add(rug);
+
+// Pareti con texture intonaco
+const plasterTex = makePlasterTexture();
+const wallMat = new THREE.MeshStandardMaterial({ map: plasterTex, roughness: 0.95 });
+
+// Parete laterale destra
+const wallRight = new THREE.Mesh(new THREE.PlaneGeometry(14, 8), wallMat.clone());
+wallRight.position.set(7, 2.5, -1);
+wallRight.rotation.y = -Math.PI / 2;
+wallRight.receiveShadow = true;
+roomGroup.add(wallRight);
+
+// Parete laterale sinistra
+const wallLeft = new THREE.Mesh(new THREE.PlaneGeometry(14, 8), wallMat.clone());
+wallLeft.position.set(-7, 2.5, -1);
+wallLeft.rotation.y = Math.PI / 2;
+wallLeft.receiveShadow = true;
+roomGroup.add(wallLeft);
+
+/* ============ CUCINA MODERNA — parete back ============ */
+const kitchen = new THREE.Group();
+const kitchenZ = -5.5;
+
+// Parete dietro la cucina (più chiara per backsplash)
+const wallBack = new THREE.Mesh(new THREE.PlaneGeometry(20, 8), wallMat.clone());
+wallBack.position.set(0, 2.5, -6);
+wallBack.receiveShadow = true;
+roomGroup.add(wallBack);
+
+// Materiali cucina
+const cabinetMat = new THREE.MeshPhysicalMaterial({
+  color: 0xF2EBE0, roughness: 0.35, clearcoat: 0.4, clearcoatRoughness: 0.2
+});
+const counterMat = new THREE.MeshPhysicalMaterial({
+  map: makeMarbleTexture(), color: 0xFFFFFF, roughness: 0.18, clearcoat: 0.7, clearcoatRoughness: 0.1
+});
+const sinkMat = new THREE.MeshPhysicalMaterial({
+  color: 0xC8C8CC, roughness: 0.12, metalness: 0.95
+});
+const knobMat = new THREE.MeshPhysicalMaterial({ color: 0xC8B89A, roughness: 0.2, metalness: 0.9 });
+
+// MOBILI BASE (sotto piano lavoro) — 4 moduli affiancati
+const baseWidth = 1.5, baseHeight = 0.8, baseDepth = 0.6;
+for (let i = -2; i < 2; i++) {
+  const cabBase = new THREE.Mesh(new THREE.BoxGeometry(baseWidth, baseHeight, baseDepth), cabinetMat);
+  cabBase.position.set(i * (baseWidth + 0.005) + baseWidth/2, baseHeight/2 + 0.04, kitchenZ - baseDepth/2);
+  cabBase.castShadow = true; cabBase.receiveShadow = true;
+  kitchen.add(cabBase);
+  // Linea giuntura tra ante (verticale al centro)
+  const seam = new THREE.Mesh(new THREE.BoxGeometry(0.003, baseHeight*0.9, 0.005),
+    new THREE.MeshStandardMaterial({ color: 0xD8CDB8 }));
+  seam.position.set(i * (baseWidth + 0.005) + baseWidth/2, baseHeight/2 + 0.04, kitchenZ - baseDepth + 0.001);
+  kitchen.add(seam);
+  // Maniglia (barra cromata orizzontale)
+  const handle = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.018, 0.02), knobMat);
+  handle.position.set(i * (baseWidth + 0.005) + baseWidth/2, baseHeight - 0.08, kitchenZ - baseDepth + 0.005);
+  kitchen.add(handle);
+}
+
+// PIANO DI LAVORO in marmo (top continuo)
+const counterTop = new THREE.Mesh(new THREE.BoxGeometry(6.5, 0.05, baseDepth + 0.05), counterMat);
+counterTop.position.set(0, baseHeight + 0.04 + 0.025, kitchenZ - baseDepth/2);
+counterTop.castShadow = true; counterTop.receiveShadow = true;
+kitchen.add(counterTop);
+// Profilo frontale del piano (smussato)
+const counterFront = new THREE.Mesh(new THREE.BoxGeometry(6.5, 0.05, 0.02), counterMat);
+counterFront.position.set(0, baseHeight + 0.04, kitchenZ - 0.005);
+kitchen.add(counterFront);
+
+// LAVELLO incassato (rettangolo scuro nel piano)
+const sinkHole = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.18, 0.42), sinkMat);
+sinkHole.position.set(-1.4, baseHeight + 0.04 - 0.04, kitchenZ - baseDepth/2);
+kitchen.add(sinkHole);
+// Bordo lavello (per dargli definizione)
+const sinkRim = new THREE.Mesh(new THREE.BoxGeometry(0.80, 0.012, 0.46), sinkMat);
+sinkRim.position.set(-1.4, baseHeight + 0.04 + 0.026, kitchenZ - baseDepth/2);
+kitchen.add(sinkRim);
+// Rubinetto (base cilindrica + curva)
+const tapBase = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.20, 16), sinkMat);
+tapBase.position.set(-1.4, baseHeight + 0.04 + 0.10, kitchenZ - baseDepth + 0.15);
+kitchen.add(tapBase);
+// Becca rubinetto (curva con torus parziale)
+const spout = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.022, 8, 16, Math.PI * 0.5), sinkMat);
+spout.position.set(-1.4, baseHeight + 0.04 + 0.22, kitchenZ - baseDepth + 0.15);
+spout.rotation.set(Math.PI/2, 0, Math.PI/2);
+kitchen.add(spout);
+const spoutEnd = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.022, 0.08, 12), sinkMat);
+spoutEnd.position.set(-1.4, baseHeight + 0.04 + 0.18, kitchenZ - baseDepth + 0.27);
+spoutEnd.rotation.x = Math.PI / 2;
+kitchen.add(spoutEnd);
+
+// BACKSPLASH (parete tra piano e pensili — marmo)
+const backsplash = new THREE.Mesh(new THREE.PlaneGeometry(6.5, 0.65), counterMat.clone());
+backsplash.position.set(0, baseHeight + 0.04 + 0.05 + 0.325, -5.99);
+backsplash.receiveShadow = true;
+kitchen.add(backsplash);
+
+// PENSILI ALTI (4 moduli)
+const upperHeight = 0.85, upperDepth = 0.38;
+const upperY = baseHeight + 0.04 + 0.05 + 0.65 + upperHeight/2;
+for (let i = -2; i < 2; i++) {
+  const cabUp = new THREE.Mesh(new THREE.BoxGeometry(baseWidth, upperHeight, upperDepth), cabinetMat);
+  cabUp.position.set(i * (baseWidth + 0.005) + baseWidth/2, upperY, kitchenZ - upperDepth/2 - 0.20);
+  cabUp.castShadow = true; cabUp.receiveShadow = true;
+  kitchen.add(cabUp);
+  // Maniglia bassa
+  const upHandle = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.015, 0.018), knobMat);
+  upHandle.position.set(i * (baseWidth + 0.005) + baseWidth/2, upperY - upperHeight/2 + 0.08, kitchenZ - upperDepth - 0.19);
+  kitchen.add(upHandle);
+}
+
+// CAPPA aspirante moderna (cilindro/parallelepipedo cromato sopra il fornello)
+const hood = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.45, 0.55, 24), sinkMat);
+hood.position.set(1.4, upperY + 0.05, kitchenZ - 0.45);
+hood.castShadow = true;
+kitchen.add(hood);
+const hoodTop = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 1.2, 16), sinkMat);
+hoodTop.position.set(1.4, upperY + 0.85, kitchenZ - 0.45);
+kitchen.add(hoodTop);
+
+// PIANO COTTURA (4 fuochi rappresentati come cerchi scuri sul piano)
+const stoveBlack = new THREE.MeshPhysicalMaterial({ color: 0x1A1A1F, roughness: 0.2, clearcoat: 0.6 });
+const stovePanel = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.008, 0.50), stoveBlack);
+stovePanel.position.set(1.4, baseHeight + 0.04 + 0.054, kitchenZ - baseDepth/2);
+kitchen.add(stovePanel);
+for (let i = 0; i < 4; i++) {
+  const burner = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.005, 24),
+    new THREE.MeshStandardMaterial({ color: 0x2A2A2F, roughness: 0.6, metalness: 0.8 }));
+  const bx = 1.4 + (i%2 ? 0.17 : -0.17);
+  const bz = kitchenZ - baseDepth/2 + (i<2 ? 0.10 : -0.10);
+  burner.position.set(bx, baseHeight + 0.04 + 0.058, bz);
+  kitchen.add(burner);
+}
+
+// PICCOLI OGGETTI sul piano (tagliere, vaso utensili, oliera)
+// Tagliere in legno
+const board = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.03, 0.25),
+  new THREE.MeshStandardMaterial({ color: 0xA67C52, roughness: 0.65 }));
+board.position.set(-0.2, baseHeight + 0.04 + 0.07, kitchenZ - baseDepth/2 + 0.08);
+board.rotation.y = 0.1;
+board.castShadow = true;
+kitchen.add(board);
+// Vaso utensili (cilindro alto)
+const utensilJar = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.20, 20),
+  new THREE.MeshPhysicalMaterial({ color: 0xE8DECB, roughness: 0.3, clearcoat: 0.5 }));
+utensilJar.position.set(0.5, baseHeight + 0.04 + 0.155, kitchenZ - baseDepth + 0.15);
+utensilJar.castShadow = true;
+kitchen.add(utensilJar);
+// Utensili che spuntano (mestolo, frusta — semplificati)
+for (let i = 0; i < 3; i++) {
+  const u = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.32, 8),
+    new THREE.MeshStandardMaterial({ color: 0x8B6F4E, roughness: 0.7 }));
+  u.position.set(0.5 + (i-1)*0.025, baseHeight + 0.04 + 0.31 + i*0.01, kitchenZ - baseDepth + 0.15);
+  u.rotation.z = (i-1) * 0.15;
+  kitchen.add(u);
+}
+// Oliera (bottiglia vetro)
+const oilBottle = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.22, 16),
+  new THREE.MeshPhysicalMaterial({ color: 0x5E8C3A, transmission: 0.6, roughness: 0.1, thickness: 0.2 }));
+oilBottle.position.set(0.8, baseHeight + 0.04 + 0.16, kitchenZ - baseDepth + 0.15);
+oilBottle.castShadow = true;
+kitchen.add(oilBottle);
+const oilCap = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.04, 12), knobMat);
+oilCap.position.set(0.8, baseHeight + 0.04 + 0.29, kitchenZ - baseDepth + 0.15);
+kitchen.add(oilCap);
+
+roomGroup.add(kitchen);
+
+// Battiscopa
+const skirtingMat = new THREE.MeshStandardMaterial({ color: 0xF8F4ED, roughness: 0.6 });
+const skirting = new THREE.Mesh(new THREE.BoxGeometry(20, 0.12, 0.04), skirtingMat);
+skirting.position.set(0, 0.06, -5.97);
+roomGroup.add(skirting);
+
+/* ============ FINESTRA (a destra, fuori scena ma emette luce) ============ */
+const windowGroup = new THREE.Group();
+windowGroup.position.set(6.85, 1.8, 1.5);
+windowGroup.rotation.y = -Math.PI / 2;
+// Cornice
+const frameMat = new THREE.MeshStandardMaterial({ color: 0xF8F4ED, roughness: 0.4 });
+const frameOuter = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.9, 0.08), frameMat);
+windowGroup.add(frameOuter);
+const glassPane = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 1.7),
+  new THREE.MeshPhysicalMaterial({ color: 0xCFE3F2, transmission: 0.95, roughness: 0.05, thickness: 0.1, ior: 1.45, transparent: true, opacity: 0.4 }));
+glassPane.position.z = 0.05;
+windowGroup.add(glassPane);
+// Traversa orizzontale + verticale (a croce)
+const crossH = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.05, 0.10), frameMat);
+crossH.position.z = 0.05;
+windowGroup.add(crossH);
+const crossV = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.7, 0.10), frameMat);
+crossV.position.z = 0.05;
+windowGroup.add(crossV);
+roomGroup.add(windowGroup);
+
+/* ============ TENDA AL VENTO ============ */
+// Plane segmentato — i vertici saranno animati nel tick loop per simulare vento
+const curtainGeo = new THREE.PlaneGeometry(2.4, 2.6, 24, 28);
+const curtainMat = new THREE.MeshStandardMaterial({
+  color: 0xFAF3E0,
+  roughness: 0.95,
+  side: THREE.DoubleSide,
+  transparent: true,
+  opacity: 0.78,
+});
+const curtain = new THREE.Mesh(curtainGeo, curtainMat);
+curtain.position.set(6.78, 1.85, 1.5);
+curtain.rotation.y = -Math.PI / 2;
+curtain.receiveShadow = true;
+roomGroup.add(curtain);
+// Cache posizione originale dei vertici per l'animazione
+const curtainBasePositions = curtainGeo.attributes.position.array.slice();
+
+/* ============ LAMPADARI A SOSPENSIONE ============ */
+// 3 lampade moderne sopra il tavolo
+const pendantGroup = new THREE.Group();
+const pendantPositions = [-0.85, 0, 0.85];
+const pendantLights = [];
+pendantPositions.forEach((px, i) => {
+  const pg = new THREE.Group();
+  // Cavo
+  const cable = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 1.8, 6),
+    new THREE.MeshStandardMaterial({ color: 0x2A2530, roughness: 0.6 }));
+  cable.position.y = 0.9;
+  pg.add(cable);
+  // Paralume (cono inverso aperto sotto)
+  const shadeGeo = new THREE.ConeGeometry(0.13, 0.22, 24, 1, true);
+  const shadeMat = new THREE.MeshPhysicalMaterial({
+    color: 0xF8EFD8,
+    roughness: 0.4,
+    metalness: 0.2,
+    side: THREE.DoubleSide,
+    emissive: 0xFFE0B0,
+    emissiveIntensity: 0.4
+  });
+  const shade = new THREE.Mesh(shadeGeo, shadeMat);
+  shade.position.y = 0.0;
+  shade.castShadow = true;
+  pg.add(shade);
+  // Filo cromato che attacca paralume
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.012, 0.003, 6, 16), sinkMat);
+  ring.position.y = 0.11;
+  pg.add(ring);
+  // Point light interna (luce calda)
+  const bulb = new THREE.PointLight(0xFFE0A8, 0.6, 4, 1.8);
+  bulb.position.y = -0.05;
+  bulb.castShadow = false;  // troppo costoso per 3 lampade
+  pg.add(bulb);
+  pendantLights.push(bulb);
+
+  pg.position.set(px, 2.4, 0);
+  pendantGroup.add(pg);
+});
+scene.add(pendantGroup);
+
+/* ============ TAVOLO ROTONDO ============ */
+const tableGroup = new THREE.Group();
+tableGroup.position.set(0, 0, 0);
+scene.add(tableGroup);
+
+// Top tavolo (marmo lilla con texture procedurale)
+const marbleTex = makeMarbleTexture();
+const topMat = new THREE.MeshPhysicalMaterial({
+  map: marbleTex,
+  color: 0xFFFFFF,
+  roughness: 0.16,
+  metalness: 0.0,
+  clearcoat: 0.55,
+  clearcoatRoughness: 0.08,
+  sheen: 0.4,
+  sheenColor: 0xD8C7F0,
+  reflectivity: 0.5,
+});
+const tableTop = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.85, 0.04, 64), topMat);
+tableTop.position.y = 0.72;
+tableTop.castShadow = true;
+tableTop.receiveShadow = true;
+tableGroup.add(tableTop);
+
+// Bevel bordo
+const bevel = new THREE.Mesh(new THREE.TorusGeometry(0.85, 0.012, 8, 64), topMat);
+bevel.position.y = 0.70;
+bevel.rotation.x = Math.PI / 2;
+tableGroup.add(bevel);
+
+// Gamba (lathe)
+const legPoints = [];
+legPoints.push(new THREE.Vector2(0.06, 0));
+legPoints.push(new THREE.Vector2(0.22, 0.05));
+legPoints.push(new THREE.Vector2(0.06, 0.20));
+legPoints.push(new THREE.Vector2(0.05, 0.50));
+legPoints.push(new THREE.Vector2(0.12, 0.70));
+const legGeo = new THREE.LatheGeometry(legPoints, 32);
+const legMat = new THREE.MeshStandardMaterial({ color: 0xE8DCC8, roughness: 0.4, metalness: 0.1 });
+const leg = new THREE.Mesh(legGeo, legMat);
+leg.castShadow = true;
+tableGroup.add(leg);
+
+/* ============ MATERIALI ============ */
+const ceramicMat = new THREE.MeshPhysicalMaterial({
+  color: 0xFAF6EE, roughness: 0.28, clearcoat: 0.7, clearcoatRoughness: 0.18, reflectivity: 0.5
+});
+const ceramicDark = new THREE.MeshPhysicalMaterial({
+  color: 0xE8DFD2, roughness: 0.35, clearcoat: 0.5, clearcoatRoughness: 0.25
+});
+const chromeMat = new THREE.MeshPhysicalMaterial({
+  color: 0xEDE8F0, roughness: 0.10, metalness: 1.0, envMapIntensity: 1.6
+});
+const glassMat = new THREE.MeshPhysicalMaterial({
+  color: 0xFFFFFF, roughness: 0.04, transmission: 0.92, thickness: 0.35, ior: 1.45,
+  attenuationColor: 0xE8DCFF, attenuationDistance: 2.5, transparent: true
+});
+const liquidLilac = new THREE.MeshPhysicalMaterial({ color: 0xC8B4E8, roughness: 0.4 });
+const liquidCoffee = new THREE.MeshPhysicalMaterial({ color: 0x5B3A24, roughness: 0.35, clearcoat: 0.6 });
+const milkFoam = new THREE.MeshStandardMaterial({ color: 0xF5EBD8, roughness: 0.85 });
+const choco = new THREE.MeshStandardMaterial({ color: 0x4A2E1F, roughness: 0.45 });
+const cream = new THREE.MeshStandardMaterial({ color: 0xF8E8D0, roughness: 0.35 });
+const butter = new THREE.MeshStandardMaterial({ color: 0xF2D589, roughness: 0.4 });
+const greens = new THREE.MeshStandardMaterial({ color: 0x6E8F5E, roughness: 0.65 });
+const greensLight = new THREE.MeshStandardMaterial({ color: 0x95B47A, roughness: 0.7 });
+const tomato = new THREE.MeshPhysicalMaterial({ color: 0xC8442C, roughness: 0.32, clearcoat: 0.5 });
+const carrot = new THREE.MeshStandardMaterial({ color: 0xD8783A, roughness: 0.55 });
+const chicken = new THREE.MeshStandardMaterial({ color: 0xC9A371, roughness: 0.55 });
+const meatBrown = new THREE.MeshStandardMaterial({ color: 0x6B4530, roughness: 0.55 });
+const pastaCol = new THREE.MeshStandardMaterial({ color: 0xEBC97A, roughness: 0.5 });
+const proteinPink = new THREE.MeshStandardMaterial({ color: 0xE8B8C0, roughness: 0.5 });
+const raspberry = new THREE.MeshPhysicalMaterial({ color: 0xB02E3E, roughness: 0.4, clearcoat: 0.4 });
+const blueberry = new THREE.MeshPhysicalMaterial({ color: 0x3D4A78, roughness: 0.4, clearcoat: 0.5 });
+const linen = new THREE.MeshStandardMaterial({ color: 0xE8DECB, roughness: 0.92 });
+
+/* ============ HELPER: piatto base con bordo rialzato ============ */
+function makePlate(radius=0.11, rim=0.012, height=0.014, mat=ceramicMat) {
+  const g = new THREE.Group();
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius*0.92, height, 48), mat);
+  base.castShadow = true; base.receiveShadow = true;
+  g.add(base);
+  // Bordo rialzato (torus)
+  const rimMesh = new THREE.Mesh(new THREE.TorusGeometry(radius - rim*0.4, rim*0.5, 8, 48), mat);
+  rimMesh.position.y = height/2;
+  rimMesh.rotation.x = Math.PI/2;
+  rimMesh.castShadow = true;
+  g.add(rimMesh);
+  return g;
+}
+
+/* ============ HELPER: tovaglietta lino sotto il piatto ============ */
+function makePlacemat() {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.34, 1, 1), linen);
+  m.rotation.x = -Math.PI/2;
+  m.position.y = 0.001;
+  m.receiveShadow = true;
+  return m;
+}
+
+/* ============ HELPER: posate (forchetta + coltello) ============ */
+function makeCutlery() {
+  const g = new THREE.Group();
+  // Forchetta a sinistra del piatto
+  const forkH = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.005, 0.14), chromeMat);
+  forkH.position.set(-0.16, 0.005, 0);
+  forkH.castShadow = true;
+  g.add(forkH);
+  // Punta forchetta (4 denti rappresentati come box)
+  for (let i = 0; i < 4; i++) {
+    const tine = new THREE.Mesh(new THREE.BoxGeometry(0.0015, 0.005, 0.03), chromeMat);
+    tine.position.set(-0.16 + (i-1.5)*0.0025, 0.005, -0.08);
+    g.add(tine);
+  }
+  // Coltello a destra
+  const knife = new THREE.Mesh(new THREE.BoxGeometry(0.010, 0.005, 0.16), chromeMat);
+  knife.position.set(0.16, 0.005, 0);
+  knife.castShadow = true;
+  g.add(knife);
+  return g;
+}
+
+/* ============ PIATTO 1 — CAPPUCCINO CON BISCOTTI ============ */
+function makeBreakfast() {
+  const g = new THREE.Group();
+  g.add(makePlacemat());
+  // Piattino piccolo (saucer)
+  const saucer = makePlate(0.085, 0.006, 0.008, ceramicMat);
+  g.add(saucer);
+  // Tazza
+  const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.038, 0.058, 32), ceramicMat);
+  cup.position.y = 0.008 + 0.029; cup.castShadow = true;
+  g.add(cup);
+  // Interno tazza (cavità simulata con cilindro più piccolo nero)
+  const cupInner = new THREE.Mesh(new THREE.CylinderGeometry(0.040, 0.034, 0.054, 32), new THREE.MeshStandardMaterial({ color: 0x1a1410, roughness: 1, side: THREE.BackSide }));
+  cupInner.position.y = 0.040;
+  g.add(cupInner);
+  // Liquido (caffè)
+  const coffee = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.005, 32), liquidCoffee);
+  coffee.position.y = 0.061;
+  g.add(coffee);
+  // Schiuma in cima
+  const foam = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.004, 32), milkFoam);
+  foam.position.y = 0.064;
+  g.add(foam);
+  // Manico tazza (torus parziale)
+  const handle = new THREE.Mesh(new THREE.TorusGeometry(0.018, 0.005, 8, 24, Math.PI), ceramicMat);
+  handle.position.set(0.048, 0.037, 0);
+  handle.rotation.y = Math.PI/2;
+  handle.castShadow = true;
+  g.add(handle);
+  // Cucchiaino sul piattino
+  const spoonH = new THREE.Mesh(new THREE.BoxGeometry(0.004, 0.003, 0.06), chromeMat);
+  spoonH.position.set(-0.05, 0.012, 0.04);
+  spoonH.rotation.y = 0.3;
+  g.add(spoonH);
+  const spoonHead = new THREE.Mesh(new THREE.SphereGeometry(0.010, 16, 8, 0, Math.PI*2, 0, Math.PI/2), chromeMat);
+  spoonHead.scale.set(1, 0.4, 1.4);
+  spoonHead.position.set(-0.067, 0.012, 0.058);
+  spoonHead.rotation.y = 0.3;
+  g.add(spoonHead);
+  // 2 biscotti accanto
+  for (let i = 0; i < 2; i++) {
+    const cookie = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.006, 20), butter);
+    cookie.position.set(0.09 - i*0.005, 0.011, -0.05 + i*0.025);
+    cookie.rotation.z = i * 0.2;
+    cookie.castShadow = true;
+    g.add(cookie);
+  }
+  return g;
+}
+
+/* ============ PIATTO 2 — BOWL YOGURT FRUTTI ============ */
+function makeYogurtBowl() {
+  const g = new THREE.Group();
+  g.add(makePlacemat());
+  // Ciotola (sfera tagliata)
+  const bowlGeo = new THREE.SphereGeometry(0.085, 32, 20, 0, Math.PI*2, 0, Math.PI/2.2);
+  const bowl = new THREE.Mesh(bowlGeo, ceramicMat);
+  bowl.scale.y = 0.7;
+  bowl.position.y = 0.045;
+  bowl.castShadow = true; bowl.receiveShadow = true;
+  g.add(bowl);
+  // Yogurt (disco piatto dentro)
+  const yogurt = new THREE.Mesh(new THREE.CylinderGeometry(0.072, 0.060, 0.012, 32), milkFoam);
+  yogurt.position.y = 0.052;
+  g.add(yogurt);
+  // Frutti rossi sopra
+  const berryPositions = [
+    [0.025, 0.062, 0.02, raspberry, 0.012],
+    [-0.020, 0.062, 0.028, raspberry, 0.011],
+    [0.015, 0.062, -0.025, blueberry, 0.010],
+    [-0.030, 0.062, -0.010, blueberry, 0.011],
+    [0.035, 0.062, -0.022, blueberry, 0.009],
+    [0.000, 0.062, 0.000, raspberry, 0.013],
+  ];
+  berryPositions.forEach(([x,y,z,mat,r]) => {
+    const b = new THREE.Mesh(new THREE.SphereGeometry(r, 14, 12), mat);
+    b.position.set(x, y+r*0.4, z); b.castShadow = true;
+    g.add(b);
+  });
+  // Granola sparsa (piccoli cilindri sand-colored)
+  const granolaMat = new THREE.MeshStandardMaterial({ color: 0xC9A876, roughness: 0.7 });
+  for (let i = 0; i < 10; i++) {
+    const gr = new THREE.Mesh(new THREE.BoxGeometry(0.006, 0.005, 0.010), granolaMat);
+    const a = Math.random()*Math.PI*2; const r = Math.random()*0.055;
+    gr.position.set(Math.cos(a)*r, 0.061, Math.sin(a)*r);
+    gr.rotation.y = Math.random()*Math.PI;
+    g.add(gr);
+  }
+  return g;
+}
+
+/* ============ PIATTO 3 — PASTA INTEGRALE ============ */
+function makePasta() {
+  const g = new THREE.Group();
+  g.add(makePlacemat());
+  g.add(makeCutlery());
+  // Piatto fondo
+  const plate = makePlate(0.13, 0.014, 0.016, ceramicMat);
+  g.add(plate);
+  // Pasta come massa centrale (sfera schiacciata + cilindri thin per spaghetti)
+  const pastaMass = new THREE.Mesh(new THREE.SphereGeometry(0.075, 24, 16, 0, Math.PI*2, 0, Math.PI/1.8), pastaCol);
+  pastaMass.scale.y = 0.5;
+  pastaMass.position.y = 0.024;
+  pastaMass.castShadow = true;
+  g.add(pastaMass);
+  // Spaghetti curve come tori parziali
+  for (let i = 0; i < 8; i++) {
+    const t = new THREE.Mesh(new THREE.TorusGeometry(0.020 + Math.random()*0.02, 0.0015, 6, 16, Math.PI*1.2), pastaCol);
+    const a = (i/8) * Math.PI*2;
+    t.position.set(Math.cos(a)*0.025, 0.030 + Math.random()*0.005, Math.sin(a)*0.025);
+    t.rotation.set(Math.random()*0.4, Math.random()*Math.PI*2, Math.random()*0.4);
+    g.add(t);
+  }
+  // Pomodorini sopra (3)
+  for (let i = 0; i < 3; i++) {
+    const t = new THREE.Mesh(new THREE.SphereGeometry(0.013, 16, 12), tomato);
+    const a = (i/3)*Math.PI*2 + 0.3;
+    t.position.set(Math.cos(a)*0.035, 0.040, Math.sin(a)*0.035);
+    t.castShadow = true;
+    g.add(t);
+  }
+  // Foglia di basilico (cono piatto verde)
+  const basil = new THREE.Mesh(new THREE.ConeGeometry(0.012, 0.022, 6, 1, false), greens);
+  basil.position.set(0, 0.045, 0); basil.rotation.x = Math.PI/2;
+  g.add(basil);
+  return g;
+}
+
+/* ============ PIATTO 4 — SECONDO + CONTORNO ============ */
+function makeSecondo() {
+  const g = new THREE.Group();
+  g.add(makePlacemat());
+  g.add(makeCutlery());
+  const plate = makePlate(0.13, 0.012, 0.014, ceramicMat);
+  g.add(plate);
+  // Filetto di carne (box arrotondato approssimato con sphere scaled)
+  const meat = new THREE.Mesh(new THREE.SphereGeometry(0.045, 20, 14), chicken);
+  meat.scale.set(1.0, 0.35, 0.7);
+  meat.position.set(-0.025, 0.028, 0);
+  meat.castShadow = true;
+  g.add(meat);
+  // Linee di grigliatura (5 box scuri)
+  for (let i = 0; i < 4; i++) {
+    const grill = new THREE.Mesh(new THREE.BoxGeometry(0.002, 0.001, 0.055), meatBrown);
+    grill.position.set(-0.045 + i*0.012, 0.046, 0);
+    g.add(grill);
+  }
+  // Contorno: broccoli (3 sfere ondulate verdi)
+  for (let i = 0; i < 3; i++) {
+    const brocStem = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.006, 0.018, 8), greensLight);
+    brocStem.position.set(0.045 + i*0.018 - i*0.005, 0.018, -0.025 + i*0.025);
+    g.add(brocStem);
+    const brocTop = new THREE.Mesh(new THREE.SphereGeometry(0.014, 16, 12), greens);
+    brocTop.position.set(0.045 + i*0.018 - i*0.005, 0.033, -0.025 + i*0.025);
+    brocTop.castShadow = true;
+    g.add(brocTop);
+  }
+  // Spicchi di carota
+  for (let i = 0; i < 4; i++) {
+    const c = new THREE.Mesh(new THREE.CylinderGeometry(0.010, 0.010, 0.008, 16), carrot);
+    c.position.set(0.03 + (i%2)*0.022, 0.018, 0.035 + Math.floor(i/2)*0.018);
+    c.castShadow = true;
+    g.add(c);
+  }
+  return g;
+}
+
+/* ============ PIATTO 5 — CHEESECAKE PROTEICA ============ */
+function makeCheesecake() {
+  const g = new THREE.Group();
+  g.add(makePlacemat());
+  // Piattino da dessert
+  const plate = makePlate(0.085, 0.010, 0.011, ceramicMat);
+  g.add(plate);
+  // Forchettina dessert
+  const dForkH = new THREE.Mesh(new THREE.BoxGeometry(0.006, 0.004, 0.10), chromeMat);
+  dForkH.position.set(0.13, 0.005, 0);
+  g.add(dForkH);
+  // Fetta di cheesecake (settore cilindrico)
+  const sliceGeo = new THREE.CylinderGeometry(0.058, 0.058, 0.045, 24, 1, false, 0, Math.PI / 2.5);
+  const slice = new THREE.Mesh(sliceGeo, cream);
+  slice.position.y = 0.034;
+  slice.rotation.y = -Math.PI/5;
+  slice.castShadow = true;
+  g.add(slice);
+  // Base biscotto (più scura) sotto
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.058, 0.058, 0.012, 24, 1, false, 0, Math.PI / 2.5), butter);
+  base.position.y = 0.018; base.rotation.y = -Math.PI/5;
+  g.add(base);
+  // Lampone in cima
+  const ras = new THREE.Mesh(new THREE.SphereGeometry(0.012, 14, 12), raspberry);
+  ras.position.set(-0.005, 0.062, 0.018); ras.castShadow = true;
+  g.add(ras);
+  // Foglia di menta (cono piatto)
+  const mint = new THREE.Mesh(new THREE.ConeGeometry(0.008, 0.016, 6), greens);
+  mint.position.set(0.005, 0.072, 0.018);
+  mint.rotation.x = Math.PI/2.5;
+  g.add(mint);
+  // Polvere di zucchero (5 piccolissime sfere bianche)
+  for (let i = 0; i < 6; i++) {
+    const p = new THREE.Mesh(new THREE.SphereGeometry(0.002, 6, 6), milkFoam);
+    p.position.set((Math.random()-0.5)*0.05, 0.058, (Math.random()-0.5)*0.04);
+    g.add(p);
+  }
+  return g;
+}
+
+/* ============ PIATTO 6 — SHAKER VETRO CON CANNUCCIA ============ */
+function makeShaker() {
+  const g = new THREE.Group();
+  g.add(makePlacemat());
+  // Sottobicchiere
+  const coaster = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.004, 24), ceramicDark);
+  coaster.position.y = 0.003;
+  coaster.receiveShadow = true;
+  g.add(coaster);
+  // Bicchiere vetro
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.040, 0.22, 32, 1, true), glassMat);
+  body.position.y = 0.005 + 0.110;
+  body.castShadow = true;
+  g.add(body);
+  // Fondo del bicchiere
+  const bottom = new THREE.Mesh(new THREE.CylinderGeometry(0.040, 0.040, 0.003, 32), glassMat);
+  bottom.position.y = 0.007;
+  g.add(bottom);
+  // Liquido lilla dentro
+  const liquid = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.038, 0.17, 32), liquidLilac);
+  liquid.position.y = 0.095;
+  g.add(liquid);
+  // Top liquid (per dargli profondità)
+  const liquidTop = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.002, 32), liquidLilac);
+  liquidTop.position.y = 0.180;
+  g.add(liquidTop);
+  // Cannuccia (cilindro lungo inclinato)
+  const straw = new THREE.Mesh(new THREE.CylinderGeometry(0.003, 0.003, 0.27, 12), new THREE.MeshStandardMaterial({ color: 0xF8B5C0, roughness: 0.5 }));
+  straw.position.set(0.025, 0.155, 0);
+  straw.rotation.z = -0.25;
+  straw.castShadow = true;
+  g.add(straw);
+  // Cap a tappo cromato in cima al bicchiere (opzionale, sembra coperchio shaker)
+  // Lascio aperto per sembrare già pronto da bere
+  return g;
+}
+
+/* ============ ARREDO BACKGROUND ============ */
+const woodMat = new THREE.MeshStandardMaterial({ color: 0xA67C52, roughness: 0.55 });
+const woodDarkMat = new THREE.MeshStandardMaterial({ color: 0x6F4825, roughness: 0.55 });
+
+// Sedia di legno sul lato opposto alla camera (visibile da top-down come ombra/silhouette)
+function makeChair() {
+  const g = new THREE.Group();
+  // Seduta
+  const seat = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.04, 0.45), woodMat);
+  seat.position.y = 0.45;
+  seat.castShadow = true; seat.receiveShadow = true;
+  g.add(seat);
+  // Schienale
+  const back = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.55, 0.03), woodMat);
+  back.position.set(0, 0.74, -0.21);
+  back.castShadow = true;
+  g.add(back);
+  // 3 doghe verticali schienale
+  for (let i = -1; i <= 1; i++) {
+    const slat = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.5, 0.025), woodMat);
+    slat.position.set(i*0.13, 0.74, -0.20);
+    g.add(slat);
+  }
+  // 4 gambe
+  for (let i = 0; i < 4; i++) {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.45, 0.04), woodMat);
+    const x = (i%2 ? 1 : -1) * 0.19;
+    const z = (i<2 ? 1 : -1) * 0.19;
+    leg.position.set(x, 0.225, z);
+    leg.castShadow = true;
+    g.add(leg);
+  }
+  return g;
+}
+const chair = makeChair();
+chair.position.set(-2.2, 0, -1.0);
+chair.rotation.y = Math.PI / 5;
+roomGroup.add(chair);
+
+// Pianta in vaso (background lato destro)
+function makePlant() {
+  const g = new THREE.Group();
+  // Vaso terracotta
+  const potMat = new THREE.MeshStandardMaterial({ color: 0xB87555, roughness: 0.7 });
+  const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.13, 0.28, 24), potMat);
+  pot.position.y = 0.14;
+  pot.castShadow = true; pot.receiveShadow = true;
+  g.add(pot);
+  // Terriccio
+  const soil = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.02, 24), new THREE.MeshStandardMaterial({ color: 0x3a2418, roughness: 1 }));
+  soil.position.y = 0.28;
+  g.add(soil);
+  // Foglie (mass di sfere verdi a varie altezze)
+  const leafMat1 = new THREE.MeshStandardMaterial({ color: 0x5E8C4A, roughness: 0.7 });
+  const leafMat2 = new THREE.MeshStandardMaterial({ color: 0x7AAD60, roughness: 0.7 });
+  for (let i = 0; i < 14; i++) {
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.08 + Math.random()*0.05, 12, 8),
+      Math.random() > 0.5 ? leafMat1 : leafMat2);
+    const a = Math.random() * Math.PI * 2;
+    const r = Math.random() * 0.10;
+    sphere.position.set(Math.cos(a)*r, 0.35 + Math.random()*0.35, Math.sin(a)*r);
+    sphere.scale.y = 0.6 + Math.random()*0.4;
+    sphere.castShadow = true;
+    g.add(sphere);
+  }
+  // Stelo principale
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.018, 0.5, 8),
+    new THREE.MeshStandardMaterial({ color: 0x6B4A2E, roughness: 0.8 }));
+  stem.position.y = 0.42;
+  g.add(stem);
+  return g;
+}
+const plant = makePlant();
+plant.position.set(3.5, 0, -2.5);
+roomGroup.add(plant);
+
+// Runner di lino fisso sul tavolo (SOTTO i piatti — sta appena sopra il top tavolo)
+const runner = new THREE.Mesh(new THREE.PlaneGeometry(0.36, 1.5),
+  new THREE.MeshStandardMaterial({ color: 0xD4C5A8, roughness: 0.95 }));
+runner.rotation.x = -Math.PI / 2;
+runner.position.set(0, 0.7405, 0);  // 0.0005 sopra il top tavolo (0.74)
+runner.receiveShadow = true;
+scene.add(runner);
+
+const productMakers = [makeBreakfast, makeYogurtBowl, makePasta, makeSecondo, makeCheesecake, makeShaker];
+const products = [];
+const RADIUS = 0.62;     // distanza piatti dal centro tavolo
+const TABLE_TOP_Y = 0.748;  // i piatti poggiano SOPRA il tavolo (top = 0.74)
+const PRODUCT_POSITIONS_PHASE = Math.PI/2; // primo piatto a (0, _, +RADIUS) → sotto la camera top-down
+for (let i = 0; i < 6; i++) {
+  const product = productMakers[i]();
+  const angle = PRODUCT_POSITIONS_PHASE + (i / 6) * Math.PI * 2;
+  product.position.set(Math.cos(angle) * RADIUS, TABLE_TOP_Y, Math.sin(angle) * RADIUS);
+  product.userData.baseAngle = angle;
+  tableGroup.add(product);
+  products.push(product);
+}
+
+/* ============ POLVERE SOSPESA ============ */
+const sparklesGeo = new THREE.BufferGeometry();
+const sparklesCount = 120;
+const sparklesPositions = new Float32Array(sparklesCount * 3);
+const sparklesVelocities = new Float32Array(sparklesCount * 3);
+for (let i = 0; i < sparklesCount; i++) {
+  sparklesPositions[i*3+0] = (Math.random() - 0.5) * 6;
+  sparklesPositions[i*3+1] = Math.random() * 3;
+  sparklesPositions[i*3+2] = (Math.random() - 0.5) * 6;
+  sparklesVelocities[i*3+0] = (Math.random() - 0.5) * 0.0006;
+  sparklesVelocities[i*3+1] = -0.0003 - Math.random() * 0.0006;
+  sparklesVelocities[i*3+2] = (Math.random() - 0.5) * 0.0006;
+}
+sparklesGeo.setAttribute('position', new THREE.BufferAttribute(sparklesPositions, 3));
+const sparklesMat = new THREE.PointsMaterial({
+  color: 0xFFE9C8, size: 0.015, transparent: true, opacity: 0.55, sizeAttenuation: true,
+  blending: THREE.AdditiveBlending, depthWrite: false,
+});
+const sparkles = new THREE.Points(sparklesGeo, sparklesMat);
+scene.add(sparkles);
+
+/* ============ DUST CINEMATOGRAFICA (dentro i god rays) ============ */
+// Particelle più dense e luminose concentrate nella zona dei raggi di luce
+const dustGeo = new THREE.BufferGeometry();
+const dustCount = 200;
+const dustPos = new Float32Array(dustCount * 3);
+const dustBase = new Float32Array(dustCount * 3);
+for (let i = 0; i < dustCount; i++) {
+  // Concentriamo nella zona "raggio luce" diagonalmente dalla finestra al tavolo
+  const t = Math.random();
+  const x = 5 - t * 5 + (Math.random() - 0.5) * 1.2;
+  const y = 2.8 - t * 2.0 + (Math.random() - 0.5) * 0.5;
+  const z = 1.5 - t * 1.0 + (Math.random() - 0.5) * 1.4;
+  dustPos[i*3+0] = x; dustBase[i*3+0] = x;
+  dustPos[i*3+1] = y; dustBase[i*3+1] = y;
+  dustPos[i*3+2] = z; dustBase[i*3+2] = z;
+}
+dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+const dustMat = new THREE.PointsMaterial({
+  color: 0xFFE2B5, size: 0.025, transparent: true, opacity: 0.7, sizeAttenuation: true,
+  blending: THREE.AdditiveBlending, depthWrite: false,
+});
+const dust = new THREE.Points(dustGeo, dustMat);
+scene.add(dust);
+
+/* ============ SCENA STATE ============ */
+// Camera state controllato da GSAP via scrub. Posizione e lookAt separati.
+const state = {
+  tableSpin: 0,
+  camX: 0,
+  camY: 0.85,
+  camZ: 6.5,
+  lookX: 0,
+  lookY: 0.72,
+  lookZ: 0,
+  fov: 38,
+  envIntensity: 0.5,
+  exposure: 0.95,
+};
+
+/* ============ POSTPROCESSING ============ */
+const composer = new EffectComposer(renderer);
+composer.setSize(window.innerWidth, window.innerHeight);
+composer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
+
+const renderPass = new RenderPass(scene, camera);
+composer.addPass(renderPass);
+
+// Bloom cinematografico — solo sui pixel davvero luminosi (no blowout dei bianchi)
+const bloomPass = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  0.30,   // strength
+  0.6,    // radius
+  0.94    // threshold alto: solo highlight veri
+);
+composer.addPass(bloomPass);
+
+// Vignette shader (oscurazione angoli)
+const VignetteShader = {
+  uniforms: {
+    tDiffuse: { value: null },
+    offset:   { value: 1.30 },
+    darkness: { value: 1.35 },
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }
+  `,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform float offset;
+    uniform float darkness;
+    varying vec2 vUv;
+    void main() {
+      vec4 texel = texture2D(tDiffuse, vUv);
+      vec2 uv = (vUv - 0.5) * offset;
+      float v = 1.0 - dot(uv, uv);
+      texel.rgb *= clamp(pow(v, darkness), 0.0, 1.0);
+      gl_FragColor = texel;
+    }
+  `
+};
+const vignettePass = new ShaderPass(VignetteShader);
+composer.addPass(vignettePass);
+
+// Output pass finale (gestisce color space e tone mapping)
+const outputPass = new OutputPass();
+composer.addPass(outputPass);
+
+/* ============ RESIZE ============ */
+function onResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+  bloomPass.setSize(window.innerWidth, window.innerHeight);
+}
+window.addEventListener('resize', onResize);
+
+/* ============ ANIMATION LOOP ============ */
+const clock = new THREE.Clock();
+function tick() {
+  const t = clock.elapsedTime;
+
+  // Tavolo che ruota in base allo scroll
+  tableGroup.rotation.y = state.tableSpin;
+
+  // Camera + target
+  camera.position.set(state.camX, state.camY, state.camZ);
+  camera.fov = state.fov;
+  camera.updateProjectionMatrix();
+  camera.lookAt(state.lookX, state.lookY, state.lookZ);
+
+  // Tone mapping
+  renderer.toneMappingExposure = state.exposure;
+  scene.environmentIntensity = state.envIntensity;
+
+  // ===== Sparkles drift lento =====
+  const spPos = sparkles.geometry.attributes.position.array;
+  for (let i = 0; i < sparklesCount; i++) {
+    spPos[i*3+0] += sparklesVelocities[i*3+0];
+    spPos[i*3+1] += sparklesVelocities[i*3+1];
+    spPos[i*3+2] += sparklesVelocities[i*3+2];
+    // wrap quando esce dai bounds
+    if (spPos[i*3+1] < 0) spPos[i*3+1] = 3 + Math.random();
+  }
+  sparkles.geometry.attributes.position.needsUpdate = true;
+
+  // ===== Dust cinematografica drift nel raggio di luce =====
+  const dPos = dust.geometry.attributes.position.array;
+  for (let i = 0; i < dustCount; i++) {
+    const phase = i * 0.13;
+    dPos[i*3+0] = dustBase[i*3+0] + Math.sin(t * 0.4 + phase) * 0.08;
+    dPos[i*3+1] = dustBase[i*3+1] + Math.cos(t * 0.3 + phase) * 0.06;
+    dPos[i*3+2] = dustBase[i*3+2] + Math.sin(t * 0.5 + phase * 0.7) * 0.07;
+  }
+  dust.geometry.attributes.position.needsUpdate = true;
+
+  // ===== God rays drift atmosferico =====
+  godRays.position.y = Math.sin(t * 0.15) * 0.04;
+  // Variazione intensità raggi (luce viva, cinematografica)
+  rayMat.opacity = 0.42 + Math.sin(t * 0.6) * 0.08;
+
+  // ===== Luce della finestra "viva" (oscillazione sottile come passaggio nuvole/rami) =====
+  windowLight.intensity = 3.5 + Math.sin(t * 0.7) * 0.3 + Math.sin(t * 1.8) * 0.15;
+  sunShadow.intensity = 1.6 + Math.sin(t * 0.7) * 0.15;
+
+  // ===== Lampadari sospensione: flicker minimo, come lampadina reale =====
+  pendantLights.forEach((bulb, i) => {
+    bulb.intensity = 0.6 + Math.sin(t * 2.5 + i * 1.7) * 0.04;
+  });
+
+  // ===== TENDA AL VENTO — vertex displacement =====
+  const cPos = curtain.geometry.attributes.position.array;
+  for (let i = 0; i < cPos.length; i += 3) {
+    const bx = curtainBasePositions[i];     // x originale (orizzontale tenda)
+    const by = curtainBasePositions[i+1];   // y originale (verticale tenda)
+    // Onda sinusoidale: più ampia in basso, più stretta in alto (tenda fissata sopra)
+    const heightFactor = (by + 1.3) / 2.6;  // 0 in alto, 1 in basso
+    const wave = Math.sin(t * 1.6 + bx * 1.8) * 0.10 * heightFactor
+               + Math.sin(t * 2.2 + by * 1.2) * 0.05 * heightFactor;
+    cPos[i+2] = wave;  // displacement su Z (perpendicolare al plane originale)
+  }
+  curtain.geometry.attributes.position.needsUpdate = true;
+  curtain.geometry.computeVertexNormals();
+
+  composer.render();
+  requestAnimationFrame(tick);
+}
+tick();
+
+/* ============ SCROLL CHOREOGRAPHY ============ */
+// Regia: camera parallela al terreno → avvicinamento → si solleva e diventa top-down →
+// il tavolo ruota mostrando 1 piatto per scena → pull-back finale prima del booking.
+//
+// I 6 piatti sono distribuiti sul tavolo a 60° l'uno dall'altro.
+// Quando il tavolo ruota di -60° in mondo, il piatto successivo passa sotto la camera top-down.
+//
+// La camera top-down inquadra il punto (0, top_y, RADIUS) — dove sta il piatto i=0 a rotazione 0.
+
+const STEP = -Math.PI / 3; // 60° per scena, in senso orario per far passare i piatti uno alla volta
+
+const mainTimeline = gsap.timeline({
+  scrollTrigger: {
+    trigger: '#scroll-root',
+    start: 'top top',
+    end: 'bottom bottom',
+    scrub: 1.0,
+  }
+});
+
+mainTimeline
+  // FASE 1 — Hero → avvicinamento: camera parallela al terreno si avvicina al tavolo
+  .to(state, { camZ: 3.2, camY: 0.95, lookY: 0.74, ease: 'power2.inOut' }, 0)
+  // FASE 2 — Salita verso top-down (camera sale e l'angolo cala)
+  // Da (0, 0.95, 3.2) → (0, 2.6, 1.4), lookAt (0, 0.74, RADIUS)
+  .to(state, {
+    camX: 0, camY: 2.6, camZ: 1.4,
+    lookX: 0, lookY: 0.74, lookZ: 0.62,
+    fov: 42,
+    ease: 'power2.inOut'
+  }, 0.10)
+  // FASE 3 — Top-down quasi puro sul piatto frontale
+  .to(state, {
+    camX: 0, camY: 3.2, camZ: 0.62 + 0.01,
+    lookX: 0, lookY: 0.74, lookZ: 0.62,
+    fov: 38,
+    ease: 'power2.out'
+  }, 0.20)
+  // FASE 4 — Il tavolo ruota: piatto 1 → 2 (scena yogurt bowl)
+  .to(state, { tableSpin: STEP * 1, ease: 'power2.inOut' }, 0.30)
+  // FASE 5 — piatto 2 → 3 (pasta)
+  .to(state, { tableSpin: STEP * 2, ease: 'power2.inOut' }, 0.42)
+  // FASE 6 — piatto 3 → 4 (secondo)
+  .to(state, { tableSpin: STEP * 3, ease: 'power2.inOut' }, 0.54)
+  // FASE 7 — piatto 4 → 5 (cheesecake)
+  .to(state, { tableSpin: STEP * 4, ease: 'power2.inOut' }, 0.66)
+  // FASE 8 — piatto 5 → 6 (shaker)
+  .to(state, { tableSpin: STEP * 5, ease: 'power2.inOut' }, 0.76)
+  // FASE 9 — Pull-back: camera si solleva e si allontana per il booking
+  .to(state, {
+    camX: 0, camY: 3.4, camZ: 4.8,
+    lookX: 0, lookY: 0.5, lookZ: 0,
+    fov: 42,
+    envIntensity: 0.4,
+    exposure: 1.0,
+    ease: 'power3.inOut'
+  }, 0.86);
+
+/* ============ STICKY CTA SHOW/HIDE ============ */
+const stickyCta = document.querySelector('.sticky-cta');
+ScrollTrigger.create({
+  trigger: '[data-scene="5"]',
+  start: 'top 60%',
+  end: '[data-scene="10"] top center',
+  onEnter: () => stickyCta.classList.add('show'),
+  onLeave: () => stickyCta.classList.remove('show'),
+  onEnterBack: () => stickyCta.classList.add('show'),
+  onLeaveBack: () => stickyCta.classList.remove('show'),
+});
+
+/* ============ LOADER ============ */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hidden');
+  }, 2400);
+});
+
+/* ============ BOOKING FORM LOGIC ============ */
+const modeRadios = document.querySelectorAll('input[name="mode"]');
+const addressField = document.getElementById('address-field');
+modeRadios.forEach(r => r.addEventListener('change', e => {
+  if (e.target.value === 'in-person') addressField.classList.add('show');
+  else addressField.classList.remove('show');
+}));
+
+// Calendar logic
+const calGrid = document.getElementById('cal-grid');
+const calMonth = document.getElementById('cal-month');
+const calPrev = document.getElementById('cal-prev');
+const calNext = document.getElementById('cal-next');
+const timeSection = document.getElementById('time-section');
+const timeSlotsEl = document.getElementById('time-slots');
+const submitBtn = document.getElementById('submit-btn');
+
+const monthNames = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+const dayNames = ['L','M','M','G','V','S','D'];
+const today = new Date(); today.setHours(0,0,0,0);
+const maxDate = new Date(today); maxDate.setMonth(maxDate.getMonth() + 2);
+
+let viewMonth = today.getMonth();
+let viewYear = today.getFullYear();
+let selectedDate = null;
+let selectedTime = null;
+
+const timeSlots = ['09:00','10:00','11:00','14:00','15:00','16:00','17:00','18:00'];
+
+function renderCalendar() {
+  calGrid.innerHTML = '';
+  calMonth.textContent = `${monthNames[viewMonth]} ${viewYear}`;
+  dayNames.forEach(d => {
+    const dow = document.createElement('div');
+    dow.className = 'dow'; dow.textContent = d;
+    calGrid.appendChild(dow);
+  });
+  const firstDay = new Date(viewYear, viewMonth, 1);
+  // Lunedì = 0 nella nostra grid
+  let startDow = firstDay.getDay() - 1;
+  if (startDow < 0) startDow = 6;
+  for (let i = 0; i < startDow; i++) {
+    const empty = document.createElement('div');
+    calGrid.appendChild(empty);
+  }
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cellDate = new Date(viewYear, viewMonth, d);
+    const cell = document.createElement('div');
+    cell.className = 'day';
+    cell.textContent = d;
+    const isPast = cellDate < today;
+    const isWeekend = cellDate.getDay() === 0 || cellDate.getDay() === 6;
+    const isAfterMax = cellDate > maxDate;
+    if (isPast || isWeekend || isAfterMax) {
+      cell.classList.add('disabled');
+    } else {
+      if (cellDate.getTime() === today.getTime()) cell.classList.add('today');
+      cell.addEventListener('click', () => selectDate(cellDate, cell));
+    }
+    if (selectedDate && cellDate.getTime() === selectedDate.getTime()) cell.classList.add('selected');
+    calGrid.appendChild(cell);
+  }
+
+  // Disable prev se siamo nel mese corrente
+  const isCurrentMonth = (viewYear === today.getFullYear() && viewMonth === today.getMonth());
+  calPrev.disabled = isCurrentMonth;
+  const isMaxMonth = (viewYear === maxDate.getFullYear() && viewMonth === maxDate.getMonth());
+  calNext.disabled = isMaxMonth;
+}
+
+function selectDate(date, cell) {
+  selectedDate = date;
+  document.querySelectorAll('.calendar-grid .day').forEach(d => d.classList.remove('selected'));
+  cell.classList.add('selected');
+  renderTimeSlots();
+  selectedTime = null;
+  updateSubmitState();
+}
+
+function renderTimeSlots() {
+  timeSection.style.display = 'block';
+  timeSlotsEl.innerHTML = '';
+  timeSlots.forEach(t => {
+    const s = document.createElement('div');
+    s.className = 'time-slot';
+    s.textContent = t;
+    s.addEventListener('click', () => {
+      document.querySelectorAll('.time-slot').forEach(x => x.classList.remove('selected'));
+      s.classList.add('selected');
+      selectedTime = t;
+      updateSubmitState();
+    });
+    timeSlotsEl.appendChild(s);
+  });
+}
+
+function updateSubmitState() {
+  const nameOk = document.getElementById('name').value.trim().length > 1;
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(document.getElementById('email').value);
+  submitBtn.disabled = !(selectedDate && selectedTime && nameOk && emailOk);
+}
+
+document.getElementById('name').addEventListener('input', updateSubmitState);
+document.getElementById('email').addEventListener('input', updateSubmitState);
+
+calPrev.addEventListener('click', () => {
+  viewMonth--; if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+  renderCalendar();
+});
+calNext.addEventListener('click', () => {
+  viewMonth++; if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+  renderCalendar();
+});
+renderCalendar();
+
+/* ============ FORM SUBMIT (mailto fallback) ============ */
+const form = document.getElementById('booking-form');
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const fd = new FormData(form);
+  const mode = fd.get('mode');
+  const name = fd.get('name');
+  const email = fd.get('email');
+  const phone = fd.get('phone') || '—';
+  const address = fd.get('address') || '—';
+  const note = fd.get('note') || '—';
+
+  const dateStr = selectedDate.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  const subject = encodeURIComponent(`Prenotazione consulenza — ${name}`);
+  const body = encodeURIComponent(
+    `Nuova prenotazione consulenza Everyday Health\n\n` +
+    `Nome: ${name}\n` +
+    `Email: ${email}\n` +
+    `Telefono: ${phone}\n\n` +
+    `Modalità: ${mode === 'video' ? 'Videochiamata' : 'In presenza'}\n` +
+    (mode === 'in-person' ? `Indirizzo/zona: ${address}\n` : '') +
+    `Data: ${dateStr}\n` +
+    `Orario: ${selectedTime}\n\n` +
+    `Note: ${note}\n`
+  );
+  // Mailto: il cliente sostituirà con il proprio indirizzo
+  window.location.href = `mailto:ciao@everydayhealth.it?subject=${subject}&body=${body}`;
+
+  form.style.display = 'none';
+  document.getElementById('success').style.display = 'block';
+});
+
+</script>
+
+</body>
+</html>
