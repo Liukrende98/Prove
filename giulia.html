@@ -444,6 +444,8 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
 RectAreaLightUniformsLib.init();
 
@@ -469,7 +471,7 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;  // ACES gestisce meglio gli highlight
 renderer.toneMappingExposure = 0.85;
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.VSMShadowMap;  // ombre morbide stile studio Apple
 canvasWrap.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
@@ -483,11 +485,26 @@ camera.position.set(0, 0.85, 6.5);
 const camTarget = new THREE.Vector3(0, 0.72, 0);
 camera.lookAt(camTarget);
 
-// Environment per riflessi cromature
+// Environment per riflessi cromature — partenza con RoomEnvironment, poi upgrade async a HDRI vero
 const pmremGenerator = new THREE.PMREMGenerator(renderer);
-const envMap = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
-scene.environment = envMap;
-scene.environmentIntensity = 0.5;
+const envMapRoom = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environment = envMapRoom;
+scene.environmentIntensity = 0.6;
+
+// HDRI fotografico — sostituisce l'environment per riflessi reali e ambient più ricco
+new RGBELoader()
+  .setPath('https://threejs.org/examples/textures/equirectangular/')
+  .load('royal_esplanade_1k.hdr',
+    (hdr) => {
+      hdr.mapping = THREE.EquirectangularReflectionMapping;
+      const envMapHDR = pmremGenerator.fromEquirectangular(hdr).texture;
+      scene.environment = envMapHDR;
+      hdr.dispose();
+      envMapRoom.dispose();
+    },
+    undefined,
+    (err) => console.warn('HDRI load failed, keeping RoomEnvironment fallback', err)
+  );
 
 /* ============ LIGHTING ============ */
 // Hemi molto leggera per riempire le ombre senza appiattire
@@ -515,7 +532,8 @@ sunShadow.shadow.camera.top = 3;
 sunShadow.shadow.camera.bottom = -3;
 sunShadow.shadow.camera.near = 0.5;
 sunShadow.shadow.camera.far = 16;
-sunShadow.shadow.radius = 4;  // ombre più morbide
+sunShadow.shadow.radius = 12;        // VSM blur radius
+sunShadow.shadow.blurSamples = 25;   // più samples = ombre più smooth
 scene.add(sunShadow);
 scene.add(sunShadow.target);
 
@@ -526,7 +544,8 @@ overheadSpot.target.position.set(0, 0.74, 0.62);
 overheadSpot.castShadow = true;
 overheadSpot.shadow.mapSize.set(1024, 1024);
 overheadSpot.shadow.bias = -0.0003;
-overheadSpot.shadow.radius = 3;
+overheadSpot.shadow.radius = 10;
+overheadSpot.shadow.blurSamples = 20;
 scene.add(overheadSpot);
 scene.add(overheadSpot.target);
 
@@ -697,17 +716,69 @@ function makeMarbleTexture(size = 1024) {
   return tex;
 }
 
+// Normal map procedurale per imperfezioni sottili (marmo, ceramiche)
+function makeNormalNoiseTexture(size = 512, intensity = 0.06) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  // base normale (blu = up in tangent space)
+  ctx.fillStyle = 'rgb(128, 128, 255)';
+  ctx.fillRect(0, 0, size, size);
+  const img = ctx.getImageData(0, 0, size, size);
+  // perturbazione casuale leggera attorno al blu base (no canale Z)
+  for (let i = 0; i < img.data.length; i += 4) {
+    const dx = (Math.random() - 0.5) * 255 * intensity;
+    const dy = (Math.random() - 0.5) * 255 * intensity;
+    img.data[i]   = 128 + dx;
+    img.data[i+1] = 128 + dy;
+    img.data[i+2] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  // smooth pass
+  ctx.filter = 'blur(1.2px)';
+  ctx.drawImage(c, 0, 0);
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(3, 3);
+  return tex;
+}
+
 /* ============ ROOM ============ */
 const roomGroup = new THREE.Group();
 scene.add(roomGroup);
 
-// Pavimento parquet
+// Texture loader condiviso + path CDN comuni (definiti UNA volta, usati dappertutto)
+const texLoader = new THREE.TextureLoader();
+const marblePath = 'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_01/';
+
+// Pavimento legno duro — texture PBR vera caricata da Three.js examples (fallback procedurale)
 const parquetTex = makeParquetTexture();
 const floorMat = new THREE.MeshStandardMaterial({
   map: parquetTex,
   roughness: 0.65,
   metalness: 0.0,
 });
+// Upgrade async a texture vera con bump
+texLoader.load(
+  'https://threejs.org/examples/textures/hardwood2_diffuse.jpg',
+  (tex) => {
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(4, 4);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    floorMat.map = tex;
+    floorMat.needsUpdate = true;
+  }
+);
+texLoader.load(
+  'https://threejs.org/examples/textures/hardwood2_bump.jpg',
+  (tex) => {
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(4, 4);
+    floorMat.bumpMap = tex;
+    floorMat.bumpScale = 0.08;
+    floorMat.needsUpdate = true;
+  }
+);
 const floor = new THREE.Mesh(new THREE.PlaneGeometry(16, 16), floorMat);
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
@@ -754,7 +825,22 @@ const cabinetMat = new THREE.MeshPhysicalMaterial({
   color: 0xF2EBE0, roughness: 0.35, clearcoat: 0.4, clearcoatRoughness: 0.2
 });
 const counterMat = new THREE.MeshPhysicalMaterial({
-  map: makeMarbleTexture(), color: 0xFFFFFF, roughness: 0.18, clearcoat: 0.7, clearcoatRoughness: 0.1
+  map: makeMarbleTexture(), color: 0xFFFFFF, roughness: 0.18, clearcoat: 0.7, clearcoatRoughness: 0.1, envMapIntensity: 1.2
+});
+// Async upgrade — stesso marmo del tavolo
+texLoader.load(marblePath + 'marble_01_diff_1k.jpg', (tex) => {
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(3, 1);
+  counterMat.map = tex;
+  counterMat.needsUpdate = true;
+});
+texLoader.load(marblePath + 'marble_01_nor_gl_1k.jpg', (tex) => {
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(3, 1);
+  counterMat.normalMap = tex;
+  counterMat.normalScale = new THREE.Vector2(0.5, 0.5);
+  counterMat.needsUpdate = true;
 });
 const sinkMat = new THREE.MeshPhysicalMaterial({
   color: 0xC8C8CC, roughness: 0.12, metalness: 0.95
@@ -980,27 +1066,52 @@ const tableGroup = new THREE.Group();
 tableGroup.position.set(0, 0, 0);
 scene.add(tableGroup);
 
-// Top tavolo (marmo lilla con texture procedurale)
+// Top tavolo — marmo PBR reale da PolyHaven (fallback procedurale istantaneo)
 const marbleTex = makeMarbleTexture();
+const marbleNormalTex = makeNormalNoiseTexture(512, 0.04);
 const topMat = new THREE.MeshPhysicalMaterial({
   map: marbleTex,
+  normalMap: marbleNormalTex,
+  normalScale: new THREE.Vector2(0.25, 0.25),
   color: 0xFFFFFF,
-  roughness: 0.16,
+  roughness: 0.14,
   metalness: 0.0,
-  clearcoat: 0.55,
-  clearcoatRoughness: 0.08,
+  clearcoat: 0.7,
+  clearcoatRoughness: 0.06,
   sheen: 0.4,
   sheenColor: 0xD8C7F0,
-  reflectivity: 0.5,
+  sheenRoughness: 0.4,
+  reflectivity: 0.55,
+  envMapIntensity: 1.3,
 });
-const tableTop = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.85, 0.04, 64), topMat);
+// Upgrade async a texture marmo vere PolyHaven (marblePath già definito sopra)
+texLoader.load(marblePath + 'marble_01_diff_1k.jpg', (tex) => {
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  topMat.map = tex;
+  topMat.color.setHex(0xF8F2F0);  // leggero shift lilla sopra al marmo bianco
+  topMat.needsUpdate = true;
+});
+texLoader.load(marblePath + 'marble_01_nor_gl_1k.jpg', (tex) => {
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  topMat.normalMap = tex;
+  topMat.normalScale.set(0.6, 0.6);
+  topMat.needsUpdate = true;
+});
+texLoader.load(marblePath + 'marble_01_rough_1k.jpg', (tex) => {
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  topMat.roughnessMap = tex;
+  topMat.needsUpdate = true;
+});
+const tableTop = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.85, 0.04, 128), topMat);
 tableTop.position.y = 0.72;
 tableTop.castShadow = true;
 tableTop.receiveShadow = true;
 tableGroup.add(tableTop);
 
 // Bevel bordo
-const bevel = new THREE.Mesh(new THREE.TorusGeometry(0.85, 0.012, 8, 64), topMat);
+const bevel = new THREE.Mesh(new THREE.TorusGeometry(0.85, 0.012, 16, 128), topMat);
 bevel.position.y = 0.70;
 bevel.rotation.x = Math.PI / 2;
 tableGroup.add(bevel);
@@ -1018,46 +1129,105 @@ const leg = new THREE.Mesh(legGeo, legMat);
 leg.castShadow = true;
 tableGroup.add(leg);
 
-/* ============ MATERIALI ============ */
+/* ============ MATERIALI APPLE-GRADE ============ */
+// Ceramica con sheen + iridescence sottile (riflessi madreperla)
 const ceramicMat = new THREE.MeshPhysicalMaterial({
-  color: 0xFAF6EE, roughness: 0.28, clearcoat: 0.7, clearcoatRoughness: 0.18, reflectivity: 0.5
+  color: 0xFAF6EE,
+  roughness: 0.22,
+  clearcoat: 0.85,
+  clearcoatRoughness: 0.12,
+  reflectivity: 0.55,
+  sheen: 0.25,
+  sheenColor: 0xF0E0D0,
+  sheenRoughness: 0.6,
+  iridescence: 0.18,
+  iridescenceIOR: 1.3,
+  iridescenceThicknessRange: [100, 400],
+  envMapIntensity: 1.1,
 });
 const ceramicDark = new THREE.MeshPhysicalMaterial({
-  color: 0xE8DFD2, roughness: 0.35, clearcoat: 0.5, clearcoatRoughness: 0.25
+  color: 0xE8DFD2,
+  roughness: 0.30,
+  clearcoat: 0.65,
+  clearcoatRoughness: 0.20,
+  sheen: 0.2,
+  sheenColor: 0xC8B8A0,
 });
+// Cromatura brushed metal con anisotropy direzionale
 const chromeMat = new THREE.MeshPhysicalMaterial({
-  color: 0xEDE8F0, roughness: 0.10, metalness: 1.0, envMapIntensity: 1.6
+  color: 0xEDE8F0,
+  roughness: 0.18,
+  metalness: 1.0,
+  envMapIntensity: 1.8,
+  anisotropy: 0.6,
+  anisotropyRotation: Math.PI / 4,
+  clearcoat: 0.5,
+  clearcoatRoughness: 0.1,
 });
 const glassMat = new THREE.MeshPhysicalMaterial({
   color: 0xFFFFFF, roughness: 0.04, transmission: 0.92, thickness: 0.35, ior: 1.45,
   attenuationColor: 0xE8DCFF, attenuationDistance: 2.5, transparent: true
 });
-const liquidLilac = new THREE.MeshPhysicalMaterial({ color: 0xC8B4E8, roughness: 0.4 });
-const liquidCoffee = new THREE.MeshPhysicalMaterial({ color: 0x5B3A24, roughness: 0.35, clearcoat: 0.6 });
-const milkFoam = new THREE.MeshStandardMaterial({ color: 0xF5EBD8, roughness: 0.85 });
-const choco = new THREE.MeshStandardMaterial({ color: 0x4A2E1F, roughness: 0.45 });
-const cream = new THREE.MeshStandardMaterial({ color: 0xF8E8D0, roughness: 0.35 });
-const butter = new THREE.MeshStandardMaterial({ color: 0xF2D589, roughness: 0.4 });
-const greens = new THREE.MeshStandardMaterial({ color: 0x6E8F5E, roughness: 0.65 });
-const greensLight = new THREE.MeshStandardMaterial({ color: 0x95B47A, roughness: 0.7 });
-const tomato = new THREE.MeshPhysicalMaterial({ color: 0xC8442C, roughness: 0.32, clearcoat: 0.5 });
-const carrot = new THREE.MeshStandardMaterial({ color: 0xD8783A, roughness: 0.55 });
-const chicken = new THREE.MeshStandardMaterial({ color: 0xC9A371, roughness: 0.55 });
-const meatBrown = new THREE.MeshStandardMaterial({ color: 0x6B4530, roughness: 0.55 });
-const pastaCol = new THREE.MeshStandardMaterial({ color: 0xEBC97A, roughness: 0.5 });
-const proteinPink = new THREE.MeshStandardMaterial({ color: 0xE8B8C0, roughness: 0.5 });
-const raspberry = new THREE.MeshPhysicalMaterial({ color: 0xB02E3E, roughness: 0.4, clearcoat: 0.4 });
-const blueberry = new THREE.MeshPhysicalMaterial({ color: 0x3D4A78, roughness: 0.4, clearcoat: 0.5 });
-const linen = new THREE.MeshStandardMaterial({ color: 0xE8DECB, roughness: 0.92 });
+const liquidLilac = new THREE.MeshPhysicalMaterial({ color: 0xC8B4E8, roughness: 0.35, clearcoat: 0.6, thickness: 0.3, transmission: 0.1 });
+const liquidCoffee = new THREE.MeshPhysicalMaterial({ color: 0x4A2E18, roughness: 0.28, clearcoat: 0.75, clearcoatRoughness: 0.1, reflectivity: 0.4 });
+// Yogurt/schiuma — SSS sottile (thickness + attenuazione)
+const milkFoam = new THREE.MeshPhysicalMaterial({
+  color: 0xF5EBD8, roughness: 0.78, thickness: 0.6,
+  attenuationColor: 0xFFE8C0, attenuationDistance: 0.5,
+  sheen: 0.3, sheenColor: 0xF8E0BC, sheenRoughness: 0.7,
+});
+const choco = new THREE.MeshPhysicalMaterial({ color: 0x3A2412, roughness: 0.42, clearcoat: 0.55, clearcoatRoughness: 0.3 });
+// Cream — pancake/burro fuso aspetto morbido
+const cream = new THREE.MeshPhysicalMaterial({
+  color: 0xF2DAA8, roughness: 0.42, sheen: 0.25, sheenColor: 0xE8C898,
+  thickness: 0.3, attenuationColor: 0xFFE0B0, attenuationDistance: 0.8,
+});
+const butter = new THREE.MeshPhysicalMaterial({ color: 0xF0CC78, roughness: 0.45, clearcoat: 0.35, sheen: 0.2 });
+const greens = new THREE.MeshPhysicalMaterial({ color: 0x5A8049, roughness: 0.62, sheen: 0.15, sheenColor: 0x8FB070 });
+const greensLight = new THREE.MeshPhysicalMaterial({ color: 0x88AB6A, roughness: 0.68, sheen: 0.2 });
+// Pomodorino — SSS rosso, look lucido organico
+const tomato = new THREE.MeshPhysicalMaterial({
+  color: 0xB8351F, roughness: 0.28, clearcoat: 0.7, clearcoatRoughness: 0.15,
+  thickness: 0.4, attenuationColor: 0xFF4030, attenuationDistance: 0.3,
+  sheen: 0.4, sheenColor: 0xFFA070,
+});
+const carrot = new THREE.MeshPhysicalMaterial({ color: 0xD0682A, roughness: 0.5, clearcoat: 0.3 });
+const chicken = new THREE.MeshPhysicalMaterial({
+  color: 0xBA9560, roughness: 0.6, sheen: 0.25, sheenColor: 0xD4AA78,
+  clearcoat: 0.2, clearcoatRoughness: 0.5,
+});
+const meatBrown = new THREE.MeshPhysicalMaterial({ color: 0x5A3820, roughness: 0.55, clearcoat: 0.3 });
+const pastaCol = new THREE.MeshPhysicalMaterial({
+  color: 0xE8C57A, roughness: 0.5, sheen: 0.4, sheenColor: 0xFFE0A0, sheenRoughness: 0.5,
+  thickness: 0.2, attenuationColor: 0xFFD890, attenuationDistance: 0.4,
+});
+const proteinPink = new THREE.MeshPhysicalMaterial({
+  color: 0xE0A8B0, roughness: 0.5, sheen: 0.3, sheenColor: 0xF0C0C8,
+  thickness: 0.3, attenuationColor: 0xFFD0D8, attenuationDistance: 0.4,
+});
+// Frutti rossi/blu — SSS marcato per look organico realistico
+const raspberry = new THREE.MeshPhysicalMaterial({
+  color: 0x9C2030, roughness: 0.45, clearcoat: 0.55, clearcoatRoughness: 0.2,
+  thickness: 0.5, attenuationColor: 0xFF3050, attenuationDistance: 0.25,
+  sheen: 0.5, sheenColor: 0xFF6080,
+});
+const blueberry = new THREE.MeshPhysicalMaterial({
+  color: 0x2A3868, roughness: 0.42, clearcoat: 0.6, clearcoatRoughness: 0.18,
+  thickness: 0.4, attenuationColor: 0x6080C0, attenuationDistance: 0.3,
+  sheen: 0.3, sheenColor: 0x9090C0,
+});
+const linen = new THREE.MeshPhysicalMaterial({
+  color: 0xE0D2BC, roughness: 0.95, sheen: 0.4, sheenColor: 0xD8C8B0, sheenRoughness: 0.8,
+});
 
 /* ============ HELPER: piatto base con bordo rialzato ============ */
 function makePlate(radius=0.11, rim=0.012, height=0.014, mat=ceramicMat) {
   const g = new THREE.Group();
-  const base = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius*0.92, height, 48), mat);
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius*0.92, height, 96), mat);
   base.castShadow = true; base.receiveShadow = true;
   g.add(base);
   // Bordo rialzato (torus)
-  const rimMesh = new THREE.Mesh(new THREE.TorusGeometry(radius - rim*0.4, rim*0.5, 8, 48), mat);
+  const rimMesh = new THREE.Mesh(new THREE.TorusGeometry(radius - rim*0.4, rim*0.5, 16, 96), mat);
   rimMesh.position.y = height/2;
   rimMesh.rotation.x = Math.PI/2;
   rimMesh.castShadow = true;
@@ -1506,6 +1676,14 @@ composer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
 const renderPass = new RenderPass(scene, camera);
 composer.addPass(renderPass);
 
+// DOF — depth of field cinematografico, focus sul piatto frontale (~0.62 di distanza Z)
+const bokehPass = new BokehPass(scene, camera, {
+  focus: 2.0,         // distanza di messa a fuoco (verrà aggiornata dinamicamente)
+  aperture: 0.00012,  // apertura — più alta = più sfocato il fuori-fuoco
+  maxblur: 0.008,     // limite blur
+});
+composer.addPass(bokehPass);
+
 // Bloom cinematografico — solo sui pixel davvero luminosi (no blowout dei bianchi)
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
@@ -1514,6 +1692,45 @@ const bloomPass = new UnrealBloomPass(
   0.94    // threshold alto: solo highlight veri
 );
 composer.addPass(bloomPass);
+
+// Color grading shader — warm shift, contrast, lift mid-tones (Apple-style)
+const ColorGradingShader = {
+  uniforms: {
+    tDiffuse:    { value: null },
+    saturation:  { value: 1.06 },
+    contrast:    { value: 1.10 },
+    temperature: { value: 0.08 },  // 0 neutral, positive = warm
+    lift:        { value: 0.012 }, // alza i neri leggermente (look filmico)
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
+  `,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform float saturation;
+    uniform float contrast;
+    uniform float temperature;
+    uniform float lift;
+    varying vec2 vUv;
+    void main() {
+      vec4 c = texture2D(tDiffuse, vUv);
+      // Temperatura (warm shift)
+      c.r += temperature * 0.05;
+      c.b -= temperature * 0.05;
+      // Lift (alza i neri)
+      c.rgb += lift;
+      // Contrasto
+      c.rgb = (c.rgb - 0.5) * contrast + 0.5;
+      // Saturazione
+      float luma = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+      c.rgb = mix(vec3(luma), c.rgb, saturation);
+      gl_FragColor = c;
+    }
+  `
+};
+const colorGradePass = new ShaderPass(ColorGradingShader);
+composer.addPass(colorGradePass);
 
 // Vignette shader (oscurazione angoli)
 const VignetteShader = {
@@ -1556,6 +1773,14 @@ function onResize() {
   bloomPass.setSize(window.innerWidth, window.innerHeight);
 }
 window.addEventListener('resize', onResize);
+
+// Helper per aggiornare il focus del DOF in base alla distanza camera-tavolo
+const _focusTmp = new THREE.Vector3();
+function updateBokehFocus() {
+  _focusTmp.set(state.lookX, state.lookY, state.lookZ);
+  const dist = camera.position.distanceTo(_focusTmp);
+  bokehPass.uniforms.focus.value = dist;
+}
 
 /* ============ ANIMATION LOOP ============ */
 const clock = new THREE.Clock();
@@ -1623,6 +1848,9 @@ function tick() {
   }
   curtain.geometry.attributes.position.needsUpdate = true;
   curtain.geometry.computeVertexNormals();
+
+  // ===== Focus DOF dinamico (segue il lookAt della camera) =====
+  updateBokehFocus();
 
   composer.render();
   requestAnimationFrame(tick);
