@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#34C759">
+<link rel="manifest" href="manifest.json">
+<title>Poker HUD</title>
+<style>
+  :root {
+    --bar-height: 44px;
+    --green: #34C759;
+    --red: #FF3B30;
+    --orange: #FF9500;
+    --blue: #007AFF;
+    --dark: #1C1C1E;
+    --card-bg: #2C2C2E;
+    --text: #FFFFFF;
+    --subtext: rgba(255,255,255,0.6);
+    --safe-top: env(safe-area-inset-top, 0px);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: #000;
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    overscroll-behavior: none;
+    user-select: none;
+  }
+
+  /* ── HUD BAR ── */
+  #hud-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    height: calc(var(--bar-height) + var(--safe-top));
+    padding-top: var(--safe-top);
+    background: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 12px;
+    padding-right: 12px;
+    transition: background 0.3s ease;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.4);
+  }
+  #hud-bar.fold { background: var(--red); }
+  #hud-bar.borderline { background: var(--orange); }
+  #hud-bar.neutral { background: #555; }
+
+  .hud-seg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    gap: 1px;
+  }
+  .hud-label {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+  }
+  .hud-value {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .hud-divider {
+    width: 1px;
+    height: 26px;
+    background: rgba(255,255,255,0.3);
+    flex-shrink: 0;
+  }
+
+  /* ── MAIN CONTENT ── */
+  #main {
+    position: fixed;
+    top: calc(var(--bar-height) + var(--safe-top));
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── VIDEO WRAPPER ── */
+  #video-wrapper {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    background: #000;
+  }
+  #video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  #overlay-canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+
+  /* ── DETECTION ZONES ── */
+  .det-zone {
+    position: absolute;
+    border: 2px solid rgba(255, 214, 0, 0.85);
+    border-radius: 6px;
+    background: rgba(255, 214, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    touch-action: none;
+    min-width: 52px;
+    min-height: 68px;
+  }
+  .det-zone.detected { border-color: var(--green); background: rgba(52,199,89,0.12); }
+  .det-zone.unknown  { border-color: var(--orange); background: rgba(255,149,0,0.12); }
+  .det-zone .zone-label {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+  .det-zone .zone-card {
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  }
+  .det-zone .zone-conf {
+    font-size: 8px;
+    color: rgba(255,255,255,0.5);
+  }
+  .resize-handle {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 14px;
+    height: 14px;
+    cursor: se-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.4);
+    font-size: 10px;
+  }
+
+  /* ── BOTTOM CONTROLS ── */
+  #bottom-controls {
+    flex-shrink: 0;
+    background: var(--dark);
+    padding: 8px 12px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .ctrl-btn {
+    background: var(--card-bg);
+    border: none;
+    color: var(--text);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    flex: 1;
+    white-space: nowrap;
+  }
+  .ctrl-btn.primary { background: var(--blue); }
+  .ctrl-btn.danger  { background: var(--red); }
+
+  /* ── START SCREEN ── */
+  #start-screen {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 32px;
+  }
+  #start-screen h1 { font-size: 36px; font-weight: 800; }
+  #start-screen p  { font-size: 14px; color: var(--subtext); text-align: center; line-height: 1.5; }
+  .big-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    border: none;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #fff;
+  }
+  .big-btn.green  { background: var(--green); }
+  .big-btn.blue   { background: var(--blue); }
+
+  /* ── SETTINGS PANEL ── */
+  #settings-panel {
+    position: fixed;
+    left: 0; right: 0;
+    bottom: -100%;
+    height: 70%;
+    background: #1C1C1E;
+    border-radius: 20px 20px 0 0;
+    z-index: 800;
+    transition: bottom 0.35s cubic-bezier(.4,0,.2,1);
+    padding: 12px 20px 32px;
+    overflow-y: auto;
+  }
+  #settings-panel.open { bottom: 0; }
+  .settings-handle {
+    width: 36px; height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    margin: 0 auto 16px;
+  }
+  .settings-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+  .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-row label { font-size: 15px; }
+  .settings-row .right { display: flex; align-items: center; gap: 8px; }
+  input[type=range] { -webkit-appearance: none; width: 120px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: #fff; border-radius: 50%; cursor: pointer; }
+  input[type=number] { background: var(--card-bg); border: none; color: #fff; border-radius: 8px; padding: 6px 10px; font-size: 14px; width: 80px; text-align: center; }
+  .toggle { position: relative; width: 51px; height: 31px; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute; inset: 0;
+    background: rgba(255,255,255,0.2);
+    border-radius: 31px;
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 27px; height: 27px;
+    left: 2px; top: 2px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+  .toggle input:checked + .toggle-slider { background: var(--green); }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+  /* ── CARD PICKER ── */
+  #card-picker {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.95);
+    z-index: 1100;
+    display: none;
+    flex-direction: column;
+    padding: 16px;
+    padding-top: calc(16px + var(--safe-top));
+  }
+  #card-picker.open { display: flex; }
+  .picker-title { font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 14px; }
+  .picker-grid {
+    display: grid;
+    grid-template-columns: repeat(13, 1fr);
+    gap: 4px;
+    flex: 1;
+    align-content: start;
+  }
+  .picker-card {
+    aspect-ratio: 0.7;
+    background: #fff;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.15s;
+  }
+  .picker-card:active { border-color: var(--blue); transform: scale(0.95); }
+  .picker-card .pk-rank { font-size: 11px; font-weight: 800; color: #000; line-height: 1; }
+  .picker-card .pk-suit { font-size: 13px; line-height: 1; }
+  .picker-card.red .pk-rank { color: #D00; }
+  .picker-card.red .pk-suit { color: #D00; }
+  .picker-cancel {
+    margin-top: 12px;
+    padding: 14px;
+    background: var(--card-bg);
+    border: none;
+    color: var(--text);
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* ── OVERLAY / BACKDROP ── */
+  #backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 790;
+    display: none;
+  }
+  #backdrop.open { display: block; }
+
+  /* ── ONLY BAR MODE ── */
+  body.only-bar #main { display: none; }
+  body.only-bar #hud-bar { cursor: pointer; }
+
+  /* ── STATUS TEXT ── */
+  #status-msg {
+    position: absolute;
+    bottom: 8px;
+    left: 0; right: 0;
+    text-align: center;
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ HUD BAR ══ -->
+<div id="hud-bar" class="neutral">
+  <div class="hud-seg">
+    <span class="hud-label">Win</span>
+    <span class="hud-value" id="hud-win">–</span>
+  </div>
+  <div class="hud-divider"></div>
+  <div class="hud-seg">
+    <span class="hud-label">Azione</span>
+    <span class="hud-value" id="hud-action">–</span>
+  </div>
+  <div class="hud-divider"></div>
+  <div class="hud-seg">
+    <span class="hud-label">Pot odds</span>
+    <span class="hud-value" id="hud-odds">–</span>
+  </div>
+</div>
+
+<!-- ══ START SCREEN ══ -->
+<div id="start-screen">
+  <div style="font-size:64px">🃏</div>
+  <h1>Poker HUD</h1>
+  <p>Cattura lo schermo del tuo tavolo poker e ricevi consigli in tempo reale sulla barra verde.</p>
+  <button class="big-btn green" id="btn-screen">📺 Cattura Schermo</button>
+  <button class="big-btn blue"  id="btn-camera">📷 Usa Fotocamera</button>
+  <p style="font-size:11px;opacity:0.4">Su iOS Safari usa la fotocamera puntata sullo schermo</p>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div id="main">
+  <div id="video-wrapper">
+    <video id="video" autoplay muted playsinline></video>
+    <canvas id="overlay-canvas"></canvas>
+    <!-- detection zones inserted by JS -->
+    <div id="status-msg">Posiziona le zone gialle sulle carte</div>
+  </div>
+  <div id="bottom-controls">
+    <button class="ctrl-btn danger" id="btn-reset">↺ Reset</button>
+    <button class="ctrl-btn" id="btn-settings">⚙ Impostazioni</button>
+    <button class="ctrl-btn primary" id="btn-only-bar">▲ Solo barra</button>
+  </div>
+</div>
+
+<!-- ══ SETTINGS ══ -->
+<div id="backdrop"></div>
+<div id="settings-panel">
+  <div class="settings-handle"></div>
+  <div class="settings-title">Impostazioni</div>
+
+  <div class="settings-row">
+    <label>Avversari</label>
+    <div class="right">
+      <input type="range" id="set-opponents" min="1" max="8" value="3">
+      <span id="set-opponents-val">3</span>
+    </div>
+  </div>
+  <div class="settings-row">
+    <label>Stack (BB)</label>
+    <div class="right">
+      <input type="number" id="set-stack" value="100" min="1" max="999">
+    </div>
+  </div>
+  <div class="settings-row">
+    <label>Pot attuale (BB)</label>
+    <div class="right">
+      <input type="number" id="set-pot" value="0" min="0" max="9999">
+    </div>
+  </div>
+  <div class="settings-row">
+    <label>Call size (BB)</label>
+    <div class="right">
+      <input type="number" id="set-call" value="0" min="0" max="9999">
+    </div>
+  </div>
+  <div class="settings-row">
+    <label>Solo barra verde</label>
+    <div class="right">
+      <label class="toggle">
+        <input type="checkbox" id="set-onlybar">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+  <div class="settings-row">
+    <label>Intervallo analisi (ms)</label>
+    <div class="right">
+      <input type="range" id="set-interval" min="300" max="2000" step="100" value="800">
+      <span id="set-interval-val">800</span>
+    </div>
+  </div>
+  <div class="settings-row">
+    <label>Sorgente video</label>
+    <div class="right">
+      <button class="ctrl-btn" id="btn-switch-source" style="flex:none;padding:6px 12px;font-size:12px">Cambia</button>
+    </div>
+  </div>
+
+  <button class="ctrl-btn primary" id="btn-close-settings" style="width:100%;margin-top:16px">Chiudi</button>
+</div>
+
+<!-- ══ CARD PICKER ══ -->
+<div id="card-picker">
+  <div class="picker-title">Seleziona carta</div>
+  <div class="picker-grid" id="picker-grid"></div>
+  <button class="picker-cancel" id="btn-picker-cancel">Annulla</button>
+</div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════════════
+   CONSTANTS & STATE
+═══════════════════════════════════════════════════ */
+const RANKS = ['A','2','3','4','5','6','7','8','9','T','J','Q','K'];
+const SUITS = ['♠','♥','♦','♣'];
+const SUIT_COLORS = { '♠':'black','♥':'red','♦':'red','♣':'black' };
+
+// Pre-flop equity lookup (heads-up baseline, adjusted per opponents)
+const PREFLOP_EQUITY = {
+  'AA':85,'KK':82,'QQ':80,'JJ':77,'TT':75,'99':72,'88':69,'77':66,
+  'AKs':67,'AQs':66,'AJs':65,'ATs':64,'AKo':65,'AQo':64,
+  'KQs':63,'KJs':61,'QJs':60,'JTs':58,'76s':48,'72o':33,
+  // extras
+  'A9s':62,'A8s':61,'KTs':59,'QTs':57,'J9s':55,'T9s':54,'98s':52,'87s':50,'65s':47,
+  'A9o':60,'A8o':59,'KQo':61,'KJo':59,'QJo':57,'JTo':56,'T9o':52,'98o':50,
+  '66':63,'55':60,'44':57,'33':54,'22':51,
+};
+
+const state = {
+  stream: null,
+  source: null,          // 'screen' | 'camera'
+  zones: [],             // [{id, label, x, y, w, h, card, conf}]
+  cards: {},             // {zoneId: {rank, suit, conf}}
+  opponents: 3,
+  stack: 100,
+  pot: 0,
+  callSize: 0,
+  analysisInterval: 800,
+  onlyBar: false,
+  pickerTarget: null,    // zone id awaiting picker
+  analysisTimer: null,
+};
+
+/* ═══════════════════════════════════════════════════
+   BINARY TEMPLATES FOR RANK DETECTION
+   8×12 pixel bitmaps (0=white, 1=dark) – simplified
+   We use a structural approach rather than full OCR
+═══════════════════════════════════════════════════ */
+// Each template is a 96-bit array for an 8×12 grid
+// (generated to approximate printed card rank glyphs)
+const RANK_TEMPLATES = {
+  'A': [0,1,1,1,1,1,0,0, 0,1,0,0,0,0,1,0, 1,0,0,0,0,0,1,0, 1,0,0,0,0,0,1,0, 1,1,1,1,1,1,1,0, 1,0,0,0,0,0,1,0, 1,0,0,0,0,0,1,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+  '2': [0,1,1,1,1,0,0,0, 1,0,0,0,0,1,0,0, 0,0,0,0,0,1,0,0, 0,0,0,1,1,0,0,0, 0,0,1,0,0,0,0,0, 0,1,0,0,0,0,0,0, 1,1,1,1,1,1,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+  '3': [1,1,1,1,1,0,0,0, 0,0,0,0,0,1,0,0, 0,0,0,0,0,1,0,0, 0,1,1,1,1,0,0,0, 0,0,0,0,0,1,0,0, 0,0,0,0,0,1,0,0, 1,1,1,1,1,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+  '4': [0,0,0,1,1,0,0,0, 0,0,1,0,1,0,0,0, 0,1,0,0,1,0,0,0, 1,0,0,0,1,0,0,0, 1,1,1,1,1,1,0,0, 0,0,0,0,1,0,0,0, 0,0,0,0,1,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+  '5': [1,1,1,1,1,1,0,0, 1,0,0,0,0,0,0,0, 1,0,0,0,0,0,0,0, 1,1,1,1,1,0,0,0, 0,0,0,0,0,1,0,0, 0,0,0,0,0,1,0,0, 1,1,1,1,1,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+  '6': [0,1,1,1,1,0,0,0, 1,0,0,0,0,0,0,0, 1,0,0,0,0,0,0,0, 1,1,1,1,1,0,0,0, 1,0,0,0,0,1,0,0, 1,0,0,0,0,1,0,0, 0,1,1,1,1,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+  '7': [1,1,1,1,1,1,0,0, 0,0,0,0,0,1,0,0, 0,0,0,0,1,0,0,0, 0,0,0,1,0,0,0,0, 0,0,1,0,0,0,0,0, 0,1,0,0,0,0,0,0, 0,1,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+  '8': [0,1,1,1,1,0,0,0, 1,0,0,0,0,1,0,0, 1,0,0,0,0,1,0,0, 0,1,1,1,1,0,0,0, 1,0,0,0,0,1,0,0, 1,0,0,0,0,1,0,0, 0,1,1,1,1,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+  '9': [0,1,1,1,1,0,0,0, 1,0,0,0,0,1,0,0, 1,0,0,0,0,1,0,0, 0,1,1,1,1,1,0,0, 0,0,0,0,0,1,0,0, 0,0,0,0,0,1,0,0, 0,1,1,1,1,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+  'T': [1,1,1,1,1,1,0,0, 0,0,0,1,0,0,0,0, 0,0,0,1,0,0,0,0, 0,0,0,1,0,0,0,0, 0,0,0,1,0,0,0,0, 0,0,0,1,0,0,0,0, 0,0,0,1,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+  'J': [0,0,1,1,1,1,0,0, 0,0,0,0,1,0,0,0, 0,0,0,0,1,0,0,0, 0,0,0,0,1,0,0,0, 0,0,0,0,1,0,0,0, 1,0,0,0,1,0,0,0, 0,1,1,1,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+  'Q': [0,1,1,1,1,0,0,0, 1,0,0,0,0,1,0,0, 1,0,0,0,0,1,0,0, 1,0,0,0,0,1,0,0, 1,0,0,1,0,1,0,0, 1,0,0,0,1,1,0,0, 0,1,1,1,1,0,1,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+  'K': [1,0,0,0,0,1,0,0, 1,0,0,0,1,0,0,0, 1,0,0,1,0,0,0,0, 1,1,1,0,0,0,0,0, 1,0,0,1,0,0,0,0, 1,0,0,0,1,0,0,0, 1,0,0,0,0,1,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+};
+
+/* ═══════════════════════════════════════════════════
+   DOM REFS
+═══════════════════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+const hudBar     = $('hud-bar');
+const hudWin     = $('hud-win');
+const hudAction  = $('hud-action');
+const hudOdds    = $('hud-odds');
+const video      = $('video');
+const videoWrap  = $('video-wrapper');
+const settingsPanel = $('settings-panel');
+const backdrop   = $('backdrop');
+const cardPicker = $('card-picker');
+const pickerGrid = $('picker-grid');
+const statusMsg  = $('status-msg');
+
+const analysisCvs = document.createElement('canvas');
+const analysisCtx = analysisCvs.getContext('2d', { willReadFrequently: true });
+
+/* ═══════════════════════════════════════════════════
+   ZONE DEFINITIONS (initial layout)
+═══════════════════════════════════════════════════ */
+const INITIAL_ZONES = [
+  { id:'c1', label:'Carta 1', x:0.05, y:0.55, w:0.16, h:0.22 },
+  { id:'c2', label:'Carta 2', x:0.23, y:0.55, w:0.16, h:0.22 },
+  { id:'f1', label:'Flop 1',  x:0.05, y:0.25, w:0.14, h:0.19 },
+  { id:'f2', label:'Flop 2',  x:0.21, y:0.25, w:0.14, h:0.19 },
+  { id:'f3', label:'Flop 3',  x:0.37, y:0.25, w:0.14, h:0.19 },
+  { id:'f4', label:'Turn',    x:0.53, y:0.25, w:0.14, h:0.19 },
+  { id:'f5', label:'River',   x:0.69, y:0.25, w:0.14, h:0.19 },
+];
+
+/* ═══════════════════════════════════════════════════
+   ZONE MANAGEMENT
+═══════════════════════════════════════════════════ */
+function initZones() {
+  state.zones = INITIAL_ZONES.map(z => ({ ...z, card: null, conf: 0 }));
+  state.cards = {};
+  renderZones();
+}
+
+function renderZones() {
+  // Remove existing zone elements
+  videoWrap.querySelectorAll('.det-zone').forEach(el => el.remove());
+  state.zones.forEach(zone => createZoneEl(zone));
+}
+
+function createZoneEl(zone) {
+  const vw = videoWrap.offsetWidth;
+  const vh = videoWrap.offsetHeight;
+  const el = document.createElement('div');
+  el.className = 'det-zone unknown';
+  el.id = 'zone-' + zone.id;
+  el.style.left   = (zone.x * vw) + 'px';
+  el.style.top    = (zone.y * vh) + 'px';
+  el.style.width  = (zone.w * vw) + 'px';
+  el.style.height = (zone.h * vh) + 'px';
+
+  el.innerHTML = `
+    <div class="zone-label">${zone.label}</div>
+    <div class="zone-card" id="zc-${zone.id}">?</div>
+    <div class="zone-conf" id="zconf-${zone.id}"></div>
+    <div class="resize-handle" id="zr-${zone.id}">⤡</div>
+  `;
+
+  makeDraggable(el, zone);
+  makeResizable(el.querySelector('#zr-' + zone.id), zone, el);
+
+  el.addEventListener('click', e => {
+    if (e.target.id === 'zr-' + zone.id) return;
+    if (!zone.card || zone.conf < 60) openPicker(zone.id);
+  });
+
+  videoWrap.appendChild(el);
+}
+
+function updateZoneEl(zone) {
+  const el = document.getElementById('zone-' + zone.id);
+  if (!el) return;
+  const cardEl = document.getElementById('zc-' + zone.id);
+  const confEl = document.getElementById('zconf-' + zone.id);
+  if (zone.card) {
+    const isRed = zone.card.suit === '♥' || zone.card.suit === '♦';
+    cardEl.textContent = zone.card.rank + zone.card.suit;
+    cardEl.style.color = isRed ? '#FF6B6B' : '#FFF';
+    confEl.textContent = zone.conf + '%';
+    el.className = 'det-zone ' + (zone.conf >= 60 ? 'detected' : 'unknown');
+  } else {
+    cardEl.textContent = '?';
+    cardEl.style.color = '';
+    confEl.textContent = '';
+    el.className = 'det-zone unknown';
+  }
+}
+
+function positionZoneEl(zone) {
+  const el = document.getElementById('zone-' + zone.id);
+  if (!el) return;
+  const vw = videoWrap.offsetWidth;
+  const vh = videoWrap.offsetHeight;
+  el.style.left   = (zone.x * vw) + 'px';
+  el.style.top    = (zone.y * vh) + 'px';
+  el.style.width  = (zone.w * vw) + 'px';
+  el.style.height = (zone.h * vh) + 'px';
+}
+
+/* ═══════════════════════════════════════════════════
+   DRAG & RESIZE
+═══════════════════════════════════════════════════ */
+function makeDraggable(el, zone) {
+  let startX, startY, startZX, startZY;
+
+  const onStart = e => {
+    if (e.target.classList.contains('resize-handle')) return;
+    const pt = e.touches ? e.touches[0] : e;
+    startX = pt.clientX; startY = pt.clientY;
+    startZX = zone.x; startZY = zone.y;
+    e.preventDefault();
+  };
+  const onMove = e => {
+    if (startX === undefined) return;
+    const pt = e.touches ? e.touches[0] : e;
+    const dx = pt.clientX - startX;
+    const dy = pt.clientY - startY;
+    const vw = videoWrap.offsetWidth;
+    const vh = videoWrap.offsetHeight;
+    zone.x = Math.max(0, Math.min(1 - zone.w, startZX + dx / vw));
+    zone.y = Math.max(0, Math.min(1 - zone.h, startZY + dy / vh));
+    positionZoneEl(zone);
+    e.preventDefault();
+  };
+  const onEnd = () => { startX = undefined; };
+
+  el.addEventListener('touchstart', onStart, { passive: false });
+  el.addEventListener('touchmove',  onMove,  { passive: false });
+  el.addEventListener('touchend',   onEnd);
+  el.addEventListener('mousedown',  onStart);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup',   onEnd);
+}
+
+function makeResizable(handle, zone, el) {
+  let startX, startY, startW, startH;
+
+  const onStart = e => {
+    const pt = e.touches ? e.touches[0] : e;
+    startX = pt.clientX; startY = pt.clientY;
+    startW = zone.w; startH = zone.h;
+    e.stopPropagation(); e.preventDefault();
+  };
+  const onMove = e => {
+    if (startX === undefined) return;
+    const pt = e.touches ? e.touches[0] : e;
+    const dx = pt.clientX - startX;
+    const dy = pt.clientY - startY;
+    const vw = videoWrap.offsetWidth;
+    const vh = videoWrap.offsetHeight;
+    zone.w = Math.max(0.06, Math.min(1 - zone.x, startW + dx / vw));
+    zone.h = Math.max(0.08, Math.min(1 - zone.y, startH + dy / vh));
+    positionZoneEl(zone);
+    e.preventDefault();
+  };
+  const onEnd = () => { startX = undefined; };
+
+  handle.addEventListener('touchstart', onStart, { passive: false });
+  handle.addEventListener('touchmove',  onMove,  { passive: false });
+  handle.addEventListener('touchend',   onEnd);
+  handle.addEventListener('mousedown',  onStart);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup',   onEnd);
+}
+
+/* ═══════════════════════════════════════════════════
+   CARD DETECTION
+═══════════════════════════════════════════════════ */
+function analyzeZone(zone) {
+  if (!video.videoWidth) return null;
+
+  const vw = videoWrap.offsetWidth;
+  const vh = videoWrap.offsetHeight;
+
+  // Map zone coords to actual video pixel coords
+  // The video uses object-fit:contain, so we need to find the actual video rect
+  const videoAspect = video.videoWidth / video.videoHeight;
+  const wrapAspect  = vw / vh;
+  let vidW, vidH, vidX, vidY;
+  if (videoAspect > wrapAspect) {
+    vidW = vw;
+    vidH = vw / videoAspect;
+    vidX = 0;
+    vidY = (vh - vidH) / 2;
+  } else {
+    vidH = vh;
+    vidW = vh * videoAspect;
+    vidX = (vw - vidW) / 2;
+    vidY = 0;
+  }
+
+  // Zone rect in wrapper coordinates
+  const zx = zone.x * vw;
+  const zy = zone.y * vh;
+  const zw = zone.w * vw;
+  const zh = zone.h * vh;
+
+  // Intersection with video rect
+  const ix = Math.max(0, zx - vidX);
+  const iy = Math.max(0, zy - vidY);
+  const iw = Math.min(vidW, zx + zw - vidX) - ix;
+  const ih = Math.min(vidH, zy + zh - vidY) - iy;
+
+  if (iw <= 0 || ih <= 0) return null;
+
+  // Scale to actual video pixel coords
+  const scaleX = video.videoWidth  / vidW;
+  const scaleY = video.videoHeight / vidH;
+  const srcX = ix * scaleX;
+  const srcY = iy * scaleY;
+  const srcW = iw * scaleX;
+  const srcH = ih * scaleY;
+
+  analysisCvs.width  = Math.round(srcW);
+  analysisCvs.height = Math.round(srcH);
+  if (analysisCvs.width < 4 || analysisCvs.height < 4) return null;
+
+  try {
+    analysisCtx.drawImage(video, srcX, srcY, srcW, srcH, 0, 0, analysisCvs.width, analysisCvs.height);
+  } catch(e) { return null; }
+
+  const imgData = analysisCtx.getImageData(0, 0, analysisCvs.width, analysisCvs.height);
+  const pixels  = imgData.data;
+  const W = analysisCvs.width;
+  const H = analysisCvs.height;
+
+  // Step 1: Check if zone contains a card (bright white area in center)
+  const cx = Math.floor(W * 0.3);
+  const cy = Math.floor(H * 0.15);
+  const cw = Math.floor(W * 0.4);
+  const ch = Math.floor(H * 0.4);
+  let brightCount = 0, totalSamples = 0;
+  for (let y = cy; y < cy + ch; y += 2) {
+    for (let x = cx; x < cx + cw; x += 2) {
+      const i = (y * W + x) * 4;
+      const lum = 0.299 * pixels[i] + 0.587 * pixels[i+1] + 0.114 * pixels[i+2];
+      if (lum > 180) brightCount++;
+      totalSamples++;
+    }
+  }
+  if (totalSamples === 0 || brightCount / totalSamples < 0.35) {
+    return { conf: 15 };
+  }
+
+  // Step 2: Detect suit from top-left corner pixel cluster
+  const suitRank = detectSuitAndRank(pixels, W, H);
+
+  if (!suitRank) return { conf: 20 };
+
+  return suitRank;
+}
+
+function detectSuitAndRank(pixels, W, H) {
+  // Sample top-left corner for suit color (approximately 10-25% width, 5-30% height)
+  const sx = Math.max(1, Math.floor(W * 0.05));
+  const sy = Math.max(1, Math.floor(H * 0.05));
+  const sw = Math.max(2, Math.floor(W * 0.3));
+  const sh = Math.max(2, Math.floor(H * 0.35));
+
+  let rSum=0, gSum=0, bSum=0, n=0;
+  for (let y = sy; y < sy+sh && y < H; y += 2) {
+    for (let x = sx; x < sx+sw && x < W; x += 2) {
+      const i = (y * W + x) * 4;
+      const lum = 0.299*pixels[i] + 0.587*pixels[i+1] + 0.114*pixels[i+2];
+      if (lum < 170) { // only dark pixels (ink)
+        rSum += pixels[i]; gSum += pixels[i+1]; bSum += pixels[i+2]; n++;
+      }
+    }
+  }
+  if (n < 3) return null;
+  const r = rSum/n, g = gSum/n, b = bSum/n;
+
+  // Determine color
+  const isRed = r > 130 && g < 100 && b < 100;
+  const isBlue = b > r && b > g; // some card designs use blue for diamonds
+
+  let suit;
+  if (isRed || isBlue) {
+    // Hearts vs Diamonds: hearts tend to have more pixels in middle row
+    suit = detectHeartVsDiamond(pixels, W, H) ? '♥' : '♦';
+  } else {
+    // Spades vs Clubs: spades have pointed top, clubs have 3 circles
+    suit = detectSpadeVsClub(pixels, W, H) ? '♠' : '♣';
+  }
+
+  // Detect rank
+  const rankResult = detectRank(pixels, W, H);
+  if (!rankResult) return { suit, rank: '?', conf: 30 };
+
+  return { suit, rank: rankResult.rank, conf: rankResult.score };
+}
+
+function detectHeartVsDiamond(pixels, W, H) {
+  // Hearts: wide in middle, narrow at bottom point
+  // Diamonds: diamond shape, narrow top and bottom, wide in middle
+  // Simple heuristic: check if bottom half of suit area has a point (few dark pixels in bottom rows)
+  const sy = Math.floor(H * 0.05);
+  const sh = Math.floor(H * 0.3);
+  const sx = Math.floor(W * 0.05);
+  const sw = Math.floor(W * 0.28);
+
+  // Count dark pixels in top quarter vs bottom quarter of suit region
+  let topDark = 0, botDark = 0;
+  const mid = sy + Math.floor(sh / 2);
+  for (let y = sy; y < sy + sh && y < H; y++) {
+    for (let x = sx; x < sx + sw && x < W; x++) {
+      const i = (y * W + x) * 4;
+      const lum = 0.299*pixels[i] + 0.587*pixels[i+1] + 0.114*pixels[i+2];
+      if (lum < 160) {
+        if (y < mid) topDark++; else botDark++;
+      }
+    }
+  }
+  // Hearts: topDark ≈ botDark (heart dip at top, point at bottom)
+  // Diamond: more symmetric
+  return topDark > botDark * 0.5; // rough heuristic, returns true for heart
+}
+
+function detectSpadeVsClub(pixels, W, H) {
+  // Spades have pointed arch at top; clubs have 3 bumps
+  // Sample top portion for a single peak (spade) vs multiple bumps (club)
+  const sy = Math.floor(H * 0.05);
+  const sh = Math.floor(H * 0.15);
+  const sx = Math.floor(W * 0.05);
+  const sw = Math.floor(W * 0.28);
+
+  // Count columns with dark pixels in top strip
+  let darkCols = 0, prevDark = false;
+  let transitions = 0;
+  for (let x = sx; x < sx + sw && x < W; x++) {
+    let hasDark = false;
+    for (let y = sy; y < sy + sh && y < H; y++) {
+      const i = (y * W + x) * 4;
+      const lum = 0.299*pixels[i] + 0.587*pixels[i+1] + 0.114*pixels[i+2];
+      if (lum < 160) { hasDark = true; break; }
+    }
+    if (hasDark) darkCols++;
+    if (hasDark !== prevDark) transitions++;
+    prevDark = hasDark;
+  }
+  // Clubs usually have more transitions (3 bumps), spades fewer (1 arch)
+  return transitions <= 3; // true = spade
+}
+
+function detectRank(pixels, W, H) {
+  // Sample 8×12 grid from top-left of card for rank matching
+  const GRID_W = 8, GRID_H = 12;
+  const sx = Math.floor(W * 0.04);
+  const sy = Math.floor(H * 0.04);
+  const sw = Math.floor(W * 0.35);
+  const sh = Math.floor(H * 0.38);
+
+  if (sw < 4 || sh < 4) return null;
+
+  // Build binary grid
+  const grid = new Array(GRID_W * GRID_H).fill(0);
+  for (let gy = 0; gy < GRID_H; gy++) {
+    for (let gx = 0; gx < GRID_W; gx++) {
+      const px = sx + Math.floor(gx * sw / GRID_W);
+      const py = sy + Math.floor(gy * sh / GRID_H);
+      if (px >= W || py >= H) continue;
+      const i = (py * W + px) * 4;
+      const lum = 0.299*pixels[i] + 0.587*pixels[i+1] + 0.114*pixels[i+2];
+      grid[gy * GRID_W + gx] = lum < 150 ? 1 : 0;
+    }
+  }
+
+  // Match against templates
+  let bestRank = null, bestScore = 0;
+  for (const [rank, tmpl] of Object.entries(RANK_TEMPLATES)) {
+    let match = 0, total = 0;
+    for (let i = 0; i < tmpl.length && i < grid.length; i++) {
+      if (tmpl[i] === grid[i]) match++;
+      total++;
+    }
+    const score = total > 0 ? Math.round((match / total) * 100) : 0;
+    if (score > bestScore) { bestScore = score; bestRank = rank; }
+  }
+
+  if (!bestRank || bestScore < 45) return null;
+  return { rank: bestRank, score: bestScore };
+}
+
+/* ═══════════════════════════════════════════════════
+   EQUITY CALCULATION
+═══════════════════════════════════════════════════ */
+function cardToIndex(rank, suit) {
+  const ri = RANKS.indexOf(rank);
+  const si = SUITS.indexOf(suit);
+  if (ri < 0 || si < 0) return -1;
+  return ri * 4 + si;
+}
+
+function indexToCard(idx) {
+  return { rank: RANKS[Math.floor(idx/4)], suit: SUITS[idx%4] };
+}
+
+function handKey(r1, r2, s1, s2) {
+  // Generate canonical preflop key
+  const suited = s1 === s2;
+  const [hr, lr] = RANKS.indexOf(r1) >= RANKS.indexOf(r2) ? [r1,r2] : [r2,r1];
+  if (hr === lr) return hr + lr;                    // pair
+  return hr + lr + (suited ? 's' : 'o');           // suited/offsuit
+}
+
+function getPreflopEquity(r1, s1, r2, s2, opponents) {
+  const key = handKey(r1, r2, s1, s2);
+  let eq = PREFLOP_EQUITY[key];
+  if (eq === undefined) {
+    // Estimate from ranks
+    const ri1 = RANKS.indexOf(r1), ri2 = RANKS.indexOf(r2);
+    const high = Math.max(ri1, ri2);
+    const low  = Math.min(ri1, ri2);
+    const suited = s1 === s2;
+    eq = 32 + high * 2.5 + low * 0.8 + (suited ? 3 : 0);
+    eq = Math.min(85, Math.max(28, Math.round(eq)));
+  }
+  // Adjust for multiple opponents: equity drops ~7% per extra opponent
+  const adj = Math.round(eq * Math.pow(0.93, opponents - 1));
+  return Math.min(99, Math.max(5, adj));
+}
+
+// Evaluate a 5-7 card hand, return numeric score (higher = better)
+function evaluateHand(cards) {
+  if (cards.length < 5) return 0;
+  const use = cards.slice(0, 7); // use up to 7
+  let best = 0;
+  // Try all C(n,5) combos
+  const combos = getCombinations(use, 5);
+  for (const combo of combos) {
+    const score = score5(combo);
+    if (score > best) best = score;
+  }
+  return best;
+}
+
+function getCombinations(arr, k) {
+  if (k === 0) return [[]];
+  if (arr.length === 0) return [];
+  const [first, ...rest] = arr;
+  const withFirst = getCombinations(rest, k-1).map(c => [first, ...c]);
+  const withoutFirst = getCombinations(rest, k);
+  return [...withFirst, ...withoutFirst];
+}
+
+function score5(cards) {
+  // cards: array of {rank, suit}
+  const ranks = cards.map(c => RANKS.indexOf(c.rank) === 0 ? 12 : RANKS.indexOf(c.rank) - 1);
+  // A can be high (12) or low (-1 for A-2-3-4-5 straight)
+  ranks.sort((a,b) => b-a);
+  const suits = cards.map(c => c.suit);
+  const flush = suits.every(s => s === suits[0]);
+
+  // Check straight
+  let straight = false;
+  let straightHigh = ranks[0];
+  if (ranks[0]-ranks[4] === 4 && new Set(ranks).size === 5) straight = true;
+  // A-2-3-4-5 (wheel)
+  if (!straight && ranks[0]===12 && ranks[1]===3 && ranks[2]===2 && ranks[3]===1 && ranks[4]===0) {
+    straight = true; straightHigh = 3;
+  }
+
+  // Count rank occurrences
+  const cnt = {};
+  for (const r of ranks) cnt[r] = (cnt[r]||0)+1;
+  const counts = Object.values(cnt).sort((a,b)=>b-a);
+
+  let handRank;
+  if      (flush && straight)             handRank = 8;
+  else if (counts[0]===4)                 handRank = 7;
+  else if (counts[0]===3 && counts[1]===2) handRank = 6;
+  else if (flush)                         handRank = 5;
+  else if (straight)                      handRank = 4;
+  else if (counts[0]===3)                 handRank = 3;
+  else if (counts[0]===2 && counts[1]===2) handRank = 2;
+  else if (counts[0]===2)                 handRank = 1;
+  else                                    handRank = 0;
+
+  // Tiebreaker: embed hand rank + sorted ranks
+  return handRank * 10000000 + ranks[0]*100000 + ranks[1]*1000 + ranks[2]*100 + ranks[3]*10 + ranks[4];
+}
+
+function monteCarloEquity(holeCards, communityCards, numOpponents, iterations=5000) {
+  let wins=0, ties=0;
+  const knownIndices = new Set();
+  for (const c of [...holeCards, ...communityCards]) {
+    const idx = cardToIndex(c.rank, c.suit);
+    if (idx >= 0) knownIndices.add(idx);
+  }
+  const deck = [];
+  for (let i=0; i<52; i++) { if (!knownIndices.has(i)) deck.push(i); }
+
+  const needed = 5 - communityCards.length;
+
+  for (let iter=0; iter<iterations; iter++) {
+    // Shuffle remaining deck (Fisher-Yates partial)
+    const d = deck.slice();
+    const totalNeeded = needed + numOpponents * 2;
+    for (let i=0; i<Math.min(totalNeeded + 1, d.length); i++) {
+      const j = i + Math.floor(Math.random() * (d.length - i));
+      [d[i], d[j]] = [d[j], d[i]];
+    }
+
+    let di = 0;
+    const board = [...communityCards, ...d.slice(di, di+needed).map(indexToCard)];
+    di += needed;
+
+    const myScore = evaluateHand([...holeCards, ...board]);
+    let win = true, tie = false;
+
+    for (let op=0; op<numOpponents; op++) {
+      if (di + 1 >= d.length) break;
+      const opCards = [indexToCard(d[di]), indexToCard(d[di+1])];
+      di += 2;
+      const opScore = evaluateHand([...opCards, ...board]);
+      if (opScore > myScore) { win = false; break; }
+      if (opScore === myScore) tie = true;
+    }
+
+    if (win && !tie) wins++;
+    else if (tie)   ties++;
+  }
+
+  return {
+    winPct: Math.round((wins / iterations) * 100),
+    tiePct: Math.round((ties / iterations) * 100),
+  };
+}
+
+function calculateEquity(holeCards, communityCards, numOpponents) {
+  if (holeCards.length < 2) return null;
+
+  const validHole = holeCards.filter(c => c && c.rank !== '?');
+  const validComm = communityCards.filter(c => c && c.rank !== '?');
+
+  if (validHole.length < 2) return null;
+
+  let winPct, tiePct;
+  if (validComm.length === 0) {
+    winPct = getPreflopEquity(validHole[0].rank, validHole[0].suit, validHole[1].rank, validHole[1].suit, numOpponents);
+    tiePct = 2;
+  } else {
+    const result = monteCarloEquity(validHole, validComm, numOpponents, 3000);
+    winPct = result.winPct;
+    tiePct = result.tiePct;
+  }
+
+  return { winPct, tiePct };
+}
+
+function getRecommendation(winPct, potOdds, communityCount) {
+  // potOdds: ratio of pot to call amount (pot:call)
+  const phase = communityCount === 0 ? 'preflop' : communityCount <= 3 ? 'flop' : communityCount === 4 ? 'turn' : 'river';
+
+  let action, betSize, color;
+  if (winPct >= 70) {
+    action = 'RAISE';
+    betSize = phase === 'preflop' ? '2.5x' : '60% pot';
+    color = 'raise';
+  } else if (winPct >= 55) {
+    action = 'RAISE';
+    betSize = phase === 'preflop' ? '2x' : '40% pot';
+    color = 'raise';
+  } else if (winPct >= 45) {
+    action = 'CALL';
+    betSize = '';
+    color = 'call';
+  } else if (winPct >= 30) {
+    // Check pot odds
+    if (potOdds > 0 && (winPct / 100) > (1 / (potOdds + 1))) {
+      action = 'CALL';
+      betSize = '(borderline)';
+      color = 'borderline';
+    } else {
+      action = 'FOLD';
+      betSize = '';
+      color = 'fold';
+    }
+  } else {
+    action = 'FOLD';
+    betSize = '';
+    color = 'fold';
+  }
+
+  const displayAction = betSize ? `${action} ${betSize}` : action;
+  return { action, displayAction, color };
+}
+
+/* ═══════════════════════════════════════════════════
+   HUD UPDATE
+═══════════════════════════════════════════════════ */
+function updateHUD() {
+  const c1 = state.cards['c1'];
+  const c2 = state.cards['c2'];
+  const community = ['f1','f2','f3','f4','f5']
+    .map(id => state.cards[id])
+    .filter(c => c && c.rank !== '?');
+
+  if (!c1 || !c2 || c1.rank === '?' || c2.rank === '?') {
+    hudBar.className = 'neutral';
+    hudWin.textContent = '–';
+    hudAction.textContent = 'Aspetto';
+    hudOdds.textContent = '–';
+    statusMsg.textContent = 'Posiziona le zone sulle tue 2 carte';
+    return;
+  }
+
+  const result = calculateEquity([c1, c2], community, state.opponents);
+  if (!result) {
+    hudBar.className = 'neutral';
+    return;
+  }
+
+  const { winPct, tiePct } = result;
+
+  // Pot odds
+  const pot = parseFloat($('set-pot').value) || 0;
+  const callSz = parseFloat($('set-call').value) || 0;
+  const potOdds = callSz > 0 ? pot / callSz : 0;
+  const oddsStr = potOdds > 0 ? potOdds.toFixed(1) + ':1' : '–';
+
+  const rec = getRecommendation(winPct, potOdds, community.length);
+
+  // Update bar
+  hudWin.textContent = winPct + '%';
+  hudAction.textContent = rec.displayAction;
+  hudOdds.textContent = oddsStr;
+
+  // Color
+  hudBar.className = '';
+  if (rec.color === 'fold') hudBar.classList.add('fold');
+  else if (rec.color === 'borderline') hudBar.classList.add('borderline');
+  else if (rec.color === 'neutral') hudBar.classList.add('neutral');
+  // else green (default)
+
+  const phase = community.length === 0 ? 'Pre-flop' : community.length <= 3 ? 'Flop' : community.length === 4 ? 'Turn' : 'River';
+  statusMsg.textContent = `${phase} • ${state.opponents} avversari • ${winPct+tiePct}% win/tie`;
+}
+
+/* ═══════════════════════════════════════════════════
+   ANALYSIS LOOP
+═══════════════════════════════════════════════════ */
+function startAnalysis() {
+  if (state.analysisTimer) clearInterval(state.analysisTimer);
+  state.analysisTimer = setInterval(runAnalysis, state.analysisInterval);
+}
+
+function runAnalysis() {
+  if (!state.stream || !video.videoWidth) return;
+
+  for (const zone of state.zones) {
+    const result = analyzeZone(zone);
+    if (result && result.rank && result.conf >= 50) {
+      // Only update if confidence improved or card changed
+      state.cards[zone.id] = { rank: result.rank, suit: result.suit, conf: result.conf };
+      zone.card = state.cards[zone.id];
+      zone.conf = result.conf;
+    } else if (!result || result.conf < 20) {
+      // Clear if very low confidence (but keep manual overrides high)
+      if (zone.conf < 90) { // 90+ = manual override
+        state.cards[zone.id] = null;
+        zone.card = null;
+        zone.conf = 0;
+      }
+    }
+    updateZoneEl(zone);
+  }
+
+  updateHUD();
+}
+
+/* ═══════════════════════════════════════════════════
+   CARD PICKER
+═══════════════════════════════════════════════════ */
+function buildPickerGrid() {
+  pickerGrid.innerHTML = '';
+  for (const suit of SUITS) {
+    for (const rank of RANKS) {
+      const isRed = suit === '♥' || suit === '♦';
+      const card = document.createElement('div');
+      card.className = 'picker-card' + (isRed ? ' red' : '');
+      card.innerHTML = `<div class="pk-rank">${rank}</div><div class="pk-suit">${suit}</div>`;
+      card.addEventListener('click', () => selectCard(rank, suit));
+      pickerGrid.appendChild(card);
+    }
+  }
+}
+
+function openPicker(zoneId) {
+  state.pickerTarget = zoneId;
+  const zone = state.zones.find(z => z.id === zoneId);
+  cardPicker.querySelector('.picker-title').textContent =
+    'Seleziona carta per: ' + (zone ? zone.label : zoneId);
+  cardPicker.classList.add('open');
+}
+
+function closePicker() {
+  cardPicker.classList.remove('open');
+  state.pickerTarget = null;
+}
+
+function selectCard(rank, suit) {
+  if (!state.pickerTarget) { closePicker(); return; }
+  const zone = state.zones.find(z => z.id === state.pickerTarget);
+  if (zone) {
+    zone.card = { rank, suit, conf: 99 };
+    zone.conf = 99;
+    state.cards[zone.id] = zone.card;
+    updateZoneEl(zone);
+    updateHUD();
+  }
+  closePicker();
+}
+
+/* ═══════════════════════════════════════════════════
+   VIDEO CAPTURE
+═══════════════════════════════════════════════════ */
+async function startScreenCapture() {
+  try {
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      video: { frameRate: 15, cursor: 'never' },
+      audio: false,
+    });
+    attachStream(stream, 'screen');
+  } catch(e) {
+    if (e.name === 'NotAllowedError' || e.name === 'NotSupportedError') {
+      alert('Cattura schermo non disponibile. Uso la fotocamera.');
+      await startCamera();
+    } else {
+      alert('Errore: ' + e.message);
+    }
+  }
+}
+
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: { ideal: 'environment' },
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+        frameRate: { ideal: 15 },
+      },
+      audio: false,
+    });
+    attachStream(stream, 'camera');
+  } catch(e) {
+    alert('Impossibile accedere alla fotocamera: ' + e.message);
+  }
+}
+
+function attachStream(stream, source) {
+  if (state.stream) {
+    state.stream.getTracks().forEach(t => t.stop());
+  }
+  state.stream = stream;
+  state.source = source;
+  video.srcObject = stream;
+  video.onloadedmetadata = () => {
+    video.play();
+    $('start-screen').style.display = 'none';
+    initZones();
+    startAnalysis();
+  };
+
+  // Handle stream end (user stops sharing)
+  stream.getVideoTracks()[0].addEventListener('ended', () => {
+    state.stream = null;
+    $('start-screen').style.display = '';
+    if (state.analysisTimer) clearInterval(state.analysisTimer);
+  });
+}
+
+/* ═══════════════════════════════════════════════════
+   SETTINGS
+═══════════════════════════════════════════════════ */
+function openSettings() {
+  settingsPanel.classList.add('open');
+  backdrop.classList.add('open');
+}
+function closeSettings() {
+  settingsPanel.classList.remove('open');
+  backdrop.classList.remove('open');
+}
+
+/* ═══════════════════════════════════════════════════
+   ONLY BAR MODE
+═══════════════════════════════════════════════════ */
+function setOnlyBar(val) {
+  state.onlyBar = val;
+  if (val) {
+    document.body.classList.add('only-bar');
+    $('btn-only-bar').textContent = '▼ Mostra tutto';
+  } else {
+    document.body.classList.remove('only-bar');
+    $('btn-only-bar').textContent = '▲ Solo barra';
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   EVENT LISTENERS
+═══════════════════════════════════════════════════ */
+$('btn-screen').addEventListener('click', startScreenCapture);
+$('btn-camera').addEventListener('click', startCamera);
+
+$('btn-reset').addEventListener('click', () => {
+  state.cards = {};
+  state.zones.forEach(z => { z.card = null; z.conf = 0; });
+  renderZones();
+  updateHUD();
+});
+
+$('btn-settings').addEventListener('click', openSettings);
+$('btn-close-settings').addEventListener('click', closeSettings);
+backdrop.addEventListener('click', closeSettings);
+
+$('btn-only-bar').addEventListener('click', () => setOnlyBar(!state.onlyBar));
+hudBar.addEventListener('click', () => { if (state.onlyBar) setOnlyBar(false); });
+
+$('btn-picker-cancel').addEventListener('click', closePicker);
+
+$('set-opponents').addEventListener('input', function() {
+  state.opponents = parseInt(this.value);
+  $('set-opponents-val').textContent = this.value;
+  updateHUD();
+});
+
+$('set-interval').addEventListener('input', function() {
+  state.analysisInterval = parseInt(this.value);
+  $('set-interval-val').textContent = this.value;
+  if (state.stream) startAnalysis();
+});
+
+$('set-onlybar').addEventListener('change', function() {
+  setOnlyBar(this.checked);
+});
+
+$('set-pot').addEventListener('input', updateHUD);
+$('set-call').addEventListener('input', updateHUD);
+$('set-stack').addEventListener('input', updateHUD);
+
+$('btn-switch-source').addEventListener('click', () => {
+  closeSettings();
+  if (state.source === 'screen') startCamera(); else startScreenCapture();
+});
+
+// Handle resize: reposition zones
+window.addEventListener('resize', () => {
+  state.zones.forEach(zone => positionZoneEl(zone));
+});
+
+// iOS: prevent double-tap zoom
+document.addEventListener('touchend', e => {
+  if (e.detail > 1) e.preventDefault();
+}, { passive: false });
+
+/* ═══════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════ */
+buildPickerGrid();
+
+// Auto-detect iOS Safari (no getDisplayMedia)
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+if (isIOS) {
+  $('btn-screen').style.display = 'none';
+}
+
+// Service Worker for PWA offline
+if ('serviceWorker' in navigator) {
+  const swCode = `
+    const CACHE = 'poker-hud-v1';
+    self.addEventListener('install', e => {
+      e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./', './index.html'])));
+      self.skipWaiting();
+    });
+    self.addEventListener('activate', e => {
+      e.waitUntil(caches.keys().then(keys =>
+        Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+      ));
+      self.clients.claim();
+    });
+    self.addEventListener('fetch', e => {
+      e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+    });
+  `;
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl).catch(() => {});
+}
+</script>
+</body>
+</html>
