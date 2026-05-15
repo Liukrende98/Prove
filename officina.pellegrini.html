@@ -108,6 +108,9 @@ button {
     color: var(--black);
     letter-spacing: -0.02em;
     text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .nav-logo:hover {
@@ -115,9 +118,20 @@ button {
     color: var(--black);
 }
 
+.nav-logo img {
+    height: 28px;
+    width: auto;
+    display: block;
+}
+
 .nav-logo span {
     color: var(--gray-500);
     font-weight: 400;
+}
+
+@media (max-width: 833px) {
+    .nav-logo img { height: 24px; }
+    .nav-logo { font-size: 15px; }
 }
 
 .nav-menu {
@@ -238,6 +252,18 @@ button {
     background-size: 60px 60px;
     mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
     -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+}
+
+.hero-logo-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(90vw, 900px);
+    opacity: 0.04;
+    z-index: 0;
+    pointer-events: none;
+    filter: brightness(0) invert(1);
 }
 
 .hero-content {
@@ -771,15 +797,40 @@ button {
     position: relative;
     cursor: pointer;
     transition: transform 0.4s var(--ease);
+    background: #1c1c1e;
 }
 
 .gallery-item:hover {
     transform: scale(1.02);
 }
 
+.gallery-item img.gallery-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s var(--ease);
+    display: block;
+    z-index: 2;
+}
+
+.gallery-item:hover img.gallery-img {
+    transform: scale(1.05);
+}
+
 .gallery-item svg {
     width: 100%;
     height: 100%;
+}
+
+.gallery-item .gallery-tint {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    opacity: 0.55;
 }
 
 .gallery-item-label {
@@ -791,7 +842,7 @@ button {
     font-size: 15px;
     font-weight: 500;
     letter-spacing: -0.014em;
-    z-index: 2;
+    z-index: 3;
     text-shadow: 0 1px 12px rgba(0,0,0,0.5);
 }
 
@@ -800,7 +851,8 @@ button {
     position: absolute;
     inset: 0;
     background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.5) 100%);
-    z-index: 1;
+    z-index: 2;
+    pointer-events: none;
 }
 
 .gallery-item.feature {
@@ -849,11 +901,25 @@ button {
     overflow: hidden;
 }
 
-.blog-card-img svg {
-    position: absolute;
-    inset: 0;
+.blog-card-img img {
     width: 100%;
     height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s var(--ease);
+}
+
+.blog-card:hover .blog-card-img img {
+    transform: scale(1.04);
+}
+
+.blog-card-img .overlay-gradient {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: 0.55;
 }
 
 .blog-card-content {
@@ -1108,6 +1174,16 @@ button {
     color: var(--white);
     margin-bottom: 12px;
     letter-spacing: -0.022em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer-brand h4 img {
+    height: 28px;
+    width: auto;
+    filter: brightness(0) invert(1);
+    opacity: 0.9;
 }
 
 .footer-brand p {
@@ -1194,7 +1270,10 @@ button {
      ============================================ -->
 <nav class="nav" id="nav">
     <div class="nav-container">
-        <a href="#" class="nav-logo">Officina Pellegrini<span> · Srl</span></a>
+        <a href="#" class="nav-logo">
+            <img src="https://www.nodoitalia.it/img/logo.png" alt="Officina Pellegrini" onerror="this.style.display='none'">
+            Officina Pellegrini<span> · Srl</span>
+        </a>
         <ul class="nav-menu" id="navMenu">
             <li><a href="#chi">Chi Siamo</a></li>
             <li><a href="#servizi">Servizi</a></li>
@@ -1217,6 +1296,7 @@ button {
      ============================================ -->
 <section class="hero" id="home">
     <div class="hero-bg"></div>
+    <img class="hero-logo-bg" src="https://www.nodoitalia.it/img/logo.png" alt="" aria-hidden="true" onerror="this.style.display='none'">
     <div class="hero-content">
         <div class="hero-eyebrow">Officina Pellegrini Srl</div>
         <h1>Precisione<br>dal 1973.</h1>
@@ -1498,9 +1578,14 @@ button {
             <p class="section-lead section-lead-center">Macchinari, reparti, lavorazioni: uno sguardo dentro il nostro stabilimento di Calderara di Reno.</p>
         </div>
 
+        <!-- 
+            GALLERY — Le immagini vengono caricate da https://www.nodoitalia.it/img/gallery-N.jpg
+            Se un file manca, viene mostrato automaticamente il fallback SVG sottostante.
+        -->
         <div class="gallery-grid">
             <div class="gallery-item feature reveal">
-                <svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+                <img class="gallery-img" src="https://www.nodoitalia.it/img/gallery-1.jpg" alt="DMU 75 Monoblock" loading="lazy" onerror="this.style.display='none'">
+                <svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" style="position:absolute; inset:0; z-index:0;">
                     <defs>
                         <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stop-color="#1c1c1e"/>
@@ -1523,7 +1608,8 @@ button {
             </div>
 
             <div class="gallery-item reveal reveal-delay-1">
-                <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+                <img class="gallery-img" src="https://www.nodoitalia.it/img/gallery-2.jpg" alt="DMF 300/8" loading="lazy" onerror="this.style.display='none'">
+                <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" style="position:absolute; inset:0; z-index:0;">
                     <defs>
                         <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stop-color="#2c2c2e"/>
@@ -1542,7 +1628,8 @@ button {
             </div>
 
             <div class="gallery-item reveal reveal-delay-2">
-                <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+                <img class="gallery-img" src="https://www.nodoitalia.it/img/gallery-3.jpg" alt="Tornio CNC" loading="lazy" onerror="this.style.display='none'">
+                <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" style="position:absolute; inset:0; z-index:0;">
                     <defs>
                         <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stop-color="#3a3a3c"/>
@@ -1561,7 +1648,8 @@ button {
             </div>
 
             <div class="gallery-item reveal">
-                <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+                <img class="gallery-img" src="https://www.nodoitalia.it/img/gallery-4.jpg" alt="CAD-CAM Programming" loading="lazy" onerror="this.style.display='none'">
+                <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" style="position:absolute; inset:0; z-index:0;">
                     <rect width="400" height="400" fill="#1c1c1e"/>
                     <g stroke="rgba(41,151,255,0.6)" stroke-width="1" fill="none">
                         <path d="M50 350 L150 200 L250 280 L350 100"/>
@@ -1580,7 +1668,8 @@ button {
             </div>
 
             <div class="gallery-item reveal reveal-delay-1">
-                <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+                <img class="gallery-img" src="https://www.nodoitalia.it/img/gallery-5.jpg" alt="Saldatura TIG" loading="lazy" onerror="this.style.display='none'">
+                <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" style="position:absolute; inset:0; z-index:0;">
                     <defs>
                         <linearGradient id="g5" x1="0%" y1="0%" x2="0%" y2="100%">
                             <stop offset="0%" stop-color="#ff9f0a"/>
@@ -1598,7 +1687,8 @@ button {
             </div>
 
             <div class="gallery-item reveal reveal-delay-2">
-                <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+                <img class="gallery-img" src="https://www.nodoitalia.it/img/gallery-6.jpg" alt="Reparto Aggiustaggio" loading="lazy" onerror="this.style.display='none'">
+                <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" style="position:absolute; inset:0; z-index:0;">
                     <rect width="400" height="400" fill="#2c2c2e"/>
                     <g transform="translate(200,200)">
                         <rect x="-100" y="-100" width="200" height="200" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="4 4"/>
@@ -1627,101 +1717,49 @@ button {
         <div class="blog-grid">
             <article class="blog-card reveal">
                 <div class="blog-card-img">
-                    <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-                        <defs>
-                            <linearGradient id="bg1" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#ffd60a"/>
-                                <stop offset="100%" stop-color="#ff9f0a"/>
-                            </linearGradient>
-                        </defs>
-                        <rect width="400" height="250" fill="url(#bg1)"/>
-                        <g transform="translate(200,125)">
-                            <g fill="rgba(255,255,255,0.3)">
-                                <rect x="-90" y="-60" width="40" height="40"/>
-                                <rect x="-40" y="-60" width="40" height="40"/>
-                                <rect x="10" y="-60" width="40" height="40"/>
-                                <rect x="60" y="-60" width="40" height="40"/>
-                                <rect x="-90" y="-10" width="40" height="40"/>
-                                <rect x="-40" y="-10" width="40" height="40"/>
-                                <rect x="10" y="-10" width="40" height="40"/>
-                                <rect x="60" y="-10" width="40" height="40"/>
-                            </g>
-                        </g>
-                    </svg>
+                    <img src="https://www.nodoitalia.it/img/blog-1.jpg" alt="Fotovoltaico" loading="lazy" onerror="this.style.display='none'">
+                    <div class="overlay-gradient" style="background: linear-gradient(135deg, #ffd60a 0%, #ff9f0a 100%);"></div>
                 </div>
                 <div class="blog-card-content">
-                    <div class="blog-card-tag">Sostenibilità</div>
-                    <h3 class="blog-card-title">Impianto Fotovoltaico</h3>
-                    <a href="#contatti" class="blog-card-link">Leggi l'articolo</a>
+                    <div class="blog-card-tag">Sostenibilità · 06.11.2025</div>
+                    <h3 class="blog-card-title">Impianto Fotovoltaico — 128 kW</h3>
+                    <a href="#" class="blog-card-link">Leggi l'articolo</a>
                 </div>
             </article>
 
             <article class="blog-card reveal reveal-delay-1">
                 <div class="blog-card-img">
-                    <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-                        <defs>
-                            <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#30d158"/>
-                                <stop offset="100%" stop-color="#0a84ff"/>
-                            </linearGradient>
-                        </defs>
-                        <rect width="400" height="250" fill="url(#bg2)"/>
-                        <g transform="translate(200,125)" fill="rgba(255,255,255,0.9)" font-family="-apple-system" font-weight="700">
-                            <text text-anchor="middle" font-size="58" letter-spacing="-2">2024</text>
-                        </g>
-                    </svg>
+                    <img src="https://www.nodoitalia.it/img/blog-2.jpg" alt="Contributi 2024" loading="lazy" onerror="this.style.display='none'">
+                    <div class="overlay-gradient" style="background: linear-gradient(135deg, #30d158 0%, #0a84ff 100%);"></div>
                 </div>
                 <div class="blog-card-content">
-                    <div class="blog-card-tag">Contributi</div>
+                    <div class="blog-card-tag">Contributi · 2024</div>
                     <h3 class="blog-card-title">Contributi percepiti 2024</h3>
-                    <a href="#contatti" class="blog-card-link">Leggi l'articolo</a>
+                    <a href="#" class="blog-card-link">Leggi l'articolo</a>
                 </div>
             </article>
 
             <article class="blog-card reveal reveal-delay-2">
                 <div class="blog-card-img">
-                    <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-                        <defs>
-                            <linearGradient id="bg3" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#5e5ce6"/>
-                                <stop offset="100%" stop-color="#bf5af2"/>
-                            </linearGradient>
-                        </defs>
-                        <rect width="400" height="250" fill="url(#bg3)"/>
-                        <g transform="translate(200,125)" stroke="rgba(255,255,255,0.6)" stroke-width="2" fill="none">
-                            <circle r="50"/>
-                            <circle r="30"/>
-                            <path d="M-70 0h140M0 -70v140"/>
-                        </g>
-                    </svg>
+                    <img src="https://www.nodoitalia.it/img/blog-3.jpg" alt="Innovazione di Processo" loading="lazy" onerror="this.style.display='none'">
+                    <div class="overlay-gradient" style="background: linear-gradient(135deg, #5e5ce6 0%, #bf5af2 100%);"></div>
                 </div>
                 <div class="blog-card-content">
-                    <div class="blog-card-tag">Innovazione</div>
+                    <div class="blog-card-tag">Innovazione · 2023</div>
                     <h3 class="blog-card-title">Innovazione di Processo 2023</h3>
-                    <a href="#contatti" class="blog-card-link">Leggi l'articolo</a>
+                    <a href="#" class="blog-card-link">Leggi l'articolo</a>
                 </div>
             </article>
 
             <article class="blog-card reveal reveal-delay-3">
                 <div class="blog-card-img">
-                    <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-                        <defs>
-                            <linearGradient id="bg4" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#ff453a"/>
-                                <stop offset="100%" stop-color="#ff9f0a"/>
-                            </linearGradient>
-                        </defs>
-                        <rect width="400" height="250" fill="url(#bg4)"/>
-                        <g transform="translate(200,125)" fill="rgba(255,255,255,0.9)">
-                            <rect x="-60" y="-35" width="120" height="70" rx="6" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2"/>
-                            <text text-anchor="middle" y="6" font-size="28" font-family="monospace" font-weight="600">CAD-CAM</text>
-                        </g>
-                    </svg>
+                    <img src="https://www.nodoitalia.it/img/blog-4.jpg" alt="Sviluppatore CAD-CAM" loading="lazy" onerror="this.style.display='none'">
+                    <div class="overlay-gradient" style="background: linear-gradient(135deg, #ff453a 0%, #ff9f0a 100%);"></div>
                 </div>
                 <div class="blog-card-content">
                     <div class="blog-card-tag">Ricerca lavoro</div>
                     <h3 class="blog-card-title">Sviluppatore CAD-CAM</h3>
-                    <a href="#contatti" class="blog-card-link">Leggi l'articolo</a>
+                    <a href="#" class="blog-card-link">Leggi l'articolo</a>
                 </div>
             </article>
         </div>
@@ -1844,7 +1882,10 @@ button {
     <div class="footer-container">
         <div class="footer-top">
             <div class="footer-brand">
-                <h4>Officina Pellegrini Srl</h4>
+                <h4>
+                    <img src="https://www.nodoitalia.it/img/logo.png" alt="" onerror="this.style.display='none'">
+                    Officina Pellegrini Srl
+                </h4>
                 <p>Lavorazioni meccaniche di precisione dal 1973. Fresatura CNC, tornitura, foratura e saldatura per i settori meccanico, medicale, alimentare e delle macchine automatiche.</p>
             </div>
             <div class="footer-col">
