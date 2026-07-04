@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preventivi Herbalife — Giulia Marzocchi</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #F2F0EA; color: #17281C;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased; }
+  input, button { font-family: inherit; }
+  input:focus { outline: 2px solid #7AC143; outline-offset: 1px; }
+  button { cursor: pointer; }
+  .wrap { max-width: 460px; margin: 0 auto; min-height: 100vh; padding-bottom: 100px; }
+  .hdr { position: sticky; top: 0; z-index: 20; background: #14432A; color: #fff;
+    display: flex; align-items: center; gap: 12px; padding: 14px 16px; }
+  .hdr .back { background: rgba(255,255,255,.12); border: none; color: #fff; width: 34px; height: 34px;
+    border-radius: 50%; font-size: 18px; display: none; align-items: center; justify-content: center; }
+  .hdr .t1 { font-weight: 800; font-size: 16px; }
+  .hdr .t2 { font-size: 11.5px; opacity: .75; }
+  .hdr .chip { width: 36px; height: 36px; border-radius: 50%; background: #7AC143; color: #14432A;
+    font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; margin-left: auto; }
+  .hero { background: #14432A; color: #fff; padding: 28px 20px 32px; border-radius: 0 0 24px 24px; }
+  .hero h1 { font-size: 30px; font-weight: 900; line-height: 1.08; margin: 0; letter-spacing: -.02em; }
+  .hero p { font-size: 14.5px; line-height: 1.45; opacity: .85; margin: 10px 0 0; }
+  .pills { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+  .pill { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 999px;
+    padding: 6px 12px; font-size: 12px; font-weight: 600; }
+  .kicker { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #5E7263; }
+  .h2 { font-size: 22px; font-weight: 800; margin: 4px 0 0; letter-spacing: -.01em; }
+  .goal { display: flex; align-items: center; gap: 14px; text-align: left; width: 100%;
+    background: #fff; border: 1px solid #E2DFD5; border-radius: 16px; padding: 16px;
+    box-shadow: 0 1px 2px rgba(20,67,42,.05); }
+  .goal:active { transform: scale(.98); }
+  .goal .ic { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center;
+    justify-content: center; font-weight: 900; font-size: 17px; flex-shrink: 0; }
+  .goal .nm { font-weight: 800; font-size: 16px; }
+  .goal .sb { font-size: 12.5px; color: #5E7263; margin-top: 2px; line-height: 1.35; }
+  .tier { text-align: left; width: 100%; background: #fff; color: #17281C; border: 1px solid #E2DFD5;
+    border-radius: 18px; padding: 18px; position: relative; }
+  .tier:active { transform: scale(.98); }
+  .tier.dark { background: #14432A; color: #fff; border-color: #14432A; }
+  .tier .badge { position: absolute; top: -9px; right: 14px; background: #7AC143; color: #14432A;
+    font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 999px; }
+  .card { background: #fff; border: 1px solid #E2DFD5; border-radius: 16px; padding: 16px; }
+  .inp { width: 100%; border: 1px solid #DDD9CC; border-radius: 10px; padding: 12px 14px;
+    font-size: 15px; background: #FAF9F5; color: #17281C; }
+  .line { background: #fff; border: 1px solid #E2DFD5; border-radius: 14px; padding: 12px 14px; }
+  .qbtn { width: 32px; height: 32px; border-radius: 10px; border: 1px solid #DDD9CC; background: #FAF9F5;
+    font-size: 17px; font-weight: 700; color: #14432A; }
+  .cat { background: #fff; border: 1px solid #E2DFD5; border-radius: 14px; overflow: hidden; }
+  .cat > button { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    background: none; border: none; padding: 14px 16px; text-align: left; }
+  .cat .cn { font-size: 13px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #14432A; }
+  .cat .cc { font-size: 12px; color: #8A947F; font-weight: 600; flex-shrink: 0; }
+  .prow { display: flex; align-items: center; gap: 10px; padding: 11px 16px; border-bottom: 1px solid #F4F2EA; }
+  .prow .pn { font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .prow .pc { font-size: 12px; color: #8A947F; margin-top: 2px; }
+  .prow .qty { font-size: 12px; font-weight: 800; color: #14432A; background: #E4F3D3; border-radius: 999px; padding: 4px 10px; }
+  .prow .add { width: 34px; height: 34px; border-radius: 10px; border: none; background: #14432A; color: #fff;
+    font-size: 18px; font-weight: 700; flex-shrink: 0; }
+  .bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 30; display: none; justify-content: center; pointer-events: none; }
+  .bar > div { max-width: 460px; width: 100%; pointer-events: auto; background: #14432A; color: #fff;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 14px 18px calc(14px + env(safe-area-inset-bottom)); border-radius: 18px 18px 0 0;
+    box-shadow: 0 -4px 20px rgba(20,40,28,.25); }
+  .bar .print { background: #7AC143; color: #14432A; border: none; border-radius: 12px;
+    padding: 13px 22px; font-size: 15px; font-weight: 800; }
+  .ghost { width: 100%; background: none; border: 1.5px dashed #B9C4B6; border-radius: 14px;
+    padding: 14px; color: #3E5A46; font-size: 14px; font-weight: 600; }
+  .linklike { width: 100%; background: none; border: none; padding: 12px; color: #3E5A46;
+    font-size: 13.5px; font-weight: 600; text-decoration: underline; }
+  #printdoc { display: none; }
+  @media print {
+    body { background: #fff; }
+    .wrap, .bar { display: none !important; }
+    #printdoc { display: block !important; padding: 10px; max-width: 720px; margin: 0 auto; }
+  }
+  #printdoc table { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 13px; }
+  #printdoc th { text-align: left; padding: 8px 6px; border-bottom: 1.5px solid #DDD9CC; font-size: 11px;
+    text-transform: uppercase; letter-spacing: .06em; color: #5E7263; }
+  #printdoc td { padding: 8px 6px; border-bottom: 1px solid #EFECE3; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div id="jsWarn" style="background:#C0442A;color:#fff;padding:14px 16px;font-size:14px;line-height:1.5;font-weight:600">⚠ I pulsanti non funzionano perché questa app non esegue gli script.<br>Apri il file con <u>Chrome</u> o <u>Safari</u>: tieni premuto sul file (o tocca ⋮ / Condividi) e scegli “Apri con” → browser.</div>
+  <div class="hdr">
+    <button class="back" id="btnBack" onclick="goBack()">←</button>
+    <div>
+      <div class="t1" id="hdrTitle">Benessere e Nutrizione</div>
+      <div class="t2">Giulia Marzocchi · Distributore Indipendente Herbalife</div>
+    </div>
+    <div class="chip">GM</div>
+  </div>
+
+  <!-- HOME -->
+  <div id="scr-home">
+    <div class="hero">
+      <h1>La tua nutrizione,<br>il tuo obiettivo.</h1>
+      <p>Programmi nutrizionali personalizzati e preventivo immediato, su misura per te.</p>
+      <div class="pills">
+        <div class="pill">Dal 1980 · 95 paesi</div>
+        <div class="pill">Partner di 150+ atleti</div>
+      </div>
+    </div>
+    <div style="padding:24px 16px 8px">
+      <div class="kicker">Inizia da qui</div>
+      <div class="h2">Qual è il tuo obiettivo?</div>
+    </div>
+    <div id="goalList" style="display:grid;gap:12px;padding:12px 16px"><button class="goal" onclick="pickGoal(0)"><div class="ic" style="background:#FBE7DE;color:#C0442A">PG</div><div style="flex:1"><div class="nm">Perdita massa grassa</div><div class="sb">Ritrova forma, leggerezza ed energia</div></div><div style="color:#7AC143;font-size:20px;font-weight:800">›</div></button><button class="goal" onclick="pickGoal(1)"><div class="ic" style="background:#E4F3D3;color:#3E7A1E">BE</div><div style="flex:1"><div class="nm">Benessere ed Energia</div><div class="sb">Più vitalità e nutrizione equilibrata ogni giorno</div></div><div style="color:#7AC143;font-size:20px;font-weight:800">›</div></button><button class="goal" onclick="pickGoal(2)"><div class="ic" style="background:#DEEAF5;color:#2A5D8F">MM</div><div style="flex:1"><div class="nm">Aumento massa magra e Sport</div><div class="sb">Muscolo, recupero e performance</div></div><div style="color:#7AC143;font-size:20px;font-weight:800">›</div></button></div>
+    <div style="padding:8px 16px 24px">
+      <button class="ghost" onclick="goFree()">Oppure componi un preventivo libero dal listino →</button>
+    </div>
+  </div>
+
+  <!-- PROGRAMMA -->
+  <div id="scr-program" style="display:none;padding:20px 16px">
+    <div class="kicker">Obiettivo</div>
+    <div class="h2" id="goalLabel" style="margin-bottom:16px"></div>
+    <div id="tierList" style="display:grid;gap:12px"></div>
+    <button class="linklike" style="margin-top:16px" onclick="goFree()">Salta il programma, scelgo solo prodotti singoli</button>
+  </div>
+
+  <!-- PREVENTIVO -->
+  <div id="scr-quote" style="display:none;padding:20px 16px">
+    <div class="card" style="display:grid;gap:10px">
+      <div class="kicker">Dati preventivo</div>
+      <input class="inp" id="clientName" placeholder="Nome cliente" oninput="update()">
+      <input class="inp" id="quoteDate" type="date" oninput="update()">
+    </div>
+
+    <div style="margin-top:16px">
+      <div style="font-size:16px;font-weight:800;margin-bottom:8px">Nel preventivo</div>
+      <div id="cartList" style="display:grid;gap:8px"></div>
+    </div>
+
+    <div style="margin-top:20px">
+      <div style="font-size:16px;font-weight:800;margin-bottom:8px">Aggiungi dal listino</div>
+      <input class="inp" id="search" style="background:#fff" placeholder="Cerca prodotto… (es. Formula 1, Aloe)" oninput="update()">
+      <div id="catList" style="display:grid;gap:8px;margin-top:10px"><div class="cat"><button onclick="toggleCat(0)"><div class="cn">Sostituti di pasto</div><div class="cc">17 ▾</div></button><div style="border-top:1px solid #EFECE3"><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Formula 1, gusto Banana Cream</div><div class="pc">4462 · 62,87 €</div></div><button class="add" onclick="addProd('4462')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Formula 1, gusto Fragola Delight</div><div class="pc">4463 · 62,87 €</div></div><button class="add" onclick="addProd('4463')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Formula 1, gusto Caffellatte</div><div class="pc">4465 · 62,87 €</div></div><button class="add" onclick="addProd('4465')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Formula 1, gusto Vaniglia Crème</div><div class="pc">4466 · 62,87 €</div></div><button class="add" onclick="addProd('4466')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Formula 1, gusto Biscotto Croccante</div><div class="pc">4467 · 62,87 €</div></div><button class="add" onclick="addProd('4467')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Formula 1, gusto Cioccolato Delight</div><div class="pc">4468 · 62,87 €</div></div><button class="add" onclick="addProd('4468')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Formula 1, gusto Menta e Cioccolato</div><div class="pc">4471 · 62,87 €</div></div><button class="add" onclick="addProd('4471')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Formula 1 Free (senza glutine, lattosio e soia) - gusto Lampone e Cioccolato bianco</div><div class="pc">4469 · 62,87 €</div></div><button class="add" onclick="addProd('4469')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Formula 1, gusto Ananas e Cocco EDIZIONE LIMITATA</div><div class="pc">224K · 62,87 €</div></div><button class="add" onclick="addProd('224K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Formula 1, gusto Caramello salato EDIZIONE LIMITATA</div><div class="pc">336K · 62,87 €</div></div><button class="add" onclick="addProd('336K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Formula 1, gusto Vaniglia Crème (780g)</div><div class="pc">048K · 77,40 €</div></div><button class="add" onclick="addProd('048K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Formula 1, gusto Cioccolato Delight - bustine (conf. 7 bustine)</div><div class="pc">229K · 26,19 €</div></div><button class="add" onclick="addProd('229K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Formula 1, gusto Vaniglia Crème - bustine (conf. 7 bustine)</div><div class="pc">053K · 26,19 €</div></div><button class="add" onclick="addProd('053K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Formula 1, gusto Biscotto Croccante - bustine (conf. 7 bustine)</div><div class="pc">228K · 26,19 €</div></div><button class="add" onclick="addProd('228K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Formula 1 Express, gusto Dark Chocolate (conf. 7 barrette)</div><div class="pc">4472 · 31,70 €</div></div><button class="add" onclick="addProd('4472')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Formula 1 Express, gusto Mirtillo Rosso e Cioccolato Bianco (conf. 7 barrette)</div><div class="pc">4473 · 31,70 €</div></div><button class="add" onclick="addProd('4473')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Kit Prova (bustine Infuso, F1 Vaniglia, F1 Biscotto, F1 Cioccolato + astuccio)</div><div class="pc">75Z1 · 32,94 €</div></div><button class="add" onclick="addProd('75Z1')">+</button></div></div></div><div class="cat"><button onclick="toggleCat(1)"><div class="cn">Integratori alimentari</div><div class="cc">21 ▾</div></button><div style="border-top:1px solid #EFECE3"><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Formula 2 Vitamin &amp; Mineral Complex Uomo</div><div class="pc">1800 · 29,93 €</div></div><button class="add" onclick="addProd('1800')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Formula 2 Vitamin &amp; Mineral Complex Donna</div><div class="pc">1819 · 29,93 €</div></div><button class="add" onclick="addProd('1819')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Formula 3 - Integratore proteico in polvere</div><div class="pc">0242 · 49,40 €</div></div><button class="add" onclick="addProd('0242')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Mineral Complex Plus</div><div class="pc">0111 · 38,90 €</div></div><button class="add" onclick="addProd('0111')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Herbalifeline Max - Omega 3 (EPA e DHA)</div><div class="pc">0043 · 41,37 €</div></div><button class="add" onclick="addProd('0043')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">NiteWorks® (15 giorni)</div><div class="pc">3150 · 109,79 €</div></div><button class="add" onclick="addProd('3150')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Aloe Max 473 ml - puro gel d’Aloe</div><div class="pc">1196 · 60,09 €</div></div><button class="add" onclick="addProd('1196')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Aloe Concentrato alle Erbe 473 ml - gusto Mango</div><div class="pc">1065 · 55,67 €</div></div><button class="add" onclick="addProd('1065')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Aloe Concentrato alle Erbe 473 ml</div><div class="pc">0006 · 55,67 €</div></div><button class="add" onclick="addProd('0006')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Xtra-Cal - Integratore di Calcio</div><div class="pc">0020 · 24,85 €</div></div><button class="add" onclick="addProd('0020')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Beta Heart - beta-glucano d’avena OatWell</div><div class="pc">0267 · 55,44 €</div></div><button class="add" onclick="addProd('0267')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Immune Booster - gusto Ribes Nero (21 bustine)</div><div class="pc">233K · 49,63 €</div></div><button class="add" onclick="addProd('233K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Microbiotic Max - gusto Vaniglia (20 bustine)</div><div class="pc">173K · 62,50 €</div></div><button class="add" onclick="addProd('173K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Phyto Complete</div><div class="pc">567K · 84,76 €</div></div><button class="add" onclick="addProd('567K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Phyto Complete Experience Box</div><div class="pc">2T89 · 89,78 €</div></div><button class="add" onclick="addProd('2T89')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Active Mind Complex</div><div class="pc">243K · 54,51 €</div></div><button class="add" onclick="addProd('243K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Night Mode - con estratto di zafferano</div><div class="pc">282K · 62,94 €</div></div><button class="add" onclick="addProd('282K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Gels NutrientVita Kids (30 gelatine)</div><div class="pc">369K · 21,79 €</div></div><button class="add" onclick="addProd('369K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Gels MindVita Kids (30 gelatine)</div><div class="pc">379K · 47,86 €</div></div><button class="add" onclick="addProd('379K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Gels ViewVita - Luteina e Zeaxantina (30 gelatine)</div><div class="pc">376K · 63,52 €</div></div><button class="add" onclick="addProd('376K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Gels CoQ10Vita (30 gelatine)</div><div class="pc">378K · 54,11 €</div></div><button class="add" onclick="addProd('378K')">+</button></div></div></div><div class="cat"><button onclick="toggleCat(2)"><div class="cn">Snack proteici e alimenti</div><div class="cc">11 ▾</div></button><div style="border-top:1px solid #EFECE3"><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Barretta proteica gusto Mandorla e Vaniglia (conf. 14)</div><div class="pc">3968 · 28,10 €</div></div><button class="add" onclick="addProd('3968')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Barretta proteica gusto Agrumi (conf. 14)</div><div class="pc">3976 · 28,10 €</div></div><button class="add" onclick="addProd('3976')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Protein Drink Mix</div><div class="pc">2600 · 74,18 €</div></div><button class="add" onclick="addProd('2600')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Protein Drink Mix Vegan - gusto Vaniglia</div><div class="pc">172K · 70,64 €</div></div><button class="add" onclick="addProd('172K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Protein Drink Mix Vegan - gusto Vaniglia (7 bustine)</div><div class="pc">441K · 30,91 €</div></div><button class="add" onclick="addProd('441K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Protein Bake Mix - gusto neutro (20 porzioni) ED. LIMITATA</div><div class="pc">528K · 70,64 €</div></div><button class="add" onclick="addProd('528K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Bevanda multi fibre</div><div class="pc">2554 · 44,23 €</div></div><button class="add" onclick="addProd('2554')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Tri Blend - proteico in polvere gusto Banana</div><div class="pc">013K · 88,22 €</div></div><button class="add" onclick="addProd('013K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">High Protein Iced Coffee - gusto Latte macchiato</div><div class="pc">012K · 71,30 €</div></div><button class="add" onclick="addProd('012K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Protein Chips - gusto Barbecue (conf. 10)</div><div class="pc">141K · 26,60 €</div></div><button class="add" onclick="addProd('141K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Protein Chips - gusto Cream &amp; Onion (conf. 10)</div><div class="pc">142K · 26,60 €</div></div><button class="add" onclick="addProd('142K')">+</button></div></div></div><div class="cat"><button onclick="toggleCat(3)"><div class="cn">Bevande a base di erbe</div><div class="cc">5 ▾</div></button><div style="border-top:1px solid #EFECE3"><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Infuso a base di erbe 51 g</div><div class="pc">178K · 41,95 €</div></div><button class="add" onclick="addProd('178K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Infuso a base di erbe 102 g</div><div class="pc">179K · 76,36 €</div></div><button class="add" onclick="addProd('179K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Infuso a base di erbe 51 g - gusto Limone</div><div class="pc">180K · 41,95 €</div></div><button class="add" onclick="addProd('180K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Infuso a base di erbe 51 g - gusto Lampone</div><div class="pc">182K · 41,95 €</div></div><button class="add" onclick="addProd('182K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Infuso a base di erbe 51 g - gusto Pesca</div><div class="pc">181K · 41,95 €</div></div><button class="add" onclick="addProd('181K')">+</button></div></div></div><div class="cat"><button onclick="toggleCat(4)"><div class="cn">Energy drink e sport H24</div><div class="cc">13 ▾</div></button><div style="border-top:1px solid #EFECE3"><div class="prow"><div style="flex:1;min-width:0"><div class="pn">LiftOff® gusto Limone (conf. 10)</div><div class="pc">3152 · 40,43 €</div></div><button class="add" onclick="addProd('3152')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">H24 LiftOff® Max - gusto Pompelmo (10 bustine)</div><div class="pc">192K · 37,62 €</div></div><button class="add" onclick="addProd('192K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">H24 Hydrate - Vitamine gruppo B e minerali</div><div class="pc">1433 · 56,09 €</div></div><button class="add" onclick="addProd('1433')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">H24 Rebuild Strength (busta, 20 porzioni)</div><div class="pc">403K · 74,65 €</div></div><button class="add" onclick="addProd('403K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">H24 Rebuild Strength gusto cioccolato (7 bustine)</div><div class="pc">486K · 32,66 €</div></div><button class="add" onclick="addProd('486K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">H24 Restore - Vitamine A, C ed E</div><div class="pc">1424 · 48,24 €</div></div><button class="add" onclick="addProd('1424')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">H24 Prolong Energy Gel (10 bustine)</div><div class="pc">402K · 28,14 €</div></div><button class="add" onclick="addProd('402K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">H24 Creatine+ - Creatina, Calcio e Vitamine B</div><div class="pc">488K · 37,05 €</div></div><button class="add" onclick="addProd('488K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">H24 Barretta proteica Cioccolato e Biscotto (conf. 6)</div><div class="pc">149K · 23,19 €</div></div><button class="add" onclick="addProd('149K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">H24 Barretta proteica Dark Chocolate (conf. 6)</div><div class="pc">150K · 23,19 €</div></div><button class="add" onclick="addProd('150K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Kit Sportivi (Hydrate + CR7 Drive + sacca + asciugamano)</div><div class="pc">1776 · 31,95 €</div></div><button class="add" onclick="addProd('1776')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">CR7 Drive - Bacche di Acai (barattolo 20 porzioni)</div><div class="pc">1466 · 25,86 €</div></div><button class="add" onclick="addProd('1466')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">CR7 Drive - Bacche di Acai (10 bustine)</div><div class="pc">1467 · 15,62 €</div></div><button class="add" onclick="addProd('1467')">+</button></div></div></div><div class="cat"><button onclick="toggleCat(5)"><div class="cn">Cura del corpo - Herbal Aloe</div><div class="cc">4 ▾</div></button><div style="border-top:1px solid #EFECE3"><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Herbal Aloe Hand &amp; Body Wash - Bagnoschiuma (250 ml)</div><div class="pc">2561 · 17,59 €</div></div><button class="add" onclick="addProd('2561')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Herbal Aloe Gel lenitivo (200 ml)</div><div class="pc">2562 · 16,42 €</div></div><button class="add" onclick="addProd('2562')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Herbal Aloe Shampoo fortificante (250 ml)</div><div class="pc">2564 · 17,53 €</div></div><button class="add" onclick="addProd('2564')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Herbal Aloe Balsamo fortificante (250 ml)</div><div class="pc">2565 · 17,53 €</div></div><button class="add" onclick="addProd('2565')">+</button></div></div></div><div class="cat"><button onclick="toggleCat(6)"><div class="cn">Linea HL/Skin</div><div class="cc">7 ▾</div></button><div style="border-top:1px solid #EFECE3"><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Siero Niacinamide 10% (30 ml)</div><div class="pc">508K · 59,08 €</div></div><button class="add" onclick="addProd('508K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Crema notte rivitalizzante (50 ml)</div><div class="pc">539K · 65,32 €</div></div><button class="add" onclick="addProd('539K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Gel Detergente levigante (147 ml)</div><div class="pc">511K · 39,72 €</div></div><button class="add" onclick="addProd('511K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Crema Ultimate Tension (50 ml)</div><div class="pc">513K · 65,65 €</div></div><button class="add" onclick="addProd('513K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Lozione Nutriente mani e corpo (147 ml)</div><div class="pc">514K · 29,67 €</div></div><button class="add" onclick="addProd('514K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Crema Nutriente contorno occhi (15 ml)</div><div class="pc">515K · 49,90 €</div></div><button class="add" onclick="addProd('515K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Skincare Business Kit</div><div class="pc">2T21 · 395,40 €</div></div><button class="add" onclick="addProd('2T21')">+</button></div></div></div><div class="cat"><button onclick="toggleCat(7)"><div class="cn">Linea Skin</div><div class="cc">10 ▾</div></button><div style="border-top:1px solid #EFECE3"><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Detergente Lenitivo all’Aloe</div><div class="pc">0765 · 31,72 €</div></div><button class="add" onclick="addProd('0765')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Detergente Levigante agli Agrumi</div><div class="pc">0766 · 31,72 €</div></div><button class="add" onclick="addProd('0766')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Gel Contorno Occhi Rassodante</div><div class="pc">0770 · 49,91 €</div></div><button class="add" onclick="addProd('0770')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Crema Contorno Occhi Idratante</div><div class="pc">0771 · 49,91 €</div></div><button class="add" onclick="addProd('0771')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Maschera Purificante Argilla e Menta</div><div class="pc">0773 · 26,92 €</div></div><button class="add" onclick="addProd('0773')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Crema Notte Rigenerante (50 ml)</div><div class="pc">0827 · 61,87 €</div></div><button class="add" onclick="addProd('0827')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Crema Idratante SPF 30 (50 ml)</div><div class="pc">0828 · 61,87 €</div></div><button class="add" onclick="addProd('0828')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Siero Riduttore Rughe (50 ml)</div><div class="pc">0829 · 82,14 €</div></div><button class="add" onclick="addProd('0829')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Crema Idratante Giorno (50 ml)</div><div class="pc">0830 · 61,87 €</div></div><button class="add" onclick="addProd('0830')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Collagene Skin - Integratore alimentare</div><div class="pc">076K · 81,97 €</div></div><button class="add" onclick="addProd('076K')">+</button></div></div></div><div class="cat"><button onclick="toggleCat(8)"><div class="cn">Libri delle ricette</div><div class="cc">2 ▾</div></button><div style="border-top:1px solid #EFECE3"><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Libro delle Ricette &quot;Sapori dal mondo&quot;</div><div class="pc">107K · 23,81 €</div></div><button class="add" onclick="addProd('107K')">+</button></div><div class="prow"><div style="flex:1;min-width:0"><div class="pn">Libro delle Ricette &quot;Sapori dal mondo&quot; - Volume 2</div><div class="pc">3C10 · 15,22 €</div></div><button class="add" onclick="addProd('3C10')">+</button></div></div></div></div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <div style="font-size:14px;font-weight:700">Sconto</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input class="inp" id="discount" type="number" min="0" max="100" value="0" style="width:80px;text-align:right;font-weight:700" oninput="update()">
+          <div style="font-weight:800;color:#5E7263">%</div>
+        </div>
+      </div>
+      <div id="totals" style="border-top:1px solid #EFECE3;margin-top:14px;padding-top:12px;display:grid;gap:6px;font-size:14px"></div>
+      <div style="font-size:11.5px;color:#8A947F;margin-top:10px">Prezzi al pubblico IVA inclusa · Listino 2026/03</div>
+    </div>
+  </div>
+</div>
+
+<div class="bar" id="bottomBar">
+  <div>
+    <div>
+      <div style="font-size:11px;opacity:.7;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Totale</div>
+      <div style="font-size:20px;font-weight:900" id="barTotal">0,00 €</div>
+    </div>
+    <button class="print" onclick="window.print()">Stampa / PDF</button>
+  </div>
+</div>
+
+<!-- DOCUMENTO STAMPA -->
+<div id="printdoc"></div>
+
+<script>
+var GOALS = [
+  { id:'perdita', label:'Perdita massa grassa', short:'PG', sub:'Ritrova forma, leggerezza ed energia', bg:'#FBE7DE', fg:'#C0442A', prices:[239.09,376.14,515.60] },
+  { id:'benessere', label:'Benessere ed Energia', short:'BE', sub:'Più vitalità e nutrizione equilibrata ogni giorno', bg:'#E4F3D3', fg:'#3E7A1E', prices:[239.09,349.88,508.80] },
+  { id:'massa', label:'Aumento massa magra e Sport', short:'MM', sub:'Muscolo, recupero e performance', bg:'#DEEAF5', fg:'#2A5D8F', prices:[239.09,349.88,503.51] }
+];
+var TIERS = [
+  { name:'Base', perDay:'~10 € al giorno', desc:'La Colazione Equilibrata Herbalife ogni mattina: Aloe, Infuso a base di erbe e frullato Formula 1 con Protein Drink Mix.' },
+  { name:'Intermedio', perDay:'~15 € al giorno', desc:'Colazione Equilibrata più spuntini proteici e integrazione mirata al tuo obiettivo.' },
+  { name:'Challenge', perDay:'~20 € al giorno', desc:'Il programma completo: colazione, pasto nutrizionale, spuntini e integrazione per tutta la giornata.', badge:'Primi risultati in 21 giorni' }
+];
+var CATS = [
+  ['Sostituti di pasto',[
+    ['4462','Formula 1, gusto Banana Cream',62.87],['4463','Formula 1, gusto Fragola Delight',62.87],['4465','Formula 1, gusto Caffellatte',62.87],['4466','Formula 1, gusto Vaniglia Crème',62.87],['4467','Formula 1, gusto Biscotto Croccante',62.87],['4468','Formula 1, gusto Cioccolato Delight',62.87],['4471','Formula 1, gusto Menta e Cioccolato',62.87],['4469','Formula 1 Free (senza glutine, lattosio e soia) - gusto Lampone e Cioccolato bianco',62.87],['224K','Formula 1, gusto Ananas e Cocco EDIZIONE LIMITATA',62.87],['336K','Formula 1, gusto Caramello salato EDIZIONE LIMITATA',62.87],['048K','Formula 1, gusto Vaniglia Crème (780g)',77.40],['229K','Formula 1, gusto Cioccolato Delight - bustine (conf. 7 bustine)',26.19],['053K','Formula 1, gusto Vaniglia Crème - bustine (conf. 7 bustine)',26.19],['228K','Formula 1, gusto Biscotto Croccante - bustine (conf. 7 bustine)',26.19],['4472','Formula 1 Express, gusto Dark Chocolate (conf. 7 barrette)',31.70],['4473','Formula 1 Express, gusto Mirtillo Rosso e Cioccolato Bianco (conf. 7 barrette)',31.70],['75Z1','Kit Prova (bustine Infuso, F1 Vaniglia, F1 Biscotto, F1 Cioccolato + astuccio)',32.94]]],
+  ['Integratori alimentari',[
+    ['1800','Formula 2 Vitamin & Mineral Complex Uomo',29.93],['1819','Formula 2 Vitamin & Mineral Complex Donna',29.93],['0242','Formula 3 - Integratore proteico in polvere',49.40],['0111','Mineral Complex Plus',38.90],['0043','Herbalifeline Max - Omega 3 (EPA e DHA)',41.37],['3150','NiteWorks® (15 giorni)',109.79],['1196','Aloe Max 473 ml - puro gel d\u2019Aloe',60.09],['1065','Aloe Concentrato alle Erbe 473 ml - gusto Mango',55.67],['0006','Aloe Concentrato alle Erbe 473 ml',55.67],['0020','Xtra-Cal - Integratore di Calcio',24.85],['0267','Beta Heart - beta-glucano d\u2019avena OatWell',55.44],['233K','Immune Booster - gusto Ribes Nero (21 bustine)',49.63],['173K','Microbiotic Max - gusto Vaniglia (20 bustine)',62.50],['567K','Phyto Complete',84.76],['2T89','Phyto Complete Experience Box',89.78],['243K','Active Mind Complex',54.51],['282K','Night Mode - con estratto di zafferano',62.94],['369K','Gels NutrientVita Kids (30 gelatine)',21.79],['379K','Gels MindVita Kids (30 gelatine)',47.86],['376K','Gels ViewVita - Luteina e Zeaxantina (30 gelatine)',63.52],['378K','Gels CoQ10Vita (30 gelatine)',54.11]]],
+  ['Snack proteici e alimenti',[
+    ['3968','Barretta proteica gusto Mandorla e Vaniglia (conf. 14)',28.10],['3976','Barretta proteica gusto Agrumi (conf. 14)',28.10],['2600','Protein Drink Mix',74.18],['172K','Protein Drink Mix Vegan - gusto Vaniglia',70.64],['441K','Protein Drink Mix Vegan - gusto Vaniglia (7 bustine)',30.91],['528K','Protein Bake Mix - gusto neutro (20 porzioni) ED. LIMITATA',70.64],['2554','Bevanda multi fibre',44.23],['013K','Tri Blend - proteico in polvere gusto Banana',88.22],['012K','High Protein Iced Coffee - gusto Latte macchiato',71.30],['141K','Protein Chips - gusto Barbecue (conf. 10)',26.60],['142K','Protein Chips - gusto Cream & Onion (conf. 10)',26.60]]],
+  ['Bevande a base di erbe',[
+    ['178K','Infuso a base di erbe 51 g',41.95],['179K','Infuso a base di erbe 102 g',76.36],['180K','Infuso a base di erbe 51 g - gusto Limone',41.95],['182K','Infuso a base di erbe 51 g - gusto Lampone',41.95],['181K','Infuso a base di erbe 51 g - gusto Pesca',41.95]]],
+  ['Energy drink e sport H24',[
+    ['3152','LiftOff® gusto Limone (conf. 10)',40.43],['192K','H24 LiftOff® Max - gusto Pompelmo (10 bustine)',37.62],['1433','H24 Hydrate - Vitamine gruppo B e minerali',56.09],['403K','H24 Rebuild Strength (busta, 20 porzioni)',74.65],['486K','H24 Rebuild Strength gusto cioccolato (7 bustine)',32.66],['1424','H24 Restore - Vitamine A, C ed E',48.24],['402K','H24 Prolong Energy Gel (10 bustine)',28.14],['488K','H24 Creatine+ - Creatina, Calcio e Vitamine B',37.05],['149K','H24 Barretta proteica Cioccolato e Biscotto (conf. 6)',23.19],['150K','H24 Barretta proteica Dark Chocolate (conf. 6)',23.19],['1776','Kit Sportivi (Hydrate + CR7 Drive + sacca + asciugamano)',31.95],['1466','CR7 Drive - Bacche di Acai (barattolo 20 porzioni)',25.86],['1467','CR7 Drive - Bacche di Acai (10 bustine)',15.62]]],
+  ['Cura del corpo - Herbal Aloe',[
+    ['2561','Herbal Aloe Hand & Body Wash - Bagnoschiuma (250 ml)',17.59],['2562','Herbal Aloe Gel lenitivo (200 ml)',16.42],['2564','Herbal Aloe Shampoo fortificante (250 ml)',17.53],['2565','Herbal Aloe Balsamo fortificante (250 ml)',17.53]]],
+  ['Linea HL/Skin',[
+    ['508K','Siero Niacinamide 10% (30 ml)',59.08],['539K','Crema notte rivitalizzante (50 ml)',65.32],['511K','Gel Detergente levigante (147 ml)',39.72],['513K','Crema Ultimate Tension (50 ml)',65.65],['514K','Lozione Nutriente mani e corpo (147 ml)',29.67],['515K','Crema Nutriente contorno occhi (15 ml)',49.90],['2T21','Skincare Business Kit',395.40]]],
+  ['Linea Skin',[
+    ['0765','Detergente Lenitivo all\u2019Aloe',31.72],['0766','Detergente Levigante agli Agrumi',31.72],['0770','Gel Contorno Occhi Rassodante',49.91],['0771','Crema Contorno Occhi Idratante',49.91],['0773','Maschera Purificante Argilla e Menta',26.92],['0827','Crema Notte Rigenerante (50 ml)',61.87],['0828','Crema Idratante SPF 30 (50 ml)',61.87],['0829','Siero Riduttore Rughe (50 ml)',82.14],['0830','Crema Idratante Giorno (50 ml)',61.87],['076K','Collagene Skin - Integratore alimentare',81.97]]],
+  ['Libri delle ricette',[
+    ['107K','Libro delle Ricette "Sapori dal mondo"',23.81],['3C10','Libro delle Ricette "Sapori dal mondo" - Volume 2',15.22]]]
+];
+var NOTA = 'Preventivo indicativo, valido 30 giorni. Prezzi al pubblico IVA inclusa - Listino prodotti 2026/03. Gli integratori alimentari non vanno intesi come sostituti di una dieta variata ed equilibrata e di uno stile di vita sano.';
+
+var state = { screen:'home', goal:null, cart:[], openCat:-1 };
+
+var SAVE_KEY = 'hl_preventivo_gm';
+function saveState(){
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      cart: state.cart,
+      goalId: state.goal ? state.goal.id : null,
+      screen: state.screen,
+      clientName: document.getElementById('clientName').value,
+      quoteDate: document.getElementById('quoteDate').value,
+      discount: document.getElementById('discount').value
+    }));
+  } catch(e){}
+}
+function loadState(){
+  try {
+    var s = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if (!s) return;
+    state.cart = s.cart || [];
+    if (s.goalId){
+      state.goal = GOALS.find(function(g){ return g.id===s.goalId; }) || null;
+      if (state.goal){ document.getElementById('goalLabel').textContent = state.goal.label; renderTiers(); }
+    }
+    if (s.clientName) document.getElementById('clientName').value = s.clientName;
+    if (s.quoteDate) document.getElementById('quoteDate').value = s.quoteDate;
+    if (s.discount) document.getElementById('discount').value = s.discount;
+    if (s.screen && s.screen!=='home') show(s.screen);
+  } catch(e){}
+}
+
+function fmt(n){ return n.toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2})+' \u20AC'; }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function show(id){
+  state.screen = id;
+  document.getElementById('scr-home').style.display = id==='home'?'':'none';
+  document.getElementById('scr-program').style.display = id==='program'?'':'none';
+  document.getElementById('scr-quote').style.display = id==='quote'?'':'none';
+  document.getElementById('btnBack').style.display = id==='home'?'none':'flex';
+  document.getElementById('bottomBar').style.display = id==='quote'?'flex':'none';
+  document.getElementById('hdrTitle').textContent =
+    id==='home'?'Benessere e Nutrizione':id==='program'?'Scegli il programma':'Preventivo rapido';
+  window.scrollTo(0,0);
+  update();
+}
+function goBack(){ show(state.screen==='quote' && state.goal ? 'program' : 'home'); }
+function goFree(){ show('quote'); }
+function pickGoal(i){
+  state.goal = GOALS[i];
+  document.getElementById('goalLabel').textContent = state.goal.label;
+  renderTiers();
+  show('program');
+}
+function pickTier(i){
+  var t = TIERS[i], g = state.goal;
+  state.cart = state.cart.filter(function(l){ return l.code!=='PKG'; });
+  state.cart.unshift({ code:'PKG', name:'Programma '+t.name+' - '+g.label+' (1 mese)', price:g.prices[i], qty:1 });
+  show('quote');
+}
+function addProd(code){
+  for (var c=0;c<CATS.length;c++){
+    var items = CATS[c][1];
+    for (var j=0;j<items.length;j++){
+      if (items[j][0]===code){
+        var l = state.cart.find(function(x){ return x.code===code; });
+        if (l) l.qty++;
+        else state.cart.push({ code:code, name:items[j][1], price:items[j][2], qty:1 });
+        update(); return;
+      }
+    }
+  }
+}
+function chQty(code,d){
+  var l = state.cart.find(function(x){ return x.code===code; });
+  if (!l) return;
+  l.qty += d;
+  if (l.qty<=0) state.cart = state.cart.filter(function(x){ return x.code!==code; });
+  update();
+}
+function rmLine(code){ state.cart = state.cart.filter(function(x){ return x.code!==code; }); update(); }
+function toggleCat(i){ state.openCat = state.openCat===i ? -1 : i; update(); }
+
+function renderGoals(){
+  document.getElementById('goalList').innerHTML = GOALS.map(function(g,i){
+    return '<button class="goal" onclick="pickGoal('+i+')">'
+      +'<div class="ic" style="background:'+g.bg+';color:'+g.fg+'">'+g.short+'</div>'
+      +'<div style="flex:1"><div class="nm">'+esc(g.label)+'</div><div class="sb">'+esc(g.sub)+'</div></div>'
+      +'<div style="color:#7AC143;font-size:20px;font-weight:800">›</div></button>';
+  }).join('');
+}
+function renderTiers(){
+  var g = state.goal;
+  document.getElementById('tierList').innerHTML = TIERS.map(function(t,i){
+    return '<button class="tier'+(i===2?' dark':'')+'" onclick="pickTier('+i+')">'
+      +(t.badge?'<div class="badge">'+esc(t.badge)+'</div>':'')
+      +'<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">'
+      +'<div style="font-weight:900;font-size:18px">Programma '+t.name+'</div>'
+      +'<div style="font-weight:900;font-size:20px">~'+Math.round(g.prices[i])+' \u20AC</div></div>'
+      +'<div style="font-size:12.5px;opacity:.75;margin-top:2px;font-weight:600">'+t.perDay+'</div>'
+      +'<div style="font-size:13.5px;line-height:1.45;margin-top:10px;opacity:.9">'+esc(t.desc)+'</div></button>';
+  }).join('');
+}
+
+function update(){
+  // carrello
+  var cl = document.getElementById('cartList');
+  if (!state.cart.length){
+    cl.innerHTML = '<div style="background:#fff;border:1.5px dashed #D5D1C4;border-radius:14px;padding:20px;text-align:center;color:#8A947F;font-size:13.5px">Nessun articolo. Aggiungi prodotti dal listino qui sotto.</div>';
+  } else {
+    cl.innerHTML = state.cart.map(function(l){
+      return '<div class="line">'
+        +'<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">'
+        +'<div style="font-size:13.5px;font-weight:600;line-height:1.35;flex:1">'+esc(l.name)+'</div>'
+        +'<button onclick="rmLine(\''+l.code+'\')" style="background:none;border:none;color:#B0AA98;font-size:16px;padding:0;line-height:1">✕</button></div>'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">'
+        +'<div style="display:flex;align-items:center;gap:10px">'
+        +'<button class="qbtn" onclick="chQty(\''+l.code+'\',-1)">−</button>'
+        +'<div style="font-weight:800;font-size:15px;min-width:18px;text-align:center">'+l.qty+'</div>'
+        +'<button class="qbtn" onclick="chQty(\''+l.code+'\',1)">+</button></div>'
+        +'<div style="font-weight:800;font-size:15px">'+fmt(l.price*l.qty)+'</div></div></div>';
+    }).join('');
+  }
+  // listino
+  var q = (document.getElementById('search').value||'').trim().toLowerCase();
+  document.getElementById('catList').innerHTML = CATS.map(function(cat,ci){
+    var items = cat[1];
+    if (q) items = items.filter(function(p){ return p[1].toLowerCase().indexOf(q)>=0 || p[0].toLowerCase().indexOf(q)>=0; });
+    if (q && !items.length) return '';
+    var open = q ? true : state.openCat===ci;
+    var body = '';
+    if (open){
+      body = '<div style="border-top:1px solid #EFECE3">'+items.map(function(p){
+        var inCart = state.cart.find(function(x){ return x.code===p[0]; });
+        return '<div class="prow"><div style="flex:1;min-width:0">'
+          +'<div class="pn">'+esc(p[1])+'</div><div class="pc">'+p[0]+' · '+fmt(p[2])+'</div></div>'
+          +(inCart?'<div class="qty">× '+inCart.qty+'</div>':'')
+          +'<button class="add" onclick="addProd(\''+p[0]+'\')">+</button></div>';
+      }).join('')+'</div>';
+    }
+    return '<div class="cat"><button onclick="toggleCat('+ci+')">'
+      +'<div class="cn">'+esc(cat[0])+'</div><div class="cc">'+items.length+' '+(open?'▴':'▾')+'</div></button>'+body+'</div>';
+  }).join('');
+  // totali
+  var sub = state.cart.reduce(function(a,l){ return a+l.price*l.qty; },0);
+  var disc = Math.min(100, Math.max(0, Number(document.getElementById('discount').value)||0));
+  var dAmt = sub*disc/100, tot = sub-dAmt;
+  var rows = '<div style="display:flex;justify-content:space-between;color:#5E7263"><div>Subtotale</div><div style="font-weight:600">'+fmt(sub)+'</div></div>';
+  if (disc>0) rows += '<div style="display:flex;justify-content:space-between;color:#C0442A"><div>Sconto '+disc+'%</div><div style="font-weight:600">−'+fmt(dAmt)+'</div></div>';
+  rows += '<div style="display:flex;justify-content:space-between;font-size:18px;font-weight:900;margin-top:4px"><div>Totale</div><div>'+fmt(tot)+'</div></div>';
+  document.getElementById('totals').innerHTML = rows;
+  document.getElementById('barTotal').textContent = fmt(tot);
+  renderPrint(sub, disc, dAmt, tot);
+  saveState();
+}
+
+function renderPrint(sub, disc, dAmt, tot){
+  var name = document.getElementById('clientName').value || 'Cliente';
+  var d = document.getElementById('quoteDate').value;
+  var dateFmt = d;
+  try { dateFmt = new Date(d+'T00:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}); } catch(e){}
+  var rows = state.cart.map(function(l){
+    return '<tr><td>'+esc(l.name)+'</td><td style="text-align:center">'+l.qty+'</td>'
+      +'<td style="text-align:right">'+fmt(l.price)+'</td>'
+      +'<td style="text-align:right;font-weight:700">'+fmt(l.price*l.qty)+'</td></tr>';
+  }).join('');
+  document.getElementById('printdoc').innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #14432A;padding-bottom:16px">'
+    +'<div><div style="font-size:26px;font-weight:900;color:#14432A">Preventivo</div>'
+    +'<div style="font-size:13px;color:#5E7263;margin-top:4px">Giulia Marzocchi · Distributore Indipendente Herbalife</div></div>'
+    +'<div style="text-align:right;font-size:13px"><div style="font-weight:700">'+esc(name)+'</div>'
+    +'<div style="color:#5E7263">'+esc(dateFmt)+'</div></div></div>'
+    +'<table><thead><tr><th>Descrizione</th><th style="text-align:center">Q.tà</th><th style="text-align:right">Prezzo</th><th style="text-align:right">Importo</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody></table>'
+    +'<div style="display:flex;justify-content:flex-end;margin-top:14px"><div style="min-width:240px;font-size:13.5px;display:grid;gap:5px">'
+    +'<div style="display:flex;justify-content:space-between;color:#5E7263"><div>Subtotale</div><div>'+fmt(sub)+'</div></div>'
+    +(disc>0?'<div style="display:flex;justify-content:space-between;color:#C0442A"><div>Sconto '+disc+'%</div><div>−'+fmt(dAmt)+'</div></div>':'')
+    +'<div style="display:flex;justify-content:space-between;font-size:17px;font-weight:900;border-top:2px solid #14432A;padding-top:6px;margin-top:2px"><div>Totale</div><div>'+fmt(tot)+'</div></div>'
+    +'</div></div>'
+    +'<div style="margin-top:24px;font-size:11px;color:#8A947F;line-height:1.5">'+esc(NOTA)+'</div>';
+}
+
+document.getElementById('jsWarn').style.display = 'none';
+document.getElementById('quoteDate').value = new Date().toISOString().slice(0,10);
+renderGoals();
+loadState();
+update();
+</script>
+</body>
+</html>
