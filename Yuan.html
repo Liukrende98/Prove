@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;600;700&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#141110;font-family:'Jost',sans-serif;overflow-x:hidden}
+  a{color:#ffffff;text-decoration:none}
+  a:hover{color:#ffffff}
+  ::selection{background:#9c2a2e;color:#f4ead9}
+  input::placeholder,textarea::placeholder{color:rgba(244,234,217,.35)}
+  @keyframes yuan-fadeup{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes yuan-ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @keyframes yuan-bounce{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(8px);opacity:1}}
+  .tab-scroll{scrollbar-width:none}
+  .tab-scroll::-webkit-scrollbar{display:none}
+</style>
+<script src="./image-slot.js"></script>
+</helmet>
+
+<div style="background:#141110;color:#f4ead9;min-height:100vh;position:relative">
+
+<!-- NAV -->
+<header style="{{ navBarStyle }}">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:clamp(16px,2.4vw,24px) clamp(22px,5vw,60px)">
+    <div style="display:flex;flex-direction:column;line-height:1">
+      <span style="font-family:'Jost',sans-serif;font-weight:700;font-size:clamp(20px,2.2vw,26px);letter-spacing:0.14em;color:#e2483f">YUAN</span>
+      <span style="font-size:9px;letter-spacing:.16em;color:#ffffff;margin-top:5px;text-transform:uppercase;white-space:nowrap">Cinese &middot; Giapponese</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:clamp(12px,2vw,22px)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <button onClick="{{ setLangIt }}" aria-label="Italiano" style="{{ langItBtnStyle }}">
+          <svg width="22" height="16" viewBox="0 0 3 2"><rect width="1" height="2" fill="#008C45"></rect><rect x="1" width="1" height="2" fill="#F4F5F0"></rect><rect x="2" width="1" height="2" fill="#CD212A"></rect></svg>
+        </button>
+        <button onClick="{{ setLangEn }}" aria-label="English" style="{{ langEnBtnStyle }}">
+          <svg width="22" height="16" viewBox="0 0 60 40"><rect width="60" height="40" fill="#012169"></rect><path d="M0 0 60 40M60 0 0 40" stroke="#FFF" strokeWidth="8"></path><path d="M0 0 60 40M60 0 0 40" stroke="#C8102E" strokeWidth="4"></path><path d="M30 0V40M0 20H60" stroke="#FFF" strokeWidth="14"></path><path d="M30 0V40M0 20H60" stroke="#C8102E" strokeWidth="8"></path></svg>
+        </button>
+      </div>
+      <button onClick="{{ toggleMenu }}" aria-label="Menu" style="display:flex;flex-direction:column;justify-content:center;gap:6px;background:none;border:none;cursor:pointer;padding:10px;width:44px;height:44px">
+        <span style="width:22px;height:2px;background:#f4ead9;display:block;border-radius:1px"></span>
+        <span style="width:22px;height:2px;background:#f4ead9;display:block;border-radius:1px"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- FULLSCREEN NAV OVERLAY -->
+<sc-if value="{{ menuOpen }}">
+  <div style="position:fixed;inset:0;background:#141110;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(14px,3vw,22px)">
+    <button onClick="{{ toggleMenu }}" aria-label="Chiudi" style="position:absolute;top:clamp(18px,3vw,30px);right:clamp(20px,5vw,50px);background:none;border:1px solid rgba(244,234,217,.2);color:#f4ead9;font-size:22px;cursor:pointer;line-height:1;font-family:'Manrope',sans-serif;width:44px;height:44px;border-radius:50%">&times;</button>
+    <span style="color:#ffffff;font-size:12px;letter-spacing:.3em;text-transform:uppercase;margin-bottom:18px">YUAN</span>
+    <sc-for list="{{ navLinks }}" as="link" hint-placeholder-count="6">
+      <a href="{{ link.href }}" onClick="{{ toggleMenu }}" style="font-family:'Zen Old Mincho',serif;font-size:clamp(30px,6.4vw,54px);color:#f4ead9;letter-spacing:.01em" style-hover="color:#ffffff">{{ link.label }}</a>
+    </sc-for>
+    <div style="margin-top:28px;display:flex;gap:14px;color:rgba(244,234,217,.45);font-size:13px;letter-spacing:.05em">
+      <span>{{ t.footerPhone }}</span><span>&middot;</span><span>{{ t.footerAddr }}</span>
+    </div>
+  </div>
+</sc-if>
+
+<!-- HERO -->
+<section style="position:relative;min-height:78svh;display:flex;flex-direction:column;justify-content:center;padding:0;background:radial-gradient(ellipse at 50% 20%,#261e19,#141110 70%)">
+  <div style="position:absolute;inset:0;z-index:0">
+    <image-slot id="hero-bg" shape="rect" placeholder="Foto del locale o di un piatto signature" fit="cover" style="width:100%;height:100%;filter:brightness(0.72) saturate(1.05)"></image-slot>
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,17,16,.2) 0%,rgba(20,17,16,.35) 45%,#141110 100%)"></div>
+    <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(20,17,16,.55) 0%,rgba(20,17,16,0) 45%)"></div>
+  </div>
+  <div style="position:relative;z-index:1;padding:clamp(90px,9vw,110px) clamp(22px,5vw,60px) clamp(30px,5vw,50px);animation:yuan-fadeup 1s ease both;max-width:1320px;margin:0 auto;width:100%">
+    <div style="display:inline-flex;align-items:center;gap:14px;color:#f4ead9;font-size:clamp(12px,1.4vw,15px);letter-spacing:.3em;text-transform:uppercase;margin-bottom:22px;background:rgba(20,17,16,.4);backdrop-filter:blur(6px);border:1px solid rgba(244,234,217,.25);padding:10px 20px">
+      <span style="width:28px;height:1px;background:#ffffff;display:inline-block"></span>{{ t.heroKicker }}
+    </div>
+    <h1 style="font-family:'Zen Old Mincho',serif;font-size:clamp(56px,11vw,130px);line-height:.9;margin:0 0 20px;color:#f4ead9;letter-spacing:.005em">YUAN</h1>
+    <p style="max-width:580px;font-size:clamp(15px,1.6vw,18px);line-height:1.6;color:rgba(244,234,217,.8);margin:0 0 28px;text-wrap:pretty">{{ t.heroSubtitle }}</p>
+    <div style="display:flex;flex-wrap:wrap;gap:18px;align-items:center">
+      <a href="#prenota" style="background:#9c2a2e;color:#f4ead9;padding:19px 40px;border-radius:999px;font-weight:700;font-size:14px;letter-spacing:.06em;display:inline-flex;align-items:center;justify-content:center;gap:10px;text-transform:uppercase;white-space:nowrap;box-shadow:0 16px 36px -10px rgba(156,42,46,.7);transition:transform .25s ease" style-hover="background:#b53236;box-shadow:0 20px 42px -10px rgba(156,42,46,.85);transform:translateY(-2px)">{{ t.ctaBook }} <span>&rarr;</span></a>
+      <a href="#ordina" style="border:1.5px solid rgba(244,234,217,.4);color:#f4ead9;padding:19px 40px;border-radius:999px;font-weight:700;font-size:14px;letter-spacing:.06em;display:inline-flex;align-items:center;justify-content:center;text-transform:uppercase;white-space:nowrap;transition:all .25s ease" style-hover="border-color:#ffffff;color:#141110;background:#f4ead9;transform:translateY(-2px)">{{ t.ctaOrder }}</a>
+    </div>
+  </div>
+  <div style="position:relative;z-index:1;display:flex;justify-content:center;padding-bottom:28px">
+    <div style="width:1px;height:34px;background:linear-gradient(180deg,rgba(244,234,217,.6),transparent);animation:yuan-bounce 2s ease infinite"></div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div style="border-top:1px solid rgba(244,234,217,.12);border-bottom:1px solid rgba(244,234,217,.12);overflow:hidden;padding:18px 0;background:#1b1613">
+  <div style="display:flex;width:max-content;animation:yuan-ticker 30s linear infinite;gap:52px;white-space:nowrap">
+    <sc-for list="{{ tickerDouble }}" as="word" hint-placeholder-count="16">
+      <span style="font-family:'Zen Old Mincho',serif;font-size:clamp(14px,1.6vw,21px);color:rgba(244,234,217,.5);letter-spacing:.1em">{{ word }} <span style="color:#9c2a2e">&#10022;</span></span>
+    </sc-for>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section style="position:relative;overflow:hidden;min-height:100svh;display:flex;align-items:center">
+  <div style="position:absolute;inset:0;z-index:0">
+    <image-slot id="about-img" shape="rect" placeholder="Foto dello chef o del locale" fit="cover" style="width:100%;height:100%;filter:brightness(.55)"></image-slot>
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,17,16,.35) 0%,rgba(20,17,16,.55) 55%,rgba(20,17,16,.75) 100%)"></div>
+  </div>
+  <div style="position:relative;z-index:1;max-width:720px;padding:clamp(60px,10vw,110px) clamp(22px,5vw,60px)">
+    <div style="color:#f4ead9;font-size:13px;letter-spacing:.26em;text-transform:uppercase;margin-bottom:18px;background:rgba(20,17,16,.4);backdrop-filter:blur(6px);border:1px solid rgba(244,234,217,.25);padding:10px 20px;display:inline-block">{{ t.aboutKicker }}</div>
+    <h2 style="font-family:'Zen Old Mincho',serif;font-size:clamp(34px,4.6vw,54px);margin:0 0 24px;line-height:1.08">{{ t.aboutTitle }}</h2>
+    <p style="font-size:clamp(15px,1.6vw,17px);line-height:1.8;color:rgba(244,234,217,.9);margin:0 0 20px;text-wrap:pretty">{{ t.aboutBody1 }}</p>
+    <p style="font-size:clamp(15px,1.6vw,17px);line-height:1.8;color:rgba(244,234,217,.8);margin:0 0 32px;text-wrap:pretty">{{ t.aboutBody2 }}</p>
+    <div style="border-top:1px solid rgba(244,234,217,.25);padding-top:28px;display:flex;align-items:center;gap:16px">
+      <span style="font-family:'Zen Old Mincho',serif;font-size:34px;color:#ffffff;line-height:1">&ldquo;</span>
+      <p style="font-family:'Zen Old Mincho',serif;font-style:italic;font-size:clamp(18px,2vw,22px);color:rgba(244,234,217,.9);margin:0;line-height:1.5">{{ t.aboutQuote }}</p>
+    </div>
+  </div>
+</section>
+
+<!-- MENU -->
+<section id="menu" style="padding:clamp(80px,12vw,150px) clamp(22px,5vw,60px);background:#1b1613">
+  <div style="max-width:1320px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:clamp(40px,6vw,60px)">
+      <div style="color:#ffffff;font-size:13px;letter-spacing:.26em;text-transform:uppercase;margin-bottom:18px">{{ t.menuKicker }}</div>
+      <h2 style="font-family:'Zen Old Mincho',serif;font-size:clamp(34px,4.6vw,54px);margin:0">{{ t.menuTitle }}</h2>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:clamp(40px,6vw,60px);max-width:720px;margin-left:auto;margin-right:auto">
+      <button onClick="{{ scrollMenuTabsLeft }}" aria-label="Precedente" style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(244,234,217,.25);background:none;color:#f4ead9;cursor:pointer;flex:none;font-size:15px" style-hover="border-color:#ffffff;color:#ffffff">&lsaquo;</button>
+      <div ref="{{ menuTabsRef }}" class="tab-scroll" style="display:flex;gap:4px;overflow-x:auto;flex:1;white-space:nowrap">
+        <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="6">
+          <button onClick="{{ selectCategory }}" data-cat="{{ cat.id }}" style="{{ cat.btnStyle }};flex:none">{{ cat.label }}</button>
+        </sc-for>
+      </div>
+      <button onClick="{{ scrollMenuTabsRight }}" aria-label="Successivo" style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(244,234,217,.25);background:none;color:#f4ead9;cursor:pointer;flex:none;font-size:15px" style-hover="border-color:#ffffff;color:#ffffff">&rsaquo;</button>
+    </div>
+    <div style="{{ menuGridStyle }}">
+      <sc-for list="{{ activeItems }}" as="item" hint-placeholder-count="4">
+        <div style="background:#211c19;display:flex;flex-direction:column;transition:transform .3s ease;min-width:0" style-hover="transform:translateY(-4px)">
+          <div style="aspect-ratio:16/10;width:100%;position:relative">
+            <image-slot id="{{ item.imgId }}" shape="rect" placeholder="{{ item.placeholder }}" style="width:100%;height:100%"></image-slot>
+            <div style="position:absolute;top:12px;left:12px;background:rgba(20,17,16,.75);color:#ffffff;font-family:'Jost',sans-serif;font-weight:600;font-size:12px;padding:4px 10px;letter-spacing:.05em">{{ item.num }}</div>
+          </div>
+          <div style="padding:22px 22px 24px;display:flex;flex-direction:column;flex:1">
+            <div style="display:flex;justify-content:space-between;gap:14px;align-items:baseline">
+              <h3 style="font-family:'Zen Old Mincho',serif;font-size:19px;margin:0;color:#f4ead9;min-width:0">{{ item.name }}</h3>
+              <span style="color:#ffffff;font-family:'Jost',sans-serif;font-weight:700;font-size:17px;white-space:nowrap;flex:none">&euro;{{ item.price }}</span>
+            </div>
+            <p style="font-size:14px;color:rgba(244,234,217,.68);line-height:1.6;margin:12px 0 0">{{ item.desc }}</p>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <p style="text-align:center;margin-top:44px;color:rgba(244,234,217,.45);font-size:14px;letter-spacing:.02em">{{ t.menuFootnote }}</p>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section style="padding:clamp(80px,12vw,150px) 0">
+  <div style="text-align:center;margin-bottom:clamp(40px,6vw,60px);padding:0 20px">
+    <div style="color:#ffffff;font-size:13px;letter-spacing:.26em;text-transform:uppercase;margin-bottom:18px">{{ t.galleryKicker }}</div>
+    <h2 style="font-family:'Zen Old Mincho',serif;font-size:clamp(34px,4.6vw,54px);margin:0">{{ t.galleryTitle }}</h2>
+  </div>
+  <div style="{{ galleryGridStyle }}">
+    <sc-for list="{{ galleryImgs }}" as="g" hint-placeholder-count="6">
+      <div style="aspect-ratio:1/1;width:100%;overflow:hidden;position:relative">
+        <image-slot id="{{ g.id }}" shape="rect" placeholder="{{ g.placeholder }}" style="width:100%;height:100%"></image-slot>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+<!-- RESERVATION -->
+<section id="prenota" style="padding:clamp(80px,12vw,150px) clamp(22px,5vw,60px);background:#1b1613;position:relative;overflow:hidden">
+  <div style="max-width:1160px;margin:0 auto;position:relative;z-index:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:clamp(0px,4vw,0px);box-shadow:0 40px 90px -40px rgba(0,0,0,.6)">
+    <div style="aspect-ratio:4/5;width:100%;min-height:320px">
+      <image-slot id="booking-img" shape="rect" placeholder="Foto sala/tavolo apparecchiato" style="width:100%;height:100%"></image-slot>
+    </div>
+    <div style="background:#211c19;padding:clamp(36px,5vw,56px)">
+      <div style="color:#ffffff;font-size:13px;letter-spacing:.26em;text-transform:uppercase;margin-bottom:16px">{{ t.bookKicker }}</div>
+      <h2 style="font-family:'Zen Old Mincho',serif;font-size:clamp(30px,4vw,42px);margin:0 0 14px">{{ t.bookTitle }}</h2>
+      <p style="color:rgba(244,234,217,.6);font-size:14px;margin:0 0 32px">{{ t.bookSubtitle }}</p>
+
+      <sc-if value="{{ bookingSubmitted }}" hint-placeholder-val="{{ false }}">
+        <div style="border:1px solid rgba(201,169,97,.4);background:rgba(201,169,97,.08);padding:32px;text-align:center">
+          <div style="font-family:'Zen Old Mincho',serif;font-size:22px;color:#ffffff;margin-bottom:10px">{{ t.bookSuccessTitle }}</div>
+          <p style="color:rgba(244,234,217,.75);margin:0 0 20px;line-height:1.6;font-size:14px">{{ t.bookSuccessBody }}</p>
+          <button onClick="{{ resetBooking }}" style="background:none;border:1px solid rgba(244,234,217,.3);color:#f4ead9;padding:12px 28px;cursor:pointer;letter-spacing:.03em;font-size:13px">{{ t.bookAnother }}</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ bookingNotSubmitted }}" hint-placeholder-val="{{ true }}">
+        <form onSubmit="{{ submitBooking }}" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px">
+          <div style="grid-column:1 / -1">
+            <label style="{{ labelStyle }}">{{ t.fieldName }}</label>
+            <input required="{{ true }}" value="{{ booking.name }}" onChange="{{ setBookingName }}" style="{{ inputStyle }}"></input>
+          </div>
+          <div>
+            <label style="{{ labelStyle }}">{{ t.fieldPhone }}</label>
+            <input required="{{ true }}" type="tel" value="{{ booking.phone }}" onChange="{{ setBookingPhone }}" style="{{ inputStyle }}"></input>
+          </div>
+          <div>
+            <label style="{{ labelStyle }}">{{ t.fieldGuests }}</label>
+            <input required="{{ true }}" type="number" min="1" value="{{ booking.guests }}" onChange="{{ setBookingGuests }}" style="{{ inputStyle }}"></input>
+          </div>
+          <div>
+            <label style="{{ labelStyle }}">{{ t.fieldDate }}</label>
+            <input required="{{ true }}" type="date" value="{{ booking.date }}" onChange="{{ setBookingDate }}" style="{{ inputStyle }}"></input>
+          </div>
+          <div>
+            <label style="{{ labelStyle }}">{{ t.fieldTime }}</label>
+            <input required="{{ true }}" type="time" value="{{ booking.time }}" onChange="{{ setBookingTime }}" style="{{ inputStyle }}"></input>
+          </div>
+          <div style="grid-column:1 / -1">
+            <label style="{{ labelStyle }}">{{ t.fieldNotes }}</label>
+            <textarea value="{{ booking.notes }}" onChange="{{ setBookingNotes }}" rows="3" style="{{ inputStyle }};resize:vertical;font-family:'Jost',sans-serif"></textarea>
+          </div>
+          <button type="submit" style="grid-column:1 / -1;background:#9c2a2e;color:#f4ead9;border:none;padding:18px;font-weight:600;letter-spacing:.06em;font-size:14px;cursor:pointer;margin-top:8px;text-transform:uppercase" style-hover="background:#b53236">{{ t.bookSubmit }}</button>
+        </form>
+      </sc-if>
+    </div>
+  </div>
+</section>
+
+<!-- ORDER ONLINE -->
+<section id="ordina" style="padding:clamp(80px,12vw,150px) clamp(22px,5vw,60px)">
+  <div style="max-width:1160px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="color:#ffffff;font-size:13px;letter-spacing:.26em;text-transform:uppercase;margin-bottom:18px">{{ t.orderKicker }}</div>
+      <h2 style="font-family:'Zen Old Mincho',serif;font-size:clamp(34px,4.6vw,54px);margin:0 0 24px">{{ t.orderTitle }}</h2>
+    </div>
+    <div style="border:1px solid rgba(201,169,97,.35);background:linear-gradient(90deg,rgba(201,169,97,.12),rgba(201,169,97,.02));padding:22px 28px;text-align:center;margin-bottom:56px;font-size:14px;color:#ffffff;letter-spacing:.02em">
+      &#10022;&nbsp; {{ t.promoText }}
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:44px;align-items:start">
+      <div style="min-width:0">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px">
+        <button onClick="{{ scrollOrderTabsLeft }}" aria-label="Precedente" style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(244,234,217,.25);background:none;color:#f4ead9;cursor:pointer;flex:none;font-size:15px" style-hover="border-color:#ffffff;color:#ffffff">&lsaquo;</button>
+        <div ref="{{ orderTabsRef }}" class="tab-scroll" style="display:flex;gap:4px;overflow-x:auto;flex:1;white-space:nowrap">
+          <sc-for list="{{ orderCategories }}" as="cat" hint-placeholder-count="6">
+            <button onClick="{{ selectOrderCategory }}" data-cat="{{ cat.id }}" style="{{ cat.btnStyle }};flex:none">{{ cat.label }}</button>
+          </sc-for>
+        </div>
+        <button onClick="{{ scrollOrderTabsRight }}" aria-label="Successivo" style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(244,234,217,.25);background:none;color:#f4ead9;cursor:pointer;flex:none;font-size:15px" style-hover="border-color:#ffffff;color:#ffffff">&rsaquo;</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:2px;background:rgba(244,234,217,.08)">
+        <sc-for list="{{ activeOrderItems }}" as="oi" hint-placeholder-count="4">
+          <div style="background:#211c19;padding:14px;display:flex;align-items:center;gap:14px;min-width:0">
+            <div style="width:64px;height:64px;flex:none">
+              <image-slot id="{{ oi.imgId }}" shape="rounded" radius="6" placeholder="{{ oi.name }}" style="width:100%;height:100%"></image-slot>
+            </div>
+            <div style="flex:1;min-width:0">
+              <div style="font-family:'Zen Old Mincho',serif;font-size:16px;color:#f4ead9">{{ oi.name }}</div>
+              <div style="font-size:12px;color:rgba(244,234,217,.55);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ oi.desc }}</div>
+              <div style="color:#ffffff;font-weight:700;font-size:14px;margin-top:6px">&euro;{{ oi.price }}</div>
+            </div>
+            <button onClick="{{ addToCart }}" data-id="{{ oi.id }}" style="width:38px;height:38px;border-radius:50%;border:1px solid rgba(244,234,217,.3);background:none;color:#f4ead9;font-size:19px;cursor:pointer;flex:none" style-hover="background:#9c2a2e;border-color:#9c2a2e">+</button>
+          </div>
+        </sc-for>
+      </div>
+      </div>
+
+      <div style="background:#211c19;border:1px solid rgba(244,234,217,.1);padding:28px;position:sticky;top:100px;box-shadow:0 30px 70px -35px rgba(0,0,0,.6)">
+        <h3 style="font-family:'Zen Old Mincho',serif;font-size:19px;margin:0 0 20px;color:#f4ead9">{{ t.cartTitle }}</h3>
+        <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ true }}">
+          <p style="color:rgba(244,234,217,.5);font-size:14px;margin:0 0 20px">{{ t.cartEmpty }}</p>
+        </sc-if>
+        <sc-for list="{{ cartLines }}" as="line" hint-placeholder-count="0">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(244,234,217,.08);font-size:14px">
+            <span>{{ line.name }} &times;{{ line.qty }}</span>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="color:#ffffff">&euro;{{ line.subtotal }}</span>
+              <button onClick="{{ removeFromCart }}" data-id="{{ line.id }}" style="background:none;border:none;color:rgba(244,234,217,.4);cursor:pointer;font-size:16px">&times;</button>
+            </div>
+          </div>
+        </sc-for>
+        <div style="display:flex;justify-content:space-between;padding:20px 0 24px;font-family:'Zen Old Mincho',serif;font-size:19px">
+          <span>{{ t.cartTotal }}</span><span style="color:#ffffff">&euro;{{ cartTotalValue }}</span>
+        </div>
+        <sc-if value="{{ orderSubmitted }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;color:#ffffff;font-size:14px;line-height:1.6">{{ t.orderSuccess }}</div>
+        </sc-if>
+        <sc-if value="{{ orderNotSubmitted }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ submitOrder }}" disabled="{{ cartEmpty }}" style="{{ checkoutBtnStyle }}">{{ t.checkout }}</button>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOCATION -->
+<section style="padding:clamp(80px,12vw,150px) clamp(22px,5vw,60px);background:#1b1613">
+  <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:clamp(36px,6vw,70px);align-items:center">
+    <div>
+      <div style="color:#ffffff;font-size:13px;letter-spacing:.26em;text-transform:uppercase;margin-bottom:18px">{{ t.locKicker }}</div>
+      <h2 style="font-family:'Zen Old Mincho',serif;font-size:clamp(32px,4.5vw,46px);margin:0 0 32px">{{ t.locTitle }}</h2>
+      <div style="display:flex;flex-direction:column;gap:26px">
+        <div style="border-left:2px solid rgba(201,169,97,.4);padding-left:18px">
+          <div style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:rgba(244,234,217,.5);margin-bottom:7px">{{ t.locAddrLabel }}</div>
+          <div style="font-size:17px;color:#f4ead9">Via Porrettana, 109 &mdash; Pontecchio Marconi (BO)</div>
+        </div>
+        <div style="border-left:2px solid rgba(201,169,97,.4);padding-left:18px">
+          <div style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:rgba(244,234,217,.5);margin-bottom:7px">{{ t.locHoursLabel }}</div>
+          <div style="font-size:17px;color:#f4ead9;line-height:1.7">{{ t.locHours1 }}<br></br>{{ t.locHours2 }}</div>
+        </div>
+        <div style="border-left:2px solid rgba(201,169,97,.4);padding-left:18px">
+          <div style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:rgba(244,234,217,.5);margin-bottom:7px">{{ t.locPhoneLabel }}</div>
+          <a href="tel:+390518452986" style="font-size:17px;color:#ffffff">051 845286</a>
+        </div>
+      </div>
+    </div>
+    <div style="position:relative;aspect-ratio:4/3;width:100%">
+      <iframe src="https://www.google.com/maps?q=Via+Porrettana+109+Pontecchio+Marconi+BO&output=embed" style="width:100%;height:100%;border:0;filter:grayscale(.25) contrast(1.05)" loading="lazy" title="Mappa YUAN"></iframe>
+      <a href="https://www.google.com/maps/search/?api=1&query=Via+Porrettana+109+Pontecchio+Marconi+BO" target="_blank" rel="noopener" aria-label="Apri in Google Maps" style="position:absolute;inset:0"></a>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT / FOOTER -->
+<footer id="contatti" style="padding:clamp(60px,8vw,90px) clamp(22px,5vw,60px) 34px;position:relative">
+  <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,169,97,.5),transparent)"></div>
+  <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:40px;padding-bottom:44px;border-bottom:1px solid rgba(244,234,217,.1)">
+    <div>
+      <div style="font-family:'Zen Old Mincho',serif;font-size:26px;letter-spacing:.14em;margin-bottom:16px">YUAN</div>
+      <p style="color:rgba(244,234,217,.5);font-size:14px;line-height:1.7;max-width:280px">{{ t.footerTagline }}</p>
+    </div>
+    <div>
+      <div style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#ffffff;margin-bottom:18px">{{ t.footerNavTitle }}</div>
+      <div style="display:flex;flex-direction:column;gap:11px">
+        <sc-for list="{{ navLinks }}" as="link" hint-placeholder-count="6">
+          <a href="{{ link.href }}" style="color:rgba(244,234,217,.65);font-size:14px">{{ link.label }}</a>
+        </sc-for>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#ffffff;margin-bottom:18px">{{ t.footerContactTitle }}</div>
+      <div style="display:flex;flex-direction:column;gap:11px;font-size:14px;color:rgba(244,234,217,.65)">
+        <span>Via Porrettana, 109, Pontecchio Marconi (BO)</span>
+        <a href="tel:+390518452986" style="color:rgba(244,234,217,.65)">051 845286</a>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;padding-top:28px;color:rgba(244,234,217,.32);font-size:12px;letter-spacing:.05em">&copy; 2026 YUAN &mdash; Ristorante Asiatico. {{ t.footerRights }}</div>
+</footer>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const DICT = {
+  it: {
+    heroKicker: 'Cucina Cinese & Giapponese',
+    heroSubtitle: 'Riso appena scaldato, pesce tagliato al momento, il profumo del wok che sale in sala: cucina cinese e giapponese fatta ogni giorno, a Pontecchio Marconi.',
+    ctaBook: 'Prenota un tavolo',
+    ctaOrder: 'Ordina online',
+    aboutKicker: 'La nostra storia',
+    aboutTitle: 'Due tradizioni, una tavola',
+    aboutBody1: 'Salmone e tonno tagliati a mano, wok che sprigiona il profumo di aglio e zenzero, riso al vapore ogni ora: da anni uniamo la precisione giapponese al calore della cucina cinese in un unico menu, pensato per essere condiviso a tavola.',
+    aboutBody2: 'Solo ingredienti freschi, selezionati ogni giorno, per un piatto che sa davvero di casa e di viaggio insieme \u2014 in sala o comodamente a domicilio.',
+    aboutQuote: 'Il segreto non \u00e8 il piatto perfetto, \u00e8 la fame che lascia dopo l\u2019ultimo boccone.',
+    menuKicker: 'Il Menu',
+    menuTitle: 'Sapori da scoprire',
+    menuFootnote: 'Menu completo disponibile in loco e per asporto \u2014 chiedi la nostra carta integrale.',
+    galleryKicker: 'Atmosfera',
+    galleryTitle: 'Galleria',
+    bookKicker: 'Prenotazioni',
+    bookTitle: 'Prenota il tuo tavolo',
+    bookSubtitle: 'Ti confermeremo la prenotazione telefonicamente entro breve.',
+    fieldName: 'Nome e cognome', fieldPhone: 'Telefono', fieldGuests: 'Numero persone',
+    fieldDate: 'Data', fieldTime: 'Ora', fieldNotes: 'Note (opzionale)',
+    bookSubmit: 'Conferma prenotazione',
+    bookSuccessTitle: 'Richiesta ricevuta',
+    bookSuccessBody: 'Grazie! La tua richiesta di prenotazione \u00e8 stata inviata. Ti contatteremo per la conferma.',
+    bookAnother: 'Nuova prenotazione',
+    orderKicker: 'Asporto', orderTitle: 'Ordina online',
+    promoText: 'Spesa minima \u20ac30 in asporto: in omaggio 1 bottiglia di Coca Cola o Birra Cinese.',
+    cartTitle: 'Il tuo ordine', cartEmpty: 'Nessun articolo selezionato.', cartTotal: 'Totale',
+    checkout: 'Invia ordine',
+    orderSuccess: 'Ordine inviato! Ti chiameremo per confermare i tempi di ritiro.',
+    locKicker: 'Come raggiungerci', locTitle: 'Dove siamo',
+    locAddrLabel: 'Indirizzo', locHoursLabel: 'Orari', locPhoneLabel: 'Telefono',
+    locHours1: 'Pranzo 12:00 \u2013 14:30', locHours2: 'Cena 18:30 \u2013 22:30 \u00b7 Chiuso il luned\u00ec',
+    footerTagline: 'Ristorante Asiatico \u2014 Cinese e Giapponese. Sushi, asporto e prenotazioni a Pontecchio Marconi.',
+    footerNavTitle: 'Naviga', footerContactTitle: 'Contatti', footerRights: 'Tutti i diritti riservati.',
+    footerPhone: '051 845286', footerAddr: 'Pontecchio Marconi (BO)'
+  },
+  en: {
+    heroKicker: 'Chinese & Japanese Cuisine',
+    heroSubtitle: 'Sushi, sashimi and Chinese specialties in Pontecchio Marconi. A refined experience, every day.',
+    ctaBook: 'Book a table', ctaOrder: 'Order online',
+    aboutKicker: 'Our story', aboutTitle: 'Two traditions, one table',
+    aboutBody1: 'For years we have brought the best of Asian cuisine to Pontecchio Marconi: the precision of Japanese sushi and the warmth of Chinese flavors, in one menu made to be shared.',
+    aboutBody2: 'Every dish is made from selected ingredients and artisanal technique, for an experience that blends elegance and conviviality, in the dining room or at home.',
+    aboutQuote: 'The secret isn\u2019t the perfect dish \u2014 it\u2019s the hunger it leaves behind after the last bite.',
+    menuKicker: 'The Menu', menuTitle: 'Flavors to discover',
+    menuFootnote: 'Full menu available in-house and for takeaway \u2014 ask for our complete card.',
+    galleryKicker: 'Atmosphere', galleryTitle: 'Gallery',
+    bookKicker: 'Reservations', bookTitle: 'Reserve your table',
+    bookSubtitle: 'We will confirm your reservation by phone shortly.',
+    fieldName: 'Full name', fieldPhone: 'Phone', fieldGuests: 'Guests',
+    fieldDate: 'Date', fieldTime: 'Time', fieldNotes: 'Notes (optional)',
+    bookSubmit: 'Confirm reservation',
+    bookSuccessTitle: 'Request received',
+    bookSuccessBody: 'Thank you! Your reservation request has been sent. We will contact you to confirm.',
+    bookAnother: 'New reservation',
+    orderKicker: 'Takeaway', orderTitle: 'Order online',
+    promoText: 'Minimum takeaway order \u20ac30: get a free Coke or Chinese beer.',
+    cartTitle: 'Your order', cartEmpty: 'No items selected yet.', cartTotal: 'Total',
+    checkout: 'Send order',
+    orderSuccess: 'Order sent! We will call you to confirm pickup time.',
+    locKicker: 'Find us', locTitle: 'Location',
+    locAddrLabel: 'Address', locHoursLabel: 'Hours', locPhoneLabel: 'Phone',
+    locHours1: 'Lunch 12:00 \u2013 14:30', locHours2: 'Dinner 18:30 \u2013 22:30 \u00b7 Closed on Mondays',
+    footerTagline: 'Asian Restaurant \u2014 Chinese and Japanese. Sushi, takeaway and reservations in Pontecchio Marconi.',
+    footerNavTitle: 'Navigate', footerContactTitle: 'Contact', footerRights: 'All rights reserved.',
+    footerPhone: '051 845286', footerAddr: 'Pontecchio Marconi (BO)'
+  }
+};
+
+const CATEGORIES = [
+  { id: 'sushi', it: 'Sushi & Sashimi', items: [
+    { name: 'Sushi misto', desc: '6 pz nigiri, 4 pz maki misti', price: '9.00' },
+    { name: 'Sashimi misti', desc: '12 pz salmone, tonno, branzino', price: '11.00' },
+    { name: 'Cirashi sake', desc: 'Sushi riso con salmone', price: '11.00' },
+    { name: 'Saudate', desc: 'Selezione dello chef', price: '6.50' }
+  ]},
+  { id: 'uramaki', it: 'Uramaki', items: [
+    { name: 'California maki', desc: 'Granchio, avocado', price: '6.50' },
+    { name: 'Philadelphia maki', desc: 'Salmone, avocado, philadelphia', price: '6.50' },
+    { name: 'Spicetuna maki', desc: 'Tonno piccante, tobiko, maionese', price: '7.50' },
+    { name: 'Uramaki "Salmon"', desc: 'Salmone, avocado, rivestito pesce misto', price: '7.50' }
+  ]},
+  { id: 'temaki', it: 'Temaki (Cono)', items: [
+    { name: 'Cono salmone', desc: 'Salmone, avocado', price: '3.50' },
+    { name: 'Cono Philadelphia', desc: 'Salmone, philadelphia', price: '4.00' },
+    { name: 'Cono California', desc: 'Granchio, avocado', price: '3.50' },
+    { name: 'Cono spicesake', desc: 'Salmone piccante, cetriolo', price: '3.50' }
+  ]},
+  { id: 'hosokami', it: 'Hosokami', items: [
+    { name: 'Sake maki', desc: 'Salmone', price: '3.50' },
+    { name: 'Tekka maki', desc: 'Tonno', price: '3.00' },
+    { name: 'Avocado maki', desc: 'Avocado', price: '3.00' },
+    { name: 'California hoso maki', desc: 'Pollo fritto', price: '3.50' }
+  ]},
+  { id: 'barche', it: 'Barche', items: [
+    { name: 'Barca loves', desc: '8 pz maki, 8 pz nigiri, 3 pz sashimi', price: '19.90' },
+    { name: 'Barca party', desc: '12 pz maki, 16 pz nigiri, 9 pz sashimi', price: '26.90' }
+  ]},
+  { id: 'dolce', it: 'Dolci', items: [
+    { name: 'Gelato fritto', desc: 'Fritto croccante', price: '3.00' },
+    { name: 'Dolce di "Yuan"', desc: 'Specialit\u00e0 della casa', price: '3.00' },
+    { name: 'Ananas fresco', desc: 'Frutta di stagione', price: '3.00' }
+  ]}
+];
+
+const ORDER_ITEMS = CATEGORIES.flatMap(c => c.items.map((it, i) => ({
+  id: `${c.id}-${i}`,
+  cat: c.id,
+  name: it.name,
+  desc: it.desc,
+  price: parseFloat(it.price),
+  imgId: `order-${c.id}-${i}`
+})));
+
+const NAV_LINKS = {
+  it: [
+    { href: '#menu', label: 'Menu' },
+    { href: '#prenota', label: 'Prenota' },
+    { href: '#ordina', label: 'Ordina' },
+    { href: '#contatti', label: 'Contatti' }
+  ],
+  en: [
+    { href: '#menu', label: 'Menu' },
+    { href: '#prenota', label: 'Book' },
+    { href: '#ordina', label: 'Order' },
+    { href: '#contatti', label: 'Contact' }
+  ]
+};
+
+class Component extends DCLogic {
+  state = {
+    lang: 'it',
+    menuOpen: false,
+    scrolled: false,
+    activeCategory: 'sushi',
+    orderCategory: 'sushi',
+    booking: { name: '', phone: '', guests: 2, date: '', time: '', notes: '' },
+    bookingSubmitted: false,
+    cart: {},
+    orderSubmitted: false
+  };
+
+  menuTabsRef = React.createRef();
+  orderTabsRef = React.createRef();
+
+  componentDidMount() {
+    this._onScroll = () => this.setState({ scrolled: window.scrollY > 40 });
+    window.addEventListener('scroll', this._onScroll);
+    this._onResize = () => this.setState({ winWidth: window.innerWidth });
+    window.addEventListener('resize', this._onResize);
+    this._onResize();
+  }
+
+  scrollTabs = (ref, dir) => { if (ref.current) ref.current.scrollBy({ left: dir * 200, behavior: 'smooth' }); };
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this._onScroll);
+    window.removeEventListener('resize', this._onResize);
+  }
+
+  setLang(l) { this.setState({ lang: l }); }
+  toggleMenu = () => this.setState(s => ({ menuOpen: !s.menuOpen }));
+  selectCategory = (e) => this.setState({ activeCategory: e.currentTarget.dataset.cat });
+  selectOrderCategory = (e) => this.setState({ orderCategory: e.currentTarget.dataset.cat });
+
+  setBookingField(field, value) {
+    this.setState(s => ({ booking: { ...s.booking, [field]: value } }));
+  }
+  submitBooking = (e) => { e.preventDefault(); this.setState({ bookingSubmitted: true }); };
+  resetBooking = () => this.setState({ bookingSubmitted: false, booking: { name: '', phone: '', guests: 2, date: '', time: '', notes: '' } });
+
+  addToCart = (e) => {
+    const id = e.currentTarget.dataset.id;
+    this.setState(s => ({ cart: { ...s.cart, [id]: (s.cart[id] || 0) + 1 } }));
+  };
+  removeFromCart = (e) => {
+    const id = e.currentTarget.dataset.id;
+    this.setState(s => {
+      const cart = { ...s.cart };
+      if (cart[id] > 1) cart[id] -= 1; else delete cart[id];
+      return { cart };
+    });
+  };
+  submitOrder = () => this.setState({ orderSubmitted: true });
+
+  renderVals() {
+    const lang = this.state.lang;
+    const t = DICT[lang];
+    const navLinks = NAV_LINKS[lang];
+    const tickerWords = [t.heroKicker, 'Sushi', 'Sashimi', 'Ramen', 'Dim Sum', lang === 'it' ? 'Asporto' : 'Takeaway'];
+    const tickerDouble = tickerWords.concat(tickerWords);
+
+    const categories = CATEGORIES.map(c => {
+      const active = c.id === this.state.activeCategory;
+      return {
+        id: c.id,
+        label: c.it,
+        btnStyle: `padding:11px 24px;font-size:13px;letter-spacing:.05em;cursor:pointer;border:none;border-bottom:2px solid ${active ? '#ffffff' : 'transparent'};background:transparent;color:${active ? '#f4ead9' : 'rgba(244,234,217,.68)'};font-weight:${active ? '700' : '500'};text-transform:uppercase`
+      };
+    });
+    const activeCat = CATEGORIES.find(c => c.id === this.state.activeCategory) || CATEGORIES[0];
+    const activeItems = activeCat.items.map((it, i) => ({
+      ...it,
+      imgId: `menu-${activeCat.id}-${i}`,
+      placeholder: `${it.name}`,
+      num: String(i + 1).padStart(2, '0')
+    }));
+
+    const stats = [
+      { value: '20+', label: lang === 'it' ? 'Anni di esperienza' : 'Years of experience' },
+      { value: '80+', label: lang === 'it' ? 'Piatti nel menu' : 'Dishes on the menu' },
+      { value: '4.6', label: lang === 'it' ? 'Valutazione media' : 'Average rating' }
+    ];
+
+    const galleryImgs = [1,2,3,4,5,6].map(i => ({ id: `gallery-${i}`, placeholder: lang === 'it' ? 'Foto locale/piatto' : 'Restaurant/dish photo' }));
+    const w = this.state.winWidth || 1200;
+    const galleryCols = w < 640 ? 2 : w < 900 ? 3 : w < 1300 ? 4 : 6;
+    const galleryGridStyle = `display:grid;grid-template-columns:repeat(${galleryCols},1fr);gap:3px;padding:0 3px`;
+    const menuCols = w < 640 ? 2 : w < 1000 ? 3 : 4;
+    const menuGridStyle = `display:grid;grid-template-columns:repeat(${menuCols},1fr);gap:2px;background:rgba(244,234,217,.08)`;
+
+    const orderCategories = CATEGORIES.map(c => {
+      const active = c.id === this.state.orderCategory;
+      return {
+        id: c.id,
+        label: c.it,
+        btnStyle: `padding:11px 24px;font-size:13px;letter-spacing:.05em;cursor:pointer;border:none;border-bottom:2px solid ${active ? '#ffffff' : 'transparent'};background:transparent;color:${active ? '#f4ead9' : 'rgba(244,234,217,.68)'};font-weight:${active ? '700' : '500'};text-transform:uppercase`
+      };
+    });
+    const activeOrderItems = ORDER_ITEMS.filter(o => o.cat === this.state.orderCategory);
+
+    const cartIds = Object.keys(this.state.cart);
+    const cartLines = cartIds.map(id => {
+      const item = ORDER_ITEMS.find(o => o.id === id);
+      const qty = this.state.cart[id];
+      return { id, name: item.name, qty, subtotal: (item.price * qty).toFixed(2) };
+    });
+    const cartTotalValue = cartLines.reduce((sum, l) => sum + parseFloat(l.subtotal), 0).toFixed(2);
+    const cartEmpty = cartLines.length === 0;
+
+    const inputStyle = 'width:100%;background:#141110;border:1px solid rgba(244,234,217,.15);color:#f4ead9;padding:14px 15px;font-size:15px;font-family:Manrope,sans-serif;outline:none;color-scheme:dark';
+    const labelStyle = 'display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:rgba(244,234,217,.5);margin-bottom:8px';
+
+    return {
+      t, navLinks, tickerDouble,
+      lang,
+      setLangIt: () => this.setLang('it'),
+      setLangEn: () => this.setLang('en'),
+      langItBtnStyle: `display:flex;padding:5px;border-radius:5px;cursor:pointer;background:none;border:1.5px solid ${lang === 'it' ? '#ffffff' : 'transparent'};opacity:${lang === 'it' ? '1' : '.5'};line-height:0`,
+      langEnBtnStyle: `display:flex;padding:5px;border-radius:5px;cursor:pointer;background:none;border:1.5px solid ${lang === 'en' ? '#ffffff' : 'transparent'};opacity:${lang === 'en' ? '1' : '.5'};line-height:0`,
+      navBarStyle: `position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(20,17,16,.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(244,234,217,.1)`,
+      toggleMenu: this.toggleMenu,
+      menuOpen: this.state.menuOpen,
+      categories, activeItems, selectCategory: this.selectCategory,
+      stats, galleryImgs, galleryGridStyle, menuGridStyle,
+      booking: this.state.booking,
+      setBookingName: (e) => this.setBookingField('name', e.target.value),
+      setBookingPhone: (e) => this.setBookingField('phone', e.target.value),
+      setBookingGuests: (e) => this.setBookingField('guests', e.target.value),
+      setBookingDate: (e) => this.setBookingField('date', e.target.value),
+      setBookingTime: (e) => this.setBookingField('time', e.target.value),
+      setBookingNotes: (e) => this.setBookingField('notes', e.target.value),
+      submitBooking: this.submitBooking,
+      bookingSubmitted: this.state.bookingSubmitted,
+      bookingNotSubmitted: !this.state.bookingSubmitted,
+      resetBooking: this.resetBooking,
+      inputStyle, labelStyle,
+      orderCategories, selectOrderCategory: this.selectOrderCategory,
+      menuTabsRef: this.menuTabsRef, orderTabsRef: this.orderTabsRef,
+      scrollMenuTabsLeft: () => this.scrollTabs(this.menuTabsRef, -1),
+      scrollMenuTabsRight: () => this.scrollTabs(this.menuTabsRef, 1),
+      scrollOrderTabsLeft: () => this.scrollTabs(this.orderTabsRef, -1),
+      scrollOrderTabsRight: () => this.scrollTabs(this.orderTabsRef, 1),
+      activeOrderItems: activeOrderItems.map(o => ({ ...o, price: o.price.toFixed(2) })),
+      addToCart: this.addToCart, removeFromCart: this.removeFromCart,
+      cartLines, cartEmpty, cartTotalValue,
+      orderSubmitted: this.state.orderSubmitted,
+      orderNotSubmitted: !this.state.orderSubmitted,
+      submitOrder: this.submitOrder,
+      checkoutBtnStyle: `width:100%;padding:16px;border:none;font-weight:700;letter-spacing:.05em;font-size:14px;cursor:${cartEmpty ? 'not-allowed' : 'pointer'};background:${cartEmpty ? 'rgba(156,42,46,.4)' : '#9c2a2e'};color:#f4ead9;text-transform:uppercase`
+    };
+  }
+}
+</script>
+</body>
+</html>
