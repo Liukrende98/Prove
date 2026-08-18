@@ -238,8 +238,8 @@
     td.c-min,td.c-media,td.c-val,td.c-utile{background:#12161f;border-radius:9px;padding:7px 10px}
     td input{width:104px;font-size:16px;padding:9px 10px;text-align:right}
     .tascainput{width:88px;font-size:16px;padding:8px 10px}
-    td.c-azioni{grid-column:1/-1;display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:9px}
-    td.c-azioni .iconbtn{font-size:19px;padding:8px 18px}
+    td.c-azioni{grid-column:1/-1;display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px;border-top:1px solid var(--line);padding-top:9px}
+    td.c-azioni .iconbtn{font-size:19px;padding:8px 12px}
     .empty{padding:26px 12px}
     .rigaprog{width:52px}
 
@@ -454,7 +454,7 @@
 
   const $ = id => document.getElementById(id);
   const out = $('out');
-  const state = {rows:[], setsIt:null, setsEn:null, route:0, busy:false, stop:false, sort:{by:'ordine', dir:1}};
+  const state = {rows:[], cmSet:{}, setsIt:null, setsEn:null, route:0, busy:false, stop:false, sort:{by:'ordine', dir:1}};
 
   /* ============ database su file .json ============ */
   const db = {
@@ -469,6 +469,7 @@
         valutazione:$('basis').value,
         album:{prima:parseInt($('inizio').value,10) || 1, perPagina:parseInt($('tasche').value,10)},
         annuncio:{condizione:$('cond').value, firma:$('firma').value, avvisoCosto:$('avvisoCosto').checked},
+        cardmarket:state.cmSet,
         righe:state.rows
       };
     },
@@ -478,6 +479,7 @@
       righe.forEach(r => { if(!r.id) r.id = rid(); if(r.qty == null) r.qty = 1; });
       state.rows = righe;
       if(dati.valutazione) $('basis').value = dati.valutazione;
+      if(dati.cardmarket && typeof dati.cardmarket === 'object') state.cmSet = dati.cardmarket;
       if(dati.annuncio){
         if(dati.annuncio.condizione) $('cond').value = dati.annuncio.condizione;
         if(dati.annuncio.firma != null) $('firma').value = dati.annuncio.firma;
@@ -635,38 +637,60 @@
   };
   const variante = v => VARIANTI[v] || v;
 
-  // La ricerca di Cardmarket guarda SOLO il nome del prodotto: mettere il nome
-  // dell'espansione nella stringa non trova nulla. La loro guida indica invece
-  // nome + numero da collezione (es. "Charizard bs4", "Charizard 4").
+  /* ---------- Cardmarket: indirizzo diretto alla scheda ----------
+     Schema reale:
+     /it/Pokemon/Products/Singles/<Espansione>/<Nome-Carta>[-V<n>]-<CODICE><numero a 3 cifre>
+     esempio: .../Singles/Mega-Evolution/Mega-Camerupt-ex-V1-MEG022
+
+     Il CODICE è l'abbreviazione ufficiale dell'espansione: TCGdex la fornisce
+     nel campo abbreviation, quindi la leggo per qualunque set invece di
+     mantenere una tabella a mano. Dalla stessa chiamata ricavo anche l'elenco
+     carte, che serve per il suffisso -V<n>: Cardmarket lo aggiunge quando più
+     carte della stessa espansione hanno lo stesso nome. */
+  const slugCM = t => String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^A-Za-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
   const urlCM = stringa => 'https://www.cardmarket.com/it/Pokemon/Products/Search?searchString=' + encodeURIComponent(stringa);
 
-  function ricercheCardmarket(riga){
-    const c = riga.card;
-    const p = leggiCodice(riga.code);
-    const nome = c ? (c.nomeEn || c.nome) : '';
-    const num  = senzaZeri(c ? c.numero : (p.numero || ''));
-    const sigla = p.sigla || '';
-    const lista = [];
-    if(nome && num)         lista.push({etichetta:'nome + numero',        stringa:`${nome} ${num}`});
-    if(nome && sigla && num)lista.push({etichetta:'nome + sigla e numero', stringa:`${nome} ${sigla}${num}`});
-    if(nome)                lista.push({etichetta:'solo nome',            stringa:nome});
-    if(!lista.length && p.raw) lista.push({etichetta:'codice inserito',   stringa:p.raw});
-    return lista;
-  }
-
-  // il link esatto alla scheda esiste su pokemontcg.io: lo chiedo solo quando serve
-  async function linkEsattoCardmarket(riga){
-    const p = leggiCodice(riga.code);
-    state.route = 0;
-    const {carte} = await ptcg.cerca(p);
-    const trovata = carte.find(x => x.cm && x.cm.url);
-    if(!trovata) throw new Error('nessuna scheda con link su pokemontcg.io');
-    riga.card.cmUrlEsatto = trovata.cm.url;
+  // una chiamata per espansione, poi resta in cache e nel database
+  async function infoSetCM(setId){
+    if(!setId) return null;
+    const salvata = state.cmSet[setId];
+    if(salvata && salvata.code) return salvata;
+    const d = await get(TCG_EN, '/sets/' + encodeURIComponent(setId));
+    const abbr = d.abbreviation ? (d.abbreviation.official || d.abbreviation.unofficial) : null;
+    const nomi = {};
+    (d.cards || []).forEach(c => {
+      const k = slugCM(c.name).toLowerCase();
+      (nomi[k] = nomi[k] || []).push(String(c.localId));
+    });
+    const info = {slug:slugCM(d.name), code:abbr ? String(abbr).toUpperCase() : null, cifre:3, nomi};
+    if(salvata){ info.slug = salvata.slug || info.slug; info.code = salvata.code || info.code; info.cifre = salvata.cifre || info.cifre; }
+    state.cmSet[setId] = info;
     salvaPiano();
-    return trovata.cm.url;
+    return info;
   }
 
-  // recupera nome inglese di carta ed espansione, una volta sola per carta
+  // -V1, -V2… quando il nome è ripetuto nell'espansione: ordino per numero
+  function suffissoV(info, c){
+    if(!info || !info.nomi) return '';
+    const gruppo = info.nomi[slugCM(c.nomeEn || c.nome).toLowerCase()];
+    if(!gruppo || gruppo.length < 2) return '';
+    const ordinati = [...gruppo].sort((a, b) => (parseInt(a,10) || 0) - (parseInt(b,10) || 0));
+    const i = ordinati.findIndex(n => senzaZeri(n) === senzaZeri(c.numero));
+    return i >= 0 ? '-V' + (i + 1) : '';
+  }
+
+  function urlDirettoCM(c, info){
+    if(!info || !info.code) return null;
+    const slug = info.slug || slugCM(c.setNameEn || c.setName);
+    const nome = slugCM(c.nomeEn || c.nome);
+    if(!slug || !nome) return null;
+    const num = String(senzaZeri(c.numero)).padStart(info.cifre || 3, '0');
+    return `https://www.cardmarket.com/it/Pokemon/Products/Singles/${slug}/${nome}${suffissoV(info, c)}-${info.code}${num}`;
+  }
+
+  // recupera nome carta ed espansione in inglese: servono per l'indirizzo Cardmarket
+  // e per la ricerca su eBay.com. Una sola chiamata per carta, poi resta nel database.
   async function assicuraNomeEn(riga){
     const c = riga.card;
     if(!c || !c.id || c.enProvato) return false;
@@ -676,12 +700,52 @@
       if(d && d.name){
         c.nomeEn = d.name;
         if(d.set && d.set.name) c.setNameEn = d.set.name;
-        if(c.cm) c.cm.url = urlCardmarket(c);
         salvaPiano();
         return true;
       }
     }catch(e){}
     return false;
+  }
+
+  // un solo pulsante: risolve il migliore indirizzo disponibile e lo apre
+  async function controllaCardmarket(riga){
+    const scheda = window.open('', '_blank');   // apro subito, così il browser non blocca
+    try{
+      const c = riga.card;
+      if(!c) throw new Error('carta non letta');
+      if(c.cmUrlEsatto || (c.cmEsatto && c.cm && c.cm.url)){
+        const u = c.cmUrlEsatto || c.cm.url;
+        if(scheda) scheda.location = u; return u;
+      }
+      if(!c.enProvato) await assicuraNomeEn(riga);
+      const info = await infoSetCM(c.setId);
+      const url = urlDirettoCM(c, info);
+      if(!url) throw new Error('codice espansione non disponibile');
+      c.cmUrlEsatto = url;
+      salvaPiano();
+      if(scheda) scheda.location = url;
+      return url;
+    }catch(e){
+      const c = riga.card;
+      const ripiego = urlCM(c ? (c.nomeEn || c.nome) : leggiCodice(riga.code).raw);
+      if(scheda) scheda.location = ripiego;
+      avviso('Indirizzo diretto non disponibile: apro la ricerca');
+      return ripiego;
+    }
+  }
+
+  // correzione manuale: da un link giusto ricavo espansione, codice e cifre
+  function imparaCardmarket(url, c){
+    const m = String(url).match(/\/Pokemon\/Products\/Singles\/([^\/]+)\/([^\/?#\s]+)/i);
+    if(!m) throw new Error('non sembra un link a una carta Cardmarket');
+    const slug = m[1], resto = m[2];
+    const cod = resto.match(/([A-Za-z]{2,5})(\d{2,4})$/);
+    if(!cod) throw new Error('non riesco a leggere il codice finale');
+    const vecchia = state.cmSet[c.setId] || {};
+    state.cmSet[c.setId] = {...vecchia, slug, code:cod[1].toUpperCase(), cifre:cod[2].length};
+    delete c.cmUrlEsatto;
+    salvaPiano();
+    return state.cmSet[c.setId];
   }
 
   /* ============ archivio TCGdex (italiano, ripiego inglese) ============ */
@@ -1050,6 +1114,8 @@
         <td class="c-azioni">
           <button class="iconbtn" data-act="dettaglio" title="Dettaglio e prezzi">🔍</button>
           <button class="iconbtn" data-act="ebay" title="Venduti su eBay">€</button>
+          <button class="iconbtn" data-act="vinted" title="Cerca su Vinted">🛍️</button>
+          <button class="iconbtn" data-act="cm" title="Controlla su Cardmarket">🛒</button>
           <button class="iconbtn" data-act="titolo" title="Copia il titolo per Vinted">🏷️</button>
           <button class="iconbtn" data-act="desc" title="Copia la descrizione per Vinted">📝</button>
           <button class="iconbtn" data-act="rileggi" title="Aggiorna questa carta">↻</button>
@@ -1287,7 +1353,8 @@
     state.modaleRiga = riga.id;
     if(!c.enProvato){
       assicuraNomeEn(riga).then(ok => {
-        if(ok && state.modaleRiga === riga.id && $('modale').classList.contains('aperta')) dettaglio(riga);
+        const dentro = $('modale').contains(document.activeElement);
+        if(ok && !dentro && state.modaleRiga === riga.id && $('modale').classList.contains('aperta')) dettaglio(riga);
       });
     }
     const av = allarme(riga);
@@ -1298,10 +1365,35 @@
     else if(mg != null) accoda(`<div class="card" style="border-color:rgba(61,220,151,.35)">
       <h2 style="color:var(--ok)">Prezzo competitivo</h2>
       <p class="status ok">Chiedi ${eur(numero(riga.vendita))}, ${eur(mg)} sotto il minimo Cardmarket di ${eur(riga.card.cm.low)}.</p></div>`);
-    prezzi(riga);
-    pannelloAnnuncio(riga);
-    if(riga.varianti && riga.varianti.length > 1) scelte(riga);
-    ebay(riga, false);
+    // ogni riquadro è indipendente: se uno fallisce gli altri restano visibili
+    [['prezzi', () => prezzi(riga)],
+     ['annuncio', () => pannelloAnnuncio(riga)],
+     ['varianti', () => { if(riga.varianti && riga.varianti.length > 1) scelte(riga); }],
+     ['eBay', () => ebay(riga, false)],
+     ['Vinted', () => vinted(riga, false)]
+    ].forEach(([nome, fn]) => {
+      try{ fn(); }
+      catch(e){
+        accoda(`<div class="card"><h2 style="color:var(--bad)">Riquadro ${esc(nome)} non disponibile</h2>
+          <p class="status bad">${esc(e.message)}</p></div>`);
+      }
+    });
+  }
+
+  function linkCardmarketHtml(riga, c, cm){
+    const noto = c.cmUrlEsatto || (c.cmEsatto && cm && cm.url);
+    return `<div class="bar" style="margin-top:10px">
+        <button class="mini primary" id="bCM">Controlla su Cardmarket</button>
+      </div>
+      ${noto ? `<p class="note">Indirizzo memorizzato: <code>${esc(String(noto).replace(/^https:\/\/www\.cardmarket\.com/,''))}</code></p>` : ''}
+      <details style="margin-top:6px">
+        <summary>Il link non è giusto?</summary>
+        <div class="bar" style="margin-top:8px">
+          <input id="cmUrl" type="text" placeholder="incolla qui il link corretto di questa carta" style="flex:2 1 200px;font-size:12px">
+          <button class="mini" id="cmImpara">Correggi</button>
+        </div>
+        <p class="note">Correggo l'intera espansione, non solo questa carta.</p>
+      </details>`;
   }
 
   function prezzi(riga){
@@ -1322,13 +1414,7 @@
           <tr><td class="left">${esc(cm.altEtichetta)} · minimo</td><td>${eur(cm.altLow)}</td></tr>
           <tr><td class="left">${esc(cm.altEtichetta)} · trend</td><td>${eur(cm.altTrend)}</td></tr>
         </table>
-        ${(c.cmUrlEsatto || (c.cmEsatto && cm.url))
-          ? `<a class="lnk" href="${esc(c.cmUrlEsatto || cm.url)}" target="_blank" rel="noopener"><b>Apri la scheda esatta su Cardmarket →</b></a>`
-          : ricercheCardmarket(riga).map(r =>
-              `<a class="lnk" href="${esc(urlCM(r.stringa))}" target="_blank" rel="noopener" style="display:block">Cerca su Cardmarket · ${esc(r.etichetta)} → <code>${esc(r.stringa)}</code></a>`
-            ).join('') +
-            `<div class="bar"><button class="mini" id="bEsatto">Trova il link esatto</button></div>
-             <p class="note">Cardmarket cerca solo nel nome del prodotto: il nome dell'espansione nella stringa non funziona. ${c.nomeEn ? '' : 'Sto recuperando il nome inglese…'}</p>`}
+        ${linkCardmarketHtml(riga, c, cm)}
       </div>`;
     }
     if(tp && tp.righe.length){
@@ -1351,18 +1437,21 @@
       ? `<div class="prices">${html}</div><p class="note">Quotazioni aggregate di Cardmarket e TCGplayer, non aste concluse.</p>`
       : `<p class="status bad">Nessuna quotazione disponibile per questa carta.</p>`));
 
-    const bt = document.getElementById('bEsatto');
-    if(bt) bt.addEventListener('click', async () => {
-      bt.disabled = true; bt.textContent = 'cerco la scheda…';
+    const bcm = document.getElementById('bCM');
+    if(bcm) bcm.addEventListener('click', async () => {
+      bcm.disabled = true; bcm.textContent = 'cerco la scheda…';
+      await controllaCardmarket(riga);
+      bcm.disabled = false; bcm.textContent = 'Controlla su Cardmarket';
+    });
+
+    const bimp = document.getElementById('cmImpara');
+    if(bimp) bimp.addEventListener('click', () => {
+      const campo = document.getElementById('cmUrl');
       try{
-        const url = await linkEsattoCardmarket(riga);
-        avviso('Link esatto trovato');
-        window.open(url, '_blank', 'noopener');
-        if($('modale').classList.contains('aperta')) dettaglio(riga);
-      }catch(e){
-        bt.disabled = false; bt.textContent = 'Trova il link esatto';
-        avviso('Link esatto non disponibile: ' + e.message);
-      }
+        const info = imparaCardmarket(campo.value.trim(), riga.card);
+        avviso('Corretto: ' + info.slug + ' · ' + info.code);
+        dettaglio(riga);
+      }catch(e){ avviso(e.message); }
     });
   }
 
@@ -1512,6 +1601,30 @@
     const base = sito === 'com' ? 'https://www.ebay.com/sch/i.html' : 'https://www.ebay.it/sch/i.html';
     return base + '?' + new URLSearchParams({_nkw:ricercaEbay(riga, sito === 'com'), LH_Sold:'1', LH_Complete:'1', _sop:ordine, _ipg:'60'});
   }
+  function ricercaVinted(riga){
+    const c = riga.card;
+    if(c) return `${c.nome} ${c.numero}/${c.totaleStampato}`;
+    const p = leggiCodice(riga.code);
+    return [p.nome, (p.numero && p.totale) ? `${p.numero}/${p.totale}` : p.numero, p.sigla].filter(Boolean).join(' ');
+  }
+
+  function urlVinted(riga, ordine){
+    const par = {search_text:ricercaVinted(riga), currency:'EUR'};
+    if(ordine) par.order = ordine;
+    return 'https://www.vinted.it/catalog?' + new URLSearchParams(par);
+  }
+
+  function vinted(riga, apriSubito){
+    accoda(blocco('Cerca su Vinted', `
+      <div class="links">
+        <a href="${urlVinted(riga,'newest_first')}" target="_blank" rel="noopener">Annunci più recenti<small>appena pubblicati</small></a>
+        <a href="${urlVinted(riga,'price_low_to_high')}" target="_blank" rel="noopener">Prezzo crescente<small>i più economici</small></a>
+        <a href="${urlVinted(riga,'price_high_to_low')}" target="_blank" rel="noopener">Prezzo decrescente<small>i più cari</small></a>
+      </div>
+      <p class="note">Ricerca: <code>${esc(ricercaVinted(riga))}</code> · su Vinted vedi solo gli annunci attivi, non i venduti: usa il prezzo crescente per capire a quanto stanno andando via.</p>`));
+    if(apriSubito) window.open(urlVinted(riga,'price_low_to_high'), '_blank', 'noopener');
+  }
+
   function ebay(riga, apriSubito){
     accoda(blocco('Venduti su eBay', `
       <div class="links">
@@ -1774,6 +1887,7 @@
     const riga = state.rows.find(r => r.id === tr.dataset.id);
     if(!riga) return;
     const azione = b.dataset.act;
+    if(azione === 'cm'){ avviso('cerco la scheda Cardmarket…'); controllaCardmarket(riga); return; }
     if(azione === 'titolo') return copia(titoloVinted(riga), 'Titolo');
     if(azione === 'desc')   return copia(descrizioneVinted(riga), 'Descrizione');
     if(azione === 'tasca') return modificaTasca(riga, tr);
@@ -1781,6 +1895,7 @@
     if(azione === 'giu') return sposta(riga, +1);
     if(azione === 'dettaglio') dettaglio(riga);
     if(azione === 'ebay'){ out.innerHTML = ''; apriModale('Venduti su eBay'); ebay(riga, true); }
+    if(azione === 'vinted'){ out.innerHTML = ''; apriModale('Cerca su Vinted'); vinted(riga, true); }
     if(azione === 'rileggi') scanner.accoda([riga], true);
     if(azione === 'togli'){ state.rows = state.rows.filter(r => r.id !== riga.id); out.innerHTML = ''; paint(); }
   });
