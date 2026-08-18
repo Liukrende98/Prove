@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0f1219">
+<title>Banco Carte — magazzino carte Pokémon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0f1219; --panel:#161a24; --panel-2:#1c2130; --line:#272d3d;
+    --text:#e9ecf4; --muted:#8d95ab; --amber:#ffc53d; --blue:#5b93ff;
+    --ok:#3ddc97; --bad:#ff5c7a; --r:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--ink);color:var(--text);font-family:'Space Grotesk',system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;padding:20px 16px 80px}
+  .wrap{max-width:1180px;margin:0 auto}
+  header{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+  h1{font-size:22px;letter-spacing:.14em;text-transform:uppercase;margin:0;font-weight:700}
+  h1 span{color:var(--amber)}
+  header p{margin:0;color:var(--muted);font-size:13px}
+
+  .desk{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+  .addrow{display:grid;grid-template-columns:1fr 90px 130px auto;gap:10px}
+  @media(max-width:700px){.addrow{grid-template-columns:1fr 1fr}.addrow .full{grid-column:1/-1}}
+  input,select,textarea{font-family:'JetBrains Mono',ui-monospace,monospace;background:var(--panel-2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:12px 14px;font-size:15px;min-width:0}
+  input::placeholder,textarea::placeholder{color:#5a6178}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--amber);outline-offset:1px;border-color:transparent}
+  label.lab{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+
+  button{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;border-radius:10px;padding:12px 16px;cursor:pointer;border:1px solid var(--line);background:var(--panel-2);color:var(--text);transition:transform .06s ease,background .15s ease}
+  button:hover{background:#232a3b}
+  button:active{transform:translateY(1px)}
+  button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+  button.primary{background:var(--amber);color:#151515;border-color:var(--amber)}
+  button.primary:hover{background:#ffd166}
+  button.ghost{background:transparent}
+  button[disabled]{opacity:.45;cursor:not-allowed}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+  .bar .sep{flex:1}
+  .mini{padding:8px 12px;font-size:13px}
+  .chip{font-family:'JetBrains Mono',monospace;font-size:12px;border:1px solid var(--line);border-radius:8px;padding:7px 10px;color:var(--muted)}
+  .chip.live{color:var(--ok);border-color:rgba(61,220,151,.35)}
+  .chip.warn{color:var(--amber);border-color:rgba(255,197,61,.35)}
+
+  .ledger{position:sticky;top:0;z-index:5;margin:16px 0;background:linear-gradient(180deg,#161a24,#131722);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  @media(max-width:860px){.ledger{grid-template-columns:repeat(2,1fr)}}
+  .cell span{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .cell b{display:block;font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;margin-top:2px;letter-spacing:-.02em}
+  .cell small{color:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace}
+  .cell.val b{color:var(--amber)}
+  .up{color:var(--ok)} .down{color:var(--bad)}
+
+  .tablewrap{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:var(--r)}
+  table{width:100%;border-collapse:collapse;font-size:13px;min-width:880px}
+  th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+  th{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;cursor:pointer;user-select:none}
+  th.left,td.left{text-align:left}
+  td.num{font-family:'JetBrains Mono',monospace}
+  tbody tr:hover{background:#1a1f2c}
+  .cardcell{display:flex;align-items:center;gap:10px}
+  .cardcell img{width:30px;border-radius:3px;background:var(--panel-2)}
+  .cardcell .nm{font-weight:600}
+  .sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)}
+  td input{padding:6px 8px;font-size:13px;border-radius:7px;width:78px;text-align:right}
+  .st{font-family:'JetBrains Mono',monospace;font-size:11px;padding:2px 7px;border-radius:999px;border:1px solid var(--line);cursor:pointer}
+  .st.letta{color:var(--ok);border-color:rgba(61,220,151,.35)}
+  .st.scelta{color:var(--blue);border-color:rgba(91,147,255,.35)}
+  .st.attesa{color:var(--muted)}
+  .st.coda{color:var(--muted);border-style:dashed}
+  .st.cerca{color:var(--amber);border-color:rgba(255,197,61,.35)}
+  .st.errore{color:var(--bad);border-color:rgba(255,92,122,.35)}
+  .st.varianti{color:var(--amber);border-color:rgba(255,197,61,.35)}
+  .rigaprog{display:inline-block;vertical-align:middle;width:64px;height:3px;background:#2a3142;border-radius:99px;overflow:hidden;margin-left:6px}
+  .rigaprog i{display:block;height:100%;width:38%;background:var(--amber);border-radius:99px;animation:scorre 1.1s linear infinite}
+  @keyframes scorre{0%{transform:translateX(-110%)}100%{transform:translateX(280%)}}
+  tr.incorso{background:#1b2030}
+  .iconbtn{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:15px;padding:3px 5px;border-radius:6px}
+  .iconbtn:hover{color:var(--text);background:#232a3b}
+  .ord{display:flex;align-items:center;gap:6px}
+  .posbox{display:flex;flex-direction:column;align-items:flex-end;min-width:46px}
+  .ord b{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text);font-weight:600;line-height:1.1;cursor:pointer;border-bottom:1px dashed transparent;padding:0 1px}
+  .ord b:hover{border-bottom-color:var(--muted)}
+  .ord b.fissa{color:var(--blue);border-bottom-color:rgba(91,147,255,.4)}
+  .ord b.scontro{color:var(--bad);border-bottom-color:rgba(255,92,122,.5)}
+  .tascainput{width:70px;font-size:13px;padding:4px 6px;text-align:right;border-radius:7px}
+  .ord .pag{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);white-space:nowrap}
+  .frecce{display:flex;flex-direction:column;line-height:1}
+  .frecce .iconbtn{font-size:9px;padding:1px 4px;border-radius:4px}
+  .frecce .iconbtn:hover{color:var(--amber)}
+  .empty{padding:36px 16px;text-align:center;color:var(--muted)}
+
+  .prog{height:4px;background:var(--panel-2);border-radius:99px;overflow:hidden;margin-top:12px;display:none}
+  .prog.on{display:block}
+  .prog i{display:block;height:100%;background:var(--amber);width:0%;transition:width .2s}
+
+  .out{margin-top:16px;display:grid;gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+  .card h2{margin:0 0 12px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .status{font-family:'JetBrains Mono',monospace;font-size:13px}
+  .status.ok{color:var(--ok)} .status.bad{color:var(--bad)} .status.load{color:var(--amber)}
+  .hit{display:flex;gap:16px;flex-wrap:wrap}
+  .hit img{width:170px;border-radius:10px;background:var(--panel-2)}
+  .meta{flex:1 1 240px;min-width:0}
+  .meta .name{font-size:23px;font-weight:700;margin:0 0 6px}
+  .meta dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:10px 0 0;font-size:13px}
+  .meta dt{color:var(--muted)} .meta dd{margin:0;font-family:'JetBrains Mono',monospace}
+  .prices{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.prices{grid-template-columns:1fr}}
+  .pbox{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .pbox h3{margin:0 0 10px;font-size:13px;font-weight:700;display:flex;justify-content:space-between;gap:8px}
+  .pbox h3 em{font-style:normal;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+  .pbox table{min-width:0}
+  .three{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .stat{background:#12161f;border-radius:9px;padding:10px 8px;text-align:center}
+  .stat span{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .stat b{display:block;font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;margin-top:3px}
+  .stat.min b{color:var(--ok)} .stat.max b{color:var(--bad)} .stat.avg b{color:var(--amber)}
+  .picks{display:grid;gap:8px}
+  .pick{display:flex;gap:12px;align-items:center;text-align:left;width:100%}
+  .pick img{width:38px;border-radius:4px}
+  .pick.on{border-color:var(--blue);background:#1b2436}
+  .links{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  @media(max-width:640px){.links{grid-template-columns:1fr}}
+  .links a{display:block;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:12px;text-decoration:none;color:var(--text);font-size:13px;font-weight:600}
+  .links a:hover{background:#232a3b}
+  .links a small{display:block;font-weight:400;color:var(--muted);font-size:11px;margin-top:2px}
+  a.lnk{display:inline-block;margin-top:10px;color:var(--blue);font-size:13px;text-decoration:none;border-bottom:1px solid rgba(91,147,255,.35)}
+  .note{color:var(--muted);font-size:12px;margin-top:10px}
+  .diag{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:10px;white-space:pre-wrap}
+  code{font-family:'JetBrains Mono',monospace;background:var(--panel-2);padding:1px 5px;border-radius:4px;font-size:12px}
+  details{margin-top:12px}
+  summary{cursor:pointer;color:var(--muted);font-size:13px}
+  textarea{width:100%;min-height:110px;margin-top:10px;font-size:13px;line-height:1.5}
+
+  /* ================= telefono ================= */
+  @media(max-width:760px){
+    html{-webkit-text-size-adjust:100%}
+    body{padding:14px 10px calc(60px + env(safe-area-inset-bottom))}
+    .wrap{max-width:100%}
+    header{margin-bottom:12px;padding-bottom:10px;gap:6px}
+    h1{font-size:19px}
+    header p{font-size:12px}
+
+    /* 16px sui campi: sotto questa misura iOS ingrandisce la pagina da solo */
+    input,select,textarea{font-size:16px;padding:11px 12px}
+    button{min-height:44px;touch-action:manipulation}
+    .mini{min-height:42px;font-size:14px}
+    .desk{padding:12px;border-radius:12px}
+    .addrow{grid-template-columns:1fr 1fr;gap:8px}
+    .addrow .full,.addrow>div:last-child{grid-column:1/-1}
+    .bar{gap:6px}
+    .bar .sep{display:none}
+    .bar button,.bar select,.bar input{flex:1 1 40%}
+    #filtro{flex:1 1 100%}
+    #contafiltro{font-size:11px}
+    .bar .chip{flex:1 1 100%;text-align:center}
+    #conta .chip{flex:1 1 auto;font-size:11px;padding:6px 8px}
+
+    .ledger{grid-template-columns:repeat(3,1fr);gap:8px;padding:10px 12px;border-radius:12px;margin:12px 0;box-shadow:0 8px 20px rgba(0,0,0,.5)}
+    .cell span{font-size:9px;letter-spacing:.06em}
+    .cell b{font-size:17px}
+    .cell small{display:none}
+    .cell.extra{grid-column:1/-1;display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line);padding-top:7px}
+    .cell.extra span{display:inline;font-size:10px}
+    .cell.extra b{display:inline;font-size:13px!important}
+
+    /* la tabella diventa una scheda per carta */
+    .tablewrap{background:transparent;border:none;border-radius:0;overflow:visible}
+    table{min-width:0;font-size:14px}
+    thead{display:none}
+    tbody,tr,td{display:block}
+    tr{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    tbody tr:hover{background:var(--panel)}
+    tr.incorso{border-color:var(--amber)}
+    td{border:none;padding:0;text-align:left;white-space:normal}
+    td[data-l]::before{content:attr(data-l);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+    td.c-tasca{grid-column:1/-1;border-bottom:1px solid var(--line);padding-bottom:9px}
+    td.c-tasca .ord{width:100%;justify-content:space-between}
+    .posbox{align-items:flex-start}
+    .ord b{font-size:16px}
+    .ord .pag{font-size:10px}
+    .frecce{flex-direction:row;gap:8px}
+    .frecce .iconbtn{font-size:15px;padding:8px 16px;border:1px solid var(--line);border-radius:8px}
+    td.c-carta,td.c-set{grid-column:1/-1}
+    td.c-carta .nm{font-size:15px;white-space:normal}
+    td.c-set{font-size:11px;color:var(--muted);margin-top:-4px}
+    .cardcell img{width:42px}
+    td.c-qty,td.c-paid,td.c-min,td.c-media,td.c-val,td.c-utile{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:38px}
+    td.c-min,td.c-media,td.c-val,td.c-utile{background:#12161f;border-radius:9px;padding:7px 10px}
+    td input{width:104px;font-size:16px;padding:9px 10px;text-align:right}
+    .tascainput{width:88px;font-size:16px;padding:8px 10px}
+    td.c-azioni{grid-column:1/-1;display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:9px}
+    td.c-azioni .iconbtn{font-size:19px;padding:8px 18px}
+    .empty{padding:26px 12px}
+    .rigaprog{width:52px}
+
+    /* pannello di dettaglio */
+    .out .card{padding:12px;border-radius:12px}
+    .hit{gap:12px}
+    .hit img{width:100%;max-width:220px;margin:0 auto}
+    .meta .name{font-size:20px}
+    .meta dl{font-size:12px;gap:3px 10px}
+    .prices{grid-template-columns:1fr}
+    .three{gap:6px}
+    .stat b{font-size:17px}
+    .pick{align-items:flex-start}
+    textarea{min-height:130px}
+  }
+
+  @media(max-width:380px){
+    .ledger{grid-template-columns:repeat(2,1fr)}
+    .cell.extra{grid-column:1/-1}
+    tr{grid-template-columns:1fr}
+    td input{width:120px}
+  }
+
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Banco <span>Carte</span></h1>
+    <p>Magazzino carte Pokémon in italiano — codice, quantità, costo, valore di mercato</p>
+  </header>
+
+  <div class="desk">
+    <div class="addrow">
+      <div class="full">
+        <label class="lab" for="q">Codice carta</label>
+        <input id="q" type="text" placeholder="078/064 SFA" autocomplete="off" spellcheck="false" style="width:100%" autofocus>
+      </div>
+      <div>
+        <label class="lab" for="qty">Quantità</label>
+        <input id="qty" type="number" min="1" step="1" value="1" style="width:100%">
+      </div>
+      <div>
+        <label class="lab" for="paid">Pagato €/pz</label>
+        <input id="paid" type="text" inputmode="decimal" placeholder="0,00" style="width:100%">
+      </div>
+      <div style="display:flex;align-items:flex-end">
+        <button class="primary" id="badd" style="width:100%">Aggiungi</button>
+      </div>
+    </div>
+
+    <div class="bar">
+      <input id="filtro" type="text" placeholder="Filtra per nome, espansione o codice…" autocomplete="off" spellcheck="false" style="flex:2 1 240px">
+      <select id="statofiltro" class="mini" title="Mostra solo alcune righe">
+        <option value="">tutte le carte</option>
+        <option value="daleggere">da leggere o in errore</option>
+        <option value="varianti">con varianti da scegliere</option>
+        <option value="perdita">in perdita</option>
+        <option value="senzaprezzo">senza quotazione</option>
+        <option value="fissate">con tasca fissata</option>
+      </select>
+      <button class="mini ghost" id="bfiltrox">Azzera filtro</button>
+      <span class="chip" id="contafiltro" style="display:none"></span>
+    </div>
+
+    <div class="bar">
+      <button class="primary mini" id="brefresh">Aggiorna prezzi</button>
+      <button class="mini" id="bmiss">Rileggi mancanti</button>
+      <button class="mini" id="bstop" disabled>Ferma</button>
+      <span class="sep"></span>
+      <select id="basis" class="mini" title="Su quale prezzo calcolare valore e bilancio">
+        <option value="low">valuta al minimo</option>
+        <option value="avg30">valuta alla media 30 giorni</option>
+        <option value="trend">valuta al trend</option>
+      </select>
+      <span class="chip" id="route">pronto</span>
+    </div>
+    <div class="prog" id="prog"><i></i></div>
+    <div class="bar" id="conta" style="display:none"></div>
+
+    <div class="bar">
+      <button class="mini" id="bopen">Apri database</button>
+      <button class="mini" id="bsave">Salva</button>
+      <button class="mini ghost" id="bsaveas">Salva come…</button>
+      <span class="chip" id="dbstate">database: non collegato</span>
+      <span class="sep"></span>
+      <button class="mini ghost" id="bcsv">Esporta CSV</button>
+    </div>
+
+    <details>
+      <summary>Inserimento in blocco, archivio e diagnostica</summary>
+      <textarea id="bulk" placeholder="Una carta per riga. Formati accettati:&#10;078/064 SFA&#10;078/064 SFA; 2; 12,50&#10;025/165 MEW, 1, 3.20&#10;(codice ; quantità ; prezzo pagato per pezzo)"></textarea>
+      <div class="bar">
+        <button class="mini" id="bbulk">Importa righe</button>
+        <span class="sep"></span>
+        <span class="chip">album:</span>
+        <input id="inizio" type="number" min="1" step="1" value="1" class="mini" style="width:78px" title="Numero della prima tasca">
+        <select id="tasche" class="mini" title="Tasche per pagina dell'album">
+          <option value="9">9 tasche per pagina</option>
+          <option value="4">4 tasche per pagina</option>
+          <option value="12">12 tasche per pagina</option>
+          <option value="18">18 tasche per pagina</option>
+          <option value="0">senza pagine</option>
+        </select>
+        <button class="mini ghost" id="bord" title="Rimette le righe in ordine di tasca">Riordina per tasca</button>
+        <select id="src" class="mini" title="Archivio dati">
+          <option value="auto">archivio automatico</option>
+          <option value="tcgdex">solo TCGdex (italiano)</option>
+          <option value="ptcg">solo pokemontcg.io (inglese)</option>
+        </select>
+        <button class="mini ghost" id="btest">Prova connessione</button>
+        <button class="mini ghost" id="bclear">Svuota magazzino</button>
+      </div>
+      <input type="file" id="file" accept="application/json" style="display:none">
+      <p class="note" id="savenote"></p>
+    </details>
+  </div>
+
+  <div class="ledger">
+    <div class="cell"><span>Totale pagato</span><b id="t-paid">€0,00</b><small id="t-count">0 carte</small></div>
+    <div class="cell val"><span>Valore di mercato</span><b id="t-val">€0,00</b><small id="t-basis">al minimo</small></div>
+    <div class="cell"><span>Guadagno / perdita</span><b id="t-pl">€0,00</b><small id="t-plpct">—</small></div>
+    <div class="cell extra"><span>Totale al minimo</span><b id="t-low" style="font-size:18px">€0,00</b><small>minimo Cardmarket</small></div>
+    <div class="cell extra"><span>Totale a media 30 giorni</span><b id="t-avg" style="font-size:18px">€0,00</b><small id="t-missing">—</small></div>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th data-sort="ordine" title="Posizione nell'album — clicca per tornare all'ordine manuale">Tasca</th>
+          <th class="left" data-sort="name">Carta</th>
+          <th class="left" data-sort="set">Espansione</th>
+          <th data-sort="qty">Quantità</th>
+          <th data-sort="paid">Pagato €/pz</th>
+          <th data-sort="low">Minimo €/pz</th>
+          <th data-sort="avg30">Media €/pz</th>
+          <th data-sort="value">Valore</th>
+          <th data-sort="pl">Utile</th>
+          <th>Azioni</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="out" id="out"></div>
+
+</div>
+
+<script>
+(() => {
+  const LANG    = 'it';
+  const TCG_IT  = 'https://api.tcgdex.net/v2/' + LANG;
+  const TCG_EN  = 'https://api.tcgdex.net/v2/en';
+  const PTCG    = 'https://api.pokemontcg.io/v2';
+  const CAMPI   = 'id,name,number,rarity,supertype,subtypes,artist,images,set,cardmarket,tcgplayer';
+  const CACHE   = 'banco-carte-v4';
+
+  const $ = id => document.getElementById(id);
+  const out = $('out');
+  const state = {rows:[], setsIt:null, setsEn:null, route:0, busy:false, stop:false, sort:{by:'ordine', dir:1}};
+
+  /* ============ database su file .json ============ */
+  const db = {
+    handle:null, nome:null, salvato:null, timer:null,
+    supportato: typeof window.showSaveFilePicker === 'function',
+
+    payload(){
+      return {
+        formato:'banco-carte',
+        versione:4,
+        salvato:new Date().toISOString(),
+        valutazione:$('basis').value,
+        album:{prima:parseInt($('inizio').value,10) || 1, perPagina:parseInt($('tasche').value,10)},
+        righe:state.rows
+      };
+    },
+    carica(dati){
+      const righe = Array.isArray(dati) ? dati : (dati.righe || dati.rows);
+      if(!Array.isArray(righe)) throw new Error('formato non riconosciuto');
+      righe.forEach(r => { if(!r.id) r.id = rid(); if(r.qty == null) r.qty = 1; });
+      state.rows = righe;
+      if(dati.valutazione) $('basis').value = dati.valutazione;
+      if(dati.album){
+        if(dati.album.prima != null) $('inizio').value = dati.album.prima;
+        if(dati.album.perPagina != null) $('tasche').value = String(dati.album.perPagina);
+      }
+    },
+    async permesso(h){
+      if(!h.queryPermission) return true;
+      const o = {mode:'readwrite'};
+      if(await h.queryPermission(o) === 'granted') return true;
+      return (await h.requestPermission(o)) === 'granted';
+    },
+    async apri(){
+      if(!this.supportato){ $('file').click(); return; }
+      try{
+        const [h] = await window.showOpenFilePicker({
+          types:[{description:'Database magazzino', accept:{'application/json':['.json']}}]
+        });
+        if(!await this.permesso(h)) return;
+        const testo = await (await h.getFile()).text();
+        this.carica(JSON.parse(testo));
+        this.handle = h; this.nome = h.name; this.salvato = new Date();
+        paint(); this.stato();
+        setRoute(state.rows.length + ' righe caricate dal database');
+      }catch(e){ if(e.name !== 'AbortError') setRoute('apertura fallita: ' + e.message); }
+    },
+    async salvaCome(){
+      if(!this.supportato){ scarica('magazzino-carte.json', JSON.stringify(this.payload(), null, 2), 'application/json'); return; }
+      try{
+        const h = await window.showSaveFilePicker({
+          suggestedName:'magazzino-carte.json',
+          types:[{description:'Database magazzino', accept:{'application/json':['.json']}}]
+        });
+        this.handle = h; this.nome = h.name;
+        await this.scrivi(true);
+      }catch(e){ if(e.name !== 'AbortError') setRoute('salvataggio fallito: ' + e.message); }
+    },
+    async scrivi(manuale){
+      if(!this.handle){
+        if(manuale) return this.salvaCome();
+        return;
+      }
+      try{
+        if(!await this.permesso(this.handle)){ this.stato('permesso scaduto'); return; }
+        const w = await this.handle.createWritable();
+        await w.write(JSON.stringify(this.payload(), null, 2));
+        await w.close();
+        this.salvato = new Date();
+        this.stato();
+      }catch(e){ this.stato('errore: ' + e.message); }
+    },
+    auto(){
+      if(!this.handle) return;
+      clearTimeout(this.timer);
+      this.timer = setTimeout(() => this.scrivi(false), 1500);
+    },
+    stato(msg){
+      const el = $('dbstate');
+      if(msg){ el.textContent = 'database: ' + msg; el.className = 'chip warn'; return; }
+      if(this.handle){
+        el.textContent = `database: ${this.nome}${this.salvato ? ' · salvato ' + this.salvato.toLocaleTimeString('it-IT') : ''}`;
+        el.className = 'chip live';
+      }else{
+        el.textContent = this.supportato ? 'database: non collegato' : 'database: usa Salva come… per scaricarlo';
+        el.className = 'chip';
+      }
+    }
+  };
+
+  // copia di sicurezza nel browser, quando disponibile
+  const cache = {
+    ok:(() => { try{ localStorage.setItem('__bc','1'); localStorage.removeItem('__bc'); return true; }catch(e){ return false; } })(),
+    salva(){ if(this.ok) try{ localStorage.setItem(CACHE, JSON.stringify(db.payload())); }catch(e){} },
+    leggi(){
+      if(!this.ok) return false;
+      try{
+        const d = JSON.parse(localStorage.getItem(CACHE) || 'null');
+        if(d && (d.righe || d.rows)){ db.carica(d); return true; }
+      }catch(e){}
+      return false;
+    }
+  };
+
+  /* ============ rete ============ */
+  const ROTTE = [
+    {etichetta:'diretto', url:u => u},
+    {etichetta:'proxy A', url:u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u)},
+    {etichetta:'proxy B', url:u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u)}
+  ];
+  const setRoute = t => { $('route').textContent = t; };
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  async function once(url){
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 12000);
+    try{
+      const res = await fetch(url, {signal:ctrl.signal});
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      return await res.json();
+    } finally { clearTimeout(timer); }
+  }
+  async function get(base, path){
+    const target = base + path;
+    let ultimo = null;
+    for(let i = state.route; i < ROTTE.length; i++){
+      try{ const d = await once(ROTTE[i].url(target)); state.route = i; return d; }
+      catch(e){ ultimo = e; }
+    }
+    state.route = 0;
+    throw new Error(ultimo ? ultimo.message : 'rete non raggiungibile');
+  }
+
+  /* ============ codice carta ============ */
+  function leggiCodice(raw){
+    const s = String(raw||'').trim().toUpperCase().replace(/[\u2044\u2215]/g,'/').replace(/\s+/g,' ');
+    const frac = s.match(/([A-Z]{0,3}\d{1,4}[A-Z]?)\s*\/\s*([A-Z]{0,3}\d{1,4})/);
+    let numero = null, totale = null, resto = s;
+    if(frac){ numero = frac[1]; totale = frac[2]; resto = s.slice(0,frac.index) + ' ' + s.slice(frac.index + frac[0].length); }
+    const pezzi = resto.split(/[^A-Z0-9]+/).filter(Boolean);
+    let sigla = null; const parole = [];
+    for(const t of pezzi){
+      if(!sigla && /^[A-Z]{2,4}\d?$/.test(t) && /[A-Z]/.test(t)) sigla = t;
+      else parole.push(t);
+    }
+    if(!numero){ const n = resto.match(/\b(\d{1,4})\b/); if(n) numero = n[1]; }
+    return {numero, totale, sigla, nome:parole.join(' '), raw:s};
+  }
+  const senzaZeri = n => String(n||'').toUpperCase().replace(/^0+(?=\d)/,'');
+  const conZeri   = n => /^\d+$/.test(String(n)) ? String(n).padStart(3,'0') : String(n);
+  const unici     = a => [...new Set(a)];
+  const soldi     = v => (v==null || isNaN(v)) ? null : Number(v);
+  const numero    = t => { const n = parseFloat(String(t).replace(',','.').replace(/[^\d.\-]/g,'')); return isNaN(n) ? 0 : n; };
+  const eur       = v => (v==null || isNaN(v)) ? '—' : '€' + Number(v).toLocaleString('it-IT',{minimumFractionDigits:2, maximumFractionDigits:2});
+  const usd       = v => (v==null || isNaN(v)) ? '—' : '$' + Number(v).toFixed(2);
+  const esc       = s => String(s==null?'':s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+  const rid       = () => 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+
+  const SIGLE = {
+    SVI:'sv01', PAL:'sv02', OBF:'sv03', MEW:'sv03.5', PAR:'sv04', PAF:'sv04.5',
+    TEF:'sv05', TWM:'sv06', SFA:'sv06.5', SCR:'sv07', SSP:'sv08', PRE:'sv08.5',
+    JTG:'sv09', DRI:'sv10',
+    SSH:'swsh1', RCL:'swsh2', DAA:'swsh3', VIV:'swsh4', BST:'swsh5', CRE:'swsh6',
+    EVS:'swsh7', FST:'swsh8', BRS:'swsh9', ASR:'swsh10', LOR:'swsh11', SIT:'swsh12',
+    CRZ:'swsh12.5', CEL:'cel25', SHF:'swsh45', PGO:'pgo'
+  };
+  const VARIANTI = {
+    normal:'normale', reverse:'reverse holo', holo:'holo', firstEdition:'prima edizione',
+    normalFoil:'foil', holofoil:'holo', reverseHolofoil:'reverse holo',
+    '1stEditionHolofoil':'holo prima edizione', '1stEdition':'prima edizione',
+    unlimitedHolofoil:'holo illimitata', unlimited:'illimitata'
+  };
+  const variante = v => VARIANTI[v] || v;
+
+  /* ============ archivio TCGdex (italiano, ripiego inglese) ============ */
+  const tcgdex = {
+    etichetta:'TCGdex',
+    async sets(lingua){
+      const chiave = lingua === 'en' ? 'setsEn' : 'setsIt';
+      const base   = lingua === 'en' ? TCG_EN : TCG_IT;
+      if(!state[chiave]) state[chiave] = await get(base, '/sets');
+      return state[chiave];
+    },
+    candidati(sets, p){
+      let c = [];
+      if(p.sigla && SIGLE[p.sigla]){ const s = sets.find(x => x.id === SIGLE[p.sigla]); if(s) c.push(s); }
+      if(p.sigla){ const s = sets.find(x => x.id.toUpperCase() === p.sigla); if(s) c.push(s); }
+      if(p.totale){
+        const n = parseInt(p.totale,10);
+        c = c.concat(sets.filter(x => x.cardCount && x.cardCount.official === n));
+      }
+      c = c.filter((s,i,a) => s && a.findIndex(x => x.id === s.id) === i);
+      if(p.totale){
+        const n = parseInt(p.totale,10);
+        c.sort((a,b) => (b.cardCount.official===n) - (a.cardCount.official===n));
+      }
+      return c.slice(0,6);
+    },
+    async prova(base, cand, p, lingua){
+      const numeri = unici([p.numero, senzaZeri(p.numero), conZeri(p.numero)]);
+      const lavori = [];
+      cand.forEach(s => numeri.forEach(n => lavori.push(
+        get(base, `/sets/${encodeURIComponent(s.id)}/${encodeURIComponent(n)}`).catch(() => null))));
+      const res = await Promise.all(lavori);
+      const carte = [];
+      res.forEach(c => { if(c && c.id && !c.error && !carte.some(x => x.id === c.id)) carte.push(this.norm(c, lingua)); });
+      return carte;
+    },
+    async cerca(p){
+      const setsIt = await this.sets('it');
+      let cand = this.candidati(setsIt, p);
+      let carte = cand.length ? await this.prova(TCG_IT, cand, p, 'it') : [];
+      if(carte.length) return {carte, sets:cand};
+
+      // ripiego: la carta potrebbe non essere nel database italiano
+      const setsEn = await this.sets('en');
+      const candEn = this.candidati(setsEn, p);
+      if(!candEn.length) return {carte:[], sets:cand};
+      carte = await this.prova(TCG_EN, candEn, p, 'en');
+      carte.forEach(c => {
+        const it = setsIt.find(s => s.id === c.setId);
+        if(it) c.setName = it.name; // almeno l'espansione in italiano
+      });
+      return {carte, sets:candEn};
+    },
+    norm(c, lingua){
+      const pr = c.pricing || {}, cm = pr.cardmarket, tp = pr.tcgplayer;
+      return {
+        id:c.id, nome:c.name, numero:c.localId,
+        totaleStampato:(c.set && c.set.cardCount) ? c.set.cardCount.official : '?',
+        setId:c.set ? c.set.id : '', setName:c.set ? c.set.name : '—',
+        rarita:c.rarity || '—',
+        tipo:[c.category, c.stage].filter(Boolean).join(' · ') || '—',
+        illustratore:c.illustrator || '—',
+        immagine:c.image ? c.image + '/high.png' : '', mini:c.image ? c.image + '/low.png' : '',
+        cm: cm ? {
+          low:soldi(cm.low), avg30:soldi(cm.avg30 ?? cm.avg), trend:soldi(cm.trend),
+          avg7:soldi(cm.avg7), avg1:soldi(cm.avg1),
+          altLow:soldi(cm['low-holo']), altTrend:soldi(cm['trend-holo']), altEtichetta:'holo',
+          url:'https://www.cardmarket.com/it/Pokemon/Products/Search?searchString=' + encodeURIComponent(c.name)
+        } : null,
+        tp: tp ? {righe:Object.entries(tp).filter(([k,v]) => v && typeof v === 'object')
+              .map(([k,v]) => ({variante:variante(k), low:v.lowPrice, market:v.marketPrice ?? v.midPrice, high:v.highPrice})), url:null} : null,
+        fonte:'TCGdex ' + (lingua === 'it' ? 'italiano' : 'inglese')
+      };
+    }
+  };
+
+  /* ============ archivio pokemontcg.io (solo inglese) ============ */
+  const ptcg = {
+    etichetta:'pokemontcg.io',
+    async sets(){
+      if(!state.pSets){
+        const d = await get(PTCG, '/sets?pageSize=250&select=id,name,series,ptcgoCode,printedTotal,total,releaseDate');
+        state.pSets = d.data || [];
+      }
+      return state.pSets;
+    },
+    async cerca(p){
+      const sets = await this.sets();
+      let cand = [];
+      if(p.sigla){
+        cand = sets.filter(s => (s.ptcgoCode||'').toUpperCase() === p.sigla || s.id.toUpperCase() === p.sigla);
+        if(cand.length > 1 && p.totale){
+          const ex = cand.filter(s => String(s.printedTotal) === String(parseInt(p.totale,10)));
+          if(ex.length) cand = ex;
+        }
+      }
+      if(!cand.length && p.totale) cand = sets.filter(s => String(s.printedTotal) === String(parseInt(p.totale,10)));
+      cand = cand.sort((a,b) => (b.releaseDate||'').localeCompare(a.releaseDate||'')).slice(0,3);
+      if(!cand.length) return {carte:[], sets:[]};
+      const blocchi = await Promise.all(cand.map(async s => {
+        try{
+          const uno = await get(PTCG, `/cards?q=set.id:${s.id}&pageSize=250&page=1&select=${CAMPI}`);
+          let lista = uno.data || [];
+          if((uno.totalCount||0) > 250){
+            const due = await get(PTCG, `/cards?q=set.id:${s.id}&pageSize=250&page=2&select=${CAMPI}`);
+            lista = lista.concat(due.data || []);
+          }
+          return lista;
+        }catch{ return []; }
+      }));
+      const cerco = senzaZeri(p.numero), carte = [];
+      blocchi.flat().forEach(c => { if(senzaZeri(c.number) === cerco) carte.push(this.norm(c)); });
+      return {carte, sets:cand};
+    },
+    norm(c){
+      const cm = c.cardmarket, tp = c.tcgplayer, cmp = (cm && cm.prices) ? cm.prices : null;
+      return {
+        id:c.id, nome:c.name, numero:c.number, totaleStampato:c.set.printedTotal,
+        setId:c.set.id, setName:c.set.name,
+        rarita:c.rarity || '—',
+        tipo:[c.supertype, ...(c.subtypes||[])].filter(Boolean).join(' · ') || '—',
+        illustratore:c.artist || '—',
+        immagine:c.images.large || c.images.small, mini:c.images.small,
+        cm: cmp ? {
+          low:soldi(cmp.lowPrice), avg30:soldi(cmp.avg30 ?? cmp.averageSellPrice), trend:soldi(cmp.trendPrice),
+          avg7:soldi(cmp.avg7), avg1:soldi(cmp.avg1),
+          altLow:soldi(cmp.reverseHoloLow), altTrend:soldi(cmp.reverseHoloTrend), altEtichetta:'reverse holo',
+          url:cm.url
+        } : null,
+        tp: (tp && tp.prices) ? {righe:Object.entries(tp.prices).map(([k,v]) => ({variante:variante(k), low:v.low, market:v.market ?? v.mid, high:v.high})), url:tp.url} : null,
+        fonte:'pokemontcg.io (inglese)'
+      };
+    }
+  };
+
+  const archivi = () => {
+    const s = $('src').value;
+    return s === 'tcgdex' ? [tcgdex] : s === 'ptcg' ? [ptcg] : [tcgdex, ptcg];
+  };
+
+  /* ============ righe di magazzino ============ */
+  function chiave(r){ return leggiCodice(r.code).raw + '@' + numero(r.paid); }
+
+  function aggiungi(codice, qta, pagato, indice){
+    codice = String(codice||'').trim();
+    if(!codice) return null;
+    const p = leggiCodice(codice);
+    const k = p.raw + '@' + numero(pagato);
+    const gemella = indice ? indice.get(k) : state.rows.find(r => chiave(r) === k);
+    if(gemella){ gemella.qty = (Number(gemella.qty)||0) + (Number(qta)||1); return gemella; }
+    const riga = {id:rid(), code:codice, qty:Number(qta)||1, paid:numero(pagato),
+                  tasca:null, card:null, scelta:null, varianti:null, st:'attesa', msg:'', rete:false, letta:null};
+    state.rows.push(riga);
+    if(indice) indice.set(k, riga);
+    return riga;
+  }
+
+  // memoria di sessione: due righe con lo stesso codice non rifanno le chiamate
+  const memoria = new Map();
+
+  async function leggiRiga(riga){
+    const p = leggiCodice(riga.code);
+    if(!p.numero){ riga.st = 'errore'; riga.rete = false; riga.msg = 'codice senza numero'; return; }
+
+    if(memoria.has(p.raw)){
+      applicaCarte(riga, memoria.get(p.raw));
+      return;
+    }
+
+    const errori = [];
+    let problemaRete = false;
+
+    for(const arc of archivi()){
+      // fino a tre tentativi: gli intoppi di rete sono quasi sempre passeggeri
+      for(let tentativo = 1; tentativo <= 3; tentativo++){
+        if(scanner.stop) { riga.st = 'coda'; return; }
+        try{
+          state.route = 0;
+          const {carte, sets} = await arc.cerca(p);
+          setRoute(arc.etichetta + ' · ' + ROTTE[state.route].etichetta);
+          if(!carte.length){
+            errori.push(`${arc.etichetta}: nessuna corrispondenza${sets.length ? '' : ' (espansione non riconosciuta)'}`);
+            break; // risposta valida ma vuota: cambio archivio, non ritento
+          }
+          memoria.set(p.raw, carte);
+          applicaCarte(riga, carte);
+          return;
+        }catch(e){
+          problemaRete = true;
+          errori.push(`${arc.etichetta} tentativo ${tentativo}: ${e.message}`);
+          riga.msg = `riprovo (${tentativo}/3)`;
+          ridisegnaRiga(riga);
+          await sleep(400 * tentativo);
+        }
+      }
+    }
+    riga.st = 'errore';
+    riga.rete = problemaRete;
+    riga.msg = (problemaRete ? 'rete: ' : 'non trovata: ') + errori.slice(-2).join(' · ');
+  }
+
+  function applicaCarte(riga, carte){
+    riga.varianti = carte.length > 1 ? carte : null;
+    const preferita = riga.scelta ? carte.find(c => c.id === riga.scelta) : null;
+    riga.card = preferita || carte[0];
+    riga.rete = false;
+    if(preferita){ riga.st = 'scelta'; riga.msg = 'variante scelta da te'; }
+    else if(carte.length > 1){ riga.st = 'varianti'; riga.msg = carte.length + ' varianti: scegline una'; }
+    else { riga.st = 'letta'; riga.msg = ''; }
+    riga.letta = new Date().toISOString();
+  }
+
+  const unitario = r => {
+    if(!r.card || !r.card.cm) return null;
+    const cm = r.card.cm, b = $('basis').value;
+    return cm[b] ?? cm.low ?? cm.avg30 ?? cm.trend ?? null;
+  };
+  const valore = r => { const u = unitario(r); return u == null ? null : u * (Number(r.qty)||0); };
+  const costo  = r => numero(r.paid) * (Number(r.qty)||0);
+  const utile  = r => { const v = valore(r); return v == null ? null : v - costo(r); };
+
+  /* ============ filtro ============ */
+  function filtroAttivo(){
+    return $('filtro').value.trim() !== '' || $('statofiltro').value !== '';
+  }
+
+  function righeVisibili(){
+    const testo = $('filtro').value.trim().toLowerCase();
+    const parole = testo ? testo.split(/\s+/) : [];
+    const stato = $('statofiltro').value;
+    return state.rows.filter(r => {
+      if(parole.length){
+        const c = r.card;
+        const cercabile = [r.code, c && c.nome, c && c.setName, c && c.rarita,
+                           c && c.numero, c && c.tipo].filter(Boolean).join(' ').toLowerCase();
+        if(!parole.every(w => cercabile.includes(w))) return false;
+      }
+      if(stato === 'daleggere'  && !(r.st === 'errore' || r.st === 'attesa' || !r.card)) return false;
+      if(stato === 'varianti'   && r.st !== 'varianti') return false;
+      if(stato === 'perdita'    && !((utile(r) ?? 0) < 0)) return false;
+      if(stato === 'senzaprezzo'&& (r.card && r.card.cm)) return false;
+      if(stato === 'fissate'    && r.tasca == null) return false;
+      return true;
+    });
+  }
+
+  function aggiornaContaFiltro(){
+    const chip = $('contafiltro');
+    if(!filtroAttivo()){ chip.style.display = 'none'; return; }
+    const viste = righeVisibili();
+    let pagato = 0, val = 0, pezzi = 0;
+    viste.forEach(r => { pezzi += Number(r.qty)||0; pagato += costo(r); const v = valore(r); if(v != null) val += v; });
+    chip.style.display = '';
+    chip.textContent = `${viste.length} righe · ${pezzi} carte · valore ${eur(val)} · pagato ${eur(pagato)}`;
+  }
+
+  /* ============ tabella ============ */
+  function ordina(){
+    const {by, dir} = state.sort;
+    const k = r => {
+      switch(by){
+        case 'ordine': return state.rows.indexOf(r);
+        case 'name': return (r.card ? r.card.nome : r.code).toLowerCase();
+        case 'set':  return (r.card ? r.card.setName : '').toLowerCase();
+        case 'qty':  return Number(r.qty)||0;
+        case 'paid': return numero(r.paid);
+        case 'low':  return (r.card && r.card.cm && r.card.cm.low != null) ? r.card.cm.low : -1;
+        case 'avg30':return (r.card && r.card.cm && r.card.cm.avg30 != null) ? r.card.cm.avg30 : -1;
+        case 'pl':   return utile(r) ?? -1e9;
+        default:     return valore(r) ?? -1;
+      }
+    };
+    return righeVisibili().sort((a,b) => {
+      const ka = k(a), kb = k(b);
+      return typeof ka === 'string' ? dir * ka.localeCompare(kb) : dir * (ka - kb);
+    });
+  }
+
+  const ETICHETTE = {attesa:'da leggere', coda:'in coda', cerca:'cerco…', letta:'letta',
+                     scelta:'scelta', varianti:'varianti', errore:'errore'};
+
+  function htmlRiga(r){
+    const c = r.card, cm = c && c.cm;
+    const v = valore(r), u = utile(r);
+    const cls = u == null ? '' : (u >= 0 ? 'up' : 'down');
+    const pos = state.rows.indexOf(r);
+    const tasca = (state.pos && state.pos.get(r.id)) || {txt:String(pos + 1), pag:'', cls:'', nota:''};
+    const inCorso = r.st === 'cerca';
+    return `<tr data-id="${r.id}" class="${inCorso ? 'incorso' : ''}">
+        <td class="ordcol c-tasca">
+          <div class="ord">
+            <span class="posbox"><b class="${tasca.cls || ''}" data-act="tasca" title="${esc(tasca.nota || '')}">${tasca.txt}</b><span class="pag">${tasca.pag}</span></span>
+            <span class="frecce">
+              <button class="iconbtn" data-act="su" title="Sposta su"${pos === 0 ? ' disabled' : ''}>▲</button>
+              <button class="iconbtn" data-act="giu" title="Sposta giù"${pos === state.rows.length - 1 ? ' disabled' : ''}>▼</button>
+            </span>
+          </div>
+        </td>
+        <td class="left c-carta">
+          <div class="cardcell">
+            ${c && c.mini ? `<img src="${esc(c.mini)}" alt="" onerror="this.style.display='none'">` : ''}
+            <div>
+              <div class="nm">${esc(c ? c.nome : r.code)}</div>
+              <div class="sub">${esc(c ? c.numero + '/' + c.totaleStampato : r.code)}
+                <span class="st ${r.st}" data-act="dettaglio" title="${esc(r.msg)}">${ETICHETTE[r.st] || r.st}</span>
+                ${inCorso ? '<span class="rigaprog"><i></i></span>' : ''}
+                ${r.st === 'errore' && r.msg ? `<span class="sub" style="color:var(--bad)"> ${esc(r.msg.slice(0,40))}</span>` : ''}
+              </div>
+            </div>
+          </div>
+        </td>
+        <td class="left sub c-set">${esc(c ? c.setName : '—')}</td>
+        <td class="c-qty" data-l="Quantità"><input type="number" min="0" step="1" value="${Number(r.qty)||0}" data-f="qty"></td>
+        <td class="c-paid" data-l="Pagato €/pz"><input type="text" inputmode="decimal" value="${numero(r.paid) ? String(numero(r.paid)).replace('.',',') : ''}" placeholder="0,00" data-f="paid"></td>
+        <td class="num c-min" data-l="Minimo">${cm ? eur(cm.low) : '—'}</td>
+        <td class="num c-media" data-l="Media 30gg">${cm ? eur(cm.avg30) : '—'}</td>
+        <td class="num c-val" data-l="Valore" style="color:var(--amber)">${eur(v)}</td>
+        <td class="num c-utile ${cls}" data-l="Utile">${u == null ? '—' : (u >= 0 ? '+' : '') + eur(u)}</td>
+        <td class="c-azioni">
+          <button class="iconbtn" data-act="dettaglio" title="Dettaglio e prezzi">🔍</button>
+          <button class="iconbtn" data-act="ebay" title="Venduti su eBay">€</button>
+          <button class="iconbtn" data-act="rileggi" title="Aggiorna questa carta">↻</button>
+          <button class="iconbtn" data-act="togli" title="Rimuovi dal magazzino">✕</button>
+        </td>
+      </tr>`;
+  }
+
+  // ridisegna una sola riga: durante la scansione non si tocca tutta la tabella
+  function ridisegnaRiga(r){
+    const tr = $('tbody').querySelector(`tr[data-id="${r.id}"]`);
+    if(!tr) return;
+    if(tr.contains(document.activeElement)) return; // stai scrivendo dentro: non la tocco
+    tr.outerHTML = htmlRiga(r);
+  }
+
+  function disegnaTabella(){
+    ricalcolaPosizioni();
+    const corpo = $('tbody');
+    if(!state.rows.length){
+      corpo.innerHTML = `<tr><td colspan="10" class="empty">Magazzino vuoto. Aggiungi la prima carta qui sopra, oppure apri un database già salvato.</td></tr>`;
+      aggiornaContaFiltro();
+      return;
+    }
+    const viste = ordina();
+    corpo.innerHTML = viste.length
+      ? viste.map(htmlRiga).join('')
+      : `<tr><td colspan="10" class="empty">Nessuna carta corrisponde al filtro.<br><button class="mini ghost" id="bvuoto" style="margin-top:10px">Azzera filtro</button></td></tr>`;
+    const b = document.getElementById('bvuoto');
+    if(b) b.addEventListener('click', azzeraFiltro);
+    aggiornaContaFiltro();
+  }
+
+  function azzeraFiltro(){
+    $('filtro').value = '';
+    $('statofiltro').value = '';
+    disegnaTabella();
+  }
+
+  function disegnaTotali(){
+    let pagato = 0, val = 0, minimo = 0, media = 0, pezzi = 0, senza = 0;
+    state.rows.forEach(r => {
+      const q = Number(r.qty)||0;
+      pezzi += q; pagato += costo(r);
+      const v = valore(r);
+      if(v == null) senza += q; else val += v;
+      const cm = r.card && r.card.cm;
+      if(cm){
+        if(cm.low != null) minimo += cm.low * q;
+        if(cm.avg30 != null) media += cm.avg30 * q;
+      }
+    });
+    const u = val - pagato;
+    const pct = pagato > 0 ? (u / pagato * 100) : null;
+    $('t-paid').textContent = eur(pagato);
+    $('t-count').textContent = `${pezzi} carte · ${state.rows.length} righe`;
+    $('t-val').textContent = eur(val);
+    $('t-basis').textContent = {low:'al minimo', avg30:'alla media 30 giorni', trend:'al trend'}[$('basis').value];
+    const el = $('t-pl');
+    el.textContent = (u >= 0 ? '+' : '') + eur(u);
+    el.className = u >= 0 ? 'up' : 'down';
+    $('t-plpct').textContent = pct == null ? 'nessun costo inserito' : (pct >= 0 ? '+' : '') + pct.toFixed(1) + '% sul costo';
+    $('t-low').textContent = eur(minimo);
+    $('t-avg').textContent = eur(media);
+    $('t-missing').textContent = senza ? `${senza} carte senza quotazione` : 'tutte quotate';
+    $('savenote').textContent = cache.ok
+      ? 'Il database è il file .json: collegalo con Apri database o Salva come… Nel browser resta anche una copia di riserva.'
+      : 'Questo browser non permette copie locali: tieni collegato il file .json e premi Salva.';
+  }
+
+  // ogni copia occupa una tasca: una carta con quantita' 2 prende due tasche consecutive
+  function ricalcolaPosizioni(){
+    const perPagina = parseInt($('tasche').value, 10) || 0;
+    const partenza = Math.max(1, parseInt($('inizio').value, 10) || 1);
+    let tasca = partenza, finePrec = partenza - 1;
+    const mappa = new Map();
+    const etichettaPagina = (da, a) => {
+      if(perPagina <= 0) return '';
+      const pagDa = Math.floor((da - 1) / perPagina) + 1;
+      const posDa = ((da - 1) % perPagina) + 1;
+      const pagA  = Math.floor((a - 1) / perPagina) + 1;
+      return pagDa === pagA ? `pag. ${pagDa} · ${posDa}` : `pag. ${pagDa}-${pagA}`;
+    };
+    state.rows.forEach(r => {
+      const q = Math.max(0, Number(r.qty) || 0);
+      let cls = '', nota = 'Clicca per impostare la tasca a mano';
+      if(r.tasca){
+        cls = 'fissa';
+        nota = 'Tasca impostata a mano — clicca per cambiarla, svuota il campo per tornare automatica';
+        if(r.tasca <= finePrec){
+          cls = 'scontro';
+          nota = 'Attenzione: questa tasca si sovrappone alla carta precedente';
+        }
+        tasca = r.tasca;
+      }
+      if(q === 0){
+        mappa.set(r.id, {da:r.tasca || null, a:null, txt:r.tasca ? String(r.tasca) : '—', pag:'', cls, nota});
+        return;
+      }
+      const da = tasca, a = tasca + q - 1;
+      mappa.set(r.id, {da, a, txt: q === 1 ? String(da) : `${da}–${a}`, pag:etichettaPagina(da, a), cls, nota});
+      tasca = a + 1;
+      finePrec = a;
+    });
+    state.pos = mappa;
+  }
+
+  // scrittura a mano della tasca: il numero diventa un campo
+  function modificaTasca(riga, tr){
+    const box = tr.querySelector('.posbox');
+    if(!box || box.querySelector('input')) return;
+    const p = state.pos.get(riga.id) || {};
+    const precedente = box.innerHTML;
+    box.innerHTML = `<input class="tascainput" type="number" min="1" step="1" inputmode="numeric" value="${riga.tasca != null ? riga.tasca : (p.da != null ? p.da : '')}" placeholder="auto">`;
+    const campo = box.firstElementChild;
+    campo.focus(); campo.select();
+    let chiuso = false;
+    const chiudi = salva => {
+      if(chiuso) return;
+      chiuso = true;
+      if(salva){
+        const v = parseInt(campo.value, 10);
+        riga.tasca = (isNaN(v) || v < 1) ? null : v;
+        ricalcolaPosizioni();
+        disegnaTabella();
+        salvaPiano();
+        setRoute(riga.tasca ? 'tasca fissata a ' + riga.tasca : 'tasca di nuovo automatica');
+      }else{
+        box.innerHTML = precedente;
+      }
+    };
+    campo.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){ e.preventDefault(); chiudi(true); }
+      if(e.key === 'Escape'){ e.preventDefault(); chiudi(false); }
+    });
+    campo.addEventListener('blur', () => chiudi(true));
+  }
+
+  function aggiornaPosizioniDOM(){
+    $('tbody').querySelectorAll('tr[data-id]').forEach(tr => {
+      const p = state.pos.get(tr.dataset.id);
+      if(!p) return;
+      const b = tr.querySelector('.ord b');   if(b) b.textContent = p.txt;
+      const s = tr.querySelector('.ord .pag'); if(s) s.textContent = p.pag;
+    });
+  }
+
+  function sposta(riga, passo){
+    // se stai guardando la tabella ordinata per un'altra colonna, torno all'ordine manuale
+    if(state.sort.by !== 'ordine' || state.sort.dir !== 1){
+      state.sort = {by:'ordine', dir:1};
+      setRoute('ordine manuale ripristinato');
+    }
+    const da = state.rows.indexOf(riga);
+    if(da < 0) return;
+    let a;
+    if(filtroAttivo()){
+      // con un filtro attivo lo scambio avviene con la riga visibile vicina
+      const viste = ordina();
+      const i = viste.indexOf(riga);
+      const vicina = viste[i + passo];
+      if(!vicina) return;
+      a = state.rows.indexOf(vicina);
+    }else{
+      a = da + passo;
+    }
+    if(a < 0 || a >= state.rows.length) return;
+    state.rows.splice(da, 1);
+    state.rows.splice(a, 0, riga);
+    paint();
+    db.scrivi(false);
+  }
+
+  function paint(){ disegnaTabella(); disegnaTotali(); aggiornaContaFiltro(); salvaPiano(); }
+
+  /* ============ dettaglio ============ */
+  const blocco  = (t,h) => `<div class="card"><h2>${t}</h2>${h}</div>`;
+  const mostra  = h => { out.innerHTML = h; out.scrollIntoView({behavior:'smooth', block:'nearest'}); };
+  const accoda  = h => out.insertAdjacentHTML('beforeend', h);
+
+  function dettaglio(riga){
+    const c = riga.card;
+    if(!c){
+      mostra(blocco('Dettaglio', `<p class="status bad">${esc(riga.msg || 'Carta non ancora letta')}</p>
+        <p class="note">Codice: <code>${esc(riga.code)}</code>. Premi ↻ sulla riga per rileggerla.</p>`));
+      return;
+    }
+    mostra(blocco('Carta', `
+      <div class="hit">
+        <img src="${esc(c.immagine)}" alt="${esc(c.nome)}" onerror="this.style.display='none'">
+        <div class="meta">
+          <p class="name">${esc(c.nome)}</p>
+          <p class="status ok">✓ ${esc(c.numero)}/${esc(c.totaleStampato)} — ${esc(c.setName)}</p>
+          <dl>
+            <dt>Rarità</dt><dd>${esc(c.rarita)}</dd>
+            <dt>Tipo</dt><dd>${esc(c.tipo)}</dd>
+            <dt>Illustratore</dt><dd>${esc(c.illustratore)}</dd>
+            <dt>In magazzino</dt><dd>${riga.qty} pz · pagate ${eur(numero(riga.paid))}/pz</dd>
+            <dt>Valore</dt><dd>${eur(valore(riga))} · utile ${eur(utile(riga))}</dd>
+            <dt>Archivio</dt><dd>${esc(c.fonte)}${riga.letta ? ' · ' + new Date(riga.letta).toLocaleString('it-IT') : ''}</dd>
+          </dl>
+        </div>
+      </div>`));
+    prezzi(riga);
+    if(riga.varianti && riga.varianti.length > 1) scelte(riga);
+    ebay(riga, false);
+  }
+
+  function prezzi(riga){
+    const c = riga.card, cm = c.cm, tp = c.tp;
+    let html = '';
+    if(cm){
+      html += `<div class="pbox">
+        <h3>Cardmarket <em>euro</em></h3>
+        <div class="three">
+          <div class="stat min"><span>minimo</span><b>${eur(cm.low)}</b></div>
+          <div class="stat avg"><span>media 30 giorni</span><b>${eur(cm.avg30)}</b></div>
+          <div class="stat max"><span>trend</span><b>${eur(cm.trend)}</b></div>
+        </div>
+        <table>
+          <tr><th class="left">Voce</th><th>Prezzo</th></tr>
+          <tr><td class="left">Media 7 giorni</td><td>${eur(cm.avg7)}</td></tr>
+          <tr><td class="left">Media 1 giorno</td><td>${eur(cm.avg1)}</td></tr>
+          <tr><td class="left">${esc(cm.altEtichetta)} · minimo</td><td>${eur(cm.altLow)}</td></tr>
+          <tr><td class="left">${esc(cm.altEtichetta)} · trend</td><td>${eur(cm.altTrend)}</td></tr>
+        </table>
+        ${cm.url ? `<a class="lnk" href="${esc(cm.url)}" target="_blank" rel="noopener">Apri su Cardmarket →</a>` : ''}
+      </div>`;
+    }
+    if(tp && tp.righe.length){
+      const f = tp.righe[0];
+      html += `<div class="pbox">
+        <h3>TCGplayer <em>dollari</em></h3>
+        <div class="three">
+          <div class="stat min"><span>minimo</span><b>${usd(f.low)}</b></div>
+          <div class="stat avg"><span>mercato</span><b>${usd(f.market)}</b></div>
+          <div class="stat max"><span>massimo</span><b>${usd(f.high)}</b></div>
+        </div>
+        <table>
+          <tr><th class="left">Versione</th><th>Minimo</th><th>Mercato</th><th>Massimo</th></tr>
+          ${tp.righe.map(r => `<tr><td class="left">${esc(r.variante)}</td><td>${usd(r.low)}</td><td>${usd(r.market)}</td><td>${usd(r.high)}</td></tr>`).join('')}
+        </table>
+        ${tp.url ? `<a class="lnk" href="${esc(tp.url)}" target="_blank" rel="noopener">Apri su TCGplayer →</a>` : ''}
+      </div>`;
+    }
+    accoda(blocco('Prezzi di mercato', html
+      ? `<div class="prices">${html}</div><p class="note">Quotazioni aggregate di Cardmarket e TCGplayer, non aste concluse.</p>`
+      : `<p class="status bad">Nessuna quotazione disponibile per questa carta.</p>`));
+  }
+
+  function scelte(riga){
+    accoda(blocco('Varianti trovate — la scelta resta salvata', `<div class="picks">${riga.varianti.map((c,i) =>
+      `<button class="pick ${riga.card && c.id === riga.card.id ? 'on' : ''}" data-alt="${i}">
+        <img src="${esc(c.mini)}" alt="">
+        <span><b>${esc(c.nome)}</b><br><span class="sub">${esc(c.setName)} · ${esc(c.numero)}/${esc(c.totaleStampato)} · ${esc(c.rarita)} · minimo ${eur(c.cm ? c.cm.low : null)}</span></span>
+      </button>`).join('')}</div>
+      <p class="note">La variante scelta viene ricordata: gli aggiornamenti dei prezzi non la sostituiscono più.</p>`));
+    out.querySelectorAll('[data-alt]').forEach(b => b.addEventListener('click', () => {
+      const c = riga.varianti[+b.dataset.alt];
+      riga.card = c;
+      riga.scelta = c.id;
+      riga.st = 'scelta';
+      riga.msg = 'variante scelta da te';
+      paint();
+      db.scrivi(false);
+      dettaglio(riga);
+    }));
+  }
+
+  function ricercaEbay(riga){
+    const c = riga.card;
+    if(c) return `${c.nome} ${c.numero}/${c.totaleStampato}`;
+    const p = leggiCodice(riga.code);
+    return [p.nome, (p.numero && p.totale) ? `${p.numero}/${p.totale}` : p.numero, p.sigla].filter(Boolean).join(' ');
+  }
+  function urlEbay(riga, ordine, sito){
+    const base = sito === 'com' ? 'https://www.ebay.com/sch/i.html' : 'https://www.ebay.it/sch/i.html';
+    return base + '?' + new URLSearchParams({_nkw:ricercaEbay(riga), LH_Sold:'1', LH_Complete:'1', _sop:ordine, _ipg:'60'});
+  }
+  function ebay(riga, apriSubito){
+    accoda(blocco('Venduti su eBay', `
+      <div class="links">
+        <a href="${urlEbay(riga,'13','it')}" target="_blank" rel="noopener">Ultime cessioni<small>fine più recente</small></a>
+        <a href="${urlEbay(riga,'16','it')}" target="_blank" rel="noopener">Prezzo più basso<small>venduto meno caro</small></a>
+        <a href="${urlEbay(riga,'15','it')}" target="_blank" rel="noopener">Prezzo più alto<small>venduto più caro</small></a>
+      </div>
+      <p class="note">Ricerca: <code>${esc(ricercaEbay(riga))}</code> · filtri venduti e conclusi già attivi. <a class="lnk" href="${urlEbay(riga,'13','com')}" target="_blank" rel="noopener">Cerca su eBay.com →</a></p>`));
+    if(apriSubito) window.open(urlEbay(riga,'13','it'), '_blank', 'noopener');
+  }
+
+  /* ============ scansione prezzi ============ */
+  const scanner = {
+    coda:[], attivi:0, corsie:3, attiva:false, stop:false,
+    fatte:0, totali:0, giro:0,
+
+    accoda(righe, nuovoGiro){
+      righe.forEach(r => {
+        if(r.st === 'cerca' || this.coda.includes(r.id)) return;
+        r.st = 'coda'; r.msg = '';
+        this.coda.push(r.id);
+        ridisegnaRiga(r);
+      });
+      this.totali = this.fatte + this.attivi + this.coda.length;
+      if(nuovoGiro) memoria.clear();
+      this.avvia();
+    },
+
+    async avvia(){
+      if(this.attiva){ this.conta(); return; }
+      if(!this.coda.length) return;
+      this.attiva = true; this.stop = false;
+      this.fatte = 0; this.totali = this.coda.length; this.giro = 1;
+      $('brefresh').disabled = true; $('bmiss').disabled = true; $('bstop').disabled = false;
+      $('prog').classList.add('on'); $('conta').style.display = 'flex';
+
+      await Promise.all(Array.from({length:this.corsie}, (_, i) => this.corsia(i)));
+
+      // ripasso automatico su chi è caduto per problemi di rete
+      while(!this.stop && this.giro < 3){
+        const cadute = state.rows.filter(r => r.st === 'errore' && r.rete);
+        if(!cadute.length) break;
+        this.giro++;
+        setRoute(`ripasso ${this.giro}: riprovo ${cadute.length} carte`);
+        await sleep(1500);
+        cadute.forEach(r => { r.st = 'coda'; this.coda.push(r.id); ridisegnaRiga(r); });
+        this.totali = this.fatte + this.coda.length;
+        await Promise.all(Array.from({length:this.corsie}, (_, i) => this.corsia(i)));
+      }
+
+      $('prog').classList.remove('on');
+      $('prog').firstElementChild.style.width = '0%';
+      $('brefresh').disabled = false; $('bmiss').disabled = false; $('bstop').disabled = true;
+      this.attiva = false;
+      const rimaste = state.rows.filter(r => r.st === 'errore').length;
+      setRoute(this.stop ? 'scansione fermata' :
+        `finito alle ${new Date().toLocaleTimeString('it-IT')}${rimaste ? ' · ' + rimaste + ' da rileggere' : ''}`);
+      this.conta();
+      disegnaTabella(); disegnaTotali();
+      cache.salva(); db.scrivi(false);
+    },
+
+    async corsia(indice){
+      await sleep(indice * 120); // le corsie non partono tutte insieme
+      while(this.coda.length && !this.stop){
+        const id = this.coda.shift();
+        const riga = state.rows.find(r => r.id === id);
+        if(!riga) continue;
+        this.attivi++;
+        riga.st = 'cerca'; riga.msg = 'cerco…';
+        ridisegnaRiga(riga);
+        this.conta();
+        try{ await leggiRiga(riga); }
+        catch(e){ riga.st = 'errore'; riga.rete = true; riga.msg = e.message; }
+        this.attivi--; this.fatte++;
+        ridisegnaRiga(riga);
+        disegnaTotali();
+        this.barra();
+        this.conta();
+        salvaPiano();
+        await sleep(50);
+      }
+    },
+
+    barra(){
+      const pct = this.totali ? Math.round(this.fatte / this.totali * 100) : 0;
+      $('prog').firstElementChild.style.width = pct + '%';
+    },
+
+    conta(){
+      const c = {letta:0, scelta:0, varianti:0, errore:0, cerca:0, coda:0, attesa:0};
+      state.rows.forEach(r => { c[r.st] = (c[r.st] || 0) + 1; });
+      $('conta').innerHTML =
+        `<span class="chip live">lette ${c.letta + c.scelta + c.varianti}</span>` +
+        `<span class="chip warn">in corso ${c.cerca}</span>` +
+        `<span class="chip">in coda ${c.coda + c.attesa}</span>` +
+        (c.errore ? `<span class="chip" style="color:var(--bad)">non lette ${c.errore}</span>` : '') +
+        `<span class="chip">${this.fatte} di ${this.totali}</span>`;
+      if(!this.attiva && !c.cerca && !c.coda) $('conta').style.display = state.rows.length ? 'flex' : 'none';
+    }
+  };
+
+  // salvataggi diradati: durante una scansione lunga non si riscrive il file a ogni carta
+  let timerSalva = null;
+  function salvaPiano(){
+    clearTimeout(timerSalva);
+    timerSalva = setTimeout(() => { cache.salva(); db.auto(); }, 1200);
+  }
+
+  /* ============ file ============ */
+  function scarica(nome, testo, tipo){
+    const url = URL.createObjectURL(new Blob([testo], {type:tipo}));
+    const a = document.createElement('a');
+    a.href = url; a.download = nome; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+  function esportaCSV(){
+    ricalcolaPosizioni();
+    const testa = ['tasca_da','tasca_a','tasca_fissata','pagina','codice','nome','espansione','numero','quantita','pagato_unitario','minimo_unitario','media30_unitario','valore','utile'];
+    const righe = state.rows.map((r, i) => {
+      const c = r.card, cm = c && c.cm;
+      const t = state.pos.get(r.id) || {};
+      return [t.da ?? '', t.a ?? '', r.tasca != null ? 'sì' : '', t.pag || '', r.code, c ? c.nome : '', c ? c.setName : '', c ? c.numero + '/' + c.totaleStampato : '',
+        r.qty, numero(r.paid).toFixed(2),
+        cm && cm.low != null ? cm.low.toFixed(2) : '',
+        cm && cm.avg30 != null ? cm.avg30.toFixed(2) : '',
+        valore(r) != null ? valore(r).toFixed(2) : '',
+        utile(r) != null ? utile(r).toFixed(2) : '']
+        .map(v => `"${String(v).replace(/"/g,'""')}"`).join(';');
+    });
+    scarica('magazzino-carte.csv', '\uFEFF' + testa.join(';') + '\n' + righe.join('\n'), 'text/csv');
+  }
+  function importaBlocco(){
+    const testo = $('bulk').value.trim();
+    if(!testo) return;
+    const indice = new Map();
+    state.rows.forEach(r => indice.set(chiave(r), r));
+    let n = 0;
+    testo.split(/\r?\n/).forEach(riga => {
+      riga = riga.trim();
+      if(!riga) return;
+      const parti = riga.split(/\s*[;|,\t]\s*/);
+      if(aggiungi(parti[0], parti[1] ? parseInt(parti[1],10) : 1, parti[2] ? numero(parti[2]) : 0, indice)) n++;
+    });
+    $('bulk').value = '';
+    paint();
+    setRoute(n + ' righe importate — premi Aggiorna prezzi');
+  }
+
+  /* ============ eventi ============ */
+  $('badd').addEventListener('click', () => {
+    const riga = aggiungi($('q').value, $('qty').value, $('paid').value);
+    if(!riga) return;
+    $('q').value = ''; $('qty').value = '1'; $('paid').value = ''; $('q').focus();
+    paint();
+    scanner.accoda([riga]);
+  });
+  $('q').addEventListener('keydown', e => { if(e.key === 'Enter') $('badd').click(); });
+  $('paid').addEventListener('keydown', e => { if(e.key === 'Enter') $('badd').click(); });
+
+  $('brefresh').addEventListener('click', () => {
+    const bersaglio = filtroAttivo() ? righeVisibili() : state.rows;
+    if(!bersaglio.length){ setRoute('nessuna riga da aggiornare'); return; }
+    if(filtroAttivo()) setRoute(`aggiorno le ${bersaglio.length} righe filtrate`);
+    scanner.accoda(bersaglio, true);
+  });
+  $('bmiss').addEventListener('click', () => {
+    const mancanti = state.rows.filter(r => r.st === 'errore' || r.st === 'attesa' || !r.card);
+    if(!mancanti.length){ setRoute('nessuna carta da rileggere'); return; }
+    scanner.accoda(mancanti, true);
+  });
+  $('bstop').addEventListener('click', () => { scanner.stop = true; scanner.coda.length = 0; setRoute('fermo la scansione…'); });
+  $('basis').addEventListener('change', paint);
+  $('filtro').addEventListener('input', () => disegnaTabella());
+  $('filtro').addEventListener('keydown', e => { if(e.key === 'Escape') azzeraFiltro(); });
+  $('statofiltro').addEventListener('change', () => disegnaTabella());
+  $('bfiltrox').addEventListener('click', azzeraFiltro);
+  $('inizio').addEventListener('input', () => { ricalcolaPosizioni(); aggiornaPosizioniDOM(); salvaPiano(); });
+  $('tasche').addEventListener('change', () => { ricalcolaPosizioni(); aggiornaPosizioniDOM(); salvaPiano(); });
+  $('bord').addEventListener('click', () => {
+    ricalcolaPosizioni();
+    state.rows.sort((a, b) => {
+      const pa = state.pos.get(a.id), pb = state.pos.get(b.id);
+      return ((pa && pa.da) || 1e9) - ((pb && pb.da) || 1e9);
+    });
+    state.sort = {by:'ordine', dir:1};
+    paint();
+    db.scrivi(false);
+    setRoute('righe riordinate per tasca');
+  });
+  $('bbulk').addEventListener('click', importaBlocco);
+  $('bcsv').addEventListener('click', esportaCSV);
+  $('bopen').addEventListener('click', () => db.apri());
+  $('bsave').addEventListener('click', () => db.scrivi(true));
+  $('bsaveas').addEventListener('click', () => db.salvaCome());
+
+  $('file').addEventListener('change', e => {
+    const f = e.target.files[0];
+    if(!f) return;
+    const lettore = new FileReader();
+    lettore.onload = () => {
+      try{
+        db.carica(JSON.parse(lettore.result));
+        db.nome = f.name;
+        paint(); db.stato();
+        setRoute(state.rows.length + ' righe caricate da ' + f.name);
+      }catch(err){ setRoute('importazione fallita: ' + err.message); }
+    };
+    lettore.readAsText(f);
+    e.target.value = '';
+  });
+
+  $('bclear').addEventListener('click', () => {
+    if(!state.rows.length) return;
+    if(confirm('Svuotare tutto il magazzino? Le righe non salvate nel file .json vanno perse.')){
+      state.rows = []; out.innerHTML = ''; paint();
+    }
+  });
+
+  document.querySelectorAll('th[data-sort]').forEach(th => th.addEventListener('click', () => {
+    const by = th.dataset.sort;
+    state.sort = {by, dir: state.sort.by === by ? -state.sort.dir : -1};
+    disegnaTabella();
+  }));
+
+  $('tbody').addEventListener('click', e => {
+    const b = e.target.closest('[data-act]');
+    if(!b) return;
+    const tr = e.target.closest('tr');
+    const riga = state.rows.find(r => r.id === tr.dataset.id);
+    if(!riga) return;
+    const azione = b.dataset.act;
+    if(azione === 'tasca') return modificaTasca(riga, tr);
+    if(azione === 'su')  return sposta(riga, -1);
+    if(azione === 'giu') return sposta(riga, +1);
+    if(azione === 'dettaglio') dettaglio(riga);
+    if(azione === 'ebay'){ out.innerHTML = ''; ebay(riga, true); }
+    if(azione === 'rileggi') scanner.accoda([riga], true);
+    if(azione === 'togli'){ state.rows = state.rows.filter(r => r.id !== riga.id); out.innerHTML = ''; paint(); }
+  });
+
+  $('tbody').addEventListener('input', e => {
+    const inp = e.target.closest('input[data-f]');
+    if(!inp) return;
+    const tr = e.target.closest('tr');
+    const riga = state.rows.find(r => r.id === tr.dataset.id);
+    if(!riga) return;
+    if(inp.dataset.f === 'qty') riga.qty = Math.max(0, parseInt(inp.value,10) || 0);
+    else riga.paid = numero(inp.value);
+    const v = valore(riga), u = utile(riga);
+    const celle = tr.querySelectorAll('td');
+    celle[7].textContent = eur(v);
+    celle[8].textContent = u == null ? '—' : (u >= 0 ? '+' : '') + eur(u);
+    celle[8].className = 'num ' + (u == null ? '' : u >= 0 ? 'up' : 'down');
+    if(inp.dataset.f === 'qty'){ ricalcolaPosizioni(); aggiornaPosizioniDOM(); }
+    disegnaTotali(); salvaPiano();
+  });
+
+  $('btest').addEventListener('click', async () => {
+    mostra(blocco('Prova connessione', `<p class="status load">Provo gli archivi…</p>`));
+    const prove = [
+      ['TCGdex italiano diretto', TCG_IT + '/sets/swsh3/136'],
+      ['TCGdex inglese diretto',  TCG_EN + '/sets/swsh3/136'],
+      ['pokemontcg.io diretto',   PTCG + '/sets?pageSize=1'],
+      ['TCGdex via proxy A',      'https://api.allorigins.win/raw?url=' + encodeURIComponent(TCG_IT + '/sets/swsh3/136')],
+      ['TCGdex via proxy B',      'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(TCG_IT + '/sets/swsh3/136')]
+    ];
+    const righe = [];
+    for(const [nome, url] of prove){
+      const t0 = performance.now();
+      try{ await once(url); righe.push(`RIUSCITO ${nome}  (${Math.round(performance.now()-t0)} ms)`); }
+      catch(e){ righe.push(`FALLITO  ${nome}  →  ${e.message || e}`); }
+    }
+    mostra(blocco('Prova connessione', `<div class="diag">${esc(righe.join('\n'))}</div>
+      <p class="note">Origine della pagina: <code>${esc(location.protocol + '//' + (location.host || 'file locale'))}</code>${db.supportato ? '' : ' · questo browser non collega file .json: usa Salva come… e Apri database con il selettore file'}</p>`));
+  });
+
+  window.addEventListener('beforeunload', e => {
+    if(db.handle && db.timer){ db.scrivi(false); }
+  });
+
+  /* ============ avvio ============ */
+  cache.leggi();
+  db.stato();
+  paint();
+  scanner.conta();
+})();
+</script>
+</body>
+</html>
