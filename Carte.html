@@ -79,6 +79,14 @@
   .rigaprog i{display:block;height:100%;width:38%;background:var(--amber);border-radius:99px;animation:scorre 1.1s linear infinite}
   @keyframes scorre{0%{transform:translateX(-110%)}100%{transform:translateX(280%)}}
   tr.incorso{background:#1b2030}
+  tr.allarme td{background:rgba(255,92,122,.07)}
+  tr.allarme td.c-carta{box-shadow:inset 3px 0 0 var(--bad)}
+  .segnale{display:none;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--bad);
+    border:1px solid rgba(255,92,122,.4);border-radius:999px;padding:1px 7px;margin-left:6px;white-space:nowrap}
+  .segnale.on{display:inline-block}
+  .buono{display:none;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ok);
+    border:1px solid rgba(61,220,151,.35);border-radius:999px;padding:1px 7px;margin-left:6px;white-space:nowrap}
+  .buono.on{display:inline-block}
   .iconbtn{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:15px;padding:3px 5px;border-radius:6px}
   .iconbtn:hover{color:var(--text);background:#232a3b}
   .ord{display:flex;align-items:center;gap:6px}
@@ -136,6 +144,42 @@
   details{margin-top:12px}
   summary{cursor:pointer;color:var(--muted);font-size:13px}
   textarea{width:100%;min-height:110px;margin-top:10px;font-size:13px;line-height:1.5}
+
+  #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(8px);
+    background:var(--panel-2);border:1px solid var(--line);color:var(--text);
+    padding:11px 18px;border-radius:999px;z-index:80;font-size:13px;font-weight:600;
+    opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;box-shadow:0 10px 26px rgba(0,0,0,.5)}
+  #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  .annuncio textarea{width:100%;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.5;
+    background:#12161f;border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:6px;resize:vertical}
+  .annuncio .titoloArea{min-height:56px}
+  .annuncio .descArea{min-height:230px}
+  .conta{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-top:4px}
+  .conta.lungo{color:var(--bad)}
+
+  /* ================= modale ================= */
+  .modale{position:fixed;inset:0;z-index:60;display:none}
+  .modale.aperta{display:block}
+  .modale .sfondo{position:absolute;inset:0;background:rgba(6,8,12,.72);backdrop-filter:blur(3px)}
+  .modale .foglio{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:min(760px,calc(100vw - 32px));max-height:calc(100vh - 60px);
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.6);overflow:hidden}
+  .modale .testata{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:12px 14px;border-bottom:1px solid var(--line);
+    font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .modale .chiudi{background:transparent;border:1px solid var(--line);color:var(--text);
+    font-size:15px;line-height:1;padding:7px 11px;border-radius:9px;min-height:0}
+  .modale .corpo{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;display:grid;gap:14px;margin:0}
+  .modale .card{border:1px solid var(--line)}
+  body.bloccato{overflow:hidden}
+
+  /* pulsante a comparsa per l'aggiunta (solo telefono) */
+  #fab{display:none;position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:45;
+    width:58px;height:58px;border-radius:50%;background:var(--amber);color:#151515;border:none;
+    font-size:28px;font-weight:700;line-height:1;box-shadow:0 10px 24px rgba(0,0,0,.5)}
+  #sfondoAggiungi{display:none;position:fixed;inset:0;background:rgba(6,8,12,.6);z-index:44}
+  #sfondoAggiungi.aperto{display:block}
 
   /* ================= telefono ================= */
   @media(max-width:760px){
@@ -200,6 +244,19 @@
     .rigaprog{width:52px}
 
     /* pannello di dettaglio */
+    .modale .foglio{top:auto;bottom:0;left:0;transform:none;width:100%;
+      max-height:92vh;border-radius:16px 16px 0 0;border-bottom:none}
+    .modale .corpo{padding:12px 12px calc(14px + env(safe-area-inset-bottom))}
+    .modale .chiudi{padding:10px 14px;font-size:17px}
+    #fab{display:block}
+
+    /* la maschera di aggiunta compare dal basso col pulsante ＋ */
+    #aggiungiBox{display:none}
+    #aggiungiBox.aperto{display:block;position:fixed;left:0;right:0;bottom:0;z-index:46;
+      background:var(--panel);border-top:1px solid var(--line);border-radius:16px 16px 0 0;
+      padding:14px 14px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -12px 30px rgba(0,0,0,.55)}
+    #aggiungiBox .testataAgg{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    #aggiungiBox .testataAgg span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
     .out .card{padding:12px;border-radius:12px}
     .hit{gap:12px}
     .hit img{width:100%;max-width:220px;margin:0 auto}
@@ -231,6 +288,9 @@
   </header>
 
   <div class="desk">
+    <div id="aggiungiBox">
+    <div class="testataAgg"><span>Aggiungi una carta</span>
+      <button class="mini ghost" id="chiudiAgg" style="min-height:36px;padding:6px 12px">✕</button></div>
     <div class="addrow">
       <div class="full">
         <label class="lab" for="q">Codice carta</label>
@@ -244,10 +304,16 @@
         <label class="lab" for="paid">Pagato €/pz</label>
         <input id="paid" type="text" inputmode="decimal" placeholder="0,00" style="width:100%">
       </div>
+      <div>
+        <label class="lab" for="vend">Vendita €/pz</label>
+        <input id="vend" type="text" inputmode="decimal" placeholder="0,00" style="width:100%">
+      </div>
       <div style="display:flex;align-items:flex-end">
         <button class="primary" id="badd" style="width:100%">Aggiungi</button>
       </div>
     </div>
+    </div>
+    <div id="sfondoAggiungi"></div>
 
     <div class="bar">
       <input id="filtro" type="text" placeholder="Filtra per nome, espansione o codice…" autocomplete="off" spellcheck="false" style="flex:2 1 240px">
@@ -258,6 +324,7 @@
         <option value="perdita">in perdita</option>
         <option value="senzaprezzo">senza quotazione</option>
         <option value="fissate">con tasca fissata</option>
+        <option value="allarme">in allarme sul prezzo</option>
       </select>
       <button class="mini ghost" id="bfiltrox">Azzera filtro</button>
       <span class="chip" id="contafiltro" style="display:none"></span>
@@ -289,7 +356,7 @@
 
     <details>
       <summary>Inserimento in blocco, archivio e diagnostica</summary>
-      <textarea id="bulk" placeholder="Una carta per riga. Formati accettati:&#10;078/064 SFA&#10;078/064 SFA; 2; 12,50&#10;025/165 MEW, 1, 3.20&#10;(codice ; quantità ; prezzo pagato per pezzo)"></textarea>
+      <textarea id="bulk" placeholder="Una carta per riga. Formati accettati:&#10;078/064 SFA&#10;078/064 SFA; 2; 12,50&#10;025/165 MEW; 1; 3,20; 9,90&#10;(codice ; quantità ; pagato per pezzo ; prezzo di vendita)"></textarea>
       <div class="bar">
         <button class="mini" id="bbulk">Importa righe</button>
         <span class="sep"></span>
@@ -303,6 +370,20 @@
           <option value="0">senza pagine</option>
         </select>
         <button class="mini ghost" id="bord" title="Rimette le righe in ordine di tasca">Riordina per tasca</button>
+      </div>
+      <div class="bar">
+        <span class="chip">annuncio:</span>
+        <select id="cond" class="mini" title="Condizioni dichiarate nell'annuncio">
+          <option value="Near Mint (come nuova, mai giocata)">Near Mint</option>
+          <option value="Excellent (ottime, minimi segni d'uso)">Excellent</option>
+          <option value="Good (buone, segni d'uso visibili)">Good</option>
+          <option value="Played (giocata, usura evidente)">Played</option>
+        </select>
+        <input id="firma" type="text" class="mini" style="flex:2 1 220px" placeholder="Riga finale personale (facoltativa)">
+        <label class="chip" style="cursor:pointer;display:flex;align-items:center;gap:7px">
+          <input type="checkbox" id="avvisoCosto" checked style="width:16px;height:16px;padding:0;accent-color:var(--amber)">
+          avvisa anche sotto costo
+        </label>
         <select id="src" class="mini" title="Archivio dati">
           <option value="auto">archivio automatico</option>
           <option value="tcgdex">solo TCGdex (italiano)</option>
@@ -322,6 +403,7 @@
     <div class="cell"><span>Guadagno / perdita</span><b id="t-pl">€0,00</b><small id="t-plpct">—</small></div>
     <div class="cell extra"><span>Totale al minimo</span><b id="t-low" style="font-size:18px">€0,00</b><small>minimo Cardmarket</small></div>
     <div class="cell extra"><span>Totale a media 30 giorni</span><b id="t-avg" style="font-size:18px">€0,00</b><small id="t-missing">—</small></div>
+    <div class="cell extra"><span>Totale a prezzo di vendita</span><b id="t-vend" style="font-size:18px">€0,00</b><small id="t-alarm">—</small></div>
   </div>
 
   <div class="tablewrap">
@@ -333,6 +415,7 @@
           <th class="left" data-sort="set">Espansione</th>
           <th data-sort="qty">Quantità</th>
           <th data-sort="paid">Pagato €/pz</th>
+          <th data-sort="vendita">Vendita €/pz</th>
           <th data-sort="low">Minimo €/pz</th>
           <th data-sort="avg30">Media €/pz</th>
           <th data-sort="value">Valore</th>
@@ -344,8 +427,20 @@
     </table>
   </div>
 
-  <div class="out" id="out"></div>
+</div>
 
+<button id="fab" title="Aggiungi una carta">＋</button>
+<div id="toast"></div>
+
+<div class="modale" id="modale" aria-hidden="true">
+  <div class="sfondo" data-chiudi="1"></div>
+  <div class="foglio" role="dialog" aria-modal="true">
+    <div class="testata">
+      <span id="modaleTitolo">Dettaglio carta</span>
+      <button class="chiudi" data-chiudi="1" title="Chiudi">✕</button>
+    </div>
+    <div class="corpo out" id="out"></div>
+  </div>
 </div>
 
 <script>
@@ -373,6 +468,7 @@
         salvato:new Date().toISOString(),
         valutazione:$('basis').value,
         album:{prima:parseInt($('inizio').value,10) || 1, perPagina:parseInt($('tasche').value,10)},
+        annuncio:{condizione:$('cond').value, firma:$('firma').value, avvisoCosto:$('avvisoCosto').checked},
         righe:state.rows
       };
     },
@@ -382,6 +478,11 @@
       righe.forEach(r => { if(!r.id) r.id = rid(); if(r.qty == null) r.qty = 1; });
       state.rows = righe;
       if(dati.valutazione) $('basis').value = dati.valutazione;
+      if(dati.annuncio){
+        if(dati.annuncio.condizione) $('cond').value = dati.annuncio.condizione;
+        if(dati.annuncio.firma != null) $('firma').value = dati.annuncio.firma;
+        if(dati.annuncio.avvisoCosto != null) $('avvisoCosto').checked = !!dati.annuncio.avvisoCosto;
+      }
       if(dati.album){
         if(dati.album.prima != null) $('inizio').value = dati.album.prima;
         if(dati.album.perPagina != null) $('tasche').value = String(dati.album.perPagina);
@@ -534,6 +635,55 @@
   };
   const variante = v => VARIANTI[v] || v;
 
+  // La ricerca di Cardmarket guarda SOLO il nome del prodotto: mettere il nome
+  // dell'espansione nella stringa non trova nulla. La loro guida indica invece
+  // nome + numero da collezione (es. "Charizard bs4", "Charizard 4").
+  const urlCM = stringa => 'https://www.cardmarket.com/it/Pokemon/Products/Search?searchString=' + encodeURIComponent(stringa);
+
+  function ricercheCardmarket(riga){
+    const c = riga.card;
+    const p = leggiCodice(riga.code);
+    const nome = c ? (c.nomeEn || c.nome) : '';
+    const num  = senzaZeri(c ? c.numero : (p.numero || ''));
+    const sigla = p.sigla || '';
+    const lista = [];
+    if(nome && num)         lista.push({etichetta:'nome + numero',        stringa:`${nome} ${num}`});
+    if(nome && sigla && num)lista.push({etichetta:'nome + sigla e numero', stringa:`${nome} ${sigla}${num}`});
+    if(nome)                lista.push({etichetta:'solo nome',            stringa:nome});
+    if(!lista.length && p.raw) lista.push({etichetta:'codice inserito',   stringa:p.raw});
+    return lista;
+  }
+
+  // il link esatto alla scheda esiste su pokemontcg.io: lo chiedo solo quando serve
+  async function linkEsattoCardmarket(riga){
+    const p = leggiCodice(riga.code);
+    state.route = 0;
+    const {carte} = await ptcg.cerca(p);
+    const trovata = carte.find(x => x.cm && x.cm.url);
+    if(!trovata) throw new Error('nessuna scheda con link su pokemontcg.io');
+    riga.card.cmUrlEsatto = trovata.cm.url;
+    salvaPiano();
+    return trovata.cm.url;
+  }
+
+  // recupera nome inglese di carta ed espansione, una volta sola per carta
+  async function assicuraNomeEn(riga){
+    const c = riga.card;
+    if(!c || !c.id || c.enProvato) return false;
+    c.enProvato = true;
+    try{
+      const d = await get(TCG_EN, '/cards/' + encodeURIComponent(c.id));
+      if(d && d.name){
+        c.nomeEn = d.name;
+        if(d.set && d.set.name) c.setNameEn = d.set.name;
+        if(c.cm) c.cm.url = urlCardmarket(c);
+        salvaPiano();
+        return true;
+      }
+    }catch(e){}
+    return false;
+  }
+
   /* ============ archivio TCGdex (italiano, ripiego inglese) ============ */
   const tcgdex = {
     etichetta:'TCGdex',
@@ -587,8 +737,11 @@
     },
     norm(c, lingua){
       const pr = c.pricing || {}, cm = pr.cardmarket, tp = pr.tcgplayer;
+      const nomeEn = lingua === 'en' ? c.name : null;
+      const setEn  = lingua === 'en' && c.set ? c.set.name : null;
       return {
-        id:c.id, nome:c.name, numero:c.localId,
+        id:c.id, nome:c.name, nomeEn, setNameEn:setEn, enProvato:lingua === 'en', cmEsatto:false,
+        numero:c.localId,
         totaleStampato:(c.set && c.set.cardCount) ? c.set.cardCount.official : '?',
         setId:c.set ? c.set.id : '', setName:c.set ? c.set.name : '—',
         rarita:c.rarity || '—',
@@ -599,7 +752,7 @@
           low:soldi(cm.low), avg30:soldi(cm.avg30 ?? cm.avg), trend:soldi(cm.trend),
           avg7:soldi(cm.avg7), avg1:soldi(cm.avg1),
           altLow:soldi(cm['low-holo']), altTrend:soldi(cm['trend-holo']), altEtichetta:'holo',
-          url:'https://www.cardmarket.com/it/Pokemon/Products/Search?searchString=' + encodeURIComponent(c.name)
+          url:null
         } : null,
         tp: tp ? {righe:Object.entries(tp).filter(([k,v]) => v && typeof v === 'object')
               .map(([k,v]) => ({variante:variante(k), low:v.lowPrice, market:v.marketPrice ?? v.midPrice, high:v.highPrice})), url:null} : null,
@@ -649,7 +802,9 @@
     norm(c){
       const cm = c.cardmarket, tp = c.tcgplayer, cmp = (cm && cm.prices) ? cm.prices : null;
       return {
-        id:c.id, nome:c.name, numero:c.number, totaleStampato:c.set.printedTotal,
+        id:c.id, nome:c.name, nomeEn:c.name, setNameEn:c.set.name, enProvato:true,
+        cmEsatto:!!(cm && cm.url),
+        numero:c.number, totaleStampato:c.set.printedTotal,
         setId:c.set.id, setName:c.set.name,
         rarita:c.rarity || '—',
         tipo:[c.supertype, ...(c.subtypes||[])].filter(Boolean).join(' · ') || '—',
@@ -683,7 +838,7 @@
     const gemella = indice ? indice.get(k) : state.rows.find(r => chiave(r) === k);
     if(gemella){ gemella.qty = (Number(gemella.qty)||0) + (Number(qta)||1); return gemella; }
     const riga = {id:rid(), code:codice, qty:Number(qta)||1, paid:numero(pagato),
-                  tasca:null, card:null, scelta:null, varianti:null, st:'attesa', msg:'', rete:false, letta:null};
+                  vendita:0, tasca:null, card:null, scelta:null, varianti:null, st:'attesa', msg:'', rete:false, letta:null};
     state.rows.push(riga);
     if(indice) indice.set(k, riga);
     return riga;
@@ -750,6 +905,41 @@
     return cm[b] ?? cm.low ?? cm.avg30 ?? cm.trend ?? null;
   };
   const valore = r => { const u = unitario(r); return u == null ? null : u * (Number(r.qty)||0); };
+  const ricavo = r => numero(r.vendita) * (Number(r.qty)||0);
+
+  // rosso quando il tuo prezzo di vendita raggiunge o supera il minimo Cardmarket:
+  // in quel momento non sei piu' il piu' conveniente e l'annuncio rischia di restare fermo
+  function allarme(r){
+    const v = numero(r.vendita);
+    if(!v) return null;
+    const pagato = numero(r.paid);
+    const minimo = (r.card && r.card.cm) ? r.card.cm.low : null;
+    const motivi = [], dettagli = [];
+
+    if(minimo != null && v >= minimo){
+      const scarto = v - minimo;
+      motivi.push(scarto === 0 ? 'sei al minimo di mercato' : `${eur(scarto)} sopra il minimo`);
+      dettagli.push(scarto === 0
+        ? `Chiedi ${eur(v)} e il minimo Cardmarket è sceso esattamente a ${eur(minimo)}: non sei più il più conveniente, chi cerca il prezzo migliore trova prima gli altri.`
+        : `Chiedi ${eur(v)} mentre il minimo Cardmarket è ${eur(minimo)}: sei più caro di ${eur(scarto)}, l'annuncio rischia di restare fermo.`);
+    }
+
+    if($('avvisoCosto').checked && pagato > 0 && v < pagato){
+      motivi.push('sotto il costo');
+      dettagli.push(`Vendi a ${eur(v)} una carta pagata ${eur(pagato)}: ci rimetti ${eur(pagato - v)} a pezzo, ${eur((pagato - v) * (Number(r.qty)||0))} in totale.`);
+    }
+
+    if(!motivi.length) return null;
+    return {motivo:motivi.join(' · '), dettaglio:dettagli.join(' ')};
+  }
+
+  // di quanto sei sotto il minimo, quando va tutto bene
+  function margine(r){
+    const v = numero(r.vendita);
+    const minimo = (r.card && r.card.cm) ? r.card.cm.low : null;
+    if(!v || minimo == null || v >= minimo) return null;
+    return minimo - v;
+  }
   const costo  = r => numero(r.paid) * (Number(r.qty)||0);
   const utile  = r => { const v = valore(r); return v == null ? null : v - costo(r); };
 
@@ -774,6 +964,7 @@
       if(stato === 'perdita'    && !((utile(r) ?? 0) < 0)) return false;
       if(stato === 'senzaprezzo'&& (r.card && r.card.cm)) return false;
       if(stato === 'fissate'    && r.tasca == null) return false;
+      if(stato === 'allarme'    && !allarme(r)) return false;
       return true;
     });
   }
@@ -798,6 +989,7 @@
         case 'set':  return (r.card ? r.card.setName : '').toLowerCase();
         case 'qty':  return Number(r.qty)||0;
         case 'paid': return numero(r.paid);
+        case 'vendita': return numero(r.vendita);
         case 'low':  return (r.card && r.card.cm && r.card.cm.low != null) ? r.card.cm.low : -1;
         case 'avg30':return (r.card && r.card.cm && r.card.cm.avg30 != null) ? r.card.cm.avg30 : -1;
         case 'pl':   return utile(r) ?? -1e9;
@@ -820,7 +1012,9 @@
     const pos = state.rows.indexOf(r);
     const tasca = (state.pos && state.pos.get(r.id)) || {txt:String(pos + 1), pag:'', cls:'', nota:''};
     const inCorso = r.st === 'cerca';
-    return `<tr data-id="${r.id}" class="${inCorso ? 'incorso' : ''}">
+    const all = allarme(r);
+    const mg = margine(r);
+    return `<tr data-id="${r.id}" class="${inCorso ? 'incorso' : ''} ${all ? 'allarme' : ''}">
         <td class="ordcol c-tasca">
           <div class="ord">
             <span class="posbox"><b class="${tasca.cls || ''}" data-act="tasca" title="${esc(tasca.nota || '')}">${tasca.txt}</b><span class="pag">${tasca.pag}</span></span>
@@ -830,7 +1024,7 @@
             </span>
           </div>
         </td>
-        <td class="left c-carta">
+        <td class="left c-carta" data-act="dettaglio" style="cursor:pointer">
           <div class="cardcell">
             ${c && c.mini ? `<img src="${esc(c.mini)}" alt="" onerror="this.style.display='none'">` : ''}
             <div>
@@ -839,6 +1033,8 @@
                 <span class="st ${r.st}" data-act="dettaglio" title="${esc(r.msg)}">${ETICHETTE[r.st] || r.st}</span>
                 ${inCorso ? '<span class="rigaprog"><i></i></span>' : ''}
                 ${r.st === 'errore' && r.msg ? `<span class="sub" style="color:var(--bad)"> ${esc(r.msg.slice(0,40))}</span>` : ''}
+                <span class="segnale ${all ? 'on' : ''}">${esc(all ? all.motivo : '')}</span>
+                <span class="buono ${!all && mg != null ? 'on' : ''}">${mg != null ? esc(eur(mg) + ' sotto il minimo') : ''}</span>
               </div>
             </div>
           </div>
@@ -846,6 +1042,7 @@
         <td class="left sub c-set">${esc(c ? c.setName : '—')}</td>
         <td class="c-qty" data-l="Quantità"><input type="number" min="0" step="1" value="${Number(r.qty)||0}" data-f="qty"></td>
         <td class="c-paid" data-l="Pagato €/pz"><input type="text" inputmode="decimal" value="${numero(r.paid) ? String(numero(r.paid)).replace('.',',') : ''}" placeholder="0,00" data-f="paid"></td>
+        <td class="c-vend" data-l="Vendita €/pz"><input type="text" inputmode="decimal" value="${numero(r.vendita) ? String(numero(r.vendita)).replace('.',',') : ''}" placeholder="0,00" data-f="vendita"></td>
         <td class="num c-min" data-l="Minimo">${cm ? eur(cm.low) : '—'}</td>
         <td class="num c-media" data-l="Media 30gg">${cm ? eur(cm.avg30) : '—'}</td>
         <td class="num c-val" data-l="Valore" style="color:var(--amber)">${eur(v)}</td>
@@ -853,6 +1050,8 @@
         <td class="c-azioni">
           <button class="iconbtn" data-act="dettaglio" title="Dettaglio e prezzi">🔍</button>
           <button class="iconbtn" data-act="ebay" title="Venduti su eBay">€</button>
+          <button class="iconbtn" data-act="titolo" title="Copia il titolo per Vinted">🏷️</button>
+          <button class="iconbtn" data-act="desc" title="Copia la descrizione per Vinted">📝</button>
           <button class="iconbtn" data-act="rileggi" title="Aggiorna questa carta">↻</button>
           <button class="iconbtn" data-act="togli" title="Rimuovi dal magazzino">✕</button>
         </td>
@@ -871,14 +1070,14 @@
     ricalcolaPosizioni();
     const corpo = $('tbody');
     if(!state.rows.length){
-      corpo.innerHTML = `<tr><td colspan="10" class="empty">Magazzino vuoto. Aggiungi la prima carta qui sopra, oppure apri un database già salvato.</td></tr>`;
+      corpo.innerHTML = `<tr><td colspan="11" class="empty">Magazzino vuoto. Aggiungi la prima carta qui sopra, oppure apri un database già salvato.</td></tr>`;
       aggiornaContaFiltro();
       return;
     }
     const viste = ordina();
     corpo.innerHTML = viste.length
       ? viste.map(htmlRiga).join('')
-      : `<tr><td colspan="10" class="empty">Nessuna carta corrisponde al filtro.<br><button class="mini ghost" id="bvuoto" style="margin-top:10px">Azzera filtro</button></td></tr>`;
+      : `<tr><td colspan="11" class="empty">Nessuna carta corrisponde al filtro.<br><button class="mini ghost" id="bvuoto" style="margin-top:10px">Azzera filtro</button></td></tr>`;
     const b = document.getElementById('bvuoto');
     if(b) b.addEventListener('click', azzeraFiltro);
     aggiornaContaFiltro();
@@ -891,12 +1090,14 @@
   }
 
   function disegnaTotali(){
-    let pagato = 0, val = 0, minimo = 0, media = 0, pezzi = 0, senza = 0;
+    let pagato = 0, val = 0, minimo = 0, media = 0, pezzi = 0, senza = 0, vendita = 0, rossi = 0;
     state.rows.forEach(r => {
       const q = Number(r.qty)||0;
       pezzi += q; pagato += costo(r);
       const v = valore(r);
       if(v == null) senza += q; else val += v;
+      vendita += ricavo(r);
+      if(allarme(r)) rossi++;
       const cm = r.card && r.card.cm;
       if(cm){
         if(cm.low != null) minimo += cm.low * q;
@@ -916,6 +1117,10 @@
     $('t-low').textContent = eur(minimo);
     $('t-avg').textContent = eur(media);
     $('t-missing').textContent = senza ? `${senza} carte senza quotazione` : 'tutte quotate';
+    $('t-vend').textContent = eur(vendita);
+    const al = $('t-alarm');
+    al.textContent = rossi ? `${rossi} righe in allarme` : 'nessun allarme';
+    al.style.color = rossi ? 'var(--bad)' : '';
     $('savenote').textContent = cache.ok
       ? 'Il database è il file .json: collegalo con Apri database o Salva come… Nel browser resta anche una copia di riserva.'
       : 'Questo browser non permette copie locali: tieni collegato il file .json e premi Salva.';
@@ -989,6 +1194,18 @@
     campo.addEventListener('blur', () => chiudi(true));
   }
 
+  function aggiornaAllarme(tr, riga){
+    const all = allarme(riga), mg = margine(riga);
+    tr.classList.toggle('allarme', !!all);
+    const seg = tr.querySelector('.segnale');
+    if(seg){ seg.textContent = all ? all.motivo : ''; seg.classList.toggle('on', !!all); }
+    const bn = tr.querySelector('.buono');
+    if(bn){
+      bn.textContent = mg != null ? eur(mg) + ' sotto il minimo' : '';
+      bn.classList.toggle('on', !all && mg != null);
+    }
+  }
+
   function aggiornaPosizioniDOM(){
     $('tbody').querySelectorAll('tr[data-id]').forEach(tr => {
       const p = state.pos.get(tr.dataset.id);
@@ -1028,7 +1245,19 @@
 
   /* ============ dettaglio ============ */
   const blocco  = (t,h) => `<div class="card"><h2>${t}</h2>${h}</div>`;
-  const mostra  = h => { out.innerHTML = h; out.scrollIntoView({behavior:'smooth', block:'nearest'}); };
+  function apriModale(titolo){
+    $('modaleTitolo').textContent = titolo || 'Dettaglio carta';
+    $('modale').classList.add('aperta');
+    $('modale').setAttribute('aria-hidden','false');
+    document.body.classList.add('bloccato');
+  }
+  function chiudiModale(){
+    $('modale').classList.remove('aperta');
+    $('modale').setAttribute('aria-hidden','true');
+    document.body.classList.remove('bloccato');
+    out.innerHTML = '';
+  }
+  const mostra = (h, titolo) => { out.innerHTML = h; out.scrollTop = 0; apriModale(titolo); };
   const accoda  = h => out.insertAdjacentHTML('beforeend', h);
 
   function dettaglio(riga){
@@ -1049,12 +1278,28 @@
             <dt>Tipo</dt><dd>${esc(c.tipo)}</dd>
             <dt>Illustratore</dt><dd>${esc(c.illustratore)}</dd>
             <dt>In magazzino</dt><dd>${riga.qty} pz · pagate ${eur(numero(riga.paid))}/pz</dd>
+            <dt>Prezzo di vendita</dt><dd>${numero(riga.vendita) ? eur(numero(riga.vendita)) + '/pz · totale ' + eur(ricavo(riga)) : 'non impostato'}</dd>
             <dt>Valore</dt><dd>${eur(valore(riga))} · utile ${eur(utile(riga))}</dd>
             <dt>Archivio</dt><dd>${esc(c.fonte)}${riga.letta ? ' · ' + new Date(riga.letta).toLocaleString('it-IT') : ''}</dd>
           </dl>
         </div>
-      </div>`));
+      </div>`), c.nome);
+    state.modaleRiga = riga.id;
+    if(!c.enProvato){
+      assicuraNomeEn(riga).then(ok => {
+        if(ok && state.modaleRiga === riga.id && $('modale').classList.contains('aperta')) dettaglio(riga);
+      });
+    }
+    const av = allarme(riga);
+    const mg = margine(riga);
+    if(av) accoda(`<div class="card" style="border-color:rgba(255,92,122,.45)">
+      <h2 style="color:var(--bad)">Attenzione · ${esc(av.motivo)}</h2>
+      <p class="status bad">${esc(av.dettaglio)}</p></div>`);
+    else if(mg != null) accoda(`<div class="card" style="border-color:rgba(61,220,151,.35)">
+      <h2 style="color:var(--ok)">Prezzo competitivo</h2>
+      <p class="status ok">Chiedi ${eur(numero(riga.vendita))}, ${eur(mg)} sotto il minimo Cardmarket di ${eur(riga.card.cm.low)}.</p></div>`);
     prezzi(riga);
+    pannelloAnnuncio(riga);
     if(riga.varianti && riga.varianti.length > 1) scelte(riga);
     ebay(riga, false);
   }
@@ -1077,7 +1322,13 @@
           <tr><td class="left">${esc(cm.altEtichetta)} · minimo</td><td>${eur(cm.altLow)}</td></tr>
           <tr><td class="left">${esc(cm.altEtichetta)} · trend</td><td>${eur(cm.altTrend)}</td></tr>
         </table>
-        ${cm.url ? `<a class="lnk" href="${esc(cm.url)}" target="_blank" rel="noopener">Apri su Cardmarket →</a>` : ''}
+        ${(c.cmUrlEsatto || (c.cmEsatto && cm.url))
+          ? `<a class="lnk" href="${esc(c.cmUrlEsatto || cm.url)}" target="_blank" rel="noopener"><b>Apri la scheda esatta su Cardmarket →</b></a>`
+          : ricercheCardmarket(riga).map(r =>
+              `<a class="lnk" href="${esc(urlCM(r.stringa))}" target="_blank" rel="noopener" style="display:block">Cerca su Cardmarket · ${esc(r.etichetta)} → <code>${esc(r.stringa)}</code></a>`
+            ).join('') +
+            `<div class="bar"><button class="mini" id="bEsatto">Trova il link esatto</button></div>
+             <p class="note">Cardmarket cerca solo nel nome del prodotto: il nome dell'espansione nella stringa non funziona. ${c.nomeEn ? '' : 'Sto recuperando il nome inglese…'}</p>`}
       </div>`;
     }
     if(tp && tp.righe.length){
@@ -1099,6 +1350,20 @@
     accoda(blocco('Prezzi di mercato', html
       ? `<div class="prices">${html}</div><p class="note">Quotazioni aggregate di Cardmarket e TCGplayer, non aste concluse.</p>`
       : `<p class="status bad">Nessuna quotazione disponibile per questa carta.</p>`));
+
+    const bt = document.getElementById('bEsatto');
+    if(bt) bt.addEventListener('click', async () => {
+      bt.disabled = true; bt.textContent = 'cerco la scheda…';
+      try{
+        const url = await linkEsattoCardmarket(riga);
+        avviso('Link esatto trovato');
+        window.open(url, '_blank', 'noopener');
+        if($('modale').classList.contains('aperta')) dettaglio(riga);
+      }catch(e){
+        bt.disabled = false; bt.textContent = 'Trova il link esatto';
+        avviso('Link esatto non disponibile: ' + e.message);
+      }
+    });
   }
 
   function scelte(riga){
@@ -1117,18 +1382,135 @@
       paint();
       db.scrivi(false);
       dettaglio(riga);
+      setRoute('variante scelta: ' + c.nome);
     }));
   }
 
-  function ricercaEbay(riga){
+  /* ============ annuncio per Vinted ============ */
+  const ripulisci = t => String(t||'').replace(/\s+/g,' ').trim();
+  const parolaChiave = t => ripulisci(t).toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'');
+
+  function titoloVinted(riga){
     const c = riga.card;
-    if(c) return `${c.nome} ${c.numero}/${c.totaleStampato}`;
+    if(!c) return ripulisci('Carta Pokémon ' + riga.code + ' ITA');
+    const base = `Carta Pokémon ${c.nome} ${c.numero}/${c.totaleStampato}`;
+    const pezzi = [base, c.setName, 'ITA', c.rarita && c.rarita !== '—' ? c.rarita : ''];
+    // Vinted taglia il titolo a 100 caratteri: tolgo dal fondo finché non ci sta
+    let titolo = ripulisci(pezzi.join(' '));
+    while(titolo.length > 100 && pezzi.length > 1){
+      pezzi.pop();
+      titolo = ripulisci(pezzi.join(' '));
+    }
+    return titolo.slice(0, 100);
+  }
+
+  function descrizioneVinted(riga){
+    const c = riga.card;
+    const cond = $('cond').value;
+    const firma = ripulisci($('firma').value);
+    const righe = [];
+
+    if(c){
+      righe.push(`${c.nome} — ${c.numero}/${c.totaleStampato}`);
+      righe.push('');
+      righe.push(`Espansione: ${c.setName}`);
+      if(c.rarita && c.rarita !== '—') righe.push(`Rarità: ${c.rarita}`);
+      righe.push('Lingua: Italiano');
+      righe.push(`Condizioni: ${cond}`);
+    }else{
+      righe.push(`Carta Pokémon ${riga.code}`);
+      righe.push('');
+      righe.push('Lingua: Italiano');
+      righe.push(`Condizioni: ${cond}`);
+    }
+
+    righe.push('');
+    righe.push('Spedizione curata: bustina protettiva + toploader e imballo rigido, così arriva senza pieghe né angoli rovinati.');
+    righe.push('Spedisco entro 24/48 ore dall\'acquisto.');
+    righe.push('Le foto sono della carta reale che riceverai, non stock.');
+    righe.push('');
+    righe.push('Ho altre carte in vendita nel mio armadio: se ne prendi più di una faccio un unico pacco e ti risparmi la spedizione.');
+    if(firma){ righe.push(''); righe.push(firma); }
+
+    const chiavi = ['#pokemon', '#cartepokemon', '#pokemontcg', '#cartecollezionabili', '#tcg'];
+    if(c){
+      const n = parolaChiave(c.nome), e = parolaChiave(c.setName);
+      if(n) chiavi.unshift('#' + n);
+      if(e) chiavi.splice(1, 0, '#' + e);
+    }
+    righe.push('');
+    righe.push(chiavi.slice(0, 8).join(' '));
+    return righe.join('\n');
+  }
+
+  async function copia(testo, etichetta){
+    let fatto = false;
+    try{
+      if(navigator.clipboard && window.isSecureContext){
+        await navigator.clipboard.writeText(testo);
+        fatto = true;
+      }
+    }catch(e){}
+    if(!fatto){
+      const ta = document.createElement('textarea');
+      ta.value = testo;
+      ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      try{ fatto = document.execCommand('copy'); }catch(e){}
+      document.body.removeChild(ta);
+    }
+    avviso(fatto ? etichetta + ' copiato' : 'copia non riuscita: seleziona il testo a mano');
+  }
+
+  let timerToast = null;
+  function avviso(testo){
+    const t = $('toast');
+    t.textContent = testo;
+    t.classList.add('on');
+    clearTimeout(timerToast);
+    timerToast = setTimeout(() => t.classList.remove('on'), 1900);
+  }
+
+  function pannelloAnnuncio(riga){
+    const titolo = titoloVinted(riga), desc = descrizioneVinted(riga);
+    const troppo = titolo.length > 100;
+    accoda(`<div class="card annuncio">
+      <h2>Annuncio per Vinted</h2>
+      <label class="lab">Titolo</label>
+      <textarea class="titoloArea" id="vTitolo">${esc(titolo)}</textarea>
+      <div class="conta ${troppo ? 'lungo' : ''}"><span id="vConta">${titolo.length}</span>/100 caratteri</div>
+      <div class="bar"><button class="mini primary" data-copia="titolo">Copia titolo</button></div>
+      <label class="lab" style="margin-top:12px">Descrizione</label>
+      <textarea class="descArea" id="vDesc">${esc(desc)}</textarea>
+      <div class="bar"><button class="mini primary" data-copia="desc">Copia descrizione</button>
+        <button class="mini ghost" data-copia="tutto">Copia entrambi</button></div>
+      <p class="note">Puoi modificare i testi qui prima di copiarli. Condizioni e riga finale si impostano nel pannello in fondo alla pagina.</p>
+    </div>`);
+    const tit = $('vTitolo');
+    tit.addEventListener('input', () => {
+      $('vConta').textContent = tit.value.length;
+      $('vConta').parentElement.classList.toggle('lungo', tit.value.length > 100);
+    });
+    out.querySelectorAll('[data-copia]').forEach(b => b.addEventListener('click', () => {
+      const q = b.dataset.copia;
+      if(q === 'titolo') copia($('vTitolo').value, 'Titolo');
+      else if(q === 'desc') copia($('vDesc').value, 'Descrizione');
+      else copia($('vTitolo').value + '\n\n' + $('vDesc').value, 'Titolo e descrizione');
+    }));
+  }
+
+  function ricercaEbay(riga, inglese){
+    const c = riga.card;
+    if(c) return `${(inglese && c.nomeEn) ? c.nomeEn : c.nome} ${c.numero}/${c.totaleStampato}`;
     const p = leggiCodice(riga.code);
     return [p.nome, (p.numero && p.totale) ? `${p.numero}/${p.totale}` : p.numero, p.sigla].filter(Boolean).join(' ');
   }
   function urlEbay(riga, ordine, sito){
     const base = sito === 'com' ? 'https://www.ebay.com/sch/i.html' : 'https://www.ebay.it/sch/i.html';
-    return base + '?' + new URLSearchParams({_nkw:ricercaEbay(riga), LH_Sold:'1', LH_Complete:'1', _sop:ordine, _ipg:'60'});
+    return base + '?' + new URLSearchParams({_nkw:ricercaEbay(riga, sito === 'com'), LH_Sold:'1', LH_Complete:'1', _sop:ordine, _ipg:'60'});
   }
   function ebay(riga, apriSubito){
     accoda(blocco('Venduti su eBay', `
@@ -1248,16 +1630,17 @@
   }
   function esportaCSV(){
     ricalcolaPosizioni();
-    const testa = ['tasca_da','tasca_a','tasca_fissata','pagina','codice','nome','espansione','numero','quantita','pagato_unitario','minimo_unitario','media30_unitario','valore','utile'];
+    const testa = ['tasca_da','tasca_a','tasca_fissata','pagina','codice','nome','espansione','numero','quantita','pagato_unitario','vendita_unitario','minimo_unitario','media30_unitario','valore','utile','allarme'];
     const righe = state.rows.map((r, i) => {
       const c = r.card, cm = c && c.cm;
       const t = state.pos.get(r.id) || {};
       return [t.da ?? '', t.a ?? '', r.tasca != null ? 'sì' : '', t.pag || '', r.code, c ? c.nome : '', c ? c.setName : '', c ? c.numero + '/' + c.totaleStampato : '',
-        r.qty, numero(r.paid).toFixed(2),
+        r.qty, numero(r.paid).toFixed(2), numero(r.vendita).toFixed(2),
         cm && cm.low != null ? cm.low.toFixed(2) : '',
         cm && cm.avg30 != null ? cm.avg30.toFixed(2) : '',
         valore(r) != null ? valore(r).toFixed(2) : '',
-        utile(r) != null ? utile(r).toFixed(2) : '']
+        utile(r) != null ? utile(r).toFixed(2) : '',
+        (allarme(r) || {}).motivo || '']
         .map(v => `"${String(v).replace(/"/g,'""')}"`).join(';');
     });
     scarica('magazzino-carte.csv', '\uFEFF' + testa.join(';') + '\n' + righe.join('\n'), 'text/csv');
@@ -1272,7 +1655,8 @@
       riga = riga.trim();
       if(!riga) return;
       const parti = riga.split(/\s*[;|,\t]\s*/);
-      if(aggiungi(parti[0], parti[1] ? parseInt(parti[1],10) : 1, parti[2] ? numero(parti[2]) : 0, indice)) n++;
+      const nuova = aggiungi(parti[0], parti[1] ? parseInt(parti[1],10) : 1, parti[2] ? numero(parti[2]) : 0, indice);
+      if(nuova){ if(parti[3]) nuova.vendita = numero(parti[3]); n++; }
     });
     $('bulk').value = '';
     paint();
@@ -1283,12 +1667,16 @@
   $('badd').addEventListener('click', () => {
     const riga = aggiungi($('q').value, $('qty').value, $('paid').value);
     if(!riga) return;
-    $('q').value = ''; $('qty').value = '1'; $('paid').value = ''; $('q').focus();
+    riga.vendita = numero($('vend').value);
+    $('q').value = ''; $('qty').value = '1'; $('paid').value = ''; $('vend').value = '';
     paint();
     scanner.accoda([riga]);
+    if(window.matchMedia('(max-width:760px)').matches) chiudiAggiungi();
+    else $('q').focus();
   });
   $('q').addEventListener('keydown', e => { if(e.key === 'Enter') $('badd').click(); });
   $('paid').addEventListener('keydown', e => { if(e.key === 'Enter') $('badd').click(); });
+  $('vend').addEventListener('keydown', e => { if(e.key === 'Enter') $('badd').click(); });
 
   $('brefresh').addEventListener('click', () => {
     const bersaglio = filtroAttivo() ? righeVisibili() : state.rows;
@@ -1307,6 +1695,9 @@
   $('filtro').addEventListener('keydown', e => { if(e.key === 'Escape') azzeraFiltro(); });
   $('statofiltro').addEventListener('change', () => disegnaTabella());
   $('bfiltrox').addEventListener('click', azzeraFiltro);
+  $('cond').addEventListener('change', salvaPiano);
+  $('firma').addEventListener('input', salvaPiano);
+  $('avvisoCosto').addEventListener('change', paint);
   $('inizio').addEventListener('input', () => { ricalcolaPosizioni(); aggiornaPosizioniDOM(); salvaPiano(); });
   $('tasche').addEventListener('change', () => { ricalcolaPosizioni(); aggiornaPosizioniDOM(); salvaPiano(); });
   $('bord').addEventListener('click', () => {
@@ -1349,6 +1740,27 @@
     }
   });
 
+  $('modale').addEventListener('click', e => { if(e.target.dataset.chiudi) chiudiModale(); });
+  document.addEventListener('keydown', e => {
+    if(e.key !== 'Escape') return;
+    if($('modale').classList.contains('aperta')) chiudiModale();
+    else if($('aggiungiBox').classList.contains('aperto')) chiudiAggiungi();
+  });
+
+  /* ============ maschera di aggiunta su telefono ============ */
+  function apriAggiungi(){
+    $('aggiungiBox').classList.add('aperto');
+    $('sfondoAggiungi').classList.add('aperto');
+    setTimeout(() => $('q').focus(), 60);
+  }
+  function chiudiAggiungi(){
+    $('aggiungiBox').classList.remove('aperto');
+    $('sfondoAggiungi').classList.remove('aperto');
+  }
+  $('fab').addEventListener('click', apriAggiungi);
+  $('chiudiAgg').addEventListener('click', chiudiAggiungi);
+  $('sfondoAggiungi').addEventListener('click', chiudiAggiungi);
+
   document.querySelectorAll('th[data-sort]').forEach(th => th.addEventListener('click', () => {
     const by = th.dataset.sort;
     state.sort = {by, dir: state.sort.by === by ? -state.sort.dir : -1};
@@ -1362,11 +1774,13 @@
     const riga = state.rows.find(r => r.id === tr.dataset.id);
     if(!riga) return;
     const azione = b.dataset.act;
+    if(azione === 'titolo') return copia(titoloVinted(riga), 'Titolo');
+    if(azione === 'desc')   return copia(descrizioneVinted(riga), 'Descrizione');
     if(azione === 'tasca') return modificaTasca(riga, tr);
     if(azione === 'su')  return sposta(riga, -1);
     if(azione === 'giu') return sposta(riga, +1);
     if(azione === 'dettaglio') dettaglio(riga);
-    if(azione === 'ebay'){ out.innerHTML = ''; ebay(riga, true); }
+    if(azione === 'ebay'){ out.innerHTML = ''; apriModale('Venduti su eBay'); ebay(riga, true); }
     if(azione === 'rileggi') scanner.accoda([riga], true);
     if(azione === 'togli'){ state.rows = state.rows.filter(r => r.id !== riga.id); out.innerHTML = ''; paint(); }
   });
@@ -1378,18 +1792,20 @@
     const riga = state.rows.find(r => r.id === tr.dataset.id);
     if(!riga) return;
     if(inp.dataset.f === 'qty') riga.qty = Math.max(0, parseInt(inp.value,10) || 0);
+    else if(inp.dataset.f === 'vendita') riga.vendita = numero(inp.value);
     else riga.paid = numero(inp.value);
+    aggiornaAllarme(tr, riga);
     const v = valore(riga), u = utile(riga);
     const celle = tr.querySelectorAll('td');
-    celle[7].textContent = eur(v);
-    celle[8].textContent = u == null ? '—' : (u >= 0 ? '+' : '') + eur(u);
-    celle[8].className = 'num ' + (u == null ? '' : u >= 0 ? 'up' : 'down');
+    celle[8].textContent = eur(v);
+    celle[9].textContent = u == null ? '—' : (u >= 0 ? '+' : '') + eur(u);
+    celle[9].className = 'num c-utile ' + (u == null ? '' : u >= 0 ? 'up' : 'down');
     if(inp.dataset.f === 'qty'){ ricalcolaPosizioni(); aggiornaPosizioniDOM(); }
     disegnaTotali(); salvaPiano();
   });
 
   $('btest').addEventListener('click', async () => {
-    mostra(blocco('Prova connessione', `<p class="status load">Provo gli archivi…</p>`));
+    mostra(blocco('Prova connessione', `<p class="status load">Provo gli archivi…</p>`), 'Prova connessione');
     const prove = [
       ['TCGdex italiano diretto', TCG_IT + '/sets/swsh3/136'],
       ['TCGdex inglese diretto',  TCG_EN + '/sets/swsh3/136'],
