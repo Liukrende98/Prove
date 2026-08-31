@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0E1726">
+<title>Asta Mantra · 3-5-2</title>
+<style>
+:root{
+  --ink:#0E1726; --ink2:#16202F; --card:#1A2637; --line:#26364E;
+  --paper:#EDF1F6; --mute:#90A2BA; --dim:#5E7292;
+  --grass:#17B26A; --grass-d:#0E6E43;
+  --amber:#F2B441; --rose:#E5484D; --sky:#4C9BE8; --violet:#9E7BFF;
+  --f1:#F2B441; --f2:#4C9BE8; --f3:#6E819B;
+  --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;overscroll-behavior:none}
+body{
+  background:var(--ink); color:var(--paper);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+  font-size:15px; line-height:1.35;
+  display:flex; flex-direction:column; height:100dvh; overflow:hidden;
+  -webkit-text-size-adjust:100%;
+}
+input,select,textarea,button{font-family:inherit;font-size:16px;color:inherit}
+button{border:0;background:none;padding:0;cursor:pointer}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+/* ---------- header ---------- */
+header{
+  padding:calc(env(safe-area-inset-top) + 8px) 14px 10px;
+  background:linear-gradient(180deg,#101C2E,#0E1726);
+  border-bottom:1px solid var(--line); flex:0 0 auto;
+}
+.hrow{display:flex;align-items:flex-end;gap:14px}
+.big{font-size:38px;font-weight:700;letter-spacing:-1.5px;line-height:1}
+.big small{font-size:14px;font-weight:500;color:var(--mute);letter-spacing:0;margin-left:4px}
+.hlab{font-size:11px;color:var(--dim);letter-spacing:.06em;margin-bottom:2px}
+.hright{margin-left:auto;text-align:right}
+.hright .v{font-size:24px;font-weight:700;letter-spacing:-.5px;line-height:1.1}
+.bar{height:7px;border-radius:4px;background:#0A121D;margin-top:10px;display:flex;overflow:hidden;border:1px solid #0A121D}
+.bar i{display:block;height:100%}
+.hmeta{display:flex;gap:6px;margin-top:7px;font-size:12px;color:var(--mute);flex-wrap:wrap}
+.hmeta b{color:var(--paper);font-weight:600}
+.pill{background:#0F1A29;border:1px solid var(--line);border-radius:999px;padding:2px 9px}
+
+/* ---------- layout ---------- */
+main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px 30px}
+nav{
+  flex:0 0 auto;display:grid;grid-template-columns:repeat(5,1fr);
+  background:#0C1522;border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+nav button{padding:9px 0 8px;color:var(--dim);font-size:10.5px;letter-spacing:.02em;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+nav button.on{color:var(--grass)}
+h2{font-size:13px;font-weight:600;color:var(--mute);margin:22px 0 9px;letter-spacing:.01em}
+h2:first-child{margin-top:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px}
+.card + .card{margin-top:10px}
+.muted{color:var(--mute)}
+.tiny{font-size:12px}
+
+/* ---------- controls ---------- */
+.inp{width:100%;background:#0F1A29;border:1px solid var(--line);border-radius:11px;padding:11px 12px;color:var(--paper);outline:none}
+.inp:focus{border-color:var(--sky)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#233248;border:1px solid var(--line);border-radius:11px;padding:11px 14px;font-size:15px;font-weight:600}
+.btn.full{width:100%}
+.btn.go{background:var(--grass);color:#04160C;border-color:transparent}
+.btn.warn{background:#2A2130;border-color:#3C3145;color:var(--amber)}
+.btn.dan{background:#2B1A1E;border-color:#4A2429;color:var(--rose)}
+.btn:active{transform:scale(.98)}
+.row{display:flex;gap:8px}
+.row>*{flex:1}
+.seg{display:flex;background:#0F1A29;border:1px solid var(--line);border-radius:11px;padding:3px;gap:3px}
+.seg button{flex:1;padding:8px 4px;border-radius:8px;font-size:13px;font-weight:600;color:var(--mute)}
+.seg button.on{background:#26364E;color:var(--paper)}
+.chip{border:1px solid var(--line);background:#0F1A29;border-radius:999px;padding:6px 11px;font-size:13px;font-weight:600;color:var(--mute)}
+.chip.on{background:var(--grass);border-color:transparent;color:#04160C}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.lab{font-size:12px;color:var(--dim);margin:0 0 5px}
+.field + .field{margin-top:11px}
+
+/* ---------- lista ---------- */
+.plist{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--card)}
+.p{display:flex;align-items:center;gap:10px;padding:9px 11px;border-bottom:1px solid #1F2C40}
+.p:last-child{border-bottom:0}
+.p .nm{flex:1;min-width:0}
+.p .nm b{display:block;font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p .nm span{font-size:11.5px;color:var(--dim)}
+.rl{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.03em;padding:2px 5px;border-radius:5px;background:#0F1A29;border:1px solid var(--line);color:var(--mute);margin-right:3px}
+.rl.P{color:var(--amber)} .rl.D{color:var(--sky)} .rl.C{color:var(--grass)} .rl.A{color:var(--rose)}
+.fa{width:19px;height:19px;border-radius:6px;display:grid;place-items:center;font-size:11px;font-weight:800;color:#0B1220}
+.fa1{background:var(--f1)} .fa2{background:var(--f2)} .fa3{background:var(--f3)}
+.qt{font-weight:700;font-size:15px;min-width:34px;text-align:right}
+.tag{font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px}
+.tag.io{background:rgba(23,178,106,.16);color:var(--grass)}
+.tag.altri{background:#22303F;color:var(--dim)}
+.p.taken{opacity:.42}
+.p.mine{background:linear-gradient(90deg,rgba(23,178,106,.13),transparent 60%)}
+.tbtn{width:38px;height:38px;border-radius:10px;background:#233248;border:1px solid var(--line);display:grid;place-items:center;font-size:17px;font-weight:700;flex:0 0 auto}
+.empty{text-align:center;color:var(--dim);padding:26px 14px;font-size:14px}
+
+/* ---------- rings ---------- */
+.rings{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.ring{text-align:center}
+.ring svg{width:100%;max-width:72px;display:block;margin:0 auto}
+.ring .lb{font-size:11px;color:var(--mute);margin-top:2px}
+.ring .vl{font-size:12px;font-weight:700}
+
+/* ---------- campo ---------- */
+.pitch{
+  position:relative;width:100%;aspect-ratio:10/13;border-radius:var(--r);overflow:hidden;
+  background:
+    repeating-linear-gradient(180deg,#12513A 0 7.69%,#0F4834 7.69% 15.38%);
+  border:1px solid #1D6247;
+}
+.pitch .ln{position:absolute;border:1.5px solid rgba(255,255,255,.16)}
+.pitch .box{left:22%;width:56%;height:13%;bottom:0;border-bottom:0}
+.pitch .box6{left:36%;width:28%;height:6%;bottom:0;border-bottom:0}
+.pitch .mid{left:0;width:100%;top:50%;height:0;border-width:0 0 1.5px 0}
+.pitch .circ{left:50%;top:50%;width:34%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%}
+.slot{position:absolute;transform:translate(-50%,-50%);width:62px;text-align:center;touch-action:manipulation}
+.slot .disc{
+  width:52px;height:52px;margin:0 auto;border-radius:50%;
+  background:rgba(6,26,18,.55);border:2px dashed rgba(255,255,255,.3);
+  display:grid;place-items:center;font-size:11px;font-weight:800;color:rgba(255,255,255,.75)
+}
+.slot.full .disc{background:var(--paper);border:2px solid #fff;color:#0B1220;border-style:solid}
+.slot.full .disc.warn{background:var(--amber)}
+.slot .nm2{font-size:10.5px;font-weight:600;margin-top:3px;text-shadow:0 1px 3px rgba(0,0,0,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot .pz{font-size:9.5px;color:rgba(255,255,255,.72)}
+.slot.hit .disc{border-color:var(--amber);box-shadow:0 0 0 4px rgba(242,180,65,.35)}
+.slot.ok .disc{border-color:var(--grass);box-shadow:0 0 0 3px rgba(23,178,106,.3)}
+.tit{position:absolute;left:50%;transform:translateX(-50%);bottom:-2px;width:34px;height:3px;border-radius:2px;background:rgba(0,0,0,.45);overflow:hidden}
+.tit i{display:block;height:100%;background:var(--grass)}
+.bench{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.bch{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:7px 9px;font-size:13px;font-weight:600;touch-action:manipulation}
+.bch.sel{border-color:var(--grass);background:rgba(23,178,106,.14)}
+.bch.used{opacity:.35}
+.bch em{font-style:normal;color:var(--dim);font-size:11px;font-weight:600}
+.ghost{position:fixed;z-index:999;pointer-events:none;transform:translate(-50%,-50%) scale(1.06);opacity:.95}
+body.dragging{cursor:grabbing}
+
+/* ---------- piano ---------- */
+.pbar{height:8px;border-radius:5px;background:#0F1A29;overflow:hidden;margin-top:6px}
+.pbar i{display:block;height:100%;border-radius:5px}
+.line{display:flex;justify-content:space-between;align-items:baseline;font-size:13px}
+.line b{font-weight:700}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mini{background:#0F1A29;border:1px solid var(--line);border-radius:10px;padding:9px}
+.mini .k{font-size:11px;color:var(--dim)}
+.mini .v{font-size:19px;font-weight:700;letter-spacing:-.4px}
+
+/* ---------- sheet ---------- */
+.scrim{position:fixed;inset:0;background:rgba(4,9,16,.6);backdrop-filter:blur(3px);z-index:100;opacity:0;pointer-events:none;transition:opacity .18s}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:101;background:var(--ink2);
+  border-top:1px solid var(--line);border-radius:20px 20px 0 0;
+  padding:8px 14px calc(env(safe-area-inset-bottom) + 16px);
+  transform:translateY(102%);transition:transform .24s cubic-bezier(.2,.8,.2,1);
+  max-height:92dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+}
+.sheet.on{transform:translateY(0)}
+.grab{width:38px;height:4px;border-radius:2px;background:#33455F;margin:6px auto 12px}
+.sh-title{font-size:19px;font-weight:700;letter-spacing:-.3px}
+.stepper{display:flex;align-items:center;gap:8px;margin:12px 0}
+.stepper button{width:52px;height:52px;border-radius:14px;background:#233248;border:1px solid var(--line);font-size:20px;font-weight:700}
+.stepper .val{flex:1;text-align:center;font-size:44px;font-weight:700;letter-spacing:-2px}
+.simul{background:#0F1A29;border:1px solid var(--line);border-radius:12px;padding:11px;margin:4px 0 12px}
+.simul .line{margin:4px 0}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 78px);transform:translate(-50%,14px);
+  background:#233248;border:1px solid var(--line);border-radius:999px;padding:9px 16px;font-size:13.5px;font-weight:600;
+  z-index:200;opacity:0;transition:.2s;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.banner{background:rgba(242,180,65,.12);border:1px solid rgba(242,180,65,.35);color:var(--amber);border-radius:12px;padding:10px 12px;font-size:13px;margin-bottom:12px}
+textarea.inp{min-height:120px;font-size:13px;font-family:ui-monospace,Menlo,monospace;resize:vertical}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hrow">
+    <div>
+      <div class="hlab">Crediti residui</div>
+      <div class="big num" id="hRem">1000<small id="hTot">/1000</small></div>
+    </div>
+    <div class="hright">
+      <div class="hlab">Offerta max</div>
+      <div class="v num" id="hMax">—</div>
+    </div>
+  </div>
+  <div class="bar" id="hBar"></div>
+  <div class="hmeta" id="hMeta"></div>
+</header>
+
+<main id="main"></main>
+
+<nav id="nav">
+  <button data-t="asta" class="on"><svg viewBox="0 0 24 24"><path d="M14 4l6 6M11 7l6 6M4 20l7-7M9 12l3 3"/><path d="M13 5l6 6"/></svg>Asta</button>
+  <button data-t="lista"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Lista</button>
+  <button data-t="campo"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 8.5a3.5 3.5 0 000 7 3.5 3.5 0 000-7z"/></svg>Campo</button>
+  <button data-t="piano"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Piano</button>
+  <button data-t="dati"><svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>Dati</button>
+</nav>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   Asta Mantra 3-5-2 — file singolo, funziona offline
+   ============================================================ */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const KEY='asta-mantra-352-v1';
+
+/* ---------- ruoli mantra ---------- */
+const RUOLI=['Por','Dd','Dc','Ds','E','M','C','W','T','A','Pc'];
+const MACRO={Por:'P',Dd:'D',Dc:'D',Ds:'D',E:'C',M:'C',C:'C',W:'C',T:'C',A:'A',Pc:'A'};
+const MACRONAME={P:'Portieri',D:'Difensori',C:'Centrocampisti',A:'Attaccanti'};
+const MACROCOL={P:'var(--amber)',D:'var(--sky)',C:'var(--grass)',A:'var(--rose)'};
+
+/* 3-5-2 Mantra: Por · Dc Dc Dc · E C M C E · A A */
+const SLOTS=[
+ {id:'por',lb:'Por',r:['Por'],alt:[],x:50,y:91},
+ {id:'dcl',lb:'Dc',r:['Dc'],alt:['Ds','Dd'],x:24,y:74},
+ {id:'dcc',lb:'Dc',r:['Dc'],alt:['Ds','Dd'],x:50,y:78},
+ {id:'dcr',lb:'Dc',r:['Dc'],alt:['Ds','Dd'],x:76,y:74},
+ {id:'es', lb:'E', r:['E'],alt:['W','Ds','Dd'],x:9, y:52},
+ {id:'cl', lb:'C', r:['C'],alt:['M','T'],x:31,y:55},
+ {id:'m',  lb:'M', r:['M'],alt:['C'],x:50,y:59},
+ {id:'cr', lb:'C', r:['C'],alt:['M','T','W'],x:69,y:55},
+ {id:'ed', lb:'E', r:['E'],alt:['W','Dd','Ds'],x:91,y:52},
+ {id:'a1', lb:'A', r:['A'],alt:['Pc','W','T'],x:34,y:24},
+ {id:'a2', lb:'A', r:['A'],alt:['Pc','W','T'],x:66,y:24},
+];
+
+/* ---------- stato ---------- */
+function defaults(){return{
+  v:1, budget:1000,
+  limits:{P:3,D:8,C:8,A:6},
+  fasce:{
+    P:[{n:'Titolare top',cr:45,q:1},{n:'Titolare',cr:12,q:1},{n:'Riserva',cr:3,q:1}],
+    D:[{n:'Big',cr:40,q:2},{n:'Titolare',cr:15,q:3},{n:'Scommessa',cr:5,q:3}],
+    C:[{n:'Big',cr:90,q:2},{n:'Titolare',cr:35,q:3},{n:'Scommessa',cr:8,q:3}],
+    A:[{n:'Big',cr:180,q:2},{n:'Titolare',cr:55,q:2},{n:'Scommessa',cr:12,q:2}]
+  },
+  players:[], campo:{}, log:[], demo:true
+}}
+let S=defaults(), TAB='asta', filtro={q:'',macro:'',fascia:0,stato:'lib'};
+
+/* ---------- demo ---------- */
+function demoPlayers(){
+ const d=[
+ ['Maignan','Milan','Por',1,42,90],['Di Gregorio','Juventus','Por',1,30,88],['Svilar','Roma','Por',1,35,90],
+ ['Meret','Napoli','Por',2,18,70],['Carnesecchi','Atalanta','Por',2,20,85],['Falcone','Lecce','Por',3,7,80],
+ ['Bastoni','Inter','Dc',1,38,85],['Bremer','Juventus','Dc',1,35,80],['Buongiorno','Napoli','Dc',1,30,78],
+ ['Gatti','Juventus','Dc',2,17,75],['Scalvini','Atalanta','Dc',2,14,65],['Tomori','Milan','Dc',2,15,70],
+ ['Dodo','Fiorentina','Dd/E',2,16,80],['Dimarco','Inter','Ds/E',1,34,80],['Cambiaso','Juventus','Ds/E/Dd',2,22,75],
+ ['Angelino','Roma','Ds/E',2,20,80],['Kayode','Fiorentina','Dd',3,6,55],['Palma','Como','Dc',3,5,60],
+ ['Barella','Inter','M/C',1,55,85],['McTominay','Napoli','C/T',1,95,85],['Koopmeiners','Juventus','C/T',2,45,70],
+ ['Pulisic','Milan','W/T/A',1,110,85],['Nico Paz','Como','T/C',1,80,85],['Zaccagni','Lazio','W/T',2,55,75],
+ ['Orsolini','Bologna','W/T',2,60,78],['Yildiz','Juventus','T/W',1,85,80],['Dumfries','Inter','E/W',2,40,75],
+ ['Politano','Napoli','W/T',2,35,75],['Frattesi','Inter','M/C',3,12,45],['Fagioli','Fiorentina','C/M',3,10,60],
+ ['Lautaro Martinez','Inter','A/Pc',1,190,88],['Thuram','Inter','A/Pc',1,170,82],['Vlahovic','Juventus','Pc/A',1,150,80],
+ ['Retegui','Atalanta','Pc/A',1,175,85],['Lukaku','Napoli','Pc/A',2,120,78],['Kean','Fiorentina','A/Pc',2,110,80],
+ ['Castellanos','Lazio','Pc/A',2,60,72],['Piccoli','Cagliari','Pc/A',3,25,70],['Esposito','Empoli','A/Pc',3,15,55]
+ ];
+ return d.map(x=>mkPlayer({nome:x[0],squadra:x[1],ruoli:x[2].split('/'),fascia:x[3],quota:x[4],tit:x[5]}));
+}
+function mkPlayer(o){return Object.assign({
+  id:'p'+Math.random().toString(36).slice(2,9),
+  nome:'',squadra:'',ruoli:['C'],fascia:2,quota:1,tit:60,stato:'lib',prezzo:0,note:''
+},o)}
+
+/* ---------- storage ---------- */
+async function save(){
+  const j=JSON.stringify(S);
+  try{ if(window.storage&&window.storage.set){await window.storage.set(KEY,j);return} }catch(e){}
+  try{ localStorage.setItem(KEY,j) }catch(e){}
+}
+async function load(){
+  try{ if(window.storage&&window.storage.get){const r=await window.storage.get(KEY); if(r&&r.value)return JSON.parse(r.value)} }catch(e){}
+  try{ const s=localStorage.getItem(KEY); if(s)return JSON.parse(s) }catch(e){}
+  return null;
+}
+let saveT; function persist(){clearTimeout(saveT);saveT=setTimeout(save,250)}
+
+/* ---------- calcoli ---------- */
+const byId=id=>S.players.find(p=>p.id===id);
+const macroOf=p=>MACRO[p.ruoli[0]]||'C';
+const mine=()=>S.players.filter(p=>p.stato==='io');
+function calc(){
+  const own=mine(), spent=own.reduce((s,p)=>s+(+p.prezzo||0),0);
+  const tot=S.limits.P+S.limits.D+S.limits.C+S.limits.A;
+  const left=Math.max(0,tot-own.length), rem=S.budget-spent;
+  const per={};
+  for(const m of ['P','D','C','A']){
+    const l=own.filter(p=>macroOf(p)===m);
+    per[m]={n:l.length,lim:S.limits[m],sp:l.reduce((s,p)=>s+(+p.prezzo||0),0),
+            tit:l.length?Math.round(l.reduce((s,p)=>s+(+p.tit||0),0)/l.length):0};
+  }
+  return {own,spent,rem,tot,left,per,max:left>0?Math.max(0,rem-(left-1)):0,avg:left>0?Math.floor(rem/left):0};
+}
+function piano(){
+  const out={tot:0,per:{}};
+  for(const m of ['P','D','C','A']){
+    const f=S.fasce[m], t=f.reduce((s,x)=>s+x.cr*x.q,0);
+    out.per[m]=t; out.tot+=t;
+  }
+  return out;
+}
+function fmt(n){return (+n||0).toLocaleString('it-IT')}
+
+/* ---------- header ---------- */
+function renderHeader(){
+  const c=calc();
+  $('#hRem').firstChild.nodeValue=fmt(c.rem);
+  $('#hTot').textContent='/'+fmt(S.budget);
+  $('#hRem').style.color = c.rem<0?'var(--rose)':'var(--paper)';
+  $('#hMax').textContent=fmt(c.max);
+  const segs=['P','D','C','A'].map(m=>`<i style="width:${S.budget?(c.per[m].sp/S.budget*100):0}%;background:${MACROCOL[m]}"></i>`).join('');
+  $('#hBar').innerHTML=segs+`<i style="flex:1;background:#0A121D"></i>`;
+  $('#hMeta').innerHTML=
+    `<span class="pill">${c.own.length}/${c.tot} giocatori</span>`+
+    `<span class="pill">spesi <b class="num">${fmt(c.spent)}</b></span>`+
+    `<span class="pill">media slot <b class="num">${fmt(c.avg)}</b></span>`;
+}
+
+/* ---------- rings ---------- */
+function ring(m,val,max,sub){
+  const pct=max?Math.min(1,val/max):0, R=26, C=2*Math.PI*R;
+  return `<div class="ring">
+    <svg viewBox="0 0 64 64">
+      <circle cx="32" cy="32" r="${R}" stroke="#0F1A29" stroke-width="7" fill="none"/>
+      <circle cx="32" cy="32" r="${R}" stroke="${MACROCOL[m]}" stroke-width="7" fill="none"
+        stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct)}"
+        transform="rotate(-90 32 32)"/>
+      <text x="32" y="36" text-anchor="middle" font-size="17" font-weight="700" fill="#EDF1F6">${val}</text>
+    </svg>
+    <div class="vl">${val}/${max}</div>
+    <div class="lb">${m==='P'?'Por':m==='D'?'Dif':m==='C'?'Cen':'Att'}${sub?' · '+sub:''}</div>
+  </div>`;
+}
+function ringsHTML(){
+  const c=calc();
+  return `<div class="rings">${['P','D','C','A'].map(m=>ring(m,c.per[m].n,c.per[m].lim,c.per[m].tit?c.per[m].tit+'%':'')).join('')}</div>`;
+}
+
+/* ---------- badge ruolo ---------- */
+const rlHTML=p=>p.ruoli.map(r=>`<span class="rl ${MACRO[r]}">${r}</span>`).join('');
+
+/* ============================================================
+   TAB: ASTA
+   ============================================================ */
+function viewAsta(){
+  const c=calc();
+  const m=$('#main');
+  m.innerHTML=`
+   ${S.demo?`<div class="banner">Lista di esempio caricata. Sostituiscila con la tua da <b>Dati</b>, oppure modificala in <b>Lista</b>.</div>`:''}
+   <div class="card">
+     <input class="inp" id="q" value="${esc(filtro.q)}" placeholder="Chi è all'asta? cerca il nome…" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="search">
+     <div class="chips" style="margin-top:9px" id="qf">
+       ${['','P','D','C','A'].map(x=>`<button class="chip ${filtro.macro===x?'on':''}" data-m="${x}">${x===''?'Tutti':MACRONAME[x]}</button>`).join('')}
+     </div>
+     <div id="qres" style="margin-top:10px"></div>
+   </div>
+
+   <h2>Copertura rosa</h2>
+   <div class="card">${ringsHTML()}</div>
+
+   <h2>Quanto posso spendere</h2>
+   <div class="card">
+     <div class="grid2">
+       <div class="mini"><div class="k">Offerta massima su 1 giocatore</div><div class="v num">${fmt(c.max)}</div></div>
+       <div class="mini"><div class="k">Slot ancora da riempire</div><div class="v num">${c.left}</div></div>
+       <div class="mini"><div class="k">Media per slot residuo</div><div class="v num">${fmt(c.avg)}</div></div>
+       <div class="mini"><div class="k">Crediti spesi</div><div class="v num">${fmt(c.spent)}</div></div>
+     </div>
+     <div class="tiny muted" style="margin-top:9px">L'offerta massima tiene 1 credito da parte per ogni altro slot ancora vuoto.</div>
+   </div>
+
+   <h2>Ultimi movimenti</h2>
+   <div id="log"></div>`;
+
+  $('#q').addEventListener('input',e=>{filtro.q=e.target.value;renderQRes()});
+  $$('#qf .chip').forEach(b=>b.addEventListener('click',()=>{filtro.macro=b.dataset.m;$$('#qf .chip').forEach(x=>x.classList.toggle('on',x===b));renderQRes()}));
+  renderQRes(); renderLog();
+}
+function renderQRes(){
+  const q=filtro.q.trim().toLowerCase();
+  let l=S.players.filter(p=>p.stato==='lib');
+  if(filtro.macro) l=l.filter(p=>macroOf(p)===filtro.macro);
+  if(q) l=l.filter(p=>(p.nome+' '+p.squadra).toLowerCase().includes(q));
+  l.sort((a,b)=>b.quota-a.quota);
+  const box=$('#qres'); if(!box)return;
+  if(!l.length){box.innerHTML=`<div class="empty">Nessun giocatore libero con questi filtri.</div>`;return}
+  box.innerHTML=`<div class="plist">${l.slice(0,25).map(p=>rowHTML(p)).join('')}</div>`+
+    (l.length>25?`<div class="tiny muted" style="margin-top:7px;text-align:center">${l.length-25} altri — affina la ricerca</div>`:'');
+  bindRows(box);
+}
+function renderLog(){
+  const box=$('#log'); if(!box)return;
+  if(!S.log.length){box.innerHTML=`<div class="empty">Ancora nessun giocatore assegnato.</div>`;return}
+  box.innerHTML=`<div class="plist">${S.log.slice(-8).reverse().map(e=>`
+    <div class="p">
+      <span class="tag ${e.mio?'io':'altri'}">${e.mio?'MIO':'ALTRI'}</span>
+      <div class="nm"><b>${esc(e.nome)}</b><span>${e.ora}</span></div>
+      <div class="qt num">${fmt(e.prezzo)}</div>
+      <button class="tbtn" data-undo="${e.id}">↩︎</button>
+    </div>`).join('')}</div>`;
+  $$('[data-undo]',box).forEach(b=>b.addEventListener('click',()=>undo(b.dataset.undo)));
+}
+
+/* ============================================================
+   TAB: LISTA
+   ============================================================ */
+function viewLista(){
+  const m=$('#main');
+  m.innerHTML=`
+   <div class="card">
+     <input class="inp" id="lq" placeholder="Cerca nome o squadra" value="${esc(filtro.q)}" autocomplete="off" spellcheck="false">
+     <div class="chips" style="margin-top:9px" id="lf">
+       ${['','P','D','C','A'].map(x=>`<button class="chip ${filtro.macro===x?'on':''}" data-m="${x}">${x===''?'Tutti':x==='P'?'Por':x==='D'?'Dif':x==='C'?'Cen':'Att'}</button>`).join('')}
+       ${[0,1,2,3].map(f=>`<button class="chip ${filtro.fascia===f?'on':''}" data-f="${f}">${f?'Fascia '+f:'Ogni fascia'}</button>`).join('')}
+     </div>
+     <div class="seg" style="margin-top:9px" id="ls">
+       ${[['lib','Liberi'],['io','Miei'],['altri','Presi'],['all','Tutti']].map(([k,v])=>`<button data-s="${k}" class="${filtro.stato===k?'on':''}">${v}</button>`).join('')}
+     </div>
+   </div>
+   <div style="margin-top:12px" id="lres"></div>
+   <div class="row" style="margin-top:12px">
+     <button class="btn full" id="addP">+ Nuovo giocatore</button>
+   </div>`;
+  $('#lq').addEventListener('input',e=>{filtro.q=e.target.value;renderLRes()});
+  $$('#lf .chip').forEach(b=>b.addEventListener('click',()=>{
+    if('m' in b.dataset) filtro.macro=b.dataset.m;
+    if('f' in b.dataset) filtro.fascia=+b.dataset.f;
+    viewLista();
+  }));
+  $$('#ls button').forEach(b=>b.addEventListener('click',()=>{filtro.stato=b.dataset.s;viewLista()}));
+  $('#addP').addEventListener('click',()=>editPlayer(null));
+  renderLRes();
+}
+function renderLRes(){
+  const q=filtro.q.trim().toLowerCase();
+  let l=S.players.slice();
+  if(filtro.stato!=='all') l=l.filter(p=>p.stato===filtro.stato);
+  if(filtro.macro) l=l.filter(p=>macroOf(p)===filtro.macro);
+  if(filtro.fascia) l=l.filter(p=>p.fascia===filtro.fascia);
+  if(q) l=l.filter(p=>(p.nome+' '+p.squadra).toLowerCase().includes(q));
+  const ord={P:0,D:1,C:2,A:3};
+  l.sort((a,b)=>ord[macroOf(a)]-ord[macroOf(b)]||a.fascia-b.fascia||b.quota-a.quota);
+  const box=$('#lres');
+  box.innerHTML=l.length?`<div class="plist">${l.map(p=>rowHTML(p)).join('')}</div>
+    <div class="tiny muted" style="margin-top:8px;text-align:center">${l.length} giocatori · tocca per modificare</div>`
+    :`<div class="empty">Nessun giocatore. Aggiungilo qui sotto o importa la tua lista da <b>Dati</b>.</div>`;
+  bindRows(box);
+}
+function rowHTML(p){
+  const t=p.stato;
+  return `<div class="p ${t==='altri'?'taken':''} ${t==='io'?'mine':''}" data-id="${p.id}">
+    <div class="fa fa${p.fascia}">${p.fascia}</div>
+    <div class="nm" data-edit="${p.id}">
+      <b>${esc(p.nome)}</b>
+      <span>${rlHTML(p)} ${esc(p.squadra)} · tit ${p.tit}%</span>
+    </div>
+    ${t==='lib'?`<div class="qt num">${fmt(p.quota)}</div>`:`<span class="tag ${t==='io'?'io':'altri'}">${fmt(p.prezzo)}</span>`}
+    <button class="tbtn" data-bid="${p.id}">${t==='lib'?'€':'↺'}</button>
+  </div>`;
+}
+function bindRows(box){
+  $$('[data-bid]',box).forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation(); const p=byId(b.dataset.bid);
+    if(p.stato==='lib') bidSheet(p); else {reset(p);}
+  }));
+  $$('[data-edit]',box).forEach(b=>b.addEventListener('click',()=>editPlayer(byId(b.dataset.edit))));
+}
+
+/* ============================================================
+   TAB: CAMPO
+   ============================================================ */
+let sel=null;
+function viewCampo(){
+  const own=mine();
+  const used=new Set(Object.values(S.campo));
+  const m=$('#main');
+  m.innerHTML=`
+   <div class="row" style="margin-bottom:10px">
+     <button class="btn" id="auto">Schiera i migliori</button>
+     <button class="btn" id="clr">Svuota campo</button>
+   </div>
+   <div class="pitch" id="pitch">
+     <div class="ln mid"></div><div class="ln circ"></div>
+     <div class="ln box"></div><div class="ln box6"></div>
+     ${SLOTS.map(s=>slotHTML(s)).join('')}
+   </div>
+   <div class="tiny muted" style="margin-top:8px">Tieni premuto e trascina un giocatore sul campo, oppure toccalo e poi tocca lo slot.</div>
+   <h2>Panchina (${own.length-used.size} liberi su ${own.length})</h2>
+   <div class="bench" id="bench">
+     ${own.length?own.map(p=>`<div class="bch ${used.has(p.id)?'used':''} ${sel===p.id?'sel':''}" data-p="${p.id}">
+        <span class="fa fa${p.fascia}">${p.fascia}</span>${esc(short(p.nome))} <em>${p.ruoli.join('/')} · ${p.tit}%</em></div>`).join('')
+      :`<div class="empty" style="width:100%">Nessun giocatore ancora acquistato.</div>`}
+   </div>
+   <h2>Qualità dell'undici</h2>
+   <div class="card" id="qual"></div>`;
+  $('#auto').addEventListener('click',autoFill);
+  $('#clr').addEventListener('click',()=>{S.campo={};persist();viewCampo()});
+  $$('#bench .bch').forEach(el=>{
+    el.addEventListener('click',()=>{ if(dragMoved)return; sel=(sel===el.dataset.p?null:el.dataset.p); viewCampo(); });
+    pressDrag(el,el.dataset.p);
+  });
+  $$('.slot').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(dragMoved)return;
+      const id=el.dataset.s;
+      if(sel){ place(sel,id); sel=null; viewCampo(); return }
+      if(S.campo[id]){ delete S.campo[id]; persist(); viewCampo(); toast('Slot liberato') }
+    });
+    const pid=S.campo[el.dataset.s]; if(pid) pressDrag(el,pid,el.dataset.s);
+  });
+  if(sel) highlight(byId(sel));
+  renderQual();
+}
+function slotHTML(s){
+  const pid=S.campo[s.id], p=pid?byId(pid):null;
+  if(p&&p.stato!=='io'){delete S.campo[s.id]}
+  const fit=p?fitness(p,s):0;
+  return `<div class="slot ${p?'full':''}" data-s="${s.id}" style="left:${s.x}%;top:${s.y}%">
+    <div class="disc ${fit===2?'warn':''}">${p?initials(p.nome):s.lb}</div>
+    ${p?`<div class="nm2">${esc(short(p.nome))}</div><div class="pz num">${p.tit}%</div>`:``}
+  </div>`;
+}
+function fitness(p,s){ // 1 ok · 2 adattato · 3 fuori ruolo
+  if(p.ruoli.some(r=>s.r.includes(r)))return 1;
+  if(p.ruoli.some(r=>s.alt.includes(r)))return 2;
+  return 3;
+}
+function place(pid,slotId){
+  for(const k in S.campo) if(S.campo[k]===pid) delete S.campo[k];
+  S.campo[slotId]=pid; persist();
+}
+function highlight(p){
+  $$('.slot').forEach(el=>{
+    const s=SLOTS.find(x=>x.id===el.dataset.s), f=fitness(p,s);
+    el.classList.toggle('ok',f===1); el.classList.toggle('hit',f===2);
+  });
+}
+function autoFill(){
+  S.campo={};
+  const pool=mine().slice();
+  for(const s of SLOTS){
+    let best=null,bs=-1;
+    for(const p of pool){
+      if(Object.values(S.campo).includes(p.id))continue;
+      const f=fitness(p,s); if(f===3)continue;
+      const sc=(f===1?1000:0)+(+p.tit||0)+ (+p.quota||0)/100;
+      if(sc>bs){bs=sc;best=p}
+    }
+    if(best)S.campo[s.id]=best.id;
+  }
+  persist(); viewCampo(); toast('Undici schierato');
+}
+function renderQual(){
+  const filled=SLOTS.filter(s=>S.campo[s.id]);
+  const tits=filled.map(s=>+byId(S.campo[s.id]).tit||0);
+  const avg=tits.length?Math.round(tits.reduce((a,b)=>a+b,0)/tits.length):0;
+  const fuori=filled.filter(s=>fitness(byId(S.campo[s.id]),s)===2).length;
+  const box=$('#qual');
+  box.innerHTML=`
+    <div class="line"><span>Slot coperti</span><b class="num">${filled.length}/11</b></div>
+    <div class="pbar"><i style="width:${filled.length/11*100}%;background:var(--grass)"></i></div>
+    <div class="line" style="margin-top:12px"><span>Titolarità media dell'undici</span><b class="num">${avg}%</b></div>
+    <div class="pbar"><i style="width:${avg}%;background:${avg>=75?'var(--grass)':avg>=55?'var(--amber)':'var(--rose)'}"></i></div>
+    <div class="tiny muted" style="margin-top:10px">${fuori?fuori+' giocatori adattati fuori ruolo (cerchio giallo).':'Tutti i giocatori sono nel loro ruolo naturale.'}</div>`;
+}
+
+/* ---------- drag con pointer events ---------- */
+let dragMoved=false;
+function pressDrag(el,pid,fromSlot){
+  let t=null,ghost=null,started=false,sx=0,sy=0;
+  const stopScroll=e=>{if(started)e.preventDefault()};
+  const down=e=>{
+    if(e.button&&e.button!==0)return;
+    dragMoved=false; sx=e.clientX; sy=e.clientY;
+    t=setTimeout(()=>{
+      started=true; dragMoved=true;
+      const p=byId(pid); if(!p)return;
+      ghost=document.createElement('div');
+      ghost.className='bch ghost'; ghost.style.left=sx+'px'; ghost.style.top=sy+'px';
+      ghost.innerHTML=`<span class="fa fa${p.fascia}">${p.fascia}</span>${esc(short(p.nome))}`;
+      document.body.appendChild(ghost); document.body.classList.add('dragging');
+      highlight(p);
+      if(navigator.vibrate)navigator.vibrate(8);
+    },180);
+    window.addEventListener('pointermove',move);
+    window.addEventListener('pointerup',up);
+    window.addEventListener('pointercancel',up);
+    document.addEventListener('touchmove',stopScroll,{passive:false});
+  };
+  const move=e=>{
+    if(!started){ if(Math.abs(e.clientX-sx)>8||Math.abs(e.clientY-sy)>8){clearTimeout(t);cleanup()} return }
+    ghost.style.left=e.clientX+'px'; ghost.style.top=e.clientY+'px';
+    const under=document.elementFromPoint(e.clientX,e.clientY);
+    const sl=under&&under.closest?under.closest('.slot'):null;
+    $$('.slot').forEach(x=>{
+      const d=x.querySelector('.disc');
+      if(d) d.style.transform = (x===sl?'scale(1.16)':'');
+    });
+  };
+  const up=e=>{
+    clearTimeout(t);
+    if(started){
+      const under=document.elementFromPoint(e.clientX,e.clientY);
+      const sl=under&&under.closest?under.closest('.slot'):null;
+      if(sl){ place(pid,sl.dataset.s); }
+      else if(fromSlot){ delete S.campo[fromSlot]; persist() }
+      cleanup(); sel=null; viewCampo(); return;
+    }
+    cleanup();
+  };
+  const cleanup=()=>{
+    started=false;
+    if(ghost){ghost.remove();ghost=null}
+    document.body.classList.remove('dragging');
+    $$('.slot').forEach(x=>{x.classList.remove('ok','hit');const d=x.querySelector('.disc');if(d)d.style.transform=''});
+    window.removeEventListener('pointermove',move);
+    window.removeEventListener('pointerup',up);
+    window.removeEventListener('pointercancel',up);
+    document.removeEventListener('touchmove',stopScroll,{passive:false});
+    setTimeout(()=>dragMoved=false,50);
+  };
+  el.addEventListener('pointerdown',down);
+}
+
+/* ============================================================
+   TAB: PIANO
+   ============================================================ */
+function viewPiano(){
+  const c=calc(), pl=piano();
+  const diff=pl.tot-S.budget;
+  const m=$('#main');
+  m.innerHTML=`
+   <div class="card">
+     <div class="field"><div class="lab">Crediti totali dell'asta</div>
+       <input class="inp num" id="bud" type="number" inputmode="numeric" value="${S.budget}"></div>
+     <div class="field"><div class="lab">Giocatori per reparto (Por / Dif / Cen / Att)</div>
+       <div class="row">
+         ${['P','D','C','A'].map(k=>`<input class="inp num" data-lim="${k}" type="number" inputmode="numeric" value="${S.limits[k]}">`).join('')}
+       </div></div>
+     <div class="line" style="margin-top:12px"><span>Piano di spesa</span>
+       <b class="num" style="color:${Math.abs(diff)<=20?'var(--grass)':'var(--amber)'}">${fmt(pl.tot)} / ${fmt(S.budget)}</b></div>
+     <div class="pbar"><i style="width:${Math.min(100,pl.tot/Math.max(1,S.budget)*100)}%;background:${diff>0?'var(--rose)':'var(--grass)'}"></i></div>
+     <div class="tiny muted" style="margin-top:6px">${diff>0?`Stai pianificando ${fmt(diff)} crediti in più di quelli che hai.`:diff<0?`Ti restano ${fmt(-diff)} crediti non pianificati.`:'Piano in pari con il budget.'}</div>
+   </div>
+
+   <h2>Fasce di prezzo per reparto</h2>
+   ${['P','D','C','A'].map(mm=>fasciaCard(mm,c)).join('')}
+
+   <h2>Reparti</h2>
+   <div class="card">
+     ${['P','D','C','A'].map(mm=>{
+        const x=c.per[mm], sp=x.sp, target=pl.per[mm];
+        return `<div style="margin-bottom:13px">
+          <div class="line"><span><b>${MACRONAME[mm]}</b> <span class="muted num">${x.n}/${x.lim}</span></span>
+            <b class="num">${fmt(sp)}<span class="muted"> / ${fmt(target)}</span></b></div>
+          <div class="pbar"><i style="width:${Math.min(100,x.n/x.lim*100)}%;background:${MACROCOL[mm]}"></i></div>
+          <div class="tiny muted" style="margin-top:4px">Titolarità media ${x.tit}% · restano ${x.lim-x.n} slot e ${fmt(Math.max(0,target-sp))} crediti pianificati</div>
+        </div>`}).join('')}
+   </div>`;
+  $('#bud').addEventListener('change',e=>{S.budget=Math.max(1,+e.target.value||1);persist();renderHeader();viewPiano()});
+  $$('[data-lim]').forEach(i=>i.addEventListener('change',e=>{
+    S.limits[i.dataset.lim]=Math.max(0,+e.target.value||0);persist();renderHeader();viewPiano()}));
+  $$('[data-f]').forEach(i=>i.addEventListener('change',e=>{
+    const [mm,idx,k]=i.dataset.f.split('|');
+    S.fasce[mm][+idx][k]=Math.max(0,+e.target.value||0);persist();viewPiano()}));
+}
+function fasciaCard(mm,c){
+  const own=mine().filter(p=>macroOf(p)===mm);
+  return `<div class="card">
+    <div class="line" style="margin-bottom:9px"><b style="color:${MACROCOL[mm]}">${MACRONAME[mm]}</b>
+      <span class="tiny muted">crediti × quanti</span></div>
+    ${S.fasce[mm].map((f,i)=>{
+      const presi=own.filter(p=>p.fascia===i+1);
+      const sp=presi.reduce((s,p)=>s+(+p.prezzo||0),0);
+      return `<div style="margin-bottom:11px">
+        <div class="row" style="align-items:center;gap:7px">
+          <div class="fa fa${i+1}" style="flex:0 0 auto">${i+1}</div>
+          <div style="flex:2;font-size:13px">${f.n}</div>
+          <input class="inp num" style="flex:1;padding:8px" type="number" inputmode="numeric" data-f="${mm}|${i}|cr" value="${f.cr}">
+          <input class="inp num" style="flex:.7;padding:8px" type="number" inputmode="numeric" data-f="${mm}|${i}|q" value="${f.q}">
+        </div>
+        <div class="pbar"><i style="width:${f.q?Math.min(100,presi.length/f.q*100):0}%;background:${['var(--f1)','var(--f2)','var(--f3)'][i]}"></i></div>
+        <div class="tiny muted" style="margin-top:3px">presi ${presi.length}/${f.q} · spesi ${fmt(sp)} su ${fmt(f.cr*f.q)}</div>
+      </div>`}).join('')}
+  </div>`;
+}
+
+/* ============================================================
+   TAB: DATI
+   ============================================================ */
+function viewDati(){
+  const m=$('#main');
+  m.innerHTML=`
+   <h2>Salva e riprendi</h2>
+   <div class="card">
+     <div class="row"><button class="btn" id="exp">Scarica JSON</button><button class="btn" id="cop">Copia JSON</button></div>
+     <div class="row" style="margin-top:8px">
+       <label class="btn full" for="fin">Importa da file</label>
+       <input id="fin" type="file" accept=".json,.csv,.txt,application/json,text/csv" style="display:none">
+     </div>
+     <div class="tiny muted" style="margin-top:8px">Il lavoro viene salvato sul telefono a ogni modifica. Il JSON serve per portarlo su un altro dispositivo o per fare un backup prima dell'asta.</div>
+   </div>
+
+   <h2>Incolla la tua lista</h2>
+   <div class="card">
+     <textarea class="inp" id="paste" placeholder="Incolla qui il JSON di backup, oppure una riga per giocatore:&#10;Nome;Squadra;Ruoli;Fascia;Quota;Titolarità&#10;Lautaro;Inter;A/Pc;1;190;88"></textarea>
+     <div class="row" style="margin-top:8px">
+       <button class="btn go" id="impAdd">Aggiungi alla lista</button>
+       <button class="btn dan" id="impRep">Sostituisci tutto</button>
+     </div>
+     <div class="tiny muted" style="margin-top:8px">Ruoli Mantra separati da / — ${RUOLI.join(' ')}. Il primo ruolo decide il reparto.</div>
+   </div>
+
+   <h2>Durante l'asta</h2>
+   <div class="card">
+     <button class="btn full warn" id="rstAsta">Azzera l'asta, tieni la lista</button>
+     <button class="btn full dan" id="rstAll" style="margin-top:8px">Cancella tutto e riparti</button>
+   </div>
+
+   <h2>Riepilogo</h2>
+   <div class="card">
+     <div class="line"><span>Giocatori in lista</span><b class="num">${S.players.length}</b></div>
+     <div class="line" style="margin-top:5px"><span>Miei acquisti</span><b class="num">${mine().length}</b></div>
+     <div class="line" style="margin-top:5px"><span>Assegnati ad altri</span><b class="num">${S.players.filter(p=>p.stato==='altri').length}</b></div>
+   </div>`;
+
+  $('#exp').addEventListener('click',()=>{
+    const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='asta-mantra-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('File pronto');
+  });
+  $('#cop').addEventListener('click',async()=>{
+    const j=JSON.stringify(S);
+    try{ await navigator.clipboard.writeText(j); toast('JSON copiato') }
+    catch(e){ $('#paste').value=j; $('#paste').select(); toast('Selezionalo e copia') }
+  });
+  $('#fin').addEventListener('change',e=>{
+    const f=e.target.files[0]; if(!f)return;
+    const r=new FileReader(); r.onload=()=>{importText(r.result,true)}; r.readAsText(f);
+  });
+  $('#impAdd').addEventListener('click',()=>importText($('#paste').value,false));
+  $('#impRep').addEventListener('click',()=>importText($('#paste').value,true));
+  $('#rstAsta').addEventListener('click',()=>{
+    if(!confirm('Rimetti tutti i giocatori come liberi?'))return;
+    S.players.forEach(p=>{p.stato='lib';p.prezzo=0}); S.campo={}; S.log=[];
+    persist(); renderHeader(); toast('Asta azzerata'); viewDati();
+  });
+  $('#rstAll').addEventListener('click',()=>{
+    if(!confirm('Cancella lista, acquisti e impostazioni?'))return;
+    S=defaults(); S.demo=false; persist(); renderHeader(); toast('Tutto cancellato'); viewDati();
+  });
+}
+function importText(txt,replace){
+  txt=(txt||'').trim(); if(!txt){toast('Non c\'è niente da importare');return}
+  let added=0;
+  if(txt[0]==='{'){
+    try{
+      const o=JSON.parse(txt);
+      if(o.players){
+        if(replace){S=Object.assign(defaults(),o);S.demo=false}
+        else{o.players.forEach(p=>{S.players.push(mkPlayer(p));added++})}
+      }else throw 0;
+    }catch(e){toast('JSON non valido');return}
+  }else{
+    const rows=txt.split(/\r?\n/).filter(r=>r.trim());
+    const list=[];
+    for(const r of rows){
+      const sep=/;/.test(r)?';':/\t/.test(r)?'\t':',';
+      const c=r.split(sep).map(x=>x.trim());
+      if(c.length<2)continue;
+      if(/^nome$/i.test(c[0]))continue;
+      const ruoli=(c[2]||'C').split(/[\/|]/).map(x=>norm(x)).filter(x=>RUOLI.includes(x));
+      list.push(mkPlayer({nome:c[0],squadra:c[1]||'',ruoli:ruoli.length?ruoli:['C'],
+        fascia:Math.min(3,Math.max(1,+c[3]||2)),quota:+c[4]||1,tit:Math.min(100,+c[5]||60)}));
+    }
+    if(!list.length){toast('Formato riga non riconosciuto');return}
+    if(replace){S.players=list;S.campo={};S.log=[];S.demo=false} else {S.players=S.players.concat(list)}
+    added=list.length;
+  }
+  persist(); renderHeader(); toast(replace?'Lista sostituita':added+' giocatori aggiunti'); go(TAB);
+}
+function norm(r){
+  const s=r.trim().toLowerCase();
+  const map={por:'Por',p:'Por',dd:'Dd',dc:'Dc',ds:'Ds',e:'E',m:'M',c:'C',w:'W',t:'T',a:'A',pc:'Pc'};
+  return map[s]||r.trim();
+}
+
+/* ============================================================
+   SHEET: offerta
+   ============================================================ */
+function bidSheet(p){
+  let price=Math.max(1,Math.round(p.quota||1));
+  const draw=()=>{
+    const c=calc();
+    const after=c.rem-price, leftAfter=c.left-1;
+    const maxAfter=leftAfter>0?Math.max(0,after-(leftAfter-1)):0;
+    const mm=macroOf(p), fa=S.fasce[mm][p.fascia-1];
+    const over=price>c.max;
+    return `
+    <div class="grab"></div>
+    <div class="sh-title">${esc(p.nome)}</div>
+    <div class="tiny muted" style="margin-top:3px">${rlHTML(p)} ${esc(p.squadra)} · fascia ${p.fascia} · titolarità ${p.tit}% · quota ${fmt(p.quota)}</div>
+    <div class="stepper">
+      <button data-d="-5">−5</button><button data-d="-1">−1</button>
+      <div class="val num" style="color:${over?'var(--rose)':'var(--paper)'}">${fmt(price)}</div>
+      <button data-d="1">+1</button><button data-d="5">+5</button>
+    </div>
+    <div class="row" style="margin-bottom:12px">
+      ${[10,25,50].map(d=>`<button class="btn" data-d="${d}">+${d}</button>`).join('')}
+      <button class="btn" data-set="${Math.round(p.quota)}">quota</button>
+    </div>
+    <div class="simul">
+      <div class="line"><span>Se lo prendi, ti restano</span><b class="num" style="color:${after<0?'var(--rose)':'var(--paper)'}">${fmt(after)} cr</b></div>
+      <div class="line"><span>Slot ancora vuoti</span><b class="num">${leftAfter}</b></div>
+      <div class="line"><span>Nuova offerta massima</span><b class="num">${fmt(maxAfter)}</b></div>
+      <div class="line"><span>Media per slot residuo</span><b class="num">${leftAfter>0?fmt(Math.floor(after/leftAfter)):'—'}</b></div>
+      <div class="line" style="margin-top:7px;color:${price>fa.cr*1.25?'var(--amber)':'var(--mute)'}">
+        <span>Piano ${MACRONAME[mm].toLowerCase()} fascia ${p.fascia}</span><b class="num">${fmt(fa.cr)} previsti</b></div>
+    </div>
+    ${over?`<div class="banner" style="margin-bottom:10px">Oltre il massimo: non ti resterebbe 1 credito per ogni slot.</div>`:''}
+    <button class="btn go full" data-act="io">L'ho preso io a ${fmt(price)}</button>
+    <div class="row" style="margin-top:8px">
+      <button class="btn" data-act="altri">Preso da altri</button>
+      <button class="btn" data-act="x">Chiudi</button>
+    </div>`;
+  };
+  const bind=()=>{
+    $$('#sheet [data-d]').forEach(b=>b.addEventListener('click',()=>{price=Math.max(1,price+ +b.dataset.d);upd()}));
+    $$('#sheet [data-set]').forEach(b=>b.addEventListener('click',()=>{price=Math.max(1,+b.dataset.set);upd()}));
+    $$('#sheet [data-act]').forEach(b=>b.addEventListener('click',()=>{
+      const a=b.dataset.act;
+      if(a==='x'){closeSheet();return}
+      assign(p,a==='io',price); closeSheet();
+    }));
+  };
+  const upd=()=>{$('#sheet').innerHTML=draw();bind()};
+  openSheet(draw(),bind);
+}
+function assign(p,mio,price){
+  p.stato=mio?'io':'altri'; p.prezzo=price;
+  S.log.push({id:p.id,nome:p.nome,prezzo:price,mio,ora:new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})});
+  persist(); renderHeader(); go(TAB);
+  toast(mio?`${short(p.nome)} è tuo a ${price}`:`${short(p.nome)} agli altri`);
+}
+function reset(p){
+  p.stato='lib'; p.prezzo=0;
+  for(const k in S.campo) if(S.campo[k]===p.id) delete S.campo[k];
+  S.log=S.log.filter(e=>e.id!==p.id);
+  persist(); renderHeader(); go(TAB); toast(short(p.nome)+' di nuovo libero');
+}
+function undo(id){const p=byId(id); if(p)reset(p)}
+
+/* ============================================================
+   SHEET: scheda giocatore
+   ============================================================ */
+function editPlayer(p){
+  const isNew=!p;
+  const d=p?JSON.parse(JSON.stringify(p)):mkPlayer({});
+  const draw=()=>`
+    <div class="grab"></div>
+    <div class="sh-title">${isNew?'Nuovo giocatore':esc(d.nome)}</div>
+    <div class="field" style="margin-top:12px"><div class="lab">Nome</div>
+      <input class="inp" id="e-n" value="${esc(d.nome)}" autocapitalize="words"></div>
+    <div class="field"><div class="lab">Squadra</div>
+      <input class="inp" id="e-s" value="${esc(d.squadra)}" autocapitalize="words"></div>
+    <div class="field"><div class="lab">Ruoli Mantra — il primo decide il reparto</div>
+      <div class="chips" id="e-r">${RUOLI.map(r=>`<button class="chip ${d.ruoli.includes(r)?'on':''}" data-r="${r}">${r}</button>`).join('')}</div></div>
+    <div class="field"><div class="lab">Fascia di prezzo</div>
+      <div class="seg" id="e-f">${[1,2,3].map(f=>`<button data-f="${f}" class="${d.fascia===f?'on':''}">${f} · ${S.fasce[MACRO[d.ruoli[0]]||'C'][f-1].n}</button>`).join('')}</div></div>
+    <div class="row">
+      <div class="field" style="margin-top:0"><div class="lab">Quota / prezzo obiettivo</div>
+        <input class="inp num" id="e-q" type="number" inputmode="numeric" value="${d.quota}"></div>
+      <div class="field" style="margin-top:0"><div class="lab">Titolarità %</div>
+        <input class="inp num" id="e-t" type="number" inputmode="numeric" value="${d.tit}"></div>
+    </div>
+    <div class="field"><div class="lab">Note</div><input class="inp" id="e-no" value="${esc(d.note||'')}"></div>
+    <button class="btn go full" style="margin-top:14px" id="e-ok">${isNew?'Aggiungi alla lista':'Salva'}</button>
+    <div class="row" style="margin-top:8px">
+      ${!isNew?`<button class="btn dan" id="e-del">Elimina</button>`:''}
+      <button class="btn" id="e-x">Annulla</button>
+    </div>`;
+  const bind=()=>{
+    $$('#e-r .chip').forEach(b=>b.addEventListener('click',()=>{
+      const r=b.dataset.r, i=d.ruoli.indexOf(r);
+      if(i>=0){ if(d.ruoli.length>1)d.ruoli.splice(i,1) } else d.ruoli.push(r);
+      pull(); $('#sheet').innerHTML=draw(); bind();
+    }));
+    $$('#e-f button').forEach(b=>b.addEventListener('click',()=>{
+      d.fascia=+b.dataset.f; pull(); $('#sheet').innerHTML=draw(); bind();
+    }));
+    $('#e-ok').addEventListener('click',()=>{
+      pull();
+      if(!d.nome.trim()){toast('Serve almeno il nome');return}
+      if(isNew){S.players.push(d)} else {Object.assign(p,d)}
+      S.demo=false;
+      persist(); renderHeader(); closeSheet(); go(TAB); toast('Salvato');
+    });
+    $('#e-x').addEventListener('click',closeSheet);
+    const del=$('#e-del'); if(del)del.addEventListener('click',()=>{
+      if(!confirm('Elimino '+p.nome+'?'))return;
+      S.players=S.players.filter(x=>x.id!==p.id);
+      for(const k in S.campo) if(S.campo[k]===p.id) delete S.campo[k];
+      persist(); renderHeader(); closeSheet(); go(TAB); toast('Eliminato');
+    });
+  };
+  const pull=()=>{
+    d.nome=$('#e-n').value; d.squadra=$('#e-s').value;
+    d.quota=Math.max(0,+$('#e-q').value||0); d.tit=Math.min(100,Math.max(0,+$('#e-t').value||0));
+    d.note=$('#e-no').value;
+  };
+  openSheet(draw(),bind);
+}
+
+/* ---------- sheet infra ---------- */
+function openSheet(html,bind){
+  const sh=$('#sheet'); sh.innerHTML=html;
+  $('#scrim').classList.add('on'); sh.classList.add('on');
+  if(bind)bind();
+}
+function closeSheet(){$('#sheet').classList.remove('on');$('#scrim').classList.remove('on')}
+$('#scrim').addEventListener('click',closeSheet);
+
+/* ---------- util ---------- */
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function short(n){const p=String(n).split(' ');return p.length>1&&p[0].length>3?p[0][0]+'. '+p.slice(1).join(' '):n}
+function initials(n){const p=String(n).trim().split(' ');return (p.length>1?p[0][0]+p[1][0]:p[0].slice(0,2)).toUpperCase()}
+let toastT; function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),1700)}
+
+/* ---------- router ---------- */
+function go(t){
+  TAB=t;
+  $$('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  const sc=$('#main').scrollTop;
+  ({asta:viewAsta,lista:viewLista,campo:viewCampo,piano:viewPiano,dati:viewDati}[t])();
+  $('#main').scrollTop=(t===TAB?sc:0);
+  renderHeader();
+}
+$$('#nav button').forEach(b=>b.addEventListener('click',()=>{$('#main').scrollTop=0;go(b.dataset.t)}));
+
+/* ---------- avvio ---------- */
+(async function init(){
+  const s=await load();
+  if(s&&s.players){ S=Object.assign(defaults(),s) }
+  else { S.players=demoPlayers(); S.demo=true; save() }
+  go('asta');
+})();
+</script>
+</body>
+</html>
