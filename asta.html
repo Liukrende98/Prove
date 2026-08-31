@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0E1726">
+<title>Asta Mantra · 3-5-2</title>
+<style>
+:root{
+  --ink:#0E1726; --ink2:#16202F; --card:#1A2637; --line:#26364E;
+  --paper:#EDF1F6; --mute:#90A2BA; --dim:#5E7292;
+  --grass:#17B26A; --grass-d:#0E6E43;
+  --amber:#F2B441; --rose:#E5484D; --sky:#4C9BE8; --violet:#9E7BFF;
+  --f1:#F2B441; --f2:#4C9BE8; --f3:#6E819B;
+  --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;overscroll-behavior:none}
+body{
+  background:var(--ink); color:var(--paper);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+  font-size:15px; line-height:1.35;
+  display:flex; flex-direction:column; height:100dvh; overflow:hidden;
+  -webkit-text-size-adjust:100%;
+}
+input,select,textarea,button{font-family:inherit;font-size:16px;color:inherit}
+button{border:0;background:none;padding:0;cursor:pointer}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+/* ---------- header ---------- */
+header{
+  padding:calc(env(safe-area-inset-top) + 8px) 14px 10px;
+  background:linear-gradient(180deg,#101C2E,#0E1726);
+  border-bottom:1px solid var(--line); flex:0 0 auto;
+}
+.hrow{display:flex;align-items:flex-end;gap:14px}
+.big{font-size:38px;font-weight:700;letter-spacing:-1.5px;line-height:1}
+.big small{font-size:14px;font-weight:500;color:var(--mute);letter-spacing:0;margin-left:4px}
+.hlab{font-size:11px;color:var(--dim);letter-spacing:.06em;margin-bottom:2px}
+.hright{margin-left:auto;text-align:right}
+.hright .v{font-size:24px;font-weight:700;letter-spacing:-.5px;line-height:1.1}
+.bar{height:7px;border-radius:4px;background:#0A121D;margin-top:10px;display:flex;overflow:hidden;border:1px solid #0A121D}
+.bar i{display:block;height:100%}
+.hmeta{display:flex;gap:6px;margin-top:7px;font-size:12px;color:var(--mute);flex-wrap:wrap}
+.hmeta b{color:var(--paper);font-weight:600}
+.pill{background:#0F1A29;border:1px solid var(--line);border-radius:999px;padding:2px 9px}
+
+/* ---------- layout ---------- */
+main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px 30px}
+nav{
+  flex:0 0 auto;display:grid;grid-template-columns:repeat(5,1fr);
+  background:#0C1522;border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+nav button{padding:9px 0 8px;color:var(--dim);font-size:10.5px;letter-spacing:.02em;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+nav button.on{color:var(--grass)}
+h2{font-size:13px;font-weight:600;color:var(--mute);margin:22px 0 9px;letter-spacing:.01em}
+h2:first-child{margin-top:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px}
+.card + .card{margin-top:10px}
+.muted{color:var(--mute)}
+.tiny{font-size:12px}
+
+/* ---------- controls ---------- */
+.inp{width:100%;background:#0F1A29;border:1px solid var(--line);border-radius:11px;padding:11px 12px;color:var(--paper);outline:none}
+.inp:focus{border-color:var(--sky)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#233248;border:1px solid var(--line);border-radius:11px;padding:11px 14px;font-size:15px;font-weight:600}
+.btn.full{width:100%}
+.btn.go{background:var(--grass);color:#04160C;border-color:transparent}
+.btn.warn{background:#2A2130;border-color:#3C3145;color:var(--amber)}
+.btn.dan{background:#2B1A1E;border-color:#4A2429;color:var(--rose)}
+.btn:active{transform:scale(.98)}
+.row{display:flex;gap:8px}
+.row>*{flex:1}
+.seg{display:flex;background:#0F1A29;border:1px solid var(--line);border-radius:11px;padding:3px;gap:3px}
+.seg button{flex:1;padding:8px 4px;border-radius:8px;font-size:13px;font-weight:600;color:var(--mute)}
+.seg button.on{background:#26364E;color:var(--paper)}
+.chip{border:1px solid var(--line);background:#0F1A29;border-radius:999px;padding:6px 11px;font-size:13px;font-weight:600;color:var(--mute)}
+.chip.on{background:var(--grass);border-color:transparent;color:#04160C}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.lab{font-size:12px;color:var(--dim);margin:0 0 5px}
+.field + .field{margin-top:11px}
+
+/* ---------- lista ---------- */
+.plist{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--card)}
+.p{display:flex;align-items:center;gap:10px;padding:9px 11px;border-bottom:1px solid #1F2C40}
+.p:last-child{border-bottom:0}
+.p .nm{flex:1;min-width:0}
+.p .nm b{display:block;font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p .nm span{font-size:11.5px;color:var(--dim)}
+.rl{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.03em;padding:2px 5px;border-radius:5px;background:#0F1A29;border:1px solid var(--line);color:var(--mute);margin-right:3px}
+.rl.P{color:var(--amber)} .rl.D{color:var(--sky)} .rl.C{color:var(--grass)} .rl.A{color:var(--rose)}
+.fa{width:19px;height:19px;border-radius:6px;display:grid;place-items:center;font-size:11px;font-weight:800;color:#0B1220}
+.fa1{background:var(--f1)} .fa2{background:var(--f2)} .fa3{background:var(--f3)}
+.qt{font-weight:700;font-size:15px;min-width:34px;text-align:right}
+.tag{font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px}
+.tag.io{background:rgba(23,178,106,.16);color:var(--grass)}
+.tag.altri{background:#22303F;color:var(--dim)}
+.tag.ko{background:rgba(229,72,77,.18);color:var(--rose)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--rose);flex:0 0 auto}
+.slot.full .disc.ko{background:var(--rose);color:#fff;border-color:#fff}
+.bch.ko{border-color:rgba(229,72,77,.5)}
+.p.taken{opacity:.42}
+.p.mine{background:linear-gradient(90deg,rgba(23,178,106,.13),transparent 60%)}
+.tbtn{width:38px;height:38px;border-radius:10px;background:#233248;border:1px solid var(--line);display:grid;place-items:center;font-size:17px;font-weight:700;flex:0 0 auto}
+.lock{display:inline-block;background:#0F1A29;border:1px solid var(--line);border-radius:8px;padding:3px 8px;margin:3px 4px 0 0;font-size:12px}
+.lock b{font-weight:700}
+.inp:disabled{opacity:.45}
+.empty{text-align:center;color:var(--dim);padding:26px 14px;font-size:14px}
+
+/* ---------- rings ---------- */
+.rings{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.rings.sub{gap:12px 8px}
+.ring{text-align:center;background:none;border:0;color:inherit;padding:0;width:100%;display:block}
+.ring:active{transform:scale(.96)}
+.ring.dim{opacity:.4}
+.rrow{padding:10px 0;border-bottom:1px solid #1F2C40}
+.rrow:last-child{border-bottom:0}
+.tapme{display:flex;align-items:center;justify-content:center;gap:5px;font-size:11.5px;color:var(--dim);margin-top:10px}
+.ring svg{width:100%;max-width:72px;display:block;margin:0 auto}
+.ring .lb{font-size:11px;color:var(--mute);margin-top:2px}
+.ring .vl{font-size:12px;font-weight:700}
+
+/* ---------- campo ---------- */
+.pitch{
+  position:relative;width:100%;aspect-ratio:10/13;border-radius:var(--r);overflow:hidden;
+  background:
+    repeating-linear-gradient(180deg,#12513A 0 7.69%,#0F4834 7.69% 15.38%);
+  border:1px solid #1D6247;
+}
+.pitch .ln{position:absolute;border:1.5px solid rgba(255,255,255,.16)}
+.pitch .box{left:22%;width:56%;height:13%;bottom:0;border-bottom:0}
+.pitch .box6{left:36%;width:28%;height:6%;bottom:0;border-bottom:0}
+.pitch .mid{left:0;width:100%;top:50%;height:0;border-width:0 0 1.5px 0}
+.pitch .circ{left:50%;top:50%;width:34%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%}
+.slot{position:absolute;transform:translate(-50%,-50%);width:62px;text-align:center;touch-action:manipulation}
+.slot .disc{
+  width:52px;height:52px;margin:0 auto;border-radius:50%;
+  background:rgba(6,26,18,.55);border:2px dashed rgba(255,255,255,.3);
+  display:grid;place-items:center;font-size:11px;font-weight:800;color:rgba(255,255,255,.75)
+}
+.slot.full .disc{background:var(--paper);border:2px solid #fff;color:#0B1220;border-style:solid}
+.slot.full .disc.warn{background:var(--amber)}
+.slot .nm2{font-size:10.5px;font-weight:600;margin-top:3px;text-shadow:0 1px 3px rgba(0,0,0,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot .pz{font-size:9.5px;color:rgba(255,255,255,.72)}
+.slot.hit .disc{border-color:var(--amber);box-shadow:0 0 0 4px rgba(242,180,65,.35)}
+.slot.ok .disc{border-color:var(--grass);box-shadow:0 0 0 3px rgba(23,178,106,.3)}
+.tit{position:absolute;left:50%;transform:translateX(-50%);bottom:-2px;width:34px;height:3px;border-radius:2px;background:rgba(0,0,0,.45);overflow:hidden}
+.tit i{display:block;height:100%;background:var(--grass)}
+.mods{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;scrollbar-width:none}
+.mods::-webkit-scrollbar{display:none}
+.mods .chip{flex:0 0 auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+.cmpr{padding:9px 0;border-bottom:1px solid #1F2C40}
+.cmpr:last-of-type{border-bottom:0}
+.cmpr.cur{background:linear-gradient(90deg,rgba(23,178,106,.12),transparent 70%);margin:0 -13px;padding:9px 13px}
+.bench{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.bch{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:7px 9px;font-size:13px;font-weight:600;touch-action:manipulation}
+.bch.sel{border-color:var(--grass);background:rgba(23,178,106,.14)}
+.bch.used{opacity:.35}
+.bch em{font-style:normal;color:var(--dim);font-size:11px;font-weight:600}
+.ghost{position:fixed;z-index:999;pointer-events:none;transform:translate(-50%,-50%) scale(1.06);opacity:.95}
+body.dragging{cursor:grabbing}
+
+/* ---------- piano ---------- */
+.pbar{height:8px;border-radius:5px;background:#0F1A29;overflow:hidden;margin-top:6px}
+.pbar i{display:block;height:100%;border-radius:5px}
+.line{display:flex;justify-content:space-between;align-items:baseline;font-size:13px}
+.line b{font-weight:700}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mini{background:#0F1A29;border:1px solid var(--line);border-radius:10px;padding:9px}
+.mini .k{font-size:11px;color:var(--dim)}
+.mini .v{font-size:19px;font-weight:700;letter-spacing:-.4px}
+
+/* ---------- sheet ---------- */
+.scrim{position:fixed;inset:0;background:rgba(4,9,16,.6);backdrop-filter:blur(3px);z-index:100;opacity:0;pointer-events:none;transition:opacity .18s}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:101;background:var(--ink2);
+  border-top:1px solid var(--line);border-radius:20px 20px 0 0;
+  padding:8px 14px calc(env(safe-area-inset-bottom) + 16px);
+  transform:translateY(102%);transition:transform .24s cubic-bezier(.2,.8,.2,1);
+  max-height:92dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+}
+.sheet.on{transform:translateY(0)}
+.grab{width:38px;height:4px;border-radius:2px;background:#33455F;margin:6px auto 12px}
+.sh-title{font-size:19px;font-weight:700;letter-spacing:-.3px}
+.stepper{display:flex;align-items:center;gap:8px;margin:12px 0}
+.stepper button{width:52px;height:52px;border-radius:14px;background:#233248;border:1px solid var(--line);font-size:20px;font-weight:700}
+.stepper .val{flex:1;text-align:center;font-size:44px;font-weight:700;letter-spacing:-2px}
+.simul{background:#0F1A29;border:1px solid var(--line);border-radius:12px;padding:11px;margin:4px 0 12px}
+.simul .line{margin:4px 0}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 78px);transform:translate(-50%,14px);
+  background:#233248;border:1px solid var(--line);border-radius:999px;padding:9px 16px;font-size:13.5px;font-weight:600;
+  z-index:200;opacity:0;transition:.2s;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.banner{background:rgba(242,180,65,.12);border:1px solid rgba(242,180,65,.35);color:var(--amber);border-radius:12px;padding:10px 12px;font-size:13px;margin-bottom:12px}
+textarea.inp{min-height:120px;font-size:13px;font-family:ui-monospace,Menlo,monospace;resize:vertical}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hrow">
+    <div>
+      <div class="hlab">Crediti residui</div>
+      <div class="big num" id="hRem">1000<small id="hTot">/1000</small></div>
+    </div>
+    <div class="hright">
+      <div class="hlab">Offerta max</div>
+      <div class="v num" id="hMax">—</div>
+    </div>
+  </div>
+  <div class="bar" id="hBar"></div>
+  <div class="hmeta" id="hMeta"></div>
+</header>
+
+<main id="main"></main>
+
+<nav id="nav">
+  <button data-t="asta" class="on"><svg viewBox="0 0 24 24"><path d="M14 4l6 6M11 7l6 6M4 20l7-7M9 12l3 3"/><path d="M13 5l6 6"/></svg>Asta</button>
+  <button data-t="lista"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Lista</button>
+  <button data-t="campo"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 8.5a3.5 3.5 0 000 7 3.5 3.5 0 000-7z"/></svg>Campo</button>
+  <button data-t="piano"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Piano</button>
+  <button data-t="dati"><svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>Dati</button>
+</nav>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   Asta Mantra 3-5-2 — file singolo, funziona offline
+   ============================================================ */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const KEY='asta-mantra-352-v1';
+
+/* ---------- ruoli mantra ---------- */
+const RUOLI=['Por','Dd','Dc','Ds','B','E','M','C','T','W','A','Pc'];
+const MACRO={Por:'P',Dd:'D',Dc:'D',Ds:'D',B:'D',E:'C',M:'C',C:'C',W:'C',T:'C',A:'A',Pc:'A'};
+const MACRONAME={P:'Portieri',D:'Difensori',C:'Centrocampisti',A:'Attaccanti'};
+const MACROCOL={P:'var(--amber)',D:'var(--sky)',C:'var(--grass)',A:'var(--rose)'};
+
+/* ---------- moduli ufficiali Mantra (Fantacalcio.it) ----------
+   Gli 11 schemi e la composizione delle posizioni sono quelli della tabella
+   ufficiale "sostituzioni per schema": ok = ruolo naturale, ad = adattato (malus -1).
+   Ogni altro ruolo non è schierabile in quella posizione in fase di formazione. */
+const DF=['Dd','Ds','Dc','B'];
+const SLOTTYPES={
+ 'Por':   {ok:['Por'],       ad:[]},
+ 'Dc':    {ok:['Dc'],        ad:[]},
+ 'Dc/B':  {ok:['Dc','B'],    ad:[]},
+ 'Dd':    {ok:['Dd'],        ad:['Dc']},
+ 'Ds':    {ok:['Ds'],        ad:['Dc']},
+ 'E':     {ok:['E'],         ad:DF},
+ 'E/W':   {ok:['E','W'],     ad:DF.concat(['M','C','T'])},
+ 'M':     {ok:['M'],         ad:DF},
+ 'M/C':   {ok:['M','C'],     ad:DF.concat(['E'])},
+ 'C':     {ok:['C'],         ad:DF.concat(['E','M'])},
+ 'C/T':   {ok:['C','T'],     ad:DF.concat(['E','M'])},
+ 'T':     {ok:['T'],         ad:DF.concat(['E','M','C'])},
+ 'T/A':   {ok:['T','A'],     ad:DF.concat(['E','M','C','W'])},
+ 'T/A/Pc':{ok:['T','A','Pc'],ad:DF.concat(['E','M','C','W'])},
+ 'W':     {ok:['W'],         ad:DF.concat(['E','M','C'])},
+ 'W/T':   {ok:['W','T'],     ad:DF.concat(['E','M','C'])},
+ 'W/A':   {ok:['W','A'],     ad:DF.concat(['E','M','C','T'])},
+ 'A/Pc':  {ok:['A','Pc'],    ad:DF.concat(['E','M','C','T','W'])}
+};
+const MODULI={
+ '3-5-2':  [['Por',50,91],['Dc',24,76],['Dc',50,79],['Dc/B',76,76],['E',8,52],['M',29,57],['M/C',50,61],['C',71,57],['E/W',92,52],['A/Pc',34,21],['A/Pc',66,21]],
+ '3-5-1-1':[['Por',50,91],['Dc',24,76],['Dc',50,79],['Dc/B',76,76],['E/W',8,51],['M',31,57],['M',50,60],['C',69,57],['E/W',92,51],['T/A',50,34],['A/Pc',50,15]],
+ '3-4-3':  [['Por',50,91],['Dc',24,76],['Dc',50,79],['Dc/B',76,76],['E',9,55],['M/C',36,58],['C',64,58],['E',91,55],['W/A',18,22],['A/Pc',50,18],['W/A',82,22]],
+ '3-4-1-2':[['Por',50,91],['Dc',24,76],['Dc',50,79],['Dc/B',76,76],['E',9,55],['M/C',36,58],['C',64,58],['E',91,55],['T',50,36],['A/Pc',33,17],['A/Pc',67,17]],
+ '3-4-2-1':[['Por',50,91],['Dc',24,76],['Dc',50,79],['Dc/B',76,76],['E',9,56],['M',35,59],['M/C',65,59],['E/W',91,56],['T',34,36],['T/A',66,36],['A/Pc',50,16]],
+ '4-4-2':  [['Por',50,91],['Ds',11,77],['Dc',37,80],['Dc',63,80],['Dd',89,77],['E',9,54],['M/C',36,57],['C',64,57],['E/W',91,54],['A/Pc',34,21],['A/Pc',66,21]],
+ '4-4-1-1':[['Por',50,91],['Ds',11,77],['Dc',37,80],['Dc',63,80],['Dd',89,77],['E/W',9,55],['M',36,58],['C',64,58],['E/W',91,55],['T/A',50,34],['A/Pc',50,15]],
+ '4-3-3':  [['Por',50,91],['Ds',11,77],['Dc',37,80],['Dc',63,80],['Dd',89,77],['M/C',24,52],['M',50,58],['C',76,52],['W/A',18,21],['A/Pc',50,17],['W/A',82,21]],
+ '4-3-1-2':[['Por',50,91],['Ds',11,77],['Dc',37,80],['Dc',63,80],['Dd',89,77],['M/C',24,54],['M',50,60],['C',76,54],['T',50,35],['T/A/Pc',33,16],['A/Pc',67,16]],
+ '4-2-3-1':[['Por',50,91],['Ds',11,77],['Dc',37,80],['Dc',63,80],['Dd',89,77],['M',35,61],['M/C',65,61],['W/T',13,38],['T',50,36],['W/A',87,38],['A/Pc',50,15]],
+ '4-1-4-1':[['Por',50,91],['Ds',11,77],['Dc',37,80],['Dc',63,80],['Dd',89,77],['M',50,63],['E/W',9,44],['C/T',36,46],['T',64,46],['W',91,44],['A/Pc',50,16]]
+};
+const MODLIST=Object.keys(MODULI);
+function slots(mod){return (MODULI[mod||S.modulo]||MODULI['3-5-2']).map((x,i)=>({id:'s'+i,t:x[0],x:x[1],y:x[2]}))}
+function CP(){ if(!S.campi)S.campi={}; if(!S.campi[S.modulo])S.campi[S.modulo]={}; return S.campi[S.modulo] }
+
+
+/* ---------- stato ---------- */
+function defaults(){return{
+  v:1, budget:1000,
+  limits:{P:3,D:8,C:8,A:6},
+  fasce:{
+    P:[{n:'Titolare top',cr:45,q:1},{n:'Titolare',cr:12,q:1},{n:'Riserva',cr:3,q:1}],
+    D:[{n:'Big',cr:40,q:2},{n:'Titolare',cr:15,q:3},{n:'Scommessa',cr:5,q:3}],
+    C:[{n:'Big',cr:90,q:2},{n:'Titolare',cr:35,q:3},{n:'Scommessa',cr:8,q:3}],
+    A:[{n:'Big',cr:180,q:2},{n:'Titolare',cr:55,q:2},{n:'Scommessa',cr:12,q:2}]
+  },
+  modulo:'3-5-2', autobal:true,
+  players:[], arch:[], campi:{}, log:[], demo:true
+}}
+let S=defaults(), TAB='asta', filtro={q:'',macro:'',fascia:0,stato:'lib'};
+
+/* ---------- demo ---------- */
+function demoPlayers(){
+ const d=[
+ ['Maignan','Milan','Por',1,42,90],['Di Gregorio','Juventus','Por',1,30,88],['Svilar','Roma','Por',1,35,90],
+ ['Meret','Napoli','Por',2,18,70],['Carnesecchi','Atalanta','Por',2,20,85],['Falcone','Lecce','Por',3,7,80],
+ ['Bastoni','Inter','Dc',1,38,85],['Bremer','Juventus','Dc',1,35,80],['Buongiorno','Napoli','Dc',1,30,78],
+ ['Gatti','Juventus','Dc',2,17,75],['Scalvini','Atalanta','Dc/B',2,14,65],['Tomori','Milan','Dc',2,15,70],
+ ['Dodo','Fiorentina','Dd/E',2,16,80],['Dimarco','Inter','Ds/E',1,34,80],['Cambiaso','Juventus','Ds/E/Dd',2,22,75],
+ ['Angelino','Roma','Ds/E',2,20,80],['Kayode','Fiorentina','Dd/B',3,6,55],['Palma','Como','Dc/B',3,5,60],
+ ['Barella','Inter','M/C',1,55,85],['McTominay','Napoli','C/T',1,95,85],['Koopmeiners','Juventus','C/T',2,45,70],
+ ['Pulisic','Milan','W/T/A',1,110,85],['Nico Paz','Como','T/C',1,80,85],['Zaccagni','Lazio','W/T',2,55,75],
+ ['Orsolini','Bologna','W/T',2,60,78],['Yildiz','Juventus','T/W',1,85,80],['Dumfries','Inter','E/W',2,40,75],
+ ['Politano','Napoli','W/T',2,35,75],['Frattesi','Inter','M/C',3,12,45],['Fagioli','Fiorentina','C/M',3,10,60],
+ ['Lautaro Martinez','Inter','A/Pc',1,190,88],['Thuram','Inter','A/Pc',1,170,82],['Vlahovic','Juventus','Pc/A',1,150,80],
+ ['Retegui','Atalanta','Pc/A',1,175,85],['Lukaku','Napoli','Pc/A',2,120,78],['Kean','Fiorentina','A/Pc',2,110,80],
+ ['Castellanos','Lazio','Pc/A',2,60,72],['Piccoli','Cagliari','Pc/A',3,25,70],['Esposito','Empoli','A/Pc',3,15,55]
+ ];
+ return d.map(x=>mkPlayer({nome:x[0],squadra:x[1],ruoli:x[2].split('/'),fascia:x[3],quota:x[4],tit:x[5]}));
+}
+function mkPlayer(o){return Object.assign({
+  id:'p'+Math.random().toString(36).slice(2,9),
+  nome:'',squadra:'',ruoli:['C'],fascia:2,quota:1,tit:60,stato:'lib',prezzo:0,ind:'',note:''
+},o)}
+
+/* ---------- storage ---------- */
+async function save(){
+  const j=JSON.stringify(S);
+  try{ if(window.storage&&window.storage.set){await window.storage.set(KEY,j);return} }catch(e){}
+  try{ localStorage.setItem(KEY,j) }catch(e){}
+}
+async function load(){
+  try{ if(window.storage&&window.storage.get){const r=await window.storage.get(KEY); if(r&&r.value)return JSON.parse(r.value)} }catch(e){}
+  try{ const s=localStorage.getItem(KEY); if(s)return JSON.parse(s) }catch(e){}
+  return null;
+}
+let saveT; function persist(){clearTimeout(saveT);saveT=setTimeout(save,250)}
+
+/* ---------- calcoli ---------- */
+const byId=id=>S.players.find(p=>p.id===id);
+const macroOf=p=>MACRO[p.ruoli[0]]||'C';
+const mine=()=>S.players.filter(p=>p.stato==='io');
+function calc(){
+  const own=mine(), spent=own.reduce((s,p)=>s+(+p.prezzo||0),0);
+  const tot=S.limits.P+S.limits.D+S.limits.C+S.limits.A;
+  const left=Math.max(0,tot-own.length), rem=S.budget-spent;
+  const per={};
+  for(const m of ['P','D','C','A']){
+    const l=own.filter(p=>macroOf(p)===m);
+    per[m]={n:l.length,lim:S.limits[m],sp:l.reduce((s,p)=>s+(+p.prezzo||0),0),
+            tit:l.length?Math.round(l.reduce((s,p)=>s+(+p.tit||0),0)/l.length):0};
+  }
+  return {own,spent,rem,tot,left,per,max:left>0?Math.max(0,rem-(left-1)):0,avg:left>0?Math.floor(rem/left):0};
+}
+/* i giocatori per reparto e le quantità delle fasce sono lo stesso numero */
+function sumQ(mm){return S.fasce[mm].reduce((a,f)=>a+(+f.q||0),0)}
+function syncLimit(mm){S.limits[mm]=sumQ(mm)}
+function syncFasce(mm,target){
+  const f=S.fasce[mm]; let cur=sumQ(mm);
+  for(let i=2;i>=0&&cur>target;i--) while(f[i].q>0&&cur>target){f[i].q--;cur--}
+  while(cur<target){f[2].q++;cur++}
+}
+function pianoLive(){
+  const own=mine(), out={speso:0,resid:0,slotResid:0,per:{},fasce:{}};
+  for(const m of ['P','D','C','A']){
+    out.per[m]={speso:0,resid:0};
+    S.fasce[m].forEach((f,i)=>{
+      const presi=own.filter(p=>macroOf(p)===m&&p.fascia===i+1).sort((a,b)=>b.prezzo-a.prezzo);
+      const sp=presi.reduce((a,b)=>a+(+b.prezzo||0),0);
+      const rim=Math.max(0,f.q-presi.length);
+      out.fasce[m+i]={presi,sp,rim,plan:rim*f.cr};
+      out.per[m].speso+=sp; out.per[m].resid+=rim*f.cr;
+      out.speso+=sp; out.resid+=rim*f.cr; out.slotResid+=rim;
+    });
+  }
+  return out;
+}
+/* riallinea i prezzi delle fasce ancora aperte ai crediti che restano davvero */
+function rebalance(){
+  const c=calc(), pl=pianoLive(), open=[];
+  for(const m of ['P','D','C','A']) S.fasce[m].forEach((f,i)=>{
+    const rim=pl.fasce[m+i].rim; if(rim>0) open.push({m,i,rim,cr:f.cr});
+  });
+  if(!open.length)return 0;
+  const target=Math.max(0,c.rem), plan=pl.resid;
+  const tot=open.reduce((a,b)=>a+b.rim,0);
+  const k=plan>0?target/plan:0;
+  open.forEach(o=>{ S.fasce[o.m][o.i].cr = plan>0 ? Math.max(1,Math.round(o.cr*k)) : Math.max(1,Math.floor(target/tot)) });
+  // assorbo gli spiccioli di arrotondamento sui gruppi piu' pesanti
+  let diff=target-open.reduce((a,o)=>a+S.fasce[o.m][o.i].cr*o.rim,0);
+  if(diff){
+    open.slice().sort((a,b)=>S.fasce[b.m][b.i].cr*b.rim-S.fasce[a.m][a.i].cr*a.rim).forEach(o=>{
+      if(!diff)return;
+      const f=S.fasce[o.m][o.i], step=Math.trunc(diff/o.rim);
+      if(step){const nv=Math.max(1,f.cr+step); diff-=(nv-f.cr)*o.rim; f.cr=nv}
+    });
+  }
+  return plan>0?Math.round((k-1)*100):0;
+}
+function piano(){
+  const out={tot:0,per:{}};
+  for(const m of ['P','D','C','A']){
+    const f=S.fasce[m], t=f.reduce((s,x)=>s+x.cr*x.q,0);
+    out.per[m]=t; out.tot+=t;
+  }
+  return out;
+}
+function fmt(n){return (+n||0).toLocaleString('it-IT')}
+
+/* ---------- header ---------- */
+function renderHeader(){
+  const c=calc();
+  $('#hRem').firstChild.nodeValue=fmt(c.rem);
+  $('#hTot').textContent='/'+fmt(S.budget);
+  $('#hRem').style.color = c.rem<0?'var(--rose)':'var(--paper)';
+  $('#hMax').textContent=fmt(c.max);
+  const segs=['P','D','C','A'].map(m=>`<i style="width:${S.budget?(c.per[m].sp/S.budget*100):0}%;background:${MACROCOL[m]}"></i>`).join('');
+  $('#hBar').innerHTML=segs+`<i style="flex:1;background:#0A121D"></i>`;
+  $('#hMeta').innerHTML=
+    `<span class="pill">${c.own.length}/${c.tot} giocatori</span>`+
+    `<span class="pill">spesi <b class="num">${fmt(c.spent)}</b></span>`+
+    `<span class="pill">media a testa <b class="num">${fmt(c.avg)}</b></span>`;
+}
+
+/* ---------- rings ---------- */
+const ROLES_BY_MACRO={P:['Por'],D:['Dd','Dc','Ds','B'],C:['E','M','C','T','W'],A:['A','Pc']};
+function ringSVG(val,max,color,center,dim){
+  const pct=max?Math.min(1,val/max):0, R=26, C=2*Math.PI*R;
+  return `<svg viewBox="0 0 64 64">
+      <circle cx="32" cy="32" r="${R}" stroke="#0F1A29" stroke-width="7" fill="none"/>
+      ${pct?`<circle cx="32" cy="32" r="${R}" stroke="${color}" stroke-width="7" fill="none"
+        stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct)}"
+        transform="rotate(-90 32 32)"/>`:''}
+      <text x="32" y="36" text-anchor="middle" font-size="17" font-weight="700" fill="${dim?'#5E7292':'#EDF1F6'}">${center}</text>
+    </svg>`;
+}
+function ring(m,val,max,sub){
+  return `<button class="ring" data-macro="${m}">
+    ${ringSVG(val,max,MACROCOL[m],val)}
+    <div class="vl">${val}/${max}</div>
+    <div class="lb">${m==='P'?'Por':m==='D'?'Dif':m==='C'?'Cen':'Att'}${sub?' · '+sub:''}</div>
+  </button>`;
+}
+function ringsHTML(){
+  const c=calc();
+  return `<div class="rings">${['P','D','C','A'].map(m=>ring(m,c.per[m].n,c.per[m].lim,c.per[m].tit?c.per[m].tit+'%':'')).join('')}</div>
+    <div class="tapme">Tocca un reparto per vedere le singole posizioni</div>`;
+}
+function bindRings(){
+  $$('[data-macro]').forEach(b=>b.addEventListener('click',()=>openReparto(b.dataset.macro)));
+}
+/* copertura di un singolo ruolo Mantra nel modulo attivo */
+function roleStats(r){
+  const SL=slots(), cp=CP();
+  const need=SL.filter(x=>SLOTTYPES[x.t].ok.includes(r)).length;
+  const own=mine().filter(p=>p.ruoli.includes(r)).sort((a,b)=>b.tit-a.tit);
+  const inField=SL.filter(x=>cp[x.id]&&byId(cp[x.id]).ruoli.includes(r)&&SLOTTYPES[x.t].ok.includes(r)).length;
+  const tit=own.length?Math.round(own.reduce((a,b)=>a+(+b.tit||0),0)/own.length):0;
+  const lib=S.players.filter(p=>p.stato==='lib'&&p.ruoli.includes(r)).length;
+  return {r,need,own,inField,tit,lib,pos:SL.filter(x=>SLOTTYPES[x.t].ok.includes(r)).map(x=>x.t)};
+}
+function ringRole(st){
+  const col=!st.need?'var(--dim)':st.own.length===0?'var(--rose)':st.own.length>=st.need?'var(--grass)':'var(--amber)';
+  return `<div class="ring ${st.need?'':'dim'}">
+    ${ringSVG(st.own.length,st.need||1,col,st.own.length,!st.need)}
+    <div class="vl">${st.need?st.own.length+'/'+st.need:'—'}</div>
+    <div class="lb">${st.r}</div>
+  </div>`;
+}
+function openReparto(m){
+  const c=calc(), x=c.per[m], st=ROLES_BY_MACRO[m].map(roleStats);
+  const attivi=st.filter(y=>y.need), fuori=st.filter(y=>!y.need);
+  openSheet(`
+    <div class="grab"></div>
+    <div class="sh-title">${MACRONAME[m]}</div>
+    <div class="tiny muted" style="margin-top:3px">${x.n} presi su ${x.lim} · ${fmt(x.sp)} crediti spesi · titolarità media ${x.tit}% · modulo ${S.modulo}</div>
+    <div class="rings sub" style="margin:16px 0 6px">${st.map(ringRole).join('')}</div>
+    <div class="tiny muted">Ogni cerchio mette i giocatori che hai in quel ruolo a confronto con le posizioni che il ${S.modulo} richiede.${fuori.length?' In grigio i ruoli che questo modulo non usa: '+fuori.map(y=>y.r).join(', ')+'.':''}</div>
+    <div style="margin-top:14px">${attivi.map(y=>`
+      <div class="rrow">
+        <div class="line"><b>${y.r} <span class="tiny muted">serve in ${y.pos.join(', ')}</span></b>
+          <b class="num" style="color:${y.own.length>=y.need?'var(--grass)':y.own.length?'var(--amber)':'var(--rose)'}">${y.own.length}/${y.need}</b></div>
+        <div class="tiny muted" style="margin-top:4px">${y.own.length?y.own.map(p=>esc(short(p.nome))+' '+p.tit+'%').join(' · '):'Nessuno in rosa'}</div>
+        <div class="tiny" style="margin-top:3px;color:${y.own.length>=y.need?'var(--mute)':'var(--amber)'}">
+          ${y.own.length>=y.need?'ne stai schierando '+y.inField+' su '+y.need:(y.need-y.own.length===1?'te ne manca 1':'te ne mancano '+(y.need-y.own.length))+', in lista ne restano '+y.lib+' liberi'}</div>
+      </div>`).join('')}</div>
+    ${fuori.filter(y=>y.own.length).length?`<div style="margin-top:10px">${fuori.filter(y=>y.own.length).map(y=>`
+      <div class="rrow"><div class="line"><b class="muted">${y.r}</b><span class="tiny muted">non previsto nel ${S.modulo}</span></div>
+      <div class="tiny muted" style="margin-top:4px">${y.own.map(p=>esc(short(p.nome))).join(' · ')}</div></div>`).join('')}</div>`:''}
+    <div class="tiny muted" style="margin-top:12px">Il regolamento consiglia di avere almeno due giocatori per ogni posizione del modulo su cui punti.</div>
+    <button class="btn full" style="margin-top:12px" id="rp-x">Chiudi</button>`,
+    ()=>{$('#rp-x').addEventListener('click',closeSheet)});
+}
+
+/* ---------- badge ruolo ---------- */
+const rlHTML=p=>p.ruoli.map(r=>`<span class="rl ${MACRO[r]}">${r}</span>`).join('');
+
+/* ============================================================
+   TAB: ASTA
+   ============================================================ */
+function viewAsta(){
+  const c=calc();
+  const m=$('#main');
+  m.innerHTML=`
+   ${!S.players.length?`<div class="banner">La lista è ancora vuota. Vai in <b>Dati</b> e incolla il listone di fantacalcio.it: nomi, squadre, ruoli Mantra e quotazioni arrivano da lì.</div>`:S.demo?`<div class="banner">Stai usando la lista di prova: i dati sono inventati. Caricane una vera da <b>Dati</b>.</div>`:''}
+   <div class="card">
+     <input class="inp" id="q" value="${esc(filtro.q)}" placeholder="Chi è all'asta? cerca il nome…" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="search">
+     <div class="chips" style="margin-top:9px" id="qf">
+       ${['','P','D','C','A'].map(x=>`<button class="chip ${filtro.macro===x?'on':''}" data-m="${x}">${x===''?'Tutti':MACRONAME[x]}</button>`).join('')}
+     </div>
+     <div id="qres" style="margin-top:10px"></div>
+   </div>
+
+   <h2>Copertura rosa</h2>
+   <div class="card">${ringsHTML()}</div>
+
+   <h2>Modulo e ruoli scoperti</h2>
+   <div class="card">
+     <div class="mods" id="mods2">
+       ${MODLIST.map(k=>`<button class="chip ${S.modulo===k?'on':''}" data-mod="${k}">${k}</button>`).join('')}
+     </div>
+     <div id="modinfo" style="margin-top:11px"></div>
+   </div>
+
+   <h2>Quanto posso spendere</h2>
+   <div class="card">
+     <div class="grid2">
+       <div class="mini"><div class="k">Offerta massima su un giocatore</div><div class="v num">${fmt(c.max)}</div></div>
+       <div class="mini"><div class="k">Posti ancora da riempire</div><div class="v num">${c.left}</div></div>
+       <div class="mini"><div class="k">Media per ogni posto rimasto</div><div class="v num">${fmt(c.avg)}</div></div>
+       <div class="mini"><div class="k">Crediti spesi (bloccati)</div><div class="v num">${fmt(c.spent)}</div></div>
+     </div>
+     <div class="tiny muted" style="margin-top:9px">L'offerta massima tiene da parte un credito per ogni altro posto ancora vuoto in rosa.</div>
+   </div>
+
+   <h2>Ultimi movimenti</h2>
+   <div id="log"></div>`;
+
+  $('#q').addEventListener('input',e=>{filtro.q=e.target.value;renderQRes()});
+  $$('#qf .chip').forEach(b=>b.addEventListener('click',()=>{filtro.macro=b.dataset.m;$$('#qf .chip').forEach(x=>x.classList.toggle('on',x===b));renderQRes()}));
+  $$('#mods2 .chip').forEach(b=>b.addEventListener('click',()=>setModulo(b.dataset.mod)));
+  renderQRes(); renderLog(); renderModInfo(); bindRings();
+}
+function renderModInfo(){
+  const box=$('#modinfo'); if(!box)return;
+  const own=mine(), cur=bestXI(S.modulo,own);
+  const alt=MODLIST.filter(k=>k!==S.modulo).map(k=>Object.assign({k},bestXI(k,own)))
+    .sort((a,b)=>b.n-a.n||b.nat-a.nat||b.tit-a.tit)[0];
+  box.innerHTML=`
+    <div class="line"><span>Con il ${S.modulo} copri</span><b class="num">${cur.n}/11</b></div>
+    <div class="pbar" style="display:flex"><i style="width:${cur.nat/11*100}%;background:var(--grass)"></i><i style="width:${cur.ad/11*100}%;background:var(--amber)"></i></div>
+    <div class="tiny" style="margin-top:7px;color:${cur.missing.length?'var(--amber)':'var(--mute)'}">
+      ${cur.missing.length?'Ti servono ancora: <b>'+cnt(cur.missing)+'</b>':'Undici al completo'}${cur.ad?' · '+cur.ad+' adattati con malus':''}</div>
+    ${alt&&alt.n>cur.n?`<div class="tiny muted" style="margin-top:6px">Con il ${alt.k} copriresti ${alt.n}/11${alt.missing.length?' (mancherebbero '+cnt(alt.missing)+')':''}.</div>`:''}
+    <div class="tiny muted" style="margin-top:6px">Posizioni ufficiali Mantra dello schema: ${slots().map(x=>x.t).join(' · ')}</div>`;
+}
+function renderQRes(){
+  const q=filtro.q.trim().toLowerCase();
+  let l=S.players.filter(p=>p.stato==='lib');
+  if(filtro.macro) l=l.filter(p=>macroOf(p)===filtro.macro);
+  if(q) l=l.filter(p=>(p.nome+' '+p.squadra).toLowerCase().includes(q));
+  l.sort((a,b)=>b.quota-a.quota);
+  const box=$('#qres'); if(!box)return;
+  if(!l.length){box.innerHTML=`<div class="empty">Nessun giocatore libero con questi filtri.</div>`;return}
+  box.innerHTML=`<div class="plist">${l.slice(0,25).map(p=>rowHTML(p)).join('')}</div>`+
+    (l.length>25?`<div class="tiny muted" style="margin-top:7px;text-align:center">Altri ${l.length-25}: restringi la ricerca</div>`:'');
+  bindRows(box);
+}
+function renderLog(){
+  const box=$('#log'); if(!box)return;
+  if(!S.log.length){box.innerHTML=`<div class="empty">Ancora nessun giocatore assegnato.</div>`;return}
+  box.innerHTML=`<div class="plist">${S.log.slice(-8).reverse().map(e=>`
+    <div class="p">
+      <span class="tag ${e.mio?'io':'altri'}">${e.mio?'MIO':'ALTRI'}</span>
+      <div class="nm"><b>${esc(e.nome)}</b><span>${e.ora}</span></div>
+      <div class="qt num">${fmt(e.prezzo)}</div>
+      <button class="tbtn" data-undo="${e.id}">↩︎</button>
+    </div>`).join('')}</div>`;
+  $$('[data-undo]',box).forEach(b=>b.addEventListener('click',()=>undo(b.dataset.undo)));
+}
+
+/* ============================================================
+   TAB: LISTA
+   ============================================================ */
+function viewLista(){
+  const m=$('#main');
+  m.innerHTML=`
+   <div class="card">
+     <input class="inp" id="lq" placeholder="Cerca nome o squadra" value="${esc(filtro.q)}" autocomplete="off" spellcheck="false">
+     <div class="chips" style="margin-top:9px" id="lf">
+       ${['','P','D','C','A'].map(x=>`<button class="chip ${filtro.macro===x?'on':''}" data-m="${x}">${x===''?'Tutti':x==='P'?'Por':x==='D'?'Dif':x==='C'?'Cen':'Att'}</button>`).join('')}
+       ${[0,1,2,3].map(f=>`<button class="chip ${filtro.fascia===f?'on':''}" data-f="${f}">${f?'Fascia '+f:'Ogni fascia'}</button>`).join('')}
+     </div>
+     <div class="seg" style="margin-top:9px" id="ls">
+       ${[['lib','Liberi'],['io','Miei'],['altri','Agli altri'],['all','Tutti']].map(([k,v])=>`<button data-s="${k}" class="${filtro.stato===k?'on':''}">${v}</button>`).join('')}
+     </div>
+   </div>
+   <div style="margin-top:12px" id="lres"></div>
+   <div class="row" style="margin-top:12px">
+     <button class="btn full" id="addP">+ Nuovo giocatore</button>
+   </div>`;
+  $('#lq').addEventListener('input',e=>{filtro.q=e.target.value;renderLRes()});
+  $$('#lf .chip').forEach(b=>b.addEventListener('click',()=>{
+    if('m' in b.dataset) filtro.macro=b.dataset.m;
+    if('f' in b.dataset) filtro.fascia=+b.dataset.f;
+    viewLista();
+  }));
+  $$('#ls button').forEach(b=>b.addEventListener('click',()=>{filtro.stato=b.dataset.s;viewLista()}));
+  $('#addP').addEventListener('click',()=>editPlayer(null));
+  renderLRes();
+}
+function renderLRes(){
+  const q=filtro.q.trim().toLowerCase();
+  let l=S.players.slice();
+  if(filtro.stato!=='all') l=l.filter(p=>p.stato===filtro.stato);
+  if(filtro.macro) l=l.filter(p=>macroOf(p)===filtro.macro);
+  if(filtro.fascia) l=l.filter(p=>p.fascia===filtro.fascia);
+  if(q) l=l.filter(p=>(p.nome+' '+p.squadra).toLowerCase().includes(q));
+  const ord={P:0,D:1,C:2,A:3};
+  l.sort((a,b)=>ord[macroOf(a)]-ord[macroOf(b)]||a.fascia-b.fascia||b.quota-a.quota);
+  const box=$('#lres');
+  box.innerHTML=l.length?`<div class="plist">${l.map(p=>rowHTML(p)).join('')}</div>
+    <div class="tiny muted" style="margin-top:8px;text-align:center">${l.length} giocatori · tocca per modificare</div>`
+    :`<div class="empty">Nessun giocatore con questi filtri.<br>Carica il listone da <b>Dati</b> oppure aggiungine uno a mano.</div>`;
+  bindRows(box);
+}
+function rowHTML(p){
+  const t=p.stato;
+  return `<div class="p ${t==='altri'?'taken':''} ${t==='io'?'mine':''}" data-id="${p.id}">
+    <div class="fa fa${p.fascia}">${p.fascia}</div>
+    <div class="nm" data-edit="${p.id}">
+      <b>${esc(p.nome)}</b>
+      <span>${rlHTML(p)} ${esc(p.squadra)} · tit ${p.tit}%${p.ind?' · <span style="color:var(--rose)">'+INDLAB[p.ind]+'</span>':''}</span>
+    </div>
+    ${t==='lib'?`<div class="qt num">${fmt(p.quota)}</div>`:`<span class="tag ${t==='io'?'io':'altri'}">${fmt(p.prezzo)}</span>`}
+    <button class="tbtn" data-bid="${p.id}">${t==='lib'?'€':'↺'}</button>
+  </div>`;
+}
+function bindRows(box){
+  $$('[data-bid]',box).forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation(); const p=byId(b.dataset.bid);
+    if(p.stato==='lib') bidSheet(p); else {reset(p);}
+  }));
+  $$('[data-edit]',box).forEach(b=>b.addEventListener('click',()=>editPlayer(byId(b.dataset.edit))));
+}
+
+/* ============================================================
+   TAB: CAMPO
+   ============================================================ */
+let sel=null;
+function viewCampo(){
+  const own=mine(), cp=CP(), SL=slots();
+  const used=new Set(Object.values(cp));
+  const m=$('#main');
+  m.innerHTML=`
+   <div class="mods" id="mods">
+     ${MODLIST.map(k=>`<button class="chip ${S.modulo===k?'on':''}" data-mod="${k}">${k}</button>`).join('')}
+   </div>
+   <div class="row" style="margin:10px 0">
+     <button class="btn" id="auto">Schiera i migliori</button>
+     <button class="btn" id="clr">Svuota campo</button>
+   </div>
+   <div class="pitch" id="pitch">
+     <div class="ln mid"></div><div class="ln circ"></div>
+     <div class="ln box"></div><div class="ln box6"></div>
+     ${SL.map(s=>slotHTML(s)).join('')}
+   </div>
+   <div class="tiny muted" style="margin-top:8px">Tieni premuto e trascina un giocatore sul campo, oppure toccalo e poi tocca la posizione. Le posizioni sono quelle ufficiali Mantra: verde se il ruolo è naturale, giallo se lo adatti prendendoti il malus, il resto non si può schierare.</div>
+   <h2>Fuori dall'undici (${own.length-used.size} su ${own.length})</h2>
+   <div class="bench" id="bench">
+     ${own.length?own.map(p=>`<div class="bch ${used.has(p.id)?'used':''} ${sel===p.id?'sel':''} ${p.ind?'ko':''}" data-p="${p.id}">
+        <span class="fa fa${p.fascia}">${p.fascia}</span>${esc(short(p.nome))} <em>${p.ruoli.join('/')} · ${p.tit}%${p.ind?' · '+p.ind:''}</em></div>`).join('')
+      :`<div class="empty" style="width:100%">Nessun giocatore ancora acquistato.</div>`}
+   </div>
+   <h2>Qualità dell'undici</h2>
+   <div class="card">${ringsHTML()}</div>
+   <div class="card" id="qual"></div>
+   <h2>Da quali squadre peschi</h2>
+   <div class="card" id="teams"></div>
+   <h2>Se cambio modulo</h2>
+   <div id="cmp"></div>`;
+  $$('#mods .chip').forEach(b=>b.addEventListener('click',()=>setModulo(b.dataset.mod)));
+  $('#auto').addEventListener('click',()=>{autoFill();viewCampo();toast('Undici schierato')});
+  $('#clr').addEventListener('click',()=>{S.campi[S.modulo]={};persist();viewCampo()});
+  $$('#bench .bch').forEach(el=>{
+    el.addEventListener('click',()=>{ if(dragMoved)return; sel=(sel===el.dataset.p?null:el.dataset.p); viewCampo(); });
+    pressDrag(el,el.dataset.p);
+  });
+  $$('.slot').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(dragMoved)return;
+      const id=el.dataset.s;
+      if(sel){ if(place(sel,id))sel=null; viewCampo(); return }
+      if(CP()[id]){ delete CP()[id]; persist(); viewCampo(); toast('Posizione liberata') }
+    });
+    const pid=cp[el.dataset.s]; if(pid) pressDrag(el,pid,el.dataset.s);
+  });
+  if(sel) highlight(byId(sel));
+  renderQual(); renderCmp(); renderTeams(); bindRings();
+}
+function setModulo(k){
+  S.modulo=k;
+  if(!Object.keys(CP()).length) autoFill();
+  persist(); go(TAB); toast('Modulo '+k);
+}
+function slotHTML(s){
+  const cp=CP(), pid=cp[s.id], p=pid?byId(pid):null;
+  if(p&&p.stato!=='io'){delete cp[s.id]}
+  const fit=p?fitness(p,s):0;
+  const fs=s.t.length>3?'font-size:9px':'';
+  return `<div class="slot ${p?'full':''}" data-s="${s.id}" style="left:${s.x}%;top:${s.y}%">
+    <div class="disc ${fit===2?'warn':''} ${p&&p.ind?'ko':''}" style="${p?'':fs}">${p?initials(p.nome):s.t}</div>
+    ${p?`<div class="nm2">${esc(short(p.nome))}</div><div class="pz num">${s.t} · ${p.tit}%</div>`:``}
+  </div>`;
+}
+function fitness(p,s){ // 1 naturale · 2 adattato (malus 1) · 3 non schierabile
+  const T=SLOTTYPES[s.t||s];
+  if(p.ruoli.some(r=>T.ok.includes(r)))return 1;
+  if(p.ruoli.some(r=>T.ad.includes(r)))return 2;
+  return 3;
+}
+function place(pid,slotId){
+  const s=slots().find(x=>x.id===slotId), p=byId(pid);
+  if(fitness(p,s)===3){toast(p.ruoli.join('/')+' non si può schierare in posizione '+s.t);return false}
+  const cp=CP();
+  for(const k in cp) if(cp[k]===pid) delete cp[k];
+  cp[slotId]=pid; persist(); return true;
+}
+function highlight(p){
+  const SL=slots();
+  $$('.slot').forEach(el=>{
+    const s=SL.find(x=>x.id===el.dataset.s), f=fitness(p,s);
+    el.classList.toggle('ok',f===1); el.classList.toggle('hit',f===2);
+  });
+}
+/* miglior undici possibile per un modulo: matching bipartito (Kuhn) */
+function bestXI(mod,players){
+  const SL=slots(mod);
+  const ps=players.slice().sort((a,b)=>(b.tit-a.tit)||(b.quota-a.quota));
+  const matchP={};                       // indice giocatore -> indice slot
+  const aug=(si,seen,lvl)=>{
+    for(let pi=0;pi<ps.length;pi++){
+      if(seen[pi])continue;
+      const f=fitness(ps[pi],SL[si]); if(f===3||f>lvl)continue;
+      seen[pi]=1;
+      if(matchP[pi]===undefined||aug(matchP[pi],seen,lvl)){matchP[pi]=si;return true}
+    }
+    return false;
+  };
+  for(let i=0;i<SL.length;i++) aug(i,{},1);
+  let taken=new Set(Object.values(matchP));
+  for(let i=0;i<SL.length;i++) if(!taken.has(i)&&aug(i,{},2)) taken=new Set(Object.values(matchP));
+  const assign={}; let nat=0,ad=0,tit=0;
+  for(const pi in matchP){
+    const s=SL[matchP[pi]], p=ps[pi];
+    assign[s.id]=p.id; tit+=+p.tit||0;
+    fitness(p,s)===1?nat++:ad++;
+  }
+  const n=nat+ad;
+  const missing=SL.filter(s=>!assign[s.id]).map(s=>s.t);
+  return {assign,nat,ad,n,missing,tit:n?Math.round(tit/n):0};
+}
+function autoFill(){
+  const r=bestXI(S.modulo,mine());
+  S.campi[S.modulo]=r.assign; persist();
+}
+function renderQual(){
+  const cp=CP(), SL=slots();
+  const filled=SL.filter(s=>cp[s.id]);
+  const tits=filled.map(s=>+byId(cp[s.id]).tit||0);
+  const avg=tits.length?Math.round(tits.reduce((a,b)=>a+b,0)/tits.length):0;
+  const fuori=filled.filter(s=>fitness(byId(cp[s.id]),s)===2).length;
+  const scoperti=SL.filter(s=>!cp[s.id]).map(s=>s.t);
+  const box=$('#qual');
+  box.innerHTML=`
+    <div class="line"><span>Posizioni coperte nel ${S.modulo}</span><b class="num">${filled.length}/11</b></div>
+    <div class="pbar"><i style="width:${filled.length/11*100}%;background:var(--grass)"></i></div>
+    <div class="line" style="margin-top:12px"><span>Titolarità media dell'undici</span><b class="num">${avg}%</b></div>
+    <div class="pbar"><i style="width:${avg}%;background:${avg>=75?'var(--grass)':avg>=55?'var(--amber)':'var(--rose)'}"></i></div>
+    <div class="tiny muted" style="margin-top:10px">${fuori?fuori+' adattati fuori ruolo (−1 a testa). ':''}${scoperti.length?'Da coprire: '+cnt(scoperti):'Undici completo, tutti nel loro ruolo naturale.'}</div>`;
+}
+function renderTeams(){
+  const box=$('#teams'); if(!box)return;
+  const own=mine(), cp=CP(), xi=new Set(Object.values(cp));
+  if(!own.length){box.innerHTML=`<div class="empty">Qui vedrai come sono distribuiti per squadra i giocatori che compri.</div>`;return}
+  const t={};
+  own.forEach(p=>{const k=p.squadra||'senza squadra';(t[k]=t[k]||{n:0,xi:0,cr:0});t[k].n++;t[k].cr+=+p.prezzo||0;if(xi.has(p.id))t[k].xi++});
+  const arr=Object.entries(t).sort((a,b)=>b[1].n-a[1].n||b[1].cr-a[1].cr);
+  const tot=own.length, max=arr[0][1].n;
+  box.innerHTML=arr.map(([k,v])=>`
+    <div style="margin-bottom:11px">
+      <div class="line"><span><b>${esc(k)}</b> <span class="tiny muted">${v.xi} in campo · ${fmt(v.cr)} cr</span></span>
+        <b class="num">${v.n} · ${Math.round(v.n/tot*100)}%</b></div>
+      <div class="pbar"><i style="width:${v.n/max*100}%;background:${v.n>=5?'var(--amber)':'var(--sky)'}"></i></div>
+    </div>`).join('')+
+    `<div class="tiny muted">${arr.length===1?'1 sola squadra':arr.length+' squadre diverse'} su ${tot} giocatori.${arr[0][1].n>=5?' Sei carico su '+esc(arr[0][0])+': se quella partita salta o va male ne perdi '+arr[0][1].n+' in un colpo.':''}</div>`;
+}
+function renderCmp(){
+  const own=mine();
+  const rows=MODLIST.map(k=>Object.assign({k},bestXI(k,own)))
+    .sort((a,b)=>b.n-a.n||b.nat-a.nat||b.tit-a.tit);
+  $('#cmp').innerHTML=`<div class="card">
+    ${rows.map(r=>`<div class="cmpr ${r.k===S.modulo?'cur':''}" data-mod="${r.k}">
+      <div class="line"><span><b>${r.k}</b>${r.k===S.modulo?' <span class="tiny muted">attuale</span>':''}</span>
+        <b class="num">${r.n}/11</b></div>
+      <div class="pbar" style="display:flex"><i style="width:${r.nat/11*100}%;background:var(--grass)"></i><i style="width:${r.ad/11*100}%;background:var(--amber)"></i></div>
+      <div class="tiny muted" style="margin-top:4px">${r.ad?r.ad+' adattati · ':''}titolarità ${r.tit}%${r.missing.length?' · mancano '+cnt(r.missing):''}</div>
+    </div>`).join('')}
+    <div class="tiny muted" style="margin-top:4px">Tocca un modulo per adottarlo: schiero io l'undici migliore che ne esce.</div>
+  </div>`;
+  $$('.cmpr').forEach(el=>el.addEventListener('click',()=>setModulo(el.dataset.mod)));
+}
+function cnt(list){
+  const m={}; list.forEach(x=>m[x]=(m[x]||0)+1);
+  return Object.keys(m).map(k=>(m[k]>1?m[k]+'× ':'')+k).join(', ');
+}
+
+/* ---------- drag con pointer events ---------- */
+let dragMoved=false;
+function pressDrag(el,pid,fromSlot){
+  let t=null,ghost=null,started=false,sx=0,sy=0;
+  const stopScroll=e=>{if(started)e.preventDefault()};
+  const down=e=>{
+    if(e.button&&e.button!==0)return;
+    dragMoved=false; sx=e.clientX; sy=e.clientY;
+    t=setTimeout(()=>{
+      started=true; dragMoved=true;
+      const p=byId(pid); if(!p)return;
+      ghost=document.createElement('div');
+      ghost.className='bch ghost'; ghost.style.left=sx+'px'; ghost.style.top=sy+'px';
+      ghost.innerHTML=`<span class="fa fa${p.fascia}">${p.fascia}</span>${esc(short(p.nome))}`;
+      document.body.appendChild(ghost); document.body.classList.add('dragging');
+      highlight(p);
+      if(navigator.vibrate)navigator.vibrate(8);
+    },180);
+    window.addEventListener('pointermove',move);
+    window.addEventListener('pointerup',up);
+    window.addEventListener('pointercancel',up);
+    document.addEventListener('touchmove',stopScroll,{passive:false});
+  };
+  const move=e=>{
+    if(!started){ if(Math.abs(e.clientX-sx)>8||Math.abs(e.clientY-sy)>8){clearTimeout(t);cleanup()} return }
+    ghost.style.left=e.clientX+'px'; ghost.style.top=e.clientY+'px';
+    const under=document.elementFromPoint(e.clientX,e.clientY);
+    const sl=under&&under.closest?under.closest('.slot'):null;
+    $$('.slot').forEach(x=>{
+      const d=x.querySelector('.disc');
+      if(d) d.style.transform = (x===sl?'scale(1.16)':'');
+    });
+  };
+  const up=e=>{
+    clearTimeout(t);
+    if(started){
+      const under=document.elementFromPoint(e.clientX,e.clientY);
+      const sl=under&&under.closest?under.closest('.slot'):null;
+      if(sl){ place(pid,sl.dataset.s); }
+      else if(fromSlot){ delete CP()[fromSlot]; persist() }
+      cleanup(); sel=null; viewCampo(); return;
+    }
+    cleanup();
+  };
+  const cleanup=()=>{
+    started=false;
+    if(ghost){ghost.remove();ghost=null}
+    document.body.classList.remove('dragging');
+    $$('.slot').forEach(x=>{x.classList.remove('ok','hit');const d=x.querySelector('.disc');if(d)d.style.transform=''});
+    window.removeEventListener('pointermove',move);
+    window.removeEventListener('pointerup',up);
+    window.removeEventListener('pointercancel',up);
+    document.removeEventListener('touchmove',stopScroll,{passive:false});
+    setTimeout(()=>dragMoved=false,50);
+  };
+  el.addEventListener('pointerdown',down);
+}
+
+/* ============================================================
+   TAB: PIANO
+   ============================================================ */
+function viewPiano(){
+  const c=calc(), pl=pianoLive();
+  const scarto=c.rem-pl.resid;
+  const m=$('#main');
+  m.innerHTML=`
+   <div class="card">
+     <div class="field"><div class="lab">Crediti totali dell'asta</div>
+       <input class="inp num" id="bud" type="number" inputmode="numeric" value="${S.budget}"></div>
+     <div class="field"><div class="lab">Giocatori per reparto (Por / Dif / Cen / Att) — totale ${S.limits.P+S.limits.D+S.limits.C+S.limits.A}</div>
+       <div class="row">
+         ${['P','D','C','A'].map(k=>`<input class="inp num" data-lim="${k}" type="number" inputmode="numeric" value="${S.limits[k]}">`).join('')}
+       </div>
+       <div class="tiny muted" style="margin-top:6px">Questi numeri e le quantità delle fasce qui sotto sono la stessa cosa: se cambi uno, l'altro si adegua. Alzando il reparto aggiungo posti nella terza fascia, abbassandolo li tolgo partendo da lì.</div></div>
+   </div>
+
+   <h2>Come sta il piano adesso</h2>
+   <div class="card">
+     <div class="grid2">
+       <div class="mini"><div class="k">Bloccati sugli acquisti</div><div class="v num">${fmt(pl.speso)}</div></div>
+       <div class="mini"><div class="k">Crediti ancora tuoi</div><div class="v num">${fmt(c.rem)}</div></div>
+       <div class="mini"><div class="k">Pianificati sui posti rimasti</div><div class="v num">${fmt(pl.resid)}</div></div>
+       <div class="mini"><div class="k">Posti ancora pianificati</div><div class="v num">${pl.slotResid}</div></div>
+     </div>
+     <div class="line" style="margin-top:12px"><span>${scarto===0?'Piano allineato ai crediti':scarto>0?'Crediti non pianificati':'Piano sopra i crediti'}</span>
+       <b class="num" style="color:${Math.abs(scarto)<=10?'var(--grass)':scarto>0?'var(--amber)':'var(--rose)'}">${scarto>0?'+':''}${fmt(scarto)}</b></div>
+     <div class="pbar"><i style="width:${Math.min(100,pl.resid/Math.max(1,c.rem)*100)}%;background:${scarto<0?'var(--rose)':'var(--grass)'}"></i></div>
+     <button class="btn full" id="rebal" style="margin-top:11px">Riallinea i prezzi delle fasce aperte</button>
+     <label class="line" style="margin-top:11px;align-items:center">
+       <span class="tiny">Riallinea da solo dopo ogni acquisto</span>
+       <input type="checkbox" id="ab" ${S.autobal!==false?'checked':''} style="width:22px;height:22px">
+     </label>
+     <div class="tiny muted" style="margin-top:8px">Chi hai già comprato resta bloccato al prezzo che hai pagato. Il riallineamento tocca solo le fasce ancora aperte: se il top ti costa più del previsto, tutto il resto scende in proporzione.</div>
+   </div>
+
+   <h2>Fasce di prezzo per reparto</h2>
+   ${['P','D','C','A'].map(mm=>fasciaCard(mm,c,pl)).join('')}
+
+   <h2>Reparti</h2>
+   <div class="card">
+     ${['P','D','C','A'].map(mm=>{
+        const x=c.per[mm], sp=pl.per[mm].speso, res=pl.per[mm].resid;
+        return `<div style="margin-bottom:13px" data-macro="${mm}">
+          <div class="line"><span><b>${MACRONAME[mm]}</b> <span class="muted num">${x.n}/${x.lim}</span></span>
+            <b class="num">${fmt(sp)}<span class="muted"> + ${fmt(res)} da spendere</span></b></div>
+          <div class="pbar"><i style="width:${Math.min(100,x.n/x.lim*100)}%;background:${MACROCOL[mm]}"></i></div>
+          <div class="tiny muted" style="margin-top:4px">Titolarità media ${x.tit}% · restano ${x.lim-x.n} posti in rosa</div>
+        </div>`}).join('')}
+     <div class="tapme" style="margin-top:0">Tocca un reparto per le singole posizioni</div>
+   </div>`;
+  $('#bud').addEventListener('change',e=>{S.budget=Math.max(1,+e.target.value||1);persist();renderHeader();viewPiano()});
+  $$('[data-lim]').forEach(i=>i.addEventListener('change',e=>{
+    const k=i.dataset.lim, v=Math.max(0,+e.target.value||0);
+    S.limits[k]=v; syncFasce(k,v); persist(); renderHeader(); viewPiano();}));
+  $$('[data-f]').forEach(i=>i.addEventListener('change',e=>{
+    const [mm,idx,k]=i.dataset.f.split('|');
+    S.fasce[mm][+idx][k]=Math.max(0,+e.target.value||0);
+    if(k==='q') syncLimit(mm);
+    persist(); renderHeader(); viewPiano();}));
+  $('#rebal').addEventListener('click',()=>{const d=rebalance();persist();viewPiano();toast(d?`Fasce aperte ${d>0?'+':''}${d}%`:'Niente da riallineare')});
+  $('#ab').addEventListener('change',e=>{S.autobal=e.target.checked;persist()});
+  bindRings();
+}
+function fasciaCard(mm,c,pl){
+  return `<div class="card">
+    <div class="line" style="margin-bottom:3px"><b style="color:${MACROCOL[mm]}">${MACRONAME[mm]}</b>
+      <span class="tiny muted">crediti a giocatore × quanti</span></div>
+    <div class="tiny muted" style="margin-bottom:9px">${sumQ(mm)} in rosa · ${fmt(pl.per[mm].speso+pl.per[mm].resid)} crediti tra bloccati e pianificati</div>
+    ${S.fasce[mm].map((f,i)=>{
+      const d=pl.fasce[mm+i], chiusa=d.rim===0&&f.q>0;
+      return `<div style="margin-bottom:13px">
+        <div class="row" style="align-items:center;gap:7px">
+          <div class="fa fa${i+1}" style="flex:0 0 auto">${i+1}</div>
+          <div style="flex:2;font-size:13px">${f.n}</div>
+          <input class="inp num" style="flex:1;padding:8px" type="number" inputmode="numeric" data-f="${mm}|${i}|cr" value="${f.cr}" ${chiusa?'disabled':''}>
+          <input class="inp num" style="flex:.7;padding:8px" type="number" inputmode="numeric" data-f="${mm}|${i}|q" value="${f.q}">
+        </div>
+        ${d.presi.length?`<div style="margin-top:4px">${d.presi.map(p=>`<span class="lock">${esc(short(p.nome))} <b class="num">${fmt(p.prezzo)}</b></span>`).join('')}</div>`:''}
+        <div class="pbar"><i style="width:${f.q?Math.min(100,d.presi.length/f.q*100):0}%;background:${['var(--f1)','var(--f2)','var(--f3)'][i]}"></i></div>
+        <div class="tiny muted" style="margin-top:3px">${chiusa
+          ? `fascia chiusa · ${fmt(d.sp)} bloccati`
+          : `${d.presi.length}/${f.q} presi${d.sp?' · '+fmt(d.sp)+' bloccati':''} · ${d.rim===1?'resta 1':'restano '+d.rim} × ${fmt(f.cr)} = ${fmt(d.plan)}`}</div>
+      </div>`}).join('')}
+  </div>`;
+}
+
+/* ============================================================
+   TAB: DATI
+   ============================================================ */
+function viewDati(){
+  const m=$('#main');
+  m.innerHTML=`
+   <h2>Salva e riprendi</h2>
+   <div class="card">
+     <div class="row"><button class="btn" id="exp">Scarica JSON</button><button class="btn" id="cop">Copia JSON</button></div>
+     <div class="row" style="margin-top:8px">
+       <label class="btn full" for="fin">Importa da file</label>
+       <input id="fin" type="file" accept=".json,.csv,.txt,application/json,text/csv" style="display:none">
+     </div>
+     <div class="tiny muted" style="margin-top:8px">Tutto viene salvato sul telefono a ogni modifica. Il JSON serve come backup e per portare il lavoro su un altro dispositivo.</div>
+   </div>
+
+   <h2>Listone ufficiale</h2>
+   <div class="card">
+     <div class="tiny muted" style="margin-bottom:9px">Su fantacalcio.it apri <b>Quotazioni</b>, premi <b>Esporta</b> e salvalo in CSV: incollalo qui e nomi, squadre, ruoli Mantra e quotazioni arrivano da lì. Riconosco le intestazioni <b>Nome, Squadra, R, RM, Qt.A, Qt.A M, FVM, FVM M</b>. Se il file ha anche le presenze (<b>Pv</b>), ricavo la titolarità dalle partite a voto sulle 38 di campionato.</div>
+     <textarea class="inp" id="paste" placeholder="Incolla qui il CSV del listone, il JSON di backup, oppure righe libere:&#10;Nome;Squadra;Ruoli;Fascia;Quota;Titolarità"></textarea>
+     <div class="row" style="margin-top:8px">
+       <button class="btn go" id="impAdd">Aggiungi o aggiorna</button>
+       <button class="btn dan" id="impRep">Sostituisci tutto</button>
+     </div>
+     <div class="tiny muted" style="margin-top:8px">I ruoli Mantra sono ${RUOLI.join(' ')} e il primo della riga decide il reparto.</div>
+     <button class="btn full" id="demo" style="margin-top:10px">Carica una lista di prova con dati inventati</button>
+   </div>
+
+   <h2>Infortunati e squalificati</h2>
+   <div class="card">
+     <div class="tiny muted" style="margin-bottom:9px">Un file salvato sul telefono non può sapere da solo chi è infortunato. Apri <b>fantacalcio.it/indisponibili-serie-a</b>, copia la pagina e incollala qui: confronto i nomi con la tua lista e ti faccio confermare chi segnare. Se il telefono ha rete, puoi anche provare a scaricarla direttamente.</div>
+     <textarea class="inp" id="inj" style="min-height:90px" placeholder="Incolla qui l'elenco degli indisponibili"></textarea>
+     <div class="row" style="margin-top:8px">
+       <button class="btn go" id="injGo">Confronta con la lista</button>
+       <button class="btn" id="injNet">Scarica online</button>
+     </div>
+     <button class="btn full warn" id="injClr" style="margin-top:8px" ${S.players.filter(p=>p.ind).length?'':'disabled style="opacity:.45"'}>${S.players.filter(p=>p.ind).length?'Rimetti tutti disponibili ('+S.players.filter(p=>p.ind).length+' segnati)':'Nessun indisponibile segnato'}</button>
+   </div>
+
+   <h2>Durante l'asta</h2>
+   <div class="card">
+     <button class="btn full warn" id="rstAsta">Azzera l'asta, tieni la lista</button>
+     <button class="btn full dan" id="rstAll" style="margin-top:8px">Cancella tutto e riparti</button>
+   </div>
+
+   <h2>Riepilogo</h2>
+   <div class="card">
+     <div class="line"><span>Giocatori in lista</span><b class="num">${S.players.length}</b></div>
+     <div class="line" style="margin-top:5px"><span>Miei acquisti</span><b class="num">${mine().length}</b></div>
+     <div class="line" style="margin-top:5px"><span>Assegnati ad altri</span><b class="num">${S.players.filter(p=>p.stato==='altri').length}</b></div>
+     <div class="line" style="margin-top:5px"><span>Squadre presenti in lista</span><b class="num">${new Set(S.players.filter(p=>p.squadra).map(p=>p.squadra)).size}</b></div>
+     <div class="line" style="margin-top:5px"><span>Nomi nell'archivio</span><b class="num">${(S.arch||[]).length}</b></div>
+     <div class="tiny muted" style="margin-top:6px">L'archivio raccoglie tutto quello che hai importato: è da lì che si completa da sola la scheda quando aggiungi un giocatore a mano.</div>
+   </div>`;
+
+  $('#exp').addEventListener('click',()=>{
+    const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='asta-mantra-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('File pronto');
+  });
+  $('#cop').addEventListener('click',async()=>{
+    const j=JSON.stringify(S);
+    try{ await navigator.clipboard.writeText(j); toast('JSON copiato') }
+    catch(e){ $('#paste').value=j; $('#paste').select(); toast('Selezionalo e copia') }
+  });
+  $('#fin').addEventListener('change',e=>{
+    const f=e.target.files[0]; if(!f)return;
+    const r=new FileReader(); r.onload=()=>{importText(r.result,true)}; r.readAsText(f);
+  });
+  $('#impAdd').addEventListener('click',()=>importText($('#paste').value,false));
+  $('#impRep').addEventListener('click',()=>importText($('#paste').value,true));
+  $('#injGo').addEventListener('click',()=>{
+    const t=$('#inj').value.trim();
+    if(!t){toast('Incolla prima l\'elenco');return}
+    reviewInj(matchInj(t));
+  });
+  $('#injNet').addEventListener('click',fetchInd);
+  $('#demo').addEventListener('click',()=>{
+    if(S.players.length&&!confirm('Sostituisco la lista attuale con quella di esempio?'))return;
+    S.players=demoPlayers(); S.campi={}; S.log=[]; S.demo=true;
+    archAdd(S.players.map(p=>({nome:p.nome,squadra:p.squadra,ruoli:p.ruoli,quota:p.quota,tit:p.tit})));
+    persist(); renderHeader(); toast('Lista di esempio caricata'); viewDati();
+  });
+  $('#injClr').addEventListener('click',()=>{
+    S.players.forEach(p=>{p.ind=''}); persist(); toast('Tutti disponibili'); viewDati();
+  });
+  $('#rstAsta').addEventListener('click',()=>{
+    if(!confirm('Rimetti tutti i giocatori come liberi?'))return;
+    S.players.forEach(p=>{p.stato='lib';p.prezzo=0}); S.campi={}; S.log=[];
+    persist(); renderHeader(); toast('Asta azzerata'); viewDati();
+  });
+  $('#rstAll').addEventListener('click',()=>{
+    if(!confirm('Cancella lista, acquisti e impostazioni?'))return;
+    S=defaults(); S.demo=false; persist(); renderHeader(); toast('Tutto cancellato'); viewDati();
+  });
+}
+
+/* ---------- import tabellare (listone ufficiale o righe libere) ---------- */
+const HDR={
+  nome:['nome','giocatore','calciatore','cognome'],
+  squadra:['squadra','team','club'],
+  rm:['rm','ruolim','ruolomantra','ruolima','ruoloma','ruoli','ruolo mantra','mantra'],
+  rc:['r','ruolo','ruoloclassic'],
+  fvmm:['fvmm','fvm m','fvmmantra'], qtam:['qtam','qt a m','qtim'],
+  fvm:['fvm'], qta:['qta','qtia','quota','quotazione'],
+  tit:['titolarita','tit','titolarità'],
+  pv:['pv','partiteavoto','presenze','pg']
+};
+function normHdr(x){return String(x||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'')}
+function splitRow(line,sep){
+  const out=[];let cur='',q=false;
+  for(let i=0;i<line.length;i++){const c=line[i];
+    if(c==='"'){ if(q&&line[i+1]==='"'){cur+='"';i++} else q=!q; continue }
+    if(c===sep&&!q){out.push(cur);cur='';continue}
+    cur+=c;}
+  out.push(cur); return out.map(x=>x.trim());
+}
+function sepOf(line){
+  const c={';':(line.match(/;/g)||[]).length,'\t':(line.match(/\t/g)||[]).length,',':(line.match(/,/g)||[]).length};
+  return Object.keys(c).sort((a,b)=>c[b]-c[a])[0];
+}
+function isRole(x){const v=norm(x); return RUOLI.includes(v)}
+function norm(r){
+  const s=String(r||'').trim().toLowerCase();
+  const map={por:'Por',p:'Por',dd:'Dd',dc:'Dc',ds:'Ds',b:'B',e:'E',m:'M',c:'C',w:'W',t:'T',a:'A',pc:'Pc'};
+  return map[s]||String(r||'').trim();
+}
+function autoFascia(mm,q){const f=S.fasce[mm]||S.fasce.C; if(q>=f[0].cr*0.7)return 1; if(q>=f[1].cr*0.7)return 2; return 3}
+function parseTable(txt){
+  const lines=txt.split(/\r?\n/).filter(x=>x.trim());
+  if(!lines.length)return null;
+  let hi=-1;
+  for(let i=0;i<Math.min(8,lines.length);i++){
+    const n=normHdr(lines[i]);
+    if(n.includes('nome')&&(n.includes('squadra')||n.includes('rm')||n.includes('fvm'))){hi=i;break}
+  }
+  if(hi<0)return null;
+  const sep=sepOf(lines[hi]), head=splitRow(lines[hi],sep).map(normHdr);
+  const at=k=>head.findIndex(h=>HDR[k].some(x=>h===normHdr(x)));
+  const ix={}; for(const k in HDR) ix[k]=at(k);
+  if(ix.nome<0)return null;
+  const rows=[];
+  for(let i=hi+1;i<lines.length;i++){
+    let c=splitRow(lines[i],sep);
+    if(ix.rm>=0&&isRole(c[ix.rm])){                 // ruoli separati dal delimitatore: li riunisco
+      let j=ix.rm,rr=[];
+      while(j<c.length&&isRole(c[j])){rr.push(norm(c[j]));j++}
+      if(rr.length>1)c.splice(ix.rm,rr.length,rr.join('/'));
+    }
+    const nome=(c[ix.nome]||'').trim(); if(!nome||normHdr(nome)==='nome')continue;
+    let ruoli=(ix.rm>=0?c[ix.rm]:'').split(/[\/|;,\-]/).map(norm).filter(x=>RUOLI.includes(x));
+    if(!ruoli.length&&ix.rc>=0){const rc={p:['Por'],d:['Dc'],c:['C'],a:['A']}[(c[ix.rc]||'').trim().toLowerCase()]; if(rc)ruoli=rc}
+    const num=k=>ix[k]>=0?parseFloat(String(c[ix[k]]).replace(',','.')):NaN;
+    const q=[num('fvmm'),num('qtam'),num('fvm'),num('qta')].find(x=>!isNaN(x)&&x>0);
+    let tit=num('tit'); if(isNaN(tit)){const pv=num('pv'); if(!isNaN(pv))tit=Math.min(100,Math.round(pv/38*100))}
+    rows.push({nome,squadra:ix.squadra>=0?(c[ix.squadra]||'').trim():'',ruoli:ruoli.length?ruoli:['C'],
+      quota:q||1,tit:isNaN(tit)?null:tit});
+  }
+  return rows.length?rows:null;
+}
+function parseFree(txt){
+  const rows=[];
+  for(const r of txt.split(/\r?\n/)){
+    if(!r.trim())continue;
+    const sep=/;/.test(r)?';':/\t/.test(r)?'\t':',';
+    const c=r.split(sep).map(x=>x.trim());
+    if(c.length<2)continue;
+    if(/^nome$/i.test(c[0]))continue;
+    const ruoli=(c[2]||'C').split(/[\/|]/).map(norm).filter(x=>RUOLI.includes(x));
+    rows.push({nome:c[0],squadra:c[1]||'',ruoli:ruoli.length?ruoli:['C'],
+      fascia:Math.min(3,Math.max(1,+c[3]||2)),quota:+c[4]||1,tit:c[5]!==undefined?Math.min(100,+c[5]||60):null});
+  }
+  return rows.length?rows:null;
+}
+function applyRows(rows,replace){
+  let add=0,upd=0;
+  if(replace){S.players=[];S.campi={};S.log=[]}
+  const idx={}; S.players.forEach(p=>{idx[keyOf(p.nome,p.squadra)]=p;idx[nrm(p.nome)]=idx[nrm(p.nome)]||p});
+  for(const r of rows){
+    const ex=idx[keyOf(r.nome,r.squadra)]||idx[nrm(r.nome)];
+    if(ex){
+      ex.ruoli=r.ruoli; ex.quota=r.quota; if(r.squadra)ex.squadra=r.squadra;
+      if(r.tit!==null&&r.tit!==undefined)ex.tit=r.tit;
+      upd++;
+    }else{
+      const mm=MACRO[r.ruoli[0]]||'C';
+      const p=mkPlayer({nome:r.nome,squadra:r.squadra,ruoli:r.ruoli,quota:r.quota,
+        tit:(r.tit===null||r.tit===undefined)?60:r.tit,fascia:r.fascia||autoFascia(mm,r.quota)});
+      S.players.push(p); idx[keyOf(p.nome,p.squadra)]=p; add++;
+    }
+  }
+  return {add,upd};
+}
+/* archivio nomi: tutto quello che è passato da un import resta consultabile
+   anche se poi la lista di lavoro viene sfoltita o sostituita */
+function archAdd(rows){
+  if(!S.arch)S.arch=[];
+  const idx={}; S.arch.forEach((a,i)=>idx[keyOf(a.n,a.s)]=i);
+  rows.forEach(r=>{
+    if(!r.nome)return;
+    const k=keyOf(r.nome,r.squadra), e={n:r.nome,s:r.squadra||'',r:r.ruoli||['C'],q:r.quota||1,t:(r.tit==null?null:r.tit)};
+    if(idx[k]!==undefined)S.arch[idx[k]]=e; else {idx[k]=S.arch.length;S.arch.push(e)}
+  });
+  if(S.arch.length>1500)S.arch=S.arch.slice(-1500);
+}
+function lookup(q){
+  q=nrm(q); if(q.length<2)return [];
+  const out=[],seen={};
+  S.players.forEach(p=>{
+    if(!nrm(p.nome).includes(q))return;
+    const k=keyOf(p.nome,p.squadra); if(seen[k])return; seen[k]=1;
+    out.push({nome:p.nome,squadra:p.squadra,ruoli:p.ruoli,quota:p.quota,tit:p.tit,ex:p});
+  });
+  (S.arch||[]).forEach(a=>{
+    if(!nrm(a.n).includes(q))return;
+    const k=keyOf(a.n,a.s); if(seen[k])return; seen[k]=1;
+    out.push({nome:a.n,squadra:a.s,ruoli:a.r,quota:a.q,tit:a.t==null?60:a.t,ex:null});
+  });
+  return out.slice(0,8);
+}
+function importText(txt,replace){
+  txt=(txt||'').trim(); if(!txt){toast('Non c\'è niente da importare');return}
+  if(txt[0]==='{'){
+    try{
+      const o=JSON.parse(txt); if(!o.players)throw 0;
+      if(replace){S=Object.assign(defaults(),o);S.demo=false}
+      else{applyRows(o.players.map(p=>({nome:p.nome,squadra:p.squadra,ruoli:p.ruoli,quota:p.quota,tit:p.tit,fascia:p.fascia})),false)}
+    }catch(e){toast('JSON non valido');return}
+    persist(); renderHeader(); toast('Backup caricato'); go(TAB); return;
+  }
+  const rows=parseTable(txt)||parseFree(txt);
+  if(!rows){toast('Non riconosco il formato: serve una riga di intestazione con Nome e Squadra');return}
+  if(replace)S.demo=false;
+  archAdd(rows);
+  const r=applyRows(rows,replace);
+  persist(); renderHeader(); go(TAB);
+  toast(r.add+' aggiunti'+(r.upd?' · '+r.upd+' aggiornati':''));
+}
+
+/* ---------- indisponibili ---------- */
+function matchInj(txt){
+  const T=' '+nrm(txt)+' ';
+  return S.players.filter(p=>{
+    const toks=nrm(p.nome).split(' ').filter(x=>x.length>=4);
+    return toks.length&&toks.some(t=>T.includes(' '+t+' '));
+  });
+}
+async function fetchInd(){
+  toast('Scarico l\'elenco…');
+  try{
+    const r=await fetch('https://r.jina.ai/https://www.fantacalcio.it/indisponibili-serie-a',{headers:{'Accept':'text/plain'}});
+    if(!r.ok)throw 0;
+    const t=await r.text();
+    const hits=matchInj(t);
+    if(!hits.length){toast('Scaricato, ma nessun nome della tua lista risulta indisponibile');return}
+    reviewInj(hits);
+  }catch(e){ toast('Non ci riesco senza rete: incolla l\'elenco a mano') }
+}
+function reviewInj(hits){
+  if(!hits.length){toast('Nessun nome della tua lista compare nel testo');return}
+  const seldd={}; hits.forEach(p=>seldd[p.id]=true);
+  const draw=()=>`
+    <div class="grab"></div>
+    <div class="sh-title">Possibili indisponibili</div>
+    <div class="tiny muted" style="margin-top:3px">Nel testo compaiono ${hits.length} nomi della tua lista. Il confronto è sul cognome, quindi qualcuno può essere sbagliato: togli quelli che non c'entrano prima di confermare.</div>
+    <div style="margin-top:12px">${hits.map(p=>`
+      <div class="p" data-t="${p.id}">
+        <div class="fa fa${p.fascia}">${p.fascia}</div>
+        <div class="nm"><b>${esc(p.nome)}</b><span>${rlHTML(p)} ${esc(p.squadra)}</span></div>
+        <button class="chip ${seldd[p.id]?'on':''}">${seldd[p.id]?'segna':'salta'}</button>
+      </div>`).join('')}</div>
+    <button class="btn go full" style="margin-top:12px" data-a="INF">Segna come infortunati</button>
+    <div class="row" style="margin-top:8px">
+      <button class="btn warn" data-a="DUB">In dubbio</button>
+      <button class="btn" data-a="SQU">Squalificati</button>
+      <button class="btn" data-a="x">Annulla</button>
+    </div>`;
+  const bind=()=>{
+    $$('#sheet [data-t]').forEach(el=>el.addEventListener('click',()=>{
+      seldd[el.dataset.t]=!seldd[el.dataset.t]; $('#sheet').innerHTML=draw(); bind();
+    }));
+    $$('#sheet [data-a]').forEach(b=>b.addEventListener('click',()=>{
+      const a=b.dataset.a; if(a==='x'){closeSheet();return}
+      let n=0; hits.forEach(p=>{if(seldd[p.id]){p.ind=a;n++}});
+      persist(); closeSheet(); go(TAB); toast(n+' segnati come '+INDLAB[a].toLowerCase());
+    }));
+  };
+  openSheet(draw(),bind);
+}
+
+/* ============================================================
+   SHEET: offerta
+   ============================================================ */
+function bidSheet(p){
+  let price=Math.max(1,Math.round(p.quota||1));
+  const draw=()=>{
+    const c=calc();
+    const after=c.rem-price, leftAfter=c.left-1;
+    const maxAfter=leftAfter>0?Math.max(0,after-(leftAfter-1)):0;
+    const mm=macroOf(p), fa=S.fasce[mm][p.fascia-1], pl=pianoLive(), dd=pl.fasce[mm+(p.fascia-1)];
+    const planDopo=pl.resid-(dd.rim>0?fa.cr:0), remDopo=c.rem-price;
+    const kk=planDopo>0?Math.round((remDopo/planDopo-1)*100):0;
+    const over=price>c.max;
+    return `
+    <div class="grab"></div>
+    <div class="sh-title">${esc(p.nome)}</div>
+    <div class="tiny muted" style="margin-top:3px">${rlHTML(p)} ${esc(p.squadra)} · fascia ${p.fascia} · titolarità ${p.tit}% · quota ${fmt(p.quota)}</div>
+    ${p.ind?`<div class="banner" style="margin-top:10px">${INDLAB[p.ind]}${p.note?': '+esc(p.note):''}</div>`:''}
+    <div class="stepper">
+      <button data-d="-5">−5</button><button data-d="-1">−1</button>
+      <div class="val num" style="color:${over?'var(--rose)':'var(--paper)'}">${fmt(price)}</div>
+      <button data-d="1">+1</button><button data-d="5">+5</button>
+    </div>
+    <div class="row" style="margin-bottom:12px">
+      ${[10,25,50].map(d=>`<button class="btn" data-d="${d}">+${d}</button>`).join('')}
+      <button class="btn" data-set="${Math.round(p.quota)}">quota</button>
+    </div>
+    <div class="simul">
+      <div class="line"><span>Se lo prendi, ti restano</span><b class="num" style="color:${after<0?'var(--rose)':'var(--paper)'}">${fmt(after)} cr</b></div>
+      <div class="line"><span>Posti ancora vuoti</span><b class="num">${leftAfter}</b></div>
+      <div class="line"><span>Nuova offerta massima</span><b class="num">${fmt(maxAfter)}</b></div>
+      <div class="line"><span>Media per ogni posto rimasto</span><b class="num">${leftAfter>0?fmt(Math.floor(after/leftAfter)):'—'}</b></div>
+      <div class="line" style="margin-top:7px;color:${price>fa.cr*1.25?'var(--amber)':'var(--mute)'}">
+        <span>Piano ${MACRONAME[mm].toLowerCase()} fascia ${p.fascia}${dd.rim?' · '+dd.rim+(dd.rim>1?' posti':' posto'):' · fascia già piena'}</span>
+        <b class="num">${dd.rim?fmt(fa.cr)+' previsti':fmt(dd.sp)+' già spesi'}</b></div>
+      ${S.autobal!==false&&kk?`<div class="line" style="color:${kk<0?'var(--amber)':'var(--grass)'}">
+        <span>Le altre fasce aperte si spostano di</span><b class="num">${kk>0?'+':''}${kk}%</b></div>`:''}
+    </div>
+    ${over?`<div class="banner" style="margin-bottom:10px">Sopra il massimo: non ti resterebbe un credito per ogni altro posto da riempire.</div>`:''}
+    <button class="btn go full" data-act="io">L'ho preso io a ${fmt(price)}</button>
+    <div class="row" style="margin-top:8px">
+      <button class="btn" data-act="altri">Preso da altri</button>
+      <button class="btn" data-act="x">Chiudi</button>
+    </div>`;
+  };
+  const bind=()=>{
+    $$('#sheet [data-d]').forEach(b=>b.addEventListener('click',()=>{price=Math.max(1,price+ +b.dataset.d);upd()}));
+    $$('#sheet [data-set]').forEach(b=>b.addEventListener('click',()=>{price=Math.max(1,+b.dataset.set);upd()}));
+    $$('#sheet [data-act]').forEach(b=>b.addEventListener('click',()=>{
+      const a=b.dataset.act;
+      if(a==='x'){closeSheet();return}
+      assign(p,a==='io',price); closeSheet();
+    }));
+  };
+  const upd=()=>{$('#sheet').innerHTML=draw();bind()};
+  openSheet(draw(),bind);
+}
+function assign(p,mio,price){
+  p.stato=mio?'io':'altri'; p.prezzo=price;
+  S.log.push({id:p.id,nome:p.nome,prezzo:price,mio,ora:new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})});
+  let d=0; if(mio&&S.autobal!==false) d=rebalance();
+  persist(); renderHeader(); go(TAB);
+  toast(mio?`${short(p.nome)} è tuo a ${price}`+(d?` · piano ${d>0?'+':''}${d}%`:''):`${short(p.nome)} agli altri`);
+}
+function reset(p){
+  p.stato='lib'; p.prezzo=0;
+  unplace(p.id);
+  S.log=S.log.filter(e=>e.id!==p.id);
+  persist(); renderHeader(); go(TAB); toast(short(p.nome)+' di nuovo libero');
+}
+function undo(id){const p=byId(id); if(p)reset(p)}
+function unplace(pid){for(const mo in (S.campi||{})){const c=S.campi[mo];for(const k in c) if(c[k]===pid) delete c[k]}}
+
+/* ============================================================
+   SHEET: scheda giocatore
+   ============================================================ */
+function editPlayer(p){
+  const isNew=!p;
+  const d=p?JSON.parse(JSON.stringify(p)):mkPlayer({});
+  const draw=()=>`
+    <div class="grab"></div>
+    <div class="sh-title">${isNew?'Nuovo giocatore':esc(d.nome)}</div>
+    <div class="field" style="margin-top:12px"><div class="lab">Nome${isNew?' — scrivi due lettere e scegli dall\'archivio':''}</div>
+      <input class="inp" id="e-n" value="${esc(d.nome)}" autocapitalize="words" autocomplete="off" spellcheck="false">
+      <div id="e-sugg"></div></div>
+    <div class="field"><div class="lab">Squadra</div>
+      <input class="inp" id="e-s" value="${esc(d.squadra)}" autocapitalize="words"></div>
+    <div class="field"><div class="lab">Ruoli Mantra — il primo decide il reparto</div>
+      <div class="chips" id="e-r">${RUOLI.map(r=>`<button class="chip ${d.ruoli.includes(r)?'on':''}" data-r="${r}">${r}</button>`).join('')}</div></div>
+    <div class="field"><div class="lab">Fascia di prezzo</div>
+      <div class="seg" id="e-f">${[1,2,3].map(f=>`<button data-f="${f}" class="${d.fascia===f?'on':''}">${f} · ${S.fasce[MACRO[d.ruoli[0]]||'C'][f-1].n}</button>`).join('')}</div></div>
+    <div class="row">
+      <div class="field" style="margin-top:0"><div class="lab">Quotazione o prezzo obiettivo</div>
+        <input class="inp num" id="e-q" type="number" inputmode="numeric" value="${d.quota}"></div>
+      <div class="field" style="margin-top:0"><div class="lab">Titolarità %</div>
+        <input class="inp num" id="e-t" type="number" inputmode="numeric" value="${d.tit}"></div>
+    </div>
+    <div class="field"><div class="lab">Disponibilità</div>
+      <div class="seg" id="e-i">${[['','Disponibile'],['INF','Infortunato'],['SQU','Squalificato'],['DUB','In dubbio']].map(([k,v])=>`<button data-i="${k}" class="${(d.ind||'')===k?'on':''}">${v}</button>`).join('')}</div></div>
+    <div class="field"><div class="lab">Note</div><input class="inp" id="e-no" value="${esc(d.note||'')}"></div>
+    <button class="btn go full" style="margin-top:14px" id="e-ok">${isNew?'Aggiungi alla lista':'Salva'}</button>
+    <div class="row" style="margin-top:8px">
+      ${!isNew?`<button class="btn dan" id="e-del">Elimina</button>`:''}
+      <button class="btn" id="e-x">Annulla</button>
+    </div>`;
+  const bind=()=>{
+    $$('#e-r .chip').forEach(b=>b.addEventListener('click',()=>{
+      const r=b.dataset.r, i=d.ruoli.indexOf(r);
+      if(i>=0){ if(d.ruoli.length>1)d.ruoli.splice(i,1) } else d.ruoli.push(r);
+      pull(); $('#sheet').innerHTML=draw(); bind();
+    }));
+    $$('#e-f button').forEach(b=>b.addEventListener('click',()=>{
+      d.fascia=+b.dataset.f; pull(); $('#sheet').innerHTML=draw(); bind();
+    }));
+    $$('#e-i button').forEach(b=>b.addEventListener('click',()=>{
+      d.ind=b.dataset.i; pull(); $('#sheet').innerHTML=draw(); bind();
+    }));
+    $('#e-ok').addEventListener('click',()=>{
+      pull();
+      if(!d.nome.trim()){toast('Serve almeno il nome');return}
+      if(isNew){S.players.push(d)} else {Object.assign(p,d)}
+      S.demo=false;
+      persist(); renderHeader(); closeSheet(); go(TAB); toast('Salvato');
+    });
+    $('#e-x').addEventListener('click',closeSheet);
+    const nEl=$('#e-n');
+    let hits=[];
+    const drawSugg=()=>{
+      const box=$('#e-sugg'); if(!box)return;
+      hits=isNew?lookup(nEl.value):[];
+      if(!hits.length){box.innerHTML='';return}
+      box.innerHTML=`<div class="plist" style="margin-top:7px">${hits.map((h,i)=>`
+        <div class="p" data-sg="${i}">
+          <div class="nm"><b>${esc(h.nome)}</b><span>${h.ruoli.map(r=>`<span class="rl ${MACRO[r]}">${r}</span>`).join('')} ${esc(h.squadra)} · tit ${h.tit}%</span></div>
+          ${h.ex?`<span class="tag altri">già in lista</span>`:`<div class="qt num">${fmt(h.quota)}</div>`}
+        </div>`).join('')}</div>`;
+      $$('#e-sugg [data-sg]').forEach(el=>el.addEventListener('click',()=>pick(hits[+el.dataset.sg])));
+    };
+    const pick=h=>{
+      if(h.ex){ editPlayer(h.ex); toast(h.nome+' è già in lista: apro la sua scheda'); return }
+      pull();
+      d.nome=h.nome; d.squadra=h.squadra; d.ruoli=h.ruoli.slice(); d.quota=h.quota; d.tit=h.tit;
+      d.fascia=autoFascia(MACRO[d.ruoli[0]]||'C',d.quota);
+      $('#sheet').innerHTML=draw(); bind(); toast('Scheda compilata dall\'archivio');
+    };
+    if(nEl&&isNew){ nEl.addEventListener('input',drawSugg); drawSugg(); }
+    const del=$('#e-del'); if(del)del.addEventListener('click',()=>{
+      if(!confirm('Elimino '+p.nome+'?'))return;
+      S.players=S.players.filter(x=>x.id!==p.id);
+      unplace(p.id);
+      persist(); renderHeader(); closeSheet(); go(TAB); toast('Eliminato');
+    });
+  };
+  const pull=()=>{
+    d.nome=$('#e-n').value; d.squadra=$('#e-s').value;
+    d.quota=Math.max(0,+$('#e-q').value||0); d.tit=Math.min(100,Math.max(0,+$('#e-t').value||0));
+    d.note=$('#e-no').value;
+  };
+  openSheet(draw(),bind);
+}
+
+/* ---------- sheet infra ---------- */
+function openSheet(html,bind){
+  const sh=$('#sheet'); sh.innerHTML=html;
+  $('#scrim').classList.add('on'); sh.classList.add('on');
+  if(bind)bind();
+}
+function closeSheet(){$('#sheet').classList.remove('on');$('#scrim').classList.remove('on')}
+$('#scrim').addEventListener('click',closeSheet);
+
+/* ---------- util ---------- */
+const INDLAB={INF:'Infortunato',SQU:'Squalificato',DUB:'In dubbio'};
+function indTag(p){return p.ind?`<span class="tag ko">${p.ind}</span>`:''}
+function nrm(x){return String(x||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim()}
+function keyOf(n,sq){return nrm(n)+'|'+nrm(sq)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function short(n){const p=String(n).split(' ');return p.length>1&&p[0].length>3?p[0][0]+'. '+p.slice(1).join(' '):n}
+function initials(n){const p=String(n).trim().split(' ');return (p.length>1?p[0][0]+p[1][0]:p[0].slice(0,2)).toUpperCase()}
+let toastT; function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),1700)}
+
+/* ---------- router ---------- */
+function go(t){
+  TAB=t;
+  $$('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  const sc=$('#main').scrollTop;
+  ({asta:viewAsta,lista:viewLista,campo:viewCampo,piano:viewPiano,dati:viewDati}[t])();
+  $('#main').scrollTop=(t===TAB?sc:0);
+  renderHeader();
+}
+$$('#nav button').forEach(b=>b.addEventListener('click',()=>{$('#main').scrollTop=0;go(b.dataset.t)}));
+
+/* ---------- avvio ---------- */
+(async function init(){
+  const s=await load();
+  if(s&&s.players){ S=Object.assign(defaults(),s) }
+  else { S=defaults(); S.demo=false; save() }
+  go('asta');
+})();
+</script>
+</body>
+</html>
