@@ -301,6 +301,7 @@ function defaults(){return{
     A:[{n:'Big',cr:180,q:2},{n:'Titolare',cr:55,q:2},{n:'Scommessa',cr:12,q:2}]
   },
   modulo:'3-5-2', autobal:true,
+  caselle:[],
   players:[], arch:[], campi:{}, log:[], demo:true
 }}
 let S=defaults(), TAB='asta', filtro={q:'',macro:'',fascia:0,stato:'lib'};
@@ -346,70 +347,100 @@ let saveT; function persist(){clearTimeout(saveT);saveT=setTimeout(save,250)}
 const byId=id=>S.players.find(p=>p.id===id);
 const macroOf=p=>MACRO[p.ruoli[0]]||'C';
 const mine=()=>S.players.filter(p=>p.stato==='io');
+function L(){ // giocatori previsti per reparto: contati sulle caselle del piano
+  const o={P:0,D:0,C:0,A:0};
+  (S.caselle||[]).forEach(x=>o[macroOfRole(x.r)]++);
+  if(!(S.caselle||[]).length) return Object.assign({},S.limits);
+  return o;
+}
 function calc(){
   const own=mine(), spent=own.reduce((s,p)=>s+(+p.prezzo||0),0);
-  const tot=S.limits.P+S.limits.D+S.limits.C+S.limits.A;
+  const lim=L(), tot=lim.P+lim.D+lim.C+lim.A;
   const left=Math.max(0,tot-own.length), rem=S.budget-spent;
   const per={};
   for(const m of ['P','D','C','A']){
     const l=own.filter(p=>macroOf(p)===m);
-    per[m]={n:l.length,lim:S.limits[m],sp:l.reduce((s,p)=>s+(+p.prezzo||0),0),
+    per[m]={n:l.length,lim:lim[m],sp:l.reduce((s,p)=>s+(+p.prezzo||0),0),
             tit:l.length?Math.round(l.reduce((s,p)=>s+(+p.tit||0),0)/l.length):0};
   }
-  return {own,spent,rem,tot,left,per,max:left>0?Math.max(0,rem-(left-1)):0,avg:left>0?Math.floor(rem/left):0};
+  return {own,spent,rem,tot,left,per,lim,max:left>0?Math.max(0,rem-(left-1)):0,avg:left>0?Math.floor(rem/left):0};
 }
-/* i giocatori per reparto e le quantità delle fasce sono lo stesso numero */
-function sumQ(mm){return S.fasce[mm].reduce((a,f)=>a+(+f.q||0),0)}
-function syncLimit(mm){S.limits[mm]=sumQ(mm)}
-function syncFasce(mm,target){
-  const f=S.fasce[mm]; let cur=sumQ(mm);
-  for(let i=2;i>=0&&cur>target;i--) while(f[i].q>0&&cur>target){f[i].q--;cur--}
-  while(cur<target){f[2].q++;cur++}
+
+/* ============================================================
+   PIANO A CASELLE — una casella per posizione, con il suo prezzo.
+   Quando compri, la casella si occupa e si blocca sul prezzo pagato.
+   ============================================================ */
+const COMBO=['Dc/B','M/C','E/W','C/T','W/T','W/A','T/A','T/A/Pc','A/Pc'];
+const ROLEOPTS=RUOLI.concat(COMBO);
+const PESO={Por:.6,Dd:.9,Ds:.9,Dc:.9,B:.8,E:1.1,M:1.1,C:1.7,T:1.9,W:1.9,A:2.6,Pc:2.4};
+function macroOfRole(r){
+  if(MACRO[r])return MACRO[r];
+  const T=SLOTTYPES[r]; return T?MACRO[T.ok[0]]:'C';
 }
-function pianoLive(){
-  const own=mine(), out={speso:0,resid:0,slotResid:0,per:{},fasce:{}};
-  for(const m of ['P','D','C','A']){
-    out.per[m]={speso:0,resid:0};
-    S.fasce[m].forEach((f,i)=>{
-      const presi=own.filter(p=>macroOf(p)===m&&p.fascia===i+1).sort((a,b)=>b.prezzo-a.prezzo);
-      const sp=presi.reduce((a,b)=>a+(+b.prezzo||0),0);
-      const rim=Math.max(0,f.q-presi.length);
-      out.fasce[m+i]={presi,sp,rim,plan:rim*f.cr};
-      out.per[m].speso+=sp; out.per[m].resid+=rim*f.cr;
-      out.speso+=sp; out.resid+=rim*f.cr; out.slotResid+=rim;
-    });
+function pesoOf(r){
+  if(PESO[r])return PESO[r];
+  const T=SLOTTYPES[r]; return T?Math.max(...T.ok.map(x=>PESO[x]||1)):1;
+}
+function fitPlan(p,r){ // 1 naturale · 2 adattabile · 3 no
+  if(RUOLI.includes(r)) return p.ruoli.includes(r)?1:(SLOTTYPES[r]&&p.ruoli.some(x=>SLOTTYPES[r].ad.includes(x))?2:3);
+  const T=SLOTTYPES[r]; if(!T)return 3;
+  if(p.ruoli.some(x=>T.ok.includes(x)))return 1;
+  if(p.ruoli.some(x=>T.ad.includes(x)))return 2;
+  return 3;
+}
+function cas(id){return (S.caselle||[]).find(x=>x.id===id)}
+function casOf(pid){return (S.caselle||[]).find(x=>x.pid===pid)}
+function planLive(){
+  const cs=S.caselle||[];
+  const occ=cs.filter(x=>x.pid&&byId(x.pid)&&byId(x.pid).stato==='io');
+  const free=cs.filter(x=>!occ.includes(x));
+  const speso=occ.reduce((a,x)=>a+(+byId(x.pid).prezzo||0),0);
+  const plan=free.reduce((a,x)=>a+(+x.cr||0),0);
+  const prev=occ.reduce((a,x)=>a+(+x.cr||0),0);
+  return {occ,free,speso,plan,prev,delta:speso-prev};
+}
+/* casella migliore per un giocatore a un certo prezzo */
+function bestCasella(p,price){
+  const free=(S.caselle||[]).filter(x=>!x.pid);
+  let best=null,bs=1e9;
+  for(const lvl of [1,2]){
+    for(const x of free){
+      if(fitPlan(p,x.r)!==lvl)continue;
+      const sc=Math.abs((+x.cr||0)-price);
+      if(sc<bs){bs=sc;best=x}
+    }
+    if(best)return best;
   }
-  return out;
+  return null;
 }
-/* riallinea i prezzi delle fasce ancora aperte ai crediti che restano davvero */
-function rebalance(){
-  const c=calc(), pl=pianoLive(), open=[];
-  for(const m of ['P','D','C','A']) S.fasce[m].forEach((f,i)=>{
-    const rim=pl.fasce[m+i].rim; if(rim>0) open.push({m,i,rim,cr:f.cr});
-  });
-  if(!open.length)return 0;
-  const target=Math.max(0,c.rem), plan=pl.resid;
-  const tot=open.reduce((a,b)=>a+b.rim,0);
+function newCas(r,cr){return {id:'c'+Math.random().toString(36).slice(2,8),r:r,cr:Math.max(1,Math.round(cr||1)),pid:null,extra:false}}
+/* costruisce le caselle dal modulo attivo: 11 titolari + panchina fino al totale */
+function genCaselle(target){
+  const occ=(S.caselle||[]).filter(x=>x.pid);
+  const base=slots().map(x=>x.t);
+  const list=[];
+  base.forEach(r=>list.push({r,tit:true}));
+  let i=0;
+  while(list.length<target){ list.push({r:base[i%base.length],tit:false}); i++ }
+  // pesi: i titolari valgono di più delle riserve
+  const W=list.reduce((a,x)=>a+pesoOf(x.r)*(x.tit?1:.32),0);
+  const budget=Math.max(1,S.budget-occ.reduce((a,x)=>a+(+byId(x.pid)?.prezzo||0),0));
+  const nuove=list.map(x=>newCas(x.r,Math.max(1,Math.round(budget*pesoOf(x.r)*(x.tit?1:.32)/W))));
+  // le caselle già occupate restano: tolgo dalle nuove una posizione uguale
+  occ.forEach(o=>{ const j=nuove.findIndex(n=>n.r===o.r); if(j>=0)nuove.splice(j,1); else nuove.pop() });
+  S.caselle=occ.concat(nuove);
+}
+/* spalma la differenza tra crediti veri e piano sulle caselle libere */
+function spreadScarto(){
+  const c=calc(), pl=planLive();
+  if(!pl.free.length)return 0;
+  const target=Math.max(0,c.rem), plan=pl.plan;
   const k=plan>0?target/plan:0;
-  open.forEach(o=>{ S.fasce[o.m][o.i].cr = plan>0 ? Math.max(1,Math.round(o.cr*k)) : Math.max(1,Math.floor(target/tot)) });
-  // assorbo gli spiccioli di arrotondamento sui gruppi piu' pesanti
-  let diff=target-open.reduce((a,o)=>a+S.fasce[o.m][o.i].cr*o.rim,0);
-  if(diff){
-    open.slice().sort((a,b)=>S.fasce[b.m][b.i].cr*b.rim-S.fasce[a.m][a.i].cr*a.rim).forEach(o=>{
-      if(!diff)return;
-      const f=S.fasce[o.m][o.i], step=Math.trunc(diff/o.rim);
-      if(step){const nv=Math.max(1,f.cr+step); diff-=(nv-f.cr)*o.rim; f.cr=nv}
-    });
-  }
+  pl.free.forEach(x=>{ x.cr = plan>0?Math.max(1,Math.round(x.cr*k)):Math.max(1,Math.floor(target/pl.free.length)) });
+  let diff=target-pl.free.reduce((a,x)=>a+x.cr,0);
+  const ord=pl.free.slice().sort((a,b)=>b.cr-a.cr);
+  for(const x of ord){ if(!diff)break; const st=diff>0?1:-1; if(x.cr+st>=1){x.cr+=st;diff-=st} }
   return plan>0?Math.round((k-1)*100):0;
-}
-function piano(){
-  const out={tot:0,per:{}};
-  for(const m of ['P','D','C','A']){
-    const f=S.fasce[m], t=f.reduce((s,x)=>s+x.cr*x.q,0);
-    out.per[m]=t; out.tot+=t;
-  }
-  return out;
 }
 function fmt(n){return (+n||0).toLocaleString('it-IT')}
 
@@ -883,93 +914,158 @@ function pressDrag(el,pid,fromSlot){
    TAB: PIANO
    ============================================================ */
 function viewPiano(){
-  const c=calc(), pl=pianoLive();
-  const scarto=c.rem-pl.resid;
+  const c=calc(), pl=planLive(), scarto=c.rem-pl.plan;
   const m=$('#main');
+  const gruppi=['P','D','C','A'].map(mm=>{
+    const cs=(S.caselle||[]).filter(x=>macroOfRole(x.r)===mm);
+    if(!cs.length)return '';
+    cs.sort((x,y)=>(y.pid?9999:0)-(x.pid?9999:0)||y.cr-x.cr);
+    const tot=cs.reduce((a,x)=>a+(x.pid&&byId(x.pid)?(+byId(x.pid).prezzo||0):(+x.cr||0)),0);
+    return `<div class="card">
+      <div class="line" style="margin-bottom:8px"><b style="color:${MACROCOL[mm]}">${MACRONAME[mm]}</b>
+        <span class="tiny muted">${cs.length} caselle · ${fmt(tot)} crediti</span></div>
+      ${cs.map(x=>casRow(x)).join('')}
+      <button class="btn full" style="margin-top:9px" data-addc="${mm}">+ Aggiungi una casella ${MACRONAME[mm].toLowerCase()}</button>
+    </div>`;
+  }).join('');
   m.innerHTML=`
    <div class="card">
-     <div class="field"><div class="lab">Crediti totali dell'asta</div>
-       <input class="inp num" id="bud" type="number" inputmode="numeric" value="${S.budget}"></div>
-     <div class="field"><div class="lab">Giocatori per reparto (Por / Dif / Cen / Att) — totale ${S.limits.P+S.limits.D+S.limits.C+S.limits.A}</div>
-       <div class="row">
-         ${['P','D','C','A'].map(k=>`<input class="inp num" data-lim="${k}" type="number" inputmode="numeric" value="${S.limits[k]}">`).join('')}
-       </div>
-       <div class="tiny muted" style="margin-top:6px">Questi numeri e le quantità delle fasce qui sotto sono la stessa cosa: se cambi uno, l'altro si adegua. Alzando il reparto aggiungo posti nella terza fascia, abbassandolo li tolgo partendo da lì.</div></div>
+     <div class="row">
+       <div class="field" style="margin-top:0"><div class="lab">Crediti totali</div>
+         <input class="inp num" id="bud" type="number" inputmode="numeric" value="${S.budget}"></div>
+       <div class="field" style="margin-top:0"><div class="lab">Giocatori in rosa</div>
+         <input class="inp num" id="rosaN" type="number" inputmode="numeric" value="${(S.caselle||[]).length||25}"></div>
+     </div>
+     <button class="btn full" id="genMod" style="margin-top:10px">Rifai le caselle libere sul ${S.modulo}</button>
+     <div class="tiny muted" style="margin-top:8px">Una casella per posizione: Por, Dc, E, C, W, A… Il prezzo che scrivi è quello che pensi di spendere lì. Le caselle già occupate non le tocco.</div>
    </div>
 
-   <h2>Come sta il piano adesso</h2>
+   <h2>Cruscotto</h2>
    <div class="card">
      <div class="grid2">
        <div class="mini"><div class="k">Bloccati sugli acquisti</div><div class="v num">${fmt(pl.speso)}</div></div>
        <div class="mini"><div class="k">Crediti ancora tuoi</div><div class="v num">${fmt(c.rem)}</div></div>
-       <div class="mini"><div class="k">Pianificati sui posti rimasti</div><div class="v num">${fmt(pl.resid)}</div></div>
-       <div class="mini"><div class="k">Posti ancora pianificati</div><div class="v num">${pl.slotResid}</div></div>
+       <div class="mini"><div class="k">Pianificati sulle libere</div><div class="v num">${fmt(pl.plan)}</div></div>
+       <div class="mini"><div class="k">Caselle libere</div><div class="v num">${pl.free.length}</div></div>
      </div>
-     <div class="line" style="margin-top:12px"><span>${scarto===0?'Piano allineato ai crediti':scarto>0?'Crediti non pianificati':'Piano sopra i crediti'}</span>
+     ${pl.occ.length?`<div class="line" style="margin-top:12px"><span>Sulle caselle occupate avevi previsto ${fmt(pl.prev)}</span>
+       <b class="num" style="color:${pl.delta>0?'var(--rose)':pl.delta<0?'var(--grass)':'var(--mute)'}">${pl.delta>0?'+':''}${fmt(pl.delta)}</b></div>`:''}
+     <div class="line" style="margin-top:10px"><span>${scarto===0?'Piano in pari con i crediti':scarto>0?'Crediti non ancora pianificati':'Piano sopra i crediti che hai'}</span>
        <b class="num" style="color:${Math.abs(scarto)<=10?'var(--grass)':scarto>0?'var(--amber)':'var(--rose)'}">${scarto>0?'+':''}${fmt(scarto)}</b></div>
-     <div class="pbar"><i style="width:${Math.min(100,pl.resid/Math.max(1,c.rem)*100)}%;background:${scarto<0?'var(--rose)':'var(--grass)'}"></i></div>
-     <button class="btn full" id="rebal" style="margin-top:11px">Riallinea i prezzi delle fasce aperte</button>
-     <label class="line" style="margin-top:11px;align-items:center">
-       <span class="tiny">Riallinea da solo dopo ogni acquisto</span>
-       <input type="checkbox" id="ab" ${S.autobal!==false?'checked':''} style="width:22px;height:22px">
-     </label>
-     <div class="tiny muted" style="margin-top:8px">Chi hai già comprato resta bloccato al prezzo che hai pagato. Il riallineamento tocca solo le fasce ancora aperte: se il top ti costa più del previsto, tutto il resto scende in proporzione.</div>
+     <div class="pbar"><i style="width:${Math.min(100,pl.plan/Math.max(1,c.rem)*100)}%;background:${scarto<0?'var(--rose)':'var(--grass)'}"></i></div>
+     <button class="btn full" id="spread" style="margin-top:11px">Spalma la differenza sulle caselle libere</button>
+     <div class="tiny muted" style="margin-top:8px">Nessun ricalcolo automatico: i prezzi delle caselle libere li cambio solo se lo chiedi tu con questo tasto o a mano.</div>
    </div>
 
-   <h2>Fasce di prezzo per reparto</h2>
-   ${['P','D','C','A'].map(mm=>fasciaCard(mm,c,pl)).join('')}
+   <h2>Le caselle</h2>
+   ${gruppi||`<div class="card"><div class="empty">Nessuna casella. Crea il piano con il tasto qui sopra.</div></div>`}
 
    <h2>Reparti</h2>
    <div class="card">
      ${['P','D','C','A'].map(mm=>{
-        const x=c.per[mm], sp=pl.per[mm].speso, res=pl.per[mm].resid;
+        const x=c.per[mm];
         return `<div style="margin-bottom:13px" data-macro="${mm}">
           <div class="line"><span><b>${MACRONAME[mm]}</b> <span class="muted num">${x.n}/${x.lim}</span></span>
-            <b class="num">${fmt(sp)}<span class="muted"> + ${fmt(res)} da spendere</span></b></div>
-          <div class="pbar"><i style="width:${Math.min(100,x.n/x.lim*100)}%;background:${MACROCOL[mm]}"></i></div>
-          <div class="tiny muted" style="margin-top:4px">Titolarità media ${x.tit}% · restano ${x.lim-x.n} posti in rosa</div>
+            <b class="num">${fmt(x.sp)} spesi</b></div>
+          <div class="pbar"><i style="width:${x.lim?Math.min(100,x.n/x.lim*100):0}%;background:${MACROCOL[mm]}"></i></div>
+          <div class="tiny muted" style="margin-top:4px">Titolarità media ${x.tit}% · restano ${Math.max(0,x.lim-x.n)} posti</div>
         </div>`}).join('')}
      <div class="tapme" style="margin-top:0">Tocca un reparto per le singole posizioni</div>
    </div>`;
+
   $('#bud').addEventListener('change',e=>{S.budget=Math.max(1,+e.target.value||1);persist();renderHeader();viewPiano()});
-  $$('[data-lim]').forEach(i=>i.addEventListener('change',e=>{
-    const k=i.dataset.lim, v=Math.max(0,+e.target.value||0);
-    S.limits[k]=v; syncFasce(k,v); persist(); renderHeader(); viewPiano();}));
-  $$('[data-f]').forEach(i=>i.addEventListener('change',e=>{
-    const [mm,idx,k]=i.dataset.f.split('|');
-    S.fasce[mm][+idx][k]=Math.max(0,+e.target.value||0);
-    if(k==='q') syncLimit(mm);
-    persist(); renderHeader(); viewPiano();}));
-  $('#rebal').addEventListener('click',()=>{const d=rebalance();persist();viewPiano();toast(d?`Fasce aperte ${d>0?'+':''}${d}%`:'Niente da riallineare')});
-  $('#ab').addEventListener('change',e=>{S.autobal=e.target.checked;persist()});
+  $('#rosaN').addEventListener('change',e=>{
+    const t=Math.max(1,Math.min(40,+e.target.value||25));
+    genCaselle(t); persist(); renderHeader(); viewPiano();
+  });
+  $('#genMod').addEventListener('click',()=>{
+    genCaselle(Math.max((S.caselle||[]).length,11)); persist(); renderHeader(); viewPiano(); toast('Caselle rifatte sul '+S.modulo);
+  });
+  $('#spread').addEventListener('click',()=>{
+    const d=spreadScarto(); persist(); viewPiano();
+    toast(d?`Caselle libere ${d>0?'+':''}${d}%`:'Niente da spalmare');
+  });
+  $$('[data-cr]').forEach(i=>i.addEventListener('change',e=>{
+    const x=cas(i.dataset.cr); if(x){x.cr=Math.max(1,+e.target.value||1);persist();viewPiano()}
+  }));
+  $$('[data-cas]').forEach(el=>el.addEventListener('click',()=>casSheet(el.dataset.cas)));
+  $$('[data-addc]').forEach(b=>b.addEventListener('click',()=>{
+    const mm=b.dataset.addc, r={P:'Por',D:'Dc',C:'C',A:'A'}[mm];
+    S.caselle.push(newCas(r,Math.max(1,calc().avg))); persist(); renderHeader(); viewPiano();
+  }));
   bindRings();
 }
-function fasciaCard(mm,c,pl){
-  return `<div class="card">
-    <div class="line" style="margin-bottom:3px"><b style="color:${MACROCOL[mm]}">${MACRONAME[mm]}</b>
-      <span class="tiny muted">crediti a giocatore × quanti</span></div>
-    <div class="tiny muted" style="margin-bottom:9px">${sumQ(mm)} in rosa · ${fmt(pl.per[mm].speso+pl.per[mm].resid)} crediti tra bloccati e pianificati</div>
-    ${S.fasce[mm].map((f,i)=>{
-      const d=pl.fasce[mm+i], chiusa=d.rim===0&&f.q>0;
-      return `<div style="margin-bottom:13px">
-        <div class="row" style="align-items:center;gap:7px">
-          <div class="fa fa${i+1}" style="flex:0 0 auto">${i+1}</div>
-          <div style="flex:2;font-size:13px">${f.n}</div>
-          <input class="inp num" style="flex:1;padding:8px" type="number" inputmode="numeric" data-f="${mm}|${i}|cr" value="${f.cr}" ${chiusa?'disabled':''}>
-          <input class="inp num" style="flex:.7;padding:8px" type="number" inputmode="numeric" data-f="${mm}|${i}|q" value="${f.q}">
-        </div>
-        ${d.presi.length?`<div style="margin-top:4px">${d.presi.map(p=>`<span class="lock">${esc(short(p.nome))} <b class="num">${fmt(p.prezzo)}</b></span>`).join('')}</div>`:''}
-        <div class="pbar"><i style="width:${f.q?Math.min(100,d.presi.length/f.q*100):0}%;background:${['var(--f1)','var(--f2)','var(--f3)'][i]}"></i></div>
-        <div class="tiny muted" style="margin-top:3px">${chiusa
-          ? `fascia chiusa · ${fmt(d.sp)} bloccati`
-          : `${d.presi.length}/${f.q} presi${d.sp?' · '+fmt(d.sp)+' bloccati':''} · ${d.rim===1?'resta 1':'restano '+d.rim} × ${fmt(f.cr)} = ${fmt(d.plan)}`}</div>
-      </div>`}).join('')}
+function casRow(x){
+  const p=x.pid?byId(x.pid):null;
+  const occ=p&&p.stato==='io';
+  const d=occ?(+p.prezzo||0)-(+x.cr||0):0;
+  return `<div class="p" style="padding:9px 0">
+    <button class="chip ${occ?'on':''}" data-cas="${x.id}" style="min-width:52px">${x.r}</button>
+    <div class="nm" data-cas="${x.id}">
+      ${occ?`<b>${esc(short(p.nome))}</b><span>${esc(p.squadra)} · previsti ${fmt(x.cr)} · <span style="color:${d>0?'var(--rose)':d<0?'var(--grass)':'var(--mute)'}">${d>0?'+':''}${fmt(d)}</span></span>`
+          :`<b class="muted" style="font-weight:600">libera</b><span>${(S.players.filter(q=>q.stato==='lib'&&fitPlan(q,x.r)===1).length)} disponibili in lista</span>`}
+    </div>
+    ${occ?`<b class="num">${fmt(p.prezzo)}</b><span class="tag io" style="margin-left:6px">bloccata</span>`
+        :`<input class="inp num" data-cr="${x.id}" type="number" inputmode="numeric" value="${x.cr}" style="width:74px;padding:8px;text-align:right">`}
   </div>`;
 }
+function casSheet(id){
+  const x=cas(id); if(!x)return;
+  const draw=()=>{
+    const p=x.pid?byId(x.pid):null, occ=p&&p.stato==='io';
+    const d=occ?(+p.prezzo||0)-(+x.cr||0):0;
+    const cand=mine().filter(q=>!casOf(q.id)&&fitPlan(q,x.r)<3).sort((a,b)=>b.prezzo-a.prezzo);
+    const liberi=S.players.filter(q=>q.stato==='lib'&&fitPlan(q,x.r)===1).sort((a,b)=>b.quota-a.quota);
+    return `
+    <div class="grab"></div>
+    <div class="sh-title">Casella ${x.r}</div>
+    <div class="tiny muted" style="margin-top:3px">${MACRONAME[macroOfRole(x.r)]} · ${occ?'occupata':'libera'}</div>
+    ${occ?`<div class="simul" style="margin-top:12px">
+      <div class="line"><span>Occupata da</span><b>${esc(p.nome)}</b></div>
+      <div class="line"><span>Squadra e ruoli</span><b>${esc(p.squadra)} ${p.ruoli.join('/')}</b></div>
+      <div class="line"><span>Titolarità</span><b class="num">${p.tit}%</b></div>
+      <div class="line"><span>Pagato</span><b class="num">${fmt(p.prezzo)}</b></div>
+      <div class="line"><span>Avevi previsto</span><b class="num">${fmt(x.cr)}</b></div>
+      <div class="line"><span>Differenza</span><b class="num" style="color:${d>0?'var(--rose)':d<0?'var(--grass)':'var(--mute)'}">${d>0?'+':''}${fmt(d)}</b></div>
+      <div class="line"><span>${fitPlan(p,x.r)===1?'Ruolo naturale':'Adattato in questa posizione'}</span><b>${fitPlan(p,x.r)===1?'sì':'malus'}</b></div>
+    </div>`:`
+    <div class="field" style="margin-top:12px"><div class="lab">Quanto pensi di spenderci</div>
+      <div class="stepper">
+        <button data-s="-5">−5</button><button data-s="-1">−1</button>
+        <div class="val num">${fmt(x.cr)}</div>
+        <button data-s="1">+1</button><button data-s="5">+5</button>
+      </div></div>`}
+    <div class="field"><div class="lab">Posizione della casella</div>
+      <div class="chips" id="cs-r">${ROLEOPTS.map(r=>`<button class="chip ${x.r===r?'on':''}" data-r="${r}">${r}</button>`).join('')}</div></div>
+    ${!occ&&cand.length?`<div class="field"><div class="lab">Metti qui uno dei tuoi</div>
+      <div class="plist">${cand.map(q=>`<div class="p" data-put="${q.id}">
+        <div class="fa fa${q.fascia}">${q.fascia}</div>
+        <div class="nm"><b>${esc(q.nome)}</b><span>${q.ruoli.join('/')} · pagato ${fmt(q.prezzo)}${fitPlan(q,x.r)===2?' · adattato':''}</span></div>
+        <div class="qt num">${fmt(q.prezzo)}</div></div>`).join('')}</div></div>`:''}
+    ${!occ&&liberi.length?`<div class="tiny muted" style="margin-top:10px">In lista per questa posizione: ${liberi.slice(0,6).map(q=>esc(short(q.nome))+' '+fmt(q.quota)).join(' · ')}</div>`:''}
+    ${occ?`<button class="btn full warn" style="margin-top:12px" data-free="1">Libera la casella</button>`:''}
+    <div class="row" style="margin-top:8px">
+      <button class="btn dan" data-del="1">Elimina casella</button>
+      <button class="btn" data-x="1">Chiudi</button>
+    </div>`;
+  };
+  const bind=()=>{
+    const up=()=>{$('#sheet').innerHTML=draw();bind()};
+    $$('#sheet [data-s]').forEach(b=>b.addEventListener('click',()=>{x.cr=Math.max(1,x.cr+ +b.dataset.s);persist();up()}));
+    $$('#cs-r .chip').forEach(b=>b.addEventListener('click',()=>{x.r=b.dataset.r;persist();up()}));
+    $$('#sheet [data-put]').forEach(b=>b.addEventListener('click',()=>{
+      const q=byId(b.dataset.put); const old=casOf(q.id); if(old)old.pid=null;
+      x.pid=q.id; persist(); closeSheet(); viewPiano(); toast(short(q.nome)+' messo nella casella '+x.r);
+    }));
+    const f=$('#sheet [data-free]'); if(f)f.addEventListener('click',()=>{x.pid=null;persist();closeSheet();viewPiano();toast('Casella liberata')});
+    $('#sheet [data-del]').addEventListener('click',()=>{
+      S.caselle=S.caselle.filter(y=>y.id!==x.id); persist(); renderHeader(); closeSheet(); viewPiano(); toast('Casella eliminata');
+    });
+    $('#sheet [data-x]').addEventListener('click',closeSheet);
+  };
+  openSheet(draw(),bind);
+}
 
-/* ============================================================
-   TAB: DATI
-   ============================================================ */
 function viewDati(){
   const m=$('#main');
   m.innerHTML=`
@@ -1059,6 +1155,7 @@ function viewDati(){
   $('#rstAsta').addEventListener('click',()=>{
     if(!confirm('Rimetti tutti i giocatori come liberi?'))return;
     S.players.forEach(p=>{p.stato='lib';p.prezzo=0}); S.campi={}; S.log=[];
+    (S.caselle||[]).forEach(x=>x.pid=null); S.caselle=(S.caselle||[]).filter(x=>!x.extra);
     persist(); renderHeader(); toast('Asta azzerata'); viewDati();
   });
   $('#rstAll').addEventListener('click',()=>{
@@ -1269,9 +1366,7 @@ function bidSheet(p){
     const c=calc();
     const after=c.rem-price, leftAfter=c.left-1;
     const maxAfter=leftAfter>0?Math.max(0,after-(leftAfter-1)):0;
-    const mm=macroOf(p), fa=S.fasce[mm][p.fascia-1], pl=pianoLive(), dd=pl.fasce[mm+(p.fascia-1)];
-    const planDopo=pl.resid-(dd.rim>0?fa.cr:0), remDopo=c.rem-price;
-    const kk=planDopo>0?Math.round((remDopo/planDopo-1)*100):0;
+    const box=bestCasella(p,price), dd=box?price-(+box.cr||0):0;
     const over=price>c.max;
     return `
     <div class="grab"></div>
@@ -1292,11 +1387,11 @@ function bidSheet(p){
       <div class="line"><span>Posti ancora vuoti</span><b class="num">${leftAfter}</b></div>
       <div class="line"><span>Nuova offerta massima</span><b class="num">${fmt(maxAfter)}</b></div>
       <div class="line"><span>Media per ogni posto rimasto</span><b class="num">${leftAfter>0?fmt(Math.floor(after/leftAfter)):'—'}</b></div>
-      <div class="line" style="margin-top:7px;color:${price>fa.cr*1.25?'var(--amber)':'var(--mute)'}">
-        <span>Piano ${MACRONAME[mm].toLowerCase()} fascia ${p.fascia}${dd.rim?' · '+dd.rim+(dd.rim>1?' posti':' posto'):' · fascia già piena'}</span>
-        <b class="num">${dd.rim?fmt(fa.cr)+' previsti':fmt(dd.sp)+' già spesi'}</b></div>
-      ${S.autobal!==false&&kk?`<div class="line" style="color:${kk<0?'var(--amber)':'var(--grass)'}">
-        <span>Le altre fasce aperte si spostano di</span><b class="num">${kk>0?'+':''}${kk}%</b></div>`:''}
+      <div class="line" style="margin-top:7px">
+        <span>${box?'Andrebbe nella casella '+box.r:'Nessuna casella libera per il suo ruolo'}</span>
+        <b class="num">${box?fmt(box.cr)+' previsti':'—'}</b></div>
+      ${box?`<div class="line" style="color:${dd>0?'var(--rose)':dd<0?'var(--grass)':'var(--mute)'}">
+        <span>Differenza sulla casella</span><b class="num">${dd>0?'+':''}${fmt(dd)}</b></div>`:''}
     </div>
     ${over?`<div class="banner" style="margin-bottom:10px">Sopra il massimo: non ti resterebbe un credito per ogni altro posto da riempire.</div>`:''}
     <button class="btn go full" data-act="io">L'ho preso io a ${fmt(price)}</button>
@@ -1320,12 +1415,21 @@ function bidSheet(p){
 function assign(p,mio,price){
   p.stato=mio?'io':'altri'; p.prezzo=price;
   S.log.push({id:p.id,nome:p.nome,prezzo:price,mio,ora:new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})});
-  let d=0; if(mio&&S.autobal!==false) d=rebalance();
-  persist(); renderHeader(); go(TAB);
-  toast(mio?`${short(p.nome)} è tuo a ${price}`+(d?` · piano ${d>0?'+':''}${d}%`:''):`${short(p.nome)} agli altri`);
+  let msg=`${short(p.nome)} agli altri`;
+  if(mio){
+    if(!S.caselle)S.caselle=[];
+    let box=casOf(p.id)||bestCasella(p,price);
+    if(!box){ box=newCas(p.ruoli[0],price); box.extra=true; S.caselle.push(box) }
+    box.pid=p.id;
+    const d=price-(+box.cr||0);
+    msg=`${short(p.nome)} nella casella ${box.r}: ${d>0?'+':''}${fmt(d)} sul previsto`;
+  }
+  persist(); renderHeader(); go(TAB); toast(msg);
 }
 function reset(p){
   p.stato='lib'; p.prezzo=0;
+  const box=casOf(p.id);
+  if(box){ box.pid=null; if(box.extra) S.caselle=S.caselle.filter(x=>x.id!==box.id) }
   unplace(p.id);
   S.log=S.log.filter(e=>e.id!==p.id);
   persist(); renderHeader(); go(TAB); toast(short(p.nome)+' di nuovo libero');
@@ -1344,7 +1448,8 @@ function editPlayer(p){
     <div class="sh-title">${isNew?'Nuovo giocatore':esc(d.nome)}</div>
     <div class="field" style="margin-top:12px"><div class="lab">Nome${isNew?' — scrivi due lettere e scegli dall\'archivio':''}</div>
       <input class="inp" id="e-n" value="${esc(d.nome)}" autocapitalize="words" autocomplete="off" spellcheck="false">
-      <div id="e-sugg"></div></div>
+      <div id="e-sugg"></div>
+      ${isNew?`<button class="btn full" id="e-fill" style="margin-top:8px">Compila la scheda dal nome</button>`:''}</div>
     <div class="field"><div class="lab">Squadra</div>
       <input class="inp" id="e-s" value="${esc(d.squadra)}" autocapitalize="words"></div>
     <div class="field"><div class="lab">Ruoli Mantra — il primo decide il reparto</div>
@@ -1380,6 +1485,7 @@ function editPlayer(p){
     $('#e-ok').addEventListener('click',()=>{
       pull();
       if(!d.nome.trim()){toast('Serve almeno il nome');return}
+      if(isNew&&!d.squadra&&fill(false))return;   // prima completo dall'archivio, poi salvi
       if(isNew){S.players.push(d)} else {Object.assign(p,d)}
       S.demo=false;
       persist(); renderHeader(); closeSheet(); go(TAB); toast('Salvato');
@@ -1405,7 +1511,19 @@ function editPlayer(p){
       d.fascia=autoFascia(MACRO[d.ruoli[0]]||'C',d.quota);
       $('#sheet').innerHTML=draw(); bind(); toast('Scheda compilata dall\'archivio');
     };
-    if(nEl&&isNew){ nEl.addEventListener('input',drawSugg); drawSugg(); }
+    const fill=(loud)=>{
+      if(!nEl)return false;
+      const h=lookup(nEl.value);
+      if(h.length){ pick(h[0]); return true }
+      if(loud)toast('Nessun nome simile nell\'archivio');
+      return false;
+    };
+    if(nEl&&isNew){
+      nEl.addEventListener('input',drawSugg);
+      nEl.addEventListener('change',()=>{ if(!d.squadra) fill(false) });
+      const fb=$('#e-fill'); if(fb)fb.addEventListener('click',()=>fill(true));
+      drawSugg();
+    }
     const del=$('#e-del'); if(del)del.addEventListener('click',()=>{
       if(!confirm('Elimino '+p.nome+'?'))return;
       S.players=S.players.filter(x=>x.id!==p.id);
@@ -1456,6 +1574,11 @@ $$('#nav button').forEach(b=>b.addEventListener('click',()=>{$('#main').scrollTo
   const s=await load();
   if(s&&s.players){ S=Object.assign(defaults(),s) }
   else { S=defaults(); S.demo=false; save() }
+  if(!S.caselle||!S.caselle.length){
+    genCaselle((S.limits.P+S.limits.D+S.limits.C+S.limits.A)||25);
+    mine().forEach(p=>{const b=bestCasella(p,p.prezzo); if(b)b.pid=p.id});
+    save();
+  }
   go('asta');
 })();
 </script>
