@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coda di stampa</title>
+<style>
+  :root{
+    --bg:#eceff1;
+    --surface:#ffffff;
+    --ink:#14202a;
+    --muted:#5b6b78;
+    --line:#d3d9de;
+    --accent:#0f5c8c;
+    --ok:#17734a;
+    --warn:#a65a00;
+    --err:#a8281f;
+    --radius:3px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.5 "Segoe UI",system-ui,-apple-system,sans-serif;
+  }
+  .mono{font-family:"Cascadia Mono",Consolas,ui-monospace,monospace}
+
+  header{
+    background:var(--ink);color:#e7edf2;
+    border-bottom:3px solid var(--accent);
+  }
+  .barra{
+    max-width:1080px;margin:0 auto;padding:14px 20px;
+    display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  }
+  .barra h1{font-size:19px;font-weight:600;margin:0;letter-spacing:.2px}
+  .stato{
+    margin-left:auto;display:flex;align-items:center;gap:9px;
+    font-size:13.5px;color:#b9c6d1;
+  }
+  .spia{width:10px;height:10px;border-radius:50%;background:#6b7b88;box-shadow:0 0 0 3px rgba(255,255,255,.08)}
+  .spia.on{background:#35d07f}
+  .spia.off{background:#e05a4f}
+
+  main{max-width:1080px;margin:0 auto;padding:22px 20px 60px;
+       display:grid;grid-template-columns:400px 1fr;gap:22px;align-items:start}
+  @media(max-width:900px){main{grid-template-columns:1fr}}
+
+  section{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+  section > h2{
+    margin:0;padding:13px 18px;font-size:15px;font-weight:600;
+    border-bottom:1px solid var(--line);
+  }
+  .corpo{padding:18px}
+
+  label{display:block;font-size:13.5px;color:var(--muted);margin-bottom:5px}
+  input[type=text],input[type=number],input[type=password],textarea,select{
+    width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:var(--radius);
+    font:inherit;color:var(--ink);background:#fdfefe;
+  }
+  input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+  .campo{margin-bottom:14px}
+  .due{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+  .drop{
+    border:2px dashed var(--line);border-radius:var(--radius);
+    padding:22px 14px;text-align:center;color:var(--muted);cursor:pointer;background:#f7f9fa;
+  }
+  .drop.attivo{border-color:var(--accent);background:#eef5fa;color:var(--accent)}
+  .drop strong{display:block;color:var(--ink);font-weight:600;margin-bottom:3px}
+
+  button{
+    font:inherit;font-weight:600;border:1px solid transparent;border-radius:var(--radius);
+    padding:10px 16px;cursor:pointer;background:var(--accent);color:#fff;
+  }
+  button:hover{background:#0c4c74}
+  button:disabled{background:#9aa9b4;cursor:not-allowed}
+  button.secondario{background:transparent;color:var(--accent);border-color:var(--line)}
+  button.secondario:hover{background:#eef5fa}
+  button.mini{padding:4px 9px;font-size:12.5px;font-weight:500}
+
+  .avviso{padding:10px 12px;border-radius:var(--radius);font-size:13.5px;margin-bottom:14px;display:none}
+  .avviso.ok{display:block;background:#e6f4ec;color:var(--ok);border:1px solid #b9dfc9}
+  .avviso.ko{display:block;background:#fbeae8;color:var(--err);border:1px solid #f0c4bf}
+
+  ol.coda{list-style:none;margin:0;padding:0;counter-reset:pos}
+  ol.coda li{
+    display:flex;gap:14px;align-items:flex-start;
+    padding:13px 18px;border-bottom:1px solid var(--line);
+  }
+  ol.coda li:last-child{border-bottom:0}
+  .pos{
+    counter-increment:pos;min-width:26px;height:26px;border-radius:50%;
+    background:#eef2f5;border:1px solid var(--line);color:var(--muted);
+    display:grid;place-items:center;font-size:13px;font-weight:600;flex:none;
+  }
+  ol.coda li:first-child .pos{background:var(--accent);border-color:var(--accent);color:#fff}
+  .pos::before{content:counter(pos)}
+  .dett{flex:1;min-width:0}
+  .dett .nome{font-weight:600;word-break:break-all}
+  .dett .meta{font-size:13px;color:var(--muted);margin-top:2px}
+  .vuoto{padding:26px 18px;color:var(--muted);text-align:center}
+
+  ul.storico{list-style:none;margin:0;padding:0}
+  ul.storico li{padding:11px 18px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:baseline}
+  ul.storico li:last-child{border-bottom:0}
+  .esito{font-size:12.5px;font-weight:600;flex:none}
+  .esito.ok{color:var(--ok)}
+  .esito.ko{color:var(--err)}
+
+  .accesso{max-width:420px;margin:60px auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px}
+  .accesso h2{margin:0 0 6px;font-size:18px}
+  .accesso p{margin:0 0 18px;color:var(--muted);font-size:13.5px}
+  .riga-fondo{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+  .riga-fondo small{color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="barra">
+    <h1>Coda di stampa</h1>
+    <div class="stato">
+      <span class="spia" id="spia"></span>
+      <span id="testoStato">Controllo del server…</span>
+      <button class="mini secondario" id="btnEsci" style="display:none;background:transparent;color:#b9c6d1;border-color:#31414e">Cambia utente</button>
+    </div>
+  </div>
+</header>
+
+<!-- accesso -->
+<div class="accesso" id="accesso" style="display:none">
+  <h2>Accedi alla coda</h2>
+  <p>Il nome serve a riconoscere le tue stampe. Il token GitHub ti viene fornito dall'ufficio tecnico e resta salvato solo su questo dispositivo.</p>
+  <div class="avviso" id="avvisoAccesso"></div>
+  <div class="campo">
+    <label for="inNome">Il tuo nome</label>
+    <input type="text" id="inNome" placeholder="Mario Rossi" autocomplete="name">
+  </div>
+  <div class="campo">
+    <label for="inToken">Token GitHub</label>
+    <input type="password" id="inToken" placeholder="github_pat_…">
+  </div>
+  <button id="btnAccedi">Entra</button>
+</div>
+
+<main id="app" style="display:none">
+
+  <section>
+    <h2>Nuova stampa</h2>
+    <div class="corpo">
+      <div class="avviso" id="avviso"></div>
+
+      <div class="campo">
+        <div class="drop" id="drop">
+          <strong>Trascina qui il file</strong>
+          oppure clicca per sceglierlo (PDF consigliato, max 20 MB)
+        </div>
+        <input type="file" id="inFile" hidden>
+      </div>
+
+      <div class="campo due">
+        <div>
+          <label for="inCopie">Copie</label>
+          <input type="number" id="inCopie" value="1" min="1" max="50">
+        </div>
+        <div>
+          <label for="inStampante">Stampante</label>
+          <input type="text" id="inStampante" placeholder="predefinita">
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="inNote">Note per chi stampa</label>
+        <input type="text" id="inNote" placeholder="es. fronte/retro, A3">
+      </div>
+
+      <button id="btnInvia" disabled>Metti in coda</button>
+      <div class="riga-fondo"><small id="statoInvio"></small></div>
+    </div>
+  </section>
+
+  <div>
+    <section style="margin-bottom:22px">
+      <h2>In coda <span class="mono" id="conteggio" style="color:var(--muted);font-weight:400"></span></h2>
+      <ol class="coda" id="listaCoda"><li class="vuoto">Caricamento…</li></ol>
+    </section>
+
+    <section>
+      <h2>Ultime stampe</h2>
+      <ul class="storico" id="listaStorico"><li class="vuoto">Caricamento…</li></ul>
+    </section>
+  </div>
+
+</main>
+
+<script>
+/* ====================== CONFIGURAZIONE ====================== */
+const CONFIG = {
+  owner:  'TUO-UTENTE-GITHUB',   // <-- proprietario del repo
+  repo:   'coda-stampe',         // <-- repo della coda
+  branch: 'main',
+  cartellaCoda:    'coda',
+  cartellaFile:    'file',
+  cartellaStorico: 'storico',
+  cartellaStato:   'stato',
+  maxMB: 20,
+  aggiornaOgniSec: 10
+};
+/* ============================================================ */
+
+const API = `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}`;
+const $ = id => document.getElementById(id);
+let utente = localStorage.getItem('cs_utente') || '';
+let token  = localStorage.getItem('cs_token')  || '';
+let fileScelto = null;
+
+/* ---------- chiamate a GitHub ---------- */
+async function gh(percorso, opzioni = {}, accept = 'application/vnd.github+json') {
+  const r = await fetch(`${API}${percorso}`, {
+    ...opzioni,
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': accept,
+      'X-GitHub-Api-Version': '2022-11-28',
+      ...(opzioni.headers || {})
+    }
+  });
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error(`GitHub ${r.status}: ${(await r.text()).slice(0, 180)}`);
+  return accept.includes('raw') ? r.text() : r.json();
+}
+
+const elenca   = c => gh(`/contents/${c}?ref=${CONFIG.branch}&t=${Date.now()}`);
+const leggi    = p => gh(`/contents/${p}?ref=${CONFIG.branch}&t=${Date.now()}`, {}, 'application/vnd.github.raw');
+
+function scrivi(percorso, contenutoBase64, messaggio) {
+  return gh(`/contents/${percorso}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: messaggio, content: contenutoBase64, branch: CONFIG.branch })
+  });
+}
+
+async function elimina(percorso, messaggio) {
+  const info = await gh(`/contents/${percorso}?ref=${CONFIG.branch}&t=${Date.now()}`);
+  if (!info) return;
+  return gh(`/contents/${percorso}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: messaggio, sha: info.sha, branch: CONFIG.branch })
+  });
+}
+
+const testoInBase64 = t => btoa(unescape(encodeURIComponent(t)));
+
+function fileInBase64(f) {
+  return new Promise((ris, err) => {
+    const lettore = new FileReader();
+    lettore.onload  = () => ris(lettore.result.split(',')[1]);
+    lettore.onerror = () => err(new Error('Lettura del file non riuscita'));
+    lettore.readAsDataURL(f);
+  });
+}
+
+/* ---------- utilità ---------- */
+const pulisci = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9._-]/g, '_');
+const mb = b => (b / 1048576).toFixed(1) + ' MB';
+
+function ora(iso) {
+  const d = new Date(iso);
+  return d.toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+
+function mostraAvviso(elemento, testo, ok) {
+  elemento.textContent = testo;
+  elemento.className = 'avviso ' + (ok ? 'ok' : 'ko');
+  if (ok) setTimeout(() => { elemento.className = 'avviso'; }, 6000);
+}
+
+/* ---------- accesso ---------- */
+function apriApp() {
+  $('accesso').style.display = 'none';
+  $('app').style.display = 'grid';
+  $('btnEsci').style.display = 'inline-block';
+  aggiorna();
+  setInterval(aggiorna, CONFIG.aggiornaOgniSec * 1000);
+}
+
+$('btnAccedi').onclick = async () => {
+  const n = $('inNome').value.trim(), t = $('inToken').value.trim();
+  if (!n || !t) return mostraAvviso($('avvisoAccesso'), 'Inserisci nome e token.', false);
+  utente = n; token = t;
+  try {
+    await elenca(CONFIG.cartellaCoda);
+    localStorage.setItem('cs_utente', n);
+    localStorage.setItem('cs_token', t);
+    apriApp();
+  } catch (e) {
+    mostraAvviso($('avvisoAccesso'), 'Token rifiutato dal repository. Controlla di averlo copiato per intero.', false);
+  }
+};
+
+$('btnEsci').onclick = () => {
+  localStorage.removeItem('cs_utente');
+  localStorage.removeItem('cs_token');
+  location.reload();
+};
+
+/* ---------- scelta del file ---------- */
+const drop = $('drop');
+drop.onclick = () => $('inFile').click();
+drop.ondragover = e => { e.preventDefault(); drop.classList.add('attivo'); };
+drop.ondragleave = () => drop.classList.remove('attivo');
+drop.ondrop = e => { e.preventDefault(); drop.classList.remove('attivo'); scegli(e.dataTransfer.files[0]); };
+$('inFile').onchange = e => scegli(e.target.files[0]);
+
+function scegli(f) {
+  if (!f) return;
+  if (f.size > CONFIG.maxMB * 1048576) {
+    return mostraAvviso($('avviso'), `Il file supera ${CONFIG.maxMB} MB. Riducilo o consegnalo su rete.`, false);
+  }
+  fileScelto = f;
+  drop.innerHTML = `<strong>${f.name}</strong><span class="mono">${mb(f.size)}</span> — clicca per cambiare`;
+  $('btnInvia').disabled = false;
+}
+
+/* ---------- invio ---------- */
+$('btnInvia').onclick = async () => {
+  if (!fileScelto) return;
+  $('btnInvia').disabled = true;
+  $('statoInvio').textContent = 'Invio in corso…';
+  try {
+    const id = new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14)
+             + '-' + Math.random().toString(36).slice(2, 7);
+    const nomeFile = pulisci(fileScelto.name);
+    const percorsoFile = `${CONFIG.cartellaFile}/${id}__${nomeFile}`;
+
+    await scrivi(percorsoFile, await fileInBase64(fileScelto), `file ${id}`);
+
+    const lavoro = {
+      id,
+      utente,
+      nomeFile,
+      percorsoFile,
+      copie: parseInt($('inCopie').value, 10) || 1,
+      stampante: $('inStampante').value.trim(),
+      note: $('inNote').value.trim(),
+      dimensione: fileScelto.size,
+      creatoIl: new Date().toISOString()
+    };
+    await scrivi(`${CONFIG.cartellaCoda}/${id}.json`, testoInBase64(JSON.stringify(lavoro, null, 2)), `coda ${id}`);
+
+    mostraAvviso($('avviso'), 'Stampa messa in coda.', true);
+    fileScelto = null;
+    $('inFile').value = '';
+    $('inNote').value = '';
+    drop.innerHTML = '<strong>Trascina qui il file</strong>oppure clicca per sceglierlo (PDF consigliato, max 20 MB)';
+    aggiorna();
+  } catch (e) {
+    mostraAvviso($('avviso'), 'Invio non riuscito: ' + e.message, false);
+    $('btnInvia').disabled = false;
+  } finally {
+    $('statoInvio').textContent = '';
+  }
+};
+
+/* ---------- annullamento ---------- */
+async function annulla(lavoro) {
+  if (!confirm(`Togliere «${lavoro.nomeFile}» dalla coda?`)) return;
+  try {
+    await elimina(lavoro.percorsoFile, `annullato ${lavoro.id}`);
+    await elimina(`${CONFIG.cartellaCoda}/${lavoro.id}.json`, `annullato ${lavoro.id}`);
+    aggiorna();
+  } catch (e) {
+    mostraAvviso($('avviso'), 'Annullamento non riuscito: ' + e.message, false);
+  }
+}
+
+/* ---------- aggiornamento ---------- */
+async function aggiorna() {
+  statoServer();
+  mostraCoda();
+  mostraStorico();
+}
+
+async function statoServer() {
+  try {
+    const t = await leggi(`${CONFIG.cartellaStato}/server.json`);
+    if (!t) throw new Error('assente');
+    const s = JSON.parse(t);
+    const minuti = (Date.now() - new Date(s.aggiornatoIl)) / 60000;
+    const acceso = minuti < 5;
+    $('spia').className = 'spia ' + (acceso ? 'on' : 'off');
+    $('testoStato').textContent = acceso
+      ? `${s.postazione} in ascolto · stampante ${s.stampante}`
+      : `${s.postazione} non risponde da ${Math.round(minuti)} min`;
+  } catch {
+    $('spia').className = 'spia off';
+    $('testoStato').textContent = 'Server di stampa non raggiungibile';
+  }
+}
+
+async function mostraCoda() {
+  const lista = $('listaCoda');
+  try {
+    const voci = (await elenca(CONFIG.cartellaCoda)) || [];
+    const file = voci.filter(v => v.type === 'file' && v.name.endsWith('.json')).sort((a, b) => a.name.localeCompare(b.name));
+    $('conteggio').textContent = file.length ? `${file.length}` : '';
+    if (!file.length) { lista.innerHTML = '<li class="vuoto">Nessuna stampa in attesa. Il primo file che invii parte subito.</li>'; return; }
+
+    const lavori = await Promise.all(file.map(async v => JSON.parse(await leggi(v.path))));
+    lista.innerHTML = '';
+    lavori.forEach(l => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <span class="pos"></span>
+        <span class="dett">
+          <span class="nome">${l.nomeFile}</span>
+          <span class="meta">${l.utente} · ${l.copie} ${l.copie > 1 ? 'copie' : 'copia'}${l.stampante ? ' · ' + l.stampante : ''} · ${ora(l.creatoIl)}${l.note ? '<br>' + l.note : ''}</span>
+        </span>`;
+      if (l.utente === utente) {
+        const b = document.createElement('button');
+        b.className = 'mini secondario';
+        b.textContent = 'Annulla';
+        b.onclick = () => annulla(l);
+        li.appendChild(b);
+      }
+      lista.appendChild(li);
+    });
+  } catch (e) {
+    lista.innerHTML = `<li class="vuoto">Coda non leggibile: ${e.message}</li>`;
+  }
+}
+
+async function mostraStorico() {
+  const lista = $('listaStorico');
+  try {
+    const voci = (await elenca(CONFIG.cartellaStorico)) || [];
+    const ultimi = voci.filter(v => v.type === 'file').sort((a, b) => b.name.localeCompare(a.name)).slice(0, 8);
+    if (!ultimi.length) { lista.innerHTML = '<li class="vuoto">Ancora nessuna stampa completata.</li>'; return; }
+    const righe = await Promise.all(ultimi.map(async v => JSON.parse(await leggi(v.path))));
+    lista.innerHTML = '';
+    righe.forEach(r => {
+      const li = document.createElement('li');
+      const ok = r.stato === 'stampato';
+      li.innerHTML = `
+        <span class="esito ${ok ? 'ok' : 'ko'}">${ok ? 'Stampato' : 'Errore'}</span>
+        <span class="dett">
+          <span class="nome" style="font-weight:500">${r.nomeFile}</span>
+          <span class="meta">${r.utente} · ${ora(r.elaboratoIl)}${r.messaggio ? ' · ' + r.messaggio : ''}</span>
+        </span>`;
+      lista.appendChild(li);
+    });
+  } catch (e) {
+    lista.innerHTML = `<li class="vuoto">Storico non leggibile: ${e.message}</li>`;
+  }
+}
+
+/* ---------- avvio ---------- */
+if (utente && token) apriApp(); else $('accesso').style.display = 'block';
+</script>
+</body>
+</html>
