@@ -1,5 +1,5 @@
 {
-    "aggiornatoIl":  "2026-09-12T20:55:44.0553393+02:00",
+    "aggiornatoIl":  "2026-09-12T20:56:38.2144502+02:00",
     "postazione":  "DESKTOP-TL5ITPG",
     "dispositivi":  [
                         {
@@ -15,7 +15,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:43.3183021+02:00"
+                            "vistoIl":  "2026-09-12T20:56:36.8129705+02:00"
                         },
                         {
                             "ip":  "192.168.1.2",
@@ -29,7 +29,7 @@
                             "acceso":  true,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:43.3183021+02:00"
+                            "vistoIl":  "2026-09-12T20:56:36.8129705+02:00"
                         },
                         {
                             "ip":  "192.168.1.4",
@@ -43,7 +43,7 @@
                             "acceso":  true,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:43.4093228+02:00"
+                            "vistoIl":  "2026-09-12T20:56:36.8987291+02:00"
                         },
                         {
                             "ip":  "192.168.1.5",
@@ -58,7 +58,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:43.4922895+02:00"
+                            "vistoIl":  "2026-09-12T20:56:36.9672203+02:00"
                         },
                         {
                             "ip":  "192.168.1.6",
@@ -72,7 +72,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:43.4922895+02:00"
+                            "vistoIl":  "2026-09-12T20:56:36.9672203+02:00"
                         },
                         {
                             "ip":  "192.168.1.8",
@@ -86,7 +86,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:43.4922895+02:00"
+                            "vistoIl":  "2026-09-12T20:56:36.9672203+02:00"
                         },
                         {
                             "ip":  "192.168.1.9",
@@ -101,7 +101,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:43.4932867+02:00"
+                            "vistoIl":  "2026-09-12T20:56:36.9682194+02:00"
                         },
                         {
                             "ip":  "192.168.1.11",
@@ -115,7 +115,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:43.4932867+02:00"
+                            "vistoIl":  "2026-09-12T20:56:36.9682194+02:00"
                         },
                         {
                             "ip":  "192.168.1.12",
@@ -129,7 +129,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:43.4932867+02:00"
+                            "vistoIl":  "2026-09-12T20:56:36.9682194+02:00"
                         },
                         {
                             "ip":  "192.168.1.13",
@@ -139,11 +139,11 @@
                             "porte":  [
 
                                       ],
-                            "online":  false,
+                            "online":  true,
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:43.4942870+02:00"
+                            "vistoIl":  "2026-09-12T20:56:36.9692184+02:00"
                         },
                         {
                             "ip":  "192.168.1.14",
@@ -157,7 +157,7 @@
                             "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:43.4942870+02:00"
+                            "vistoIl":  "2026-09-12T20:56:36.9692184+02:00"
                         },
                         {
                             "ip":  "192.168.1.15",
@@ -167,11 +167,11 @@
                             "porte":  [
                                           80
                                       ],
-                            "online":  false,
-                            "acceso":  null,
+                            "online":  true,
+                            "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:43.5676469+02:00"
+                            "vistoIl":  "2026-09-12T20:56:37.0627092+02:00"
                         },
                         {
                             "ip":  "192.168.1.16",
@@ -185,7 +185,7 @@
                             "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:43.5676469+02:00"
+                            "vistoIl":  "2026-09-12T20:56:37.1456460+02:00"
                         },
                         {
                             "ip":  "192.168.1.17",
@@ -195,11 +195,11 @@
                             "porte":  [
                                           80
                                       ],
-                            "online":  false,
-                            "acceso":  null,
+                            "online":  true,
+                            "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:43.6528210+02:00"
+                            "vistoIl":  "2026-09-12T20:56:37.2200687+02:00"
                         },
                         {
                             "ip":  "192.168.1.18",
@@ -213,7 +213,7 @@
                             "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:43.6538194+02:00"
+                            "vistoIl":  "2026-09-12T20:56:37.2846687+02:00"
                         },
                         {
                             "ip":  "192.168.1.19",
@@ -223,11 +223,11 @@
                             "porte":  [
                                           80
                                       ],
-                            "online":  false,
-                            "acceso":  null,
+                            "online":  true,
+                            "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:43.7017831+02:00"
+                            "vistoIl":  "2026-09-12T20:56:37.3496249+02:00"
                         },
                         {
                             "ip":  "192.168.1.20",
@@ -237,11 +237,11 @@
                             "porte":  [
                                           80
                                       ],
-                            "online":  false,
-                            "acceso":  null,
+                            "online":  true,
+                            "acceso":  true,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:43.7017831+02:00"
+                            "vistoIl":  "2026-09-12T20:56:37.4440294+02:00"
                         },
                         {
                             "ip":  "192.168.1.21",
@@ -251,11 +251,11 @@
                             "porte":  [
                                           80
                                       ],
-                            "online":  false,
-                            "acceso":  null,
+                            "online":  true,
+                            "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:43.7017831+02:00"
+                            "vistoIl":  "2026-09-12T20:56:37.5429150+02:00"
                         },
                         {
                             "ip":  "192.168.1.22",
@@ -269,7 +269,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:43.7027819+02:00"
+                            "vistoIl":  "2026-09-12T20:56:37.6976208+02:00"
                         },
                         {
                             "ip":  "192.168.1.23",
@@ -283,7 +283,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:43.7027819+02:00"
+                            "vistoIl":  "2026-09-12T20:56:37.6986232+02:00"
                         },
                         {
                             "ip":  "192.168.1.24",
@@ -297,7 +297,7 @@
                             "acceso":  null,
                             "watt":  0.0,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:43.7027819+02:00"
+                            "vistoIl":  "2026-09-12T20:56:37.6986232+02:00"
                         },
                         {
                             "ip":  "192.168.1.25",
@@ -311,7 +311,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:43.7037809+02:00"
+                            "vistoIl":  "2026-09-12T20:56:37.6996300+02:00"
                         },
                         {
                             "ip":  "192.168.1.26",
@@ -325,7 +325,7 @@
                             "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:43.7037809+02:00"
+                            "vistoIl":  "2026-09-12T20:56:37.6996300+02:00"
                         },
                         {
                             "ip":  "192.168.1.27",
@@ -339,7 +339,7 @@
                             "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:43.7641322+02:00"
+                            "vistoIl":  "2026-09-12T20:56:37.8016063+02:00"
                         },
                         {
                             "ip":  "192.168.1.28",
@@ -353,7 +353,7 @@
                             "acceso":  true,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:43.8349913+02:00"
+                            "vistoIl":  "2026-09-12T20:56:37.8770987+02:00"
                         },
                         {
                             "ip":  "192.168.1.29",
@@ -367,7 +367,7 @@
                             "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:43.8998145+02:00"
+                            "vistoIl":  "2026-09-12T20:56:37.9563352+02:00"
                         },
                         {
                             "ip":  "192.168.1.30",
@@ -381,7 +381,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:43.9901531+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.0791989+02:00"
                         },
                         {
                             "ip":  "192.168.1.31",
@@ -395,7 +395,7 @@
                             "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:43.9901531+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.0791989+02:00"
                         },
                         {
                             "ip":  "192.168.1.32",
@@ -409,7 +409,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0433609+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2044556+02:00"
                         },
                         {
                             "ip":  "192.168.1.33",
@@ -423,7 +423,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0433609+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2044556+02:00"
                         },
                         {
                             "ip":  "192.168.1.34",
@@ -437,7 +437,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:44.0433609+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2044556+02:00"
                         },
                         {
                             "ip":  "192.168.1.35",
@@ -451,7 +451,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0443600+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2054505+02:00"
                         },
                         {
                             "ip":  "192.168.1.36",
@@ -465,7 +465,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0443600+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2054505+02:00"
                         },
                         {
                             "ip":  "192.168.1.37",
@@ -479,7 +479,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0443600+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2054505+02:00"
                         },
                         {
                             "ip":  "192.168.1.38",
@@ -493,7 +493,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0443600+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2064501+02:00"
                         },
                         {
                             "ip":  "192.168.1.39",
@@ -503,11 +503,11 @@
                             "porte":  [
 
                                       ],
-                            "online":  false,
+                            "online":  true,
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0453589+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2064501+02:00"
                         },
                         {
                             "ip":  "192.168.1.40",
@@ -521,7 +521,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0453589+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2064501+02:00"
                         },
                         {
                             "ip":  "192.168.1.41",
@@ -535,7 +535,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0453589+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2074506+02:00"
                         },
                         {
                             "ip":  "192.168.1.42",
@@ -549,7 +549,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0463571+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2074506+02:00"
                         },
                         {
                             "ip":  "192.168.1.44",
@@ -563,7 +563,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0463571+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2074506+02:00"
                         },
                         {
                             "ip":  "192.168.1.46",
@@ -577,7 +577,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-12T20:55:44.0463571+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2084488+02:00"
                         },
                         {
                             "ip":  "192.168.1.47",
@@ -591,7 +591,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0473582+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2084488+02:00"
                         },
                         {
                             "ip":  "192.168.1.48",
@@ -605,7 +605,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0473582+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2084488+02:00"
                         },
                         {
                             "ip":  "192.168.1.49",
@@ -619,7 +619,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0473582+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2094497+02:00"
                         },
                         {
                             "ip":  "192.168.1.50",
@@ -633,7 +633,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0483440+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2094497+02:00"
                         },
                         {
                             "ip":  "192.168.1.51",
@@ -647,7 +647,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0483440+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2104500+02:00"
                         },
                         {
                             "ip":  "192.168.1.52",
@@ -661,7 +661,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0513407+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2104500+02:00"
                         },
                         {
                             "ip":  "192.168.1.60",
@@ -677,7 +677,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0513407+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2104500+02:00"
                         },
                         {
                             "ip":  "192.168.1.69",
@@ -691,7 +691,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0513407+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2114330+02:00"
                         },
                         {
                             "ip":  "192.168.1.70",
@@ -706,7 +706,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0523395+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2114330+02:00"
                         },
                         {
                             "ip":  "192.168.1.83",
@@ -721,7 +721,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0523395+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2114330+02:00"
                         },
                         {
                             "ip":  "192.168.1.100",
@@ -731,11 +731,11 @@
                             "porte":  [
 
                                       ],
-                            "online":  false,
+                            "online":  true,
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0533406+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2124571+02:00"
                         },
                         {
                             "ip":  "192.168.1.117",
@@ -749,7 +749,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T20:55:44.0533406+02:00"
+                            "vistoIl":  "2026-09-12T20:56:38.2124571+02:00"
                         }
                     ]
 }
