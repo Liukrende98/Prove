@@ -32,27 +32,6 @@
           "ip": "192.168.1.27"
         }
       ]
-    },
-    {
-      "id": "a3",
-      "nome": "Luci esterne serali",
-      "attiva": true,
-      "ora": "18:45",
-      "giorni": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ],
-      "azioni": [
-        {
-          "tipo": "accendi",
-          "ip": "192.168.1.27"
-        }
-      ]
     }
   ],
   "zone": [
