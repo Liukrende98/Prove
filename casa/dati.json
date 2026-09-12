@@ -1,0 +1,223 @@
+{
+  "zone": [
+    {
+      "id": "pt",
+      "nome": "Piano terra"
+    },
+    {
+      "id": "p1",
+      "nome": "Primo piano"
+    },
+    {
+      "id": "cortile",
+      "nome": "Cortile"
+    },
+    {
+      "id": "casina",
+      "nome": "Casina"
+    }
+  ],
+  "schede": {
+    "d0:cf:13:c6:69:00": {
+      "alias": "Luci cucina",
+      "tipo": "luce",
+      "zona": "pt",
+      "note": "Shelly 1 Mini dietro il deviatore vicino alla dispensa."
+    },
+    "c4:d8:d5:0d:9b:07": {
+      "alias": "Lampadario salotto",
+      "tipo": "luce",
+      "zona": "pt",
+      "note": "Dimmer 2 — non superare il 70% con le lampadine vecchie."
+    },
+    "ec:64:c9:d7:98:f7": {
+      "alias": "Faretti corridoio",
+      "tipo": "luce",
+      "zona": "pt",
+      "note": ""
+    },
+    "bc:df:58:09:85:7c": {
+      "alias": "Nest cucina",
+      "tipo": "altoparlante",
+      "zona": "pt",
+      "note": ""
+    },
+    "fc:f5:c4:bd:25:e9": {
+      "alias": "Hub camera",
+      "tipo": "hub",
+      "zona": "p1",
+      "note": "Comanda le tende con i motori Bluetooth."
+    },
+    "e4:b0:63:f0:40:60": {
+      "alias": "Presa caldaia",
+      "tipo": "presa",
+      "zona": "pt",
+      "note": "Non spegnere in inverno."
+    },
+    "e4:b0:63:ed:e9:28": {
+      "alias": "Luce scale",
+      "tipo": "luce",
+      "zona": "p1",
+      "note": ""
+    },
+    "d8:3b:da:51:84:ec": {
+      "alias": "Tado riscaldamento",
+      "tipo": "termostato",
+      "zona": "pt",
+      "note": "Valvole in ogni stanza."
+    },
+    "e4:b0:63:ee:d9:88": {
+      "alias": "Luci esterne",
+      "tipo": "luce",
+      "zona": "cortile",
+      "note": "Accensione al tramonto."
+    },
+    "32:3a:fd:64:1b:bb": {
+      "alias": "Telecamera ingresso",
+      "tipo": "telecamera",
+      "zona": "cortile",
+      "note": "rtsp://192.168.1.31:554/stream1"
+    },
+    "20:1f:3b:83:3e:5b": {
+      "alias": "Telecamera cortile",
+      "tipo": "telecamera",
+      "zona": "cortile",
+      "note": ""
+    },
+    "44:d5:cc:2a:7f:37": {
+      "alias": "PC studio",
+      "tipo": "computer",
+      "zona": "p1",
+      "note": "Server delle stampe."
+    },
+    "5c:8a:ae:f8:8f:e6": {
+      "alias": "Stampante Canon",
+      "tipo": "stampante",
+      "zona": "p1",
+      "note": "Wi-Fi, coda WSD."
+    },
+    "d0:cf:13:c4:8c:24": {
+      "alias": "Irrigazione orto",
+      "tipo": "irrigazione",
+      "zona": "casina",
+      "note": "Due settori, 15 minuti a testa."
+    },
+    "dc:b4:d9:d0:80:00": {
+      "alias": "Boiler casina",
+      "tipo": "presa",
+      "zona": "casina",
+      "note": ""
+    },
+    "d0:cf:13:c7:0c:f8": {
+      "alias": "Luce legnaia",
+      "tipo": "luce",
+      "zona": "casina",
+      "note": "Ogni tanto perde il Wi-Fi: segnale debole."
+    },
+    "f8:73:1a:8c:b0:94": {
+      "alias": "Router TIM",
+      "tipo": "router",
+      "zona": "pt",
+      "note": "Pannello su 192.168.1.1"
+    },
+    "42:49:79:90:27:98": {
+      "alias": "Ripetitore Fritz",
+      "tipo": "router",
+      "zona": "p1",
+      "note": ""
+    },
+    "40:a5:ef:b5:36:8e": {
+      "alias": "",
+      "tipo": "router",
+      "zona": null,
+      "note": ""
+    },
+    "192.168.10.106": {
+      "alias": "",
+      "tipo": "computer",
+      "zona": null,
+      "note": ""
+    }
+  },
+  "automazioni": [
+    {
+      "id": "a1",
+      "nome": "Buonanotte",
+      "attiva": true,
+      "ora": "23:30",
+      "giorni": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "azioni": [
+        {
+          "tipo": "spegni",
+          "ip": "192.168.1.4"
+        },
+        {
+          "tipo": "spegni",
+          "ip": "192.168.1.9"
+        },
+        {
+          "tipo": "attendi",
+          "secondi": 5
+        },
+        {
+          "tipo": "spegni",
+          "ip": "192.168.1.27"
+        }
+      ]
+    },
+    {
+      "id": "a2",
+      "nome": "Irrigazione orto",
+      "attiva": true,
+      "ora": "06:30",
+      "giorni": [
+        1,
+        3,
+        5
+      ],
+      "azioni": [
+        {
+          "tipo": "accendi",
+          "ip": "192.168.1.49"
+        },
+        {
+          "tipo": "attendi",
+          "secondi": 900
+        },
+        {
+          "tipo": "spegni",
+          "ip": "192.168.1.49"
+        }
+      ]
+    },
+    {
+      "id": "a3",
+      "nome": "Luci esterne serali",
+      "attiva": false,
+      "ora": "18:45",
+      "giorni": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "azioni": [
+        {
+          "tipo": "accendi",
+          "ip": "192.168.1.27"
+        }
+      ]
+    }
+  ]
+}
