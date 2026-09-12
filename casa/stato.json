@@ -1,5 +1,5 @@
 {
-    "aggiornatoIl":  "2026-09-12T18:37:32.7340343+02:00",
+    "aggiornatoIl":  "2026-09-12T18:38:48.2792653+02:00",
     "postazione":  "DESKTOP-TL5ITPG",
     "dispositivi":  [
                         {
@@ -14,7 +14,63 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T18:37:32.6559118+02:00"
+                            "vistoIl":  "2026-09-12T18:38:47.3127410+02:00"
+                        },
+                        {
+                            "ip":  "192.168.10.100",
+                            "mac":  "4c:2f:7b:ee:be:4b",
+                            "nomeRete":  "192.168.10.100",
+                            "tipo":  "sconosciuto",
+                            "porte":  [
+
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-12T18:38:47.3283852+02:00"
+                        },
+                        {
+                            "ip":  "192.168.10.101",
+                            "mac":  "84:14:4d:12:d0:d1",
+                            "nomeRete":  "192.168.10.101",
+                            "tipo":  "sconosciuto",
+                            "porte":  [
+
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-12T18:38:47.3283852+02:00"
+                        },
+                        {
+                            "ip":  "192.168.10.102",
+                            "mac":  "0c:dc:7e:1c:9a:ec",
+                            "nomeRete":  "192.168.10.102",
+                            "tipo":  "sconosciuto",
+                            "porte":  [
+
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-12T18:38:47.3283852+02:00"
+                        },
+                        {
+                            "ip":  "192.168.10.105",
+                            "mac":  "76:3c:0e:15:77:c6",
+                            "nomeRete":  "192.168.10.105",
+                            "tipo":  "sconosciuto",
+                            "porte":  [
+
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-12T18:38:47.3283852+02:00"
                         },
                         {
                             "ip":  "192.168.10.106",
@@ -29,7 +85,23 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-12T18:37:32.7184087+02:00"
+                            "vistoIl":  "2026-09-12T18:38:47.3283852+02:00"
+                        },
+                        {
+                            "ip":  "192.168.10.110",
+                            "mac":  "50:03:cf:12:70:81",
+                            "nomeRete":  "192.168.10.110",
+                            "tipo":  "stampante",
+                            "porte":  [
+                                          80,
+                                          443,
+                                          9100
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-12T18:38:47.5627268+02:00"
                         }
                     ]
 }
