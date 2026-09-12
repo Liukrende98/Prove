@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#000000">
+<title>Casa</title>
+<style>
+  :root{
+    --nero:#000; --carta:#161618; --carta2:#1f1f22; --carta3:#2e2e33; --carta4:#3a3a40;
+    --testo:#fff; --testo2:rgba(235,235,245,.62); --testo3:rgba(235,235,245,.3);
+    --blu:#0a84ff; --verde:#30d158; --arancio:#ff9f0a; --giallo:#ffd60a; --rosso:#ff453a;
+    --viola:#bf5af2; --rosa:#ff375f; --acqua:#64d2ff; --indaco:#5e5ce6; --menta:#63e6be;
+    --sep:rgba(84,84,88,.42);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;color:var(--testo);overscroll-behavior-y:none;
+       font:16px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+       background:
+         radial-gradient(1100px 560px at 82% -12%, rgba(94,92,230,.20), transparent 62%),
+         radial-gradient(880px 520px at 6% 4%, rgba(10,132,255,.14), transparent 60%),
+         var(--nero);
+       background-attachment:fixed;
+       padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+  button{font:inherit;border:0;background:none;color:inherit;cursor:pointer;padding:0}
+  input,select,textarea{font:inherit}
+
+  /* ---------- intestazione ---------- */
+  .barra{position:sticky;top:0;z-index:30;padding:calc(env(safe-area-inset-top) + 16px) 20px 12px;
+         background:rgba(0,0,0,.6);backdrop-filter:saturate(180%) blur(22px);-webkit-backdrop-filter:saturate(180%) blur(22px);
+         border-bottom:.5px solid transparent;transition:border-color .2s}
+  .barra.staccata{border-bottom-color:var(--sep)}
+  .titolo{display:flex;align-items:center;gap:12px}
+  .titolo h1{margin:0;font-size:32px;font-weight:700;letter-spacing:-.8px;
+             font-family:-apple-system,"SF Pro Display",sans-serif}
+  .titolo .tondi{margin-left:auto;display:flex;gap:9px}
+  .tondo{width:36px;height:36px;border-radius:50%;background:rgba(118,118,128,.24);display:grid;place-items:center;
+         font-size:16px;transition:transform .12s,background .15s}
+  .tondo:active{transform:scale(.9);background:rgba(118,118,128,.4)}
+  .tondo.gira svg{animation:gira .9s linear infinite}
+  @keyframes gira{to{transform:rotate(360deg)}}
+  .sotto{margin-top:4px;font-size:13px;color:var(--testo2)}
+
+  /* ---------- pillole zona ---------- */
+  .pillole{display:flex;gap:8px;padding:12px 20px 2px;overflow-x:auto;scrollbar-width:none}
+  .pillole::-webkit-scrollbar{display:none}
+  .pillola{flex:none;padding:7px 14px;border-radius:100px;background:rgba(118,118,128,.2);color:var(--testo2);
+           font-size:14px;font-weight:500;white-space:nowrap;transition:.18s}
+  .pillola .n{opacity:.55;margin-left:5px;font-variant-numeric:tabular-nums}
+  .pillola.on{background:#fff;color:#000}
+  .pillola.on .n{opacity:.45}
+
+  /* ---------- riquadri dispositivi ---------- */
+  .griglia{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px 20px 24px}
+  @media(min-width:700px){.griglia{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}}
+  .tassello{position:relative;border-radius:22px;padding:15px;min-height:112px;text-align:left;
+            background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));
+            border:.5px solid rgba(255,255,255,.08);
+            display:flex;flex-direction:column;justify-content:space-between;
+            transition:transform .14s cubic-bezier(.2,.9,.3,1.2),background .25s,color .25s;
+            box-shadow:0 8px 24px rgba(0,0,0,.32)}
+  .tassello:active{transform:scale(.955)}
+  .tassello.acceso{background:linear-gradient(180deg,#fff,#e9e9ee);border-color:transparent;color:#16161a;
+                   box-shadow:0 10px 30px rgba(255,214,150,.14)}
+  .tassello.giu{opacity:.4}
+  .tassello .icona{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:18px;
+                   background:rgba(118,118,128,.26)}
+  .tassello.acceso .icona{background:rgba(0,0,0,.08)}
+  .tassello .nome{font-size:15px;font-weight:600;letter-spacing:-.2px;line-height:1.22;margin-top:12px;
+                  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .tassello .stato{font-size:12.5px;color:var(--testo2);margin-top:2px}
+  .tassello.acceso .stato{color:rgba(60,60,67,.62)}
+
+  .interruttore{width:46px;height:27px;border-radius:100px;background:rgba(120,120,128,.32);
+                transition:background .22s;position:relative;flex:none}
+  .interruttore::after{content:'';position:absolute;top:2px;left:2px;width:23px;height:23px;border-radius:50%;
+                       background:#fff;transition:transform .22s cubic-bezier(.2,.9,.3,1.2);
+                       box-shadow:0 2px 5px rgba(0,0,0,.28)}
+  .interruttore.on{background:var(--verde)}
+  .interruttore.on::after{transform:translateX(19px)}
+  .tassello .interruttore{position:absolute;top:15px;right:15px}
+
+  .vuoto{grid-column:1/-1;text-align:center;color:var(--testo2);padding:56px 24px;font-size:14.5px;line-height:1.5}
+  .vuoto .em{font-size:34px;display:block;margin-bottom:10px;opacity:.5}
+
+  /* ---------- automazioni ---------- */
+  .elencoAuto{padding:14px 20px 24px;display:flex;flex-direction:column;gap:11px}
+  .auto{display:flex;align-items:center;gap:13px;padding:15px;border-radius:20px;
+        background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));
+        border:.5px solid rgba(255,255,255,.08);box-shadow:0 8px 24px rgba(0,0,0,.3);
+        transition:transform .14s}
+  .auto:active{transform:scale(.985)}
+  .auto .ora{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;flex:none;
+             background:linear-gradient(160deg,var(--indaco),#8e5cf0);font-size:15px;font-weight:700;
+             letter-spacing:-.4px;font-variant-numeric:tabular-nums}
+  .auto .cen{flex:1;min-width:0;text-align:left}
+  .auto .tit{font-size:15.5px;font-weight:600;letter-spacing:-.2px}
+  .auto .det{font-size:12.5px;color:var(--testo2);margin-top:2px;
+             white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .auto.spenta{opacity:.45}
+
+  /* ---------- barra inferiore ---------- */
+  .schede{position:fixed;left:0;right:0;bottom:0;z-index:35;display:flex;
+          padding:9px 0 calc(9px + env(safe-area-inset-bottom));
+          background:#0d0d0f;background:color-mix(in srgb,#0d0d0f 97%,transparent);
+          backdrop-filter:saturate(180%) blur(22px);-webkit-backdrop-filter:saturate(180%) blur(22px);
+          border-top:.5px solid rgba(255,255,255,.12);box-shadow:0 -12px 30px rgba(0,0,0,.55)}
+  .scheda{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--testo3);font-size:10.5px;font-weight:500}
+  .scheda svg{width:23px;height:23px}
+  .scheda.on{color:var(--blu)}
+
+  /* ---------- fogli ---------- */
+  .velo{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);z-index:40;
+        opacity:0;pointer-events:none;transition:opacity .28s}
+  .velo.on{opacity:1;pointer-events:auto}
+  .foglio{position:fixed;left:0;right:0;bottom:0;z-index:50;background:#141416;
+          border-radius:26px 26px 0 0;border-top:.5px solid rgba(255,255,255,.1);
+          transform:translateY(101%);transition:transform .36s cubic-bezier(.32,.72,0,1);
+          max-height:93vh;overflow:auto;padding-bottom:calc(env(safe-area-inset-bottom) + 22px)}
+  .foglio.on{transform:translateY(0)}
+  @media(min-width:700px){.foglio{left:50%;right:auto;width:540px;transform:translate(-50%,101%)}
+                          .foglio.on{transform:translate(-50%,0)}}
+  .maniglia{width:38px;height:5px;border-radius:3px;background:var(--carta4);margin:10px auto 2px}
+  .capo{display:flex;align-items:center;padding:10px 20px 16px;gap:14px}
+  .capo .grande{width:54px;height:54px;border-radius:17px;display:grid;place-items:center;font-size:25px;
+                background:rgba(118,118,128,.26)}
+  .capo h2{margin:0;font-size:22px;font-weight:700;letter-spacing:-.5px}
+  .capo .sub{font-size:13px;color:var(--testo2);margin-top:1px}
+  .capo .chiudi{margin-left:auto;width:30px;height:30px;border-radius:50%;background:rgba(118,118,128,.28);
+                display:grid;place-items:center;color:var(--testo2);font-size:14px}
+
+  .gruppo{margin:0 16px 18px;background:rgba(118,118,128,.14);border-radius:16px;overflow:hidden}
+  .etichetta{padding:0 20px 7px;font-size:12px;color:var(--testo2);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+  .voce{display:flex;align-items:center;gap:12px;padding:13px 16px;border-top:.5px solid var(--sep);min-height:48px}
+  .voce:first-child{border-top:0}
+  .voce .k{color:var(--testo);font-size:15px;flex:none}
+  .voce .v{margin-left:auto;text-align:right;font-size:14px;color:var(--testo2);
+           font-family:ui-monospace,"SF Mono",Consolas,monospace}
+  .voce input,.voce select{flex:1;background:none;border:0;color:var(--testo);font-size:15px;text-align:right;outline:0;min-width:0}
+  .voce input[type=time]{max-width:120px}
+  .voce textarea{width:100%;min-height:92px;background:none;border:0;color:var(--testo);font-size:15px;outline:0;resize:vertical}
+  select option{background:#1f1f22}
+
+  .giorni{display:flex;gap:7px;padding:14px 16px;justify-content:space-between}
+  .giorno{width:38px;height:38px;border-radius:50%;background:rgba(118,118,128,.24);color:var(--testo2);
+          font-size:13px;font-weight:600;transition:.15s}
+  .giorno.on{background:var(--blu);color:#fff}
+
+  .passo{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:.5px solid var(--sep)}
+  .passo .num{width:24px;height:24px;border-radius:50%;background:rgba(118,118,128,.28);display:grid;place-items:center;
+              font-size:12px;font-weight:700;color:var(--testo2);flex:none}
+  .passo .desc{flex:1;min-width:0;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .passo .via{color:var(--rosso);font-size:19px;padding:0 3px}
+  .passo .su{color:var(--testo2);font-size:15px;padding:0 3px}
+
+  .azione{display:block;width:calc(100% - 32px);margin:0 16px 12px;padding:15px;border-radius:16px;
+          background:var(--blu);color:#fff;font-size:16px;font-weight:600;text-align:center;transition:.12s}
+  .azione.tenue{background:rgba(118,118,128,.2);color:var(--blu)}
+  .azione.rossa{background:rgba(118,118,128,.2);color:var(--rosso)}
+  .azione:active{transform:scale(.98);opacity:.85}
+  .nota{padding:0 22px 18px;font-size:12.5px;color:var(--testo3);line-height:1.5}
+
+  .brindisi{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(16px);z-index:60;
+            background:rgba(70,70,76,.92);backdrop-filter:blur(14px);color:#fff;padding:12px 22px;border-radius:100px;
+            font-size:14.5px;opacity:0;transition:.28s;pointer-events:none;white-space:nowrap;
+            box-shadow:0 8px 30px rgba(0,0,0,.4)}
+  .brindisi.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  .foglio.sopra{z-index:55}
+  .scelta{display:flex;align-items:center;gap:13px;padding:14px 16px;border-top:.5px solid var(--sep);
+          width:100%;text-align:left;transition:background .12s}
+  .scelta:first-child{border-top:0}
+  .scelta:active{background:rgba(255,255,255,.06)}
+  .scelta .ic{width:34px;height:34px;border-radius:11px;background:rgba(118,118,128,.26);display:grid;place-items:center;font-size:17px;flex:none}
+  .scelta .tx{flex:1;min-width:0}
+  .scelta .tx b{display:block;font-size:15px;font-weight:600;letter-spacing:-.2px}
+  .scelta .tx span{font-size:12.5px;color:var(--testo2)}
+  .scelta .fr{color:var(--testo3);font-size:17px}
+  .nascosto{display:none}
+</style>
+</head>
+<body>
+
+<div class="barra" id="barra">
+  <div class="titolo">
+    <h1 id="titolo">Casa</h1>
+    <div class="tondi">
+      <button class="tondo" id="btnAggiorna" aria-label="Aggiorna">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3.2v6h-6"/>
+        </svg>
+      </button>
+      <button class="tondo" id="btnPiu" aria-label="Nuova automazione" style="display:none">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <button class="tondo" id="btnImpostazioni" aria-label="Impostazioni">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path d="M4 7h9M18 7h2M4 17h2M11 17h9"/>
+          <circle cx="15.5" cy="7" r="2.4"/><circle cx="8.5" cy="17" r="2.4"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div class="sotto" id="sottotitolo">Caricamento…</div>
+</div>
+
+<div id="vistaDispositivi">
+  <div class="pillole" id="pillole"></div>
+  <div class="griglia" id="griglia"></div>
+</div>
+
+<div id="vistaAutomazioni" class="nascosto">
+  <div class="elencoAuto" id="elencoAuto"></div>
+</div>
+
+<div class="schede">
+  <button class="scheda on" data-vista="dispositivi">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 10.2 12 3l9 7.2V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M9.5 21v-6h5v6"/>
+    </svg>
+    Casa
+  </button>
+  <button class="scheda" data-vista="automazioni">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>
+    </svg>
+    Automazioni
+  </button>
+</div>
+
+<div class="velo" id="velo"></div>
+
+<!-- foglio dispositivo -->
+<div class="foglio" id="foglioDispositivo">
+  <div class="maniglia"></div>
+  <div class="capo">
+    <div class="grande" id="dIcona">❓</div>
+    <div><h2 id="dNome">Dispositivo</h2><div class="sub" id="dSub"></div></div>
+    <button class="chiudi" data-chiudi>✕</button>
+  </div>
+
+  <div class="gruppo" id="gInterruttore" style="display:none">
+    <div class="voce"><span class="k">Acceso</span><div class="interruttore" id="dInterruttore" style="margin-left:auto"></div></div>
+  </div>
+
+  <div class="gruppo">
+    <div class="voce"><span class="k">Nome</span><input id="dAlias" placeholder="Assegna un nome"></div>
+    <div class="voce"><span class="k">Tipo</span><select id="dTipo"></select></div>
+    <div class="voce"><span class="k">Zona</span><select id="dZona"></select></div>
+  </div>
+
+  <div class="etichetta">Note</div>
+  <div class="gruppo"><div class="voce"><textarea id="dNote" placeholder="Dove si trova, come è cablato, credenziali del pannello…"></textarea></div></div>
+
+  <div class="etichetta">Dati tecnici</div>
+  <div class="gruppo">
+    <div class="voce"><span class="k">Indirizzo IP</span><span class="v" id="dIp"></span></div>
+    <div class="voce"><span class="k">MAC</span><span class="v" id="dMac"></span></div>
+    <div class="voce"><span class="k">Nome di rete</span><span class="v" id="dRete"></span></div>
+    <div class="voce"><span class="k">Porte aperte</span><span class="v" id="dPorte"></span></div>
+    <div class="voce"><span class="k">Consumo</span><span class="v" id="dWatt"></span></div>
+    <div class="voce"><span class="k">Ultimo contatto</span><span class="v" id="dVisto"></span></div>
+  </div>
+
+  <button class="azione tenue" id="dApri">Apri il pannello del dispositivo</button>
+  <button class="azione" data-chiudi>Fine</button>
+</div>
+
+<!-- foglio automazione -->
+<div class="foglio" id="foglioAutomazione">
+  <div class="maniglia"></div>
+  <div class="capo">
+    <div class="grande" style="background:linear-gradient(160deg,var(--indaco),#8e5cf0)">⏱</div>
+    <div><h2 id="aTitolo">Automazione</h2><div class="sub">Il server la esegue da solo</div></div>
+    <button class="chiudi" data-chiudi>✕</button>
+  </div>
+
+  <div class="gruppo">
+    <div class="voce"><span class="k">Nome</span><input id="aNome" placeholder="es. Spegni tutto la notte"></div>
+    <div class="voce"><span class="k">Orario</span><input type="time" id="aOra" value="22:00"></div>
+    <div class="voce"><span class="k">Attiva</span><div class="interruttore on" id="aAttiva" style="margin-left:auto"></div></div>
+  </div>
+
+  <div class="etichetta">Giorni</div>
+  <div class="gruppo"><div class="giorni" id="aGiorni"></div></div>
+
+  <div class="etichetta">Cosa fa, in ordine</div>
+  <div class="gruppo" id="aPassi"></div>
+  <button class="azione tenue" id="aAggiungi">Aggiungi un passaggio</button>
+  <button class="azione tenue" id="aAttendi">Aggiungi una pausa</button>
+
+  <button class="azione" id="aSalva">Salva</button>
+  <button class="azione tenue" id="aProva">Esegui adesso</button>
+  <button class="azione rossa" id="aElimina">Elimina</button>
+</div>
+
+<!-- foglio impostazioni -->
+<div class="foglio" id="foglioImpostazioni">
+  <div class="maniglia"></div>
+  <div class="capo">
+    <div class="grande" style="color:var(--blu)">
+      <svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+        <path d="M4 7h9M18 7h2M4 17h2M11 17h9"/>
+        <circle cx="15.5" cy="7" r="2.4"/><circle cx="8.5" cy="17" r="2.4"/>
+      </svg>
+    </div>
+    <div><h2>Impostazioni</h2><div class="sub">Rete di casa</div></div>
+    <button class="chiudi" data-chiudi>✕</button>
+  </div>
+
+  <div class="gruppo">
+    <div class="voce"><span class="k">Dispositivi censiti</span><span class="v" id="iConta">0</span></div>
+    <div class="voce"><span class="k">Ultima scansione</span><span class="v" id="iQuando">—</span></div>
+    <div class="voce"><span class="k">Aggiornamento automatico</span>
+      <select id="iAuto"><option value="0">mai</option><option value="30">30 secondi</option><option value="60">1 minuto</option><option value="300">5 minuti</option></select>
+    </div>
+  </div>
+
+  <button class="azione" id="iScansiona">Esegui una scansione completa</button>
+  <div class="nota">La scansione cerca ogni dispositivo collegato e ne rileva tipo, porte e stato: richiede circa un minuto. L'aggiornamento dalla schermata principale è invece immediato.</div>
+
+  <div class="etichetta">Zone della casa</div>
+  <div class="gruppo" id="iZone"></div>
+  <button class="azione tenue" id="iNuovaZona">Aggiungi una zona</button>
+
+  <button class="azione tenue" id="iToken">Cambia il token GitHub</button>
+  <button class="azione" data-chiudi>Fine</button>
+</div>
+
+<!-- foglio scelta -->
+<div class="foglio sopra" id="foglioScelta">
+  <div class="maniglia"></div>
+  <div class="capo">
+    <div><h2 id="sTitolo">Scegli</h2><div class="sub" id="sSub"></div></div>
+    <button class="chiudi" data-chiudi>✕</button>
+  </div>
+  <div class="gruppo" id="sCorpo"></div>
+</div>
+
+<!-- foglio testo -->
+<div class="foglio sopra" id="foglioTesto">
+  <div class="maniglia"></div>
+  <div class="capo">
+    <div><h2 id="tTitolo">Nome</h2><div class="sub" id="tSub"></div></div>
+    <button class="chiudi" data-chiudi>✕</button>
+  </div>
+  <div class="gruppo"><div class="voce"><input id="tValore" style="text-align:left"></div></div>
+  <button class="azione" id="tOk">Conferma</button>
+</div>
+
+<div class="brindisi" id="brindisi"></div>
+
+<script>
+const TIPI = {
+  luce:{et:'Luce',ic:'💡',c:'var(--giallo)'}, presa:{et:'Presa',ic:'🔌',c:'var(--blu)'},
+  shelly:{et:'Shelly',ic:'⚡️',c:'var(--arancio)'}, tapparella:{et:'Tapparella',ic:'🪟',c:'var(--acqua)'},
+  clima:{et:'Clima',ic:'❄️',c:'var(--acqua)'}, termostato:{et:'Termostato',ic:'🌡️',c:'var(--rosso)'},
+  telecamera:{et:'Telecamera',ic:'📷',c:'var(--viola)'}, router:{et:'Rete',ic:'📶',c:'var(--indaco)'},
+  hub:{et:'Hub',ic:'🧩',c:'var(--menta)'}, altoparlante:{et:'Altoparlante',ic:'🔊',c:'var(--rosa)'},
+  tv:{et:'TV',ic:'📺',c:'var(--indaco)'}, stampante:{et:'Stampante',ic:'🖨️',c:'var(--indaco)'},
+  computer:{et:'Computer',ic:'💻',c:'var(--testo2)'}, telefono:{et:'Telefono',ic:'📱',c:'var(--testo2)'},
+  sensore:{et:'Sensore',ic:'📡',c:'var(--menta)'}, cancello:{et:'Cancello',ic:'🚪',c:'var(--arancio)'},
+  irrigazione:{et:'Irrigazione',ic:'💧',c:'var(--acqua)'}, allarme:{et:'Allarme',ic:'🔔',c:'var(--rosso)'},
+  sconosciuto:{et:'Sconosciuto',ic:'❓',c:'var(--testo3)'}
+};
+const ZONE_INIZIALI = [
+  {id:'pt',nome:'Piano terra'}, {id:'p1',nome:'Primo piano'},
+  {id:'cortile',nome:'Cortile'}, {id:'casina',nome:'Casina'}
+];
+const GIORNI = [{n:1,e:'L'},{n:2,e:'M'},{n:3,e:'M'},{n:4,e:'G'},{n:5,e:'V'},{n:6,e:'S'},{n:0,e:'D'}];
+const NOMI_GIORNI = {0:'dom',1:'lun',2:'mar',3:'mer',4:'gio',5:'ven',6:'sab'};
+
+const DEMO = [
+  {ip:'192.168.1.1',  mac:'f8:73:1a:8c:b0:94', nomeRete:'router.home',                tipo:'router',      porte:[80,443],   online:true,  acceso:null,  watt:null, comandabile:false},
+  {ip:'192.168.1.4',  mac:'d0:cf:13:c6:69:00', nomeRete:'shelly1minig3-d0cf13c66900', tipo:'shelly',      porte:[80],       online:true,  acceso:true,  watt:41.6, comandabile:true},
+  {ip:'192.168.1.8',  mac:'c4:d8:d5:0d:9b:07', nomeRete:'shellydimmer2-C4D8D50D9B07', tipo:'shelly',      porte:[80],       online:true,  acceso:false, watt:0,    comandabile:true},
+  {ip:'192.168.1.9',  mac:'ec:64:c9:d7:98:f7', nomeRete:'shellydimmer2-EC64C9D798F7', tipo:'shelly',      porte:[80],       online:true,  acceso:true,  watt:18.2, comandabile:true},
+  {ip:'192.168.1.10', mac:'bc:df:58:09:85:7c', nomeRete:'Google-Nest-Mini',           tipo:'altoparlante',porte:[8009],     online:true,  acceso:null,  watt:null, comandabile:false},
+  {ip:'192.168.1.11', mac:'fc:f5:c4:bd:25:e9', nomeRete:'SwitchBot-HubMini-BD25E9',   tipo:'hub',         porte:[80],       online:true,  acceso:null,  watt:null, comandabile:false},
+  {ip:'192.168.1.19', mac:'e4:b0:63:f0:40:60', nomeRete:'shelly1minig3-e4b063f04060', tipo:'shelly',      porte:[80],       online:true,  acceso:false, watt:0,    comandabile:true},
+  {ip:'192.168.1.20', mac:'e4:b0:63:ed:e9:28', nomeRete:'shelly1minig3-e4b063ede928', tipo:'shelly',      porte:[80],       online:true,  acceso:true,  watt:7.4,  comandabile:true},
+  {ip:'192.168.1.21', mac:'d8:3b:da:51:84:ec', nomeRete:'tado-bridge-x',              tipo:'termostato',  porte:[80],       online:true,  acceso:null,  watt:null, comandabile:false},
+  {ip:'192.168.1.27', mac:'e4:b0:63:ee:d9:88', nomeRete:'shelly1minig3-e4b063eed988', tipo:'shelly',      porte:[80],       online:true,  acceso:true,  watt:62.9, comandabile:true},
+  {ip:'192.168.1.31', mac:'32:3a:fd:64:1b:bb', nomeRete:'telecamera-ingresso',        tipo:'telecamera',  porte:[80,554],   online:true,  acceso:null,  watt:null, comandabile:false},
+  {ip:'192.168.1.32', mac:'20:1f:3b:83:3e:5b', nomeRete:'telecamera-cortile',         tipo:'telecamera',  porte:[80,554],   online:true,  acceso:null,  watt:null, comandabile:false},
+  {ip:'192.168.1.37', mac:'44:d5:cc:2a:7f:37', nomeRete:'DESKTOP-STUDIO',             tipo:'computer',    porte:[445,3389], online:true,  acceso:null,  watt:null, comandabile:false},
+  {ip:'192.168.1.39', mac:'5c:8a:ae:f8:8f:e6', nomeRete:'Canon TR4700',               tipo:'stampante',   porte:[80,9100],  online:true,  acceso:null,  watt:null, comandabile:false},
+  {ip:'192.168.1.49', mac:'d0:cf:13:c4:8c:24', nomeRete:'shelly1minig3-d0cf13c48c24', tipo:'shelly',      porte:[80],       online:true,  acceso:false, watt:0,    comandabile:true},
+  {ip:'192.168.1.52', mac:'dc:b4:d9:d0:80:00', nomeRete:'shelly1minig3-dcb4d9d08000', tipo:'shelly',      porte:[80],       online:true,  acceso:true,  watt:134.0,comandabile:true},
+  {ip:'192.168.1.55', mac:'d0:cf:13:c7:0c:f8', nomeRete:'shelly1minig3-d0cf13c70cf8', tipo:'shelly',      porte:[80],       online:false, acceso:null,  watt:null, comandabile:true},
+  {ip:'192.168.1.83', mac:'42:49:79:90:27:98', nomeRete:'fritz.repeater',             tipo:'router',      porte:[80,443],   online:true,  acceso:null,  watt:null, comandabile:false}
+];
+const DEMO_SCHEDE = {
+  'd0:cf:13:c6:69:00':{alias:'Luci cucina',        tipo:'luce',        zona:'pt',      note:'Shelly 1 Mini dietro il deviatore vicino alla dispensa.'},
+  'c4:d8:d5:0d:9b:07':{alias:'Lampadario salotto', tipo:'luce',        zona:'pt',      note:'Dimmer 2 — non superare il 70% con le lampadine vecchie.'},
+  'ec:64:c9:d7:98:f7':{alias:'Faretti corridoio',  tipo:'luce',        zona:'pt',      note:''},
+  'bc:df:58:09:85:7c':{alias:'Nest cucina',        tipo:'altoparlante',zona:'pt',      note:''},
+  'fc:f5:c4:bd:25:e9':{alias:'Hub camera',         tipo:'hub',         zona:'p1',      note:'Comanda le tende con i motori Bluetooth.'},
+  'e4:b0:63:f0:40:60':{alias:'Presa caldaia',      tipo:'presa',       zona:'pt',      note:'Non spegnere in inverno.'},
+  'e4:b0:63:ed:e9:28':{alias:'Luce scale',         tipo:'luce',        zona:'p1',      note:''},
+  'd8:3b:da:51:84:ec':{alias:'Tado riscaldamento', tipo:'termostato',  zona:'pt',      note:'Valvole in ogni stanza.'},
+  'e4:b0:63:ee:d9:88':{alias:'Luci esterne',       tipo:'luce',        zona:'cortile', note:'Accensione al tramonto.'},
+  '32:3a:fd:64:1b:bb':{alias:'Telecamera ingresso',tipo:'telecamera',  zona:'cortile', note:'rtsp://192.168.1.31:554/stream1'},
+  '20:1f:3b:83:3e:5b':{alias:'Telecamera cortile', tipo:'telecamera',  zona:'cortile', note:''},
+  '44:d5:cc:2a:7f:37':{alias:'PC studio',          tipo:'computer',    zona:'p1',      note:'Server delle stampe.'},
+  '5c:8a:ae:f8:8f:e6':{alias:'Stampante Canon',    tipo:'stampante',   zona:'p1',      note:'Wi-Fi, coda WSD.'},
+  'd0:cf:13:c4:8c:24':{alias:'Irrigazione orto',   tipo:'irrigazione', zona:'casina',  note:'Due settori, 15 minuti a testa.'},
+  'dc:b4:d9:d0:80:00':{alias:'Boiler casina',      tipo:'presa',       zona:'casina',  note:''},
+  'd0:cf:13:c7:0c:f8':{alias:'Luce legnaia',       tipo:'luce',        zona:'casina',  note:'Ogni tanto perde il Wi-Fi: segnale debole.'},
+  'f8:73:1a:8c:b0:94':{alias:'Router TIM',         tipo:'router',      zona:'pt',      note:'Pannello su 192.168.1.1'},
+  '42:49:79:90:27:98':{alias:'Ripetitore Fritz',   tipo:'router',      zona:'p1',      note:''}
+};
+const DEMO_AUTO = [
+  {id:'a1',nome:'Buonanotte',attiva:true,ora:'23:30',giorni:[0,1,2,3,4,5,6],azioni:[
+    {tipo:'spegni',ip:'192.168.1.4'},{tipo:'spegni',ip:'192.168.1.9'},
+    {tipo:'attendi',secondi:5},{tipo:'spegni',ip:'192.168.1.27'}]},
+  {id:'a2',nome:'Irrigazione orto',attiva:true,ora:'06:30',giorni:[1,3,5],azioni:[
+    {tipo:'accendi',ip:'192.168.1.49'},{tipo:'attendi',secondi:900},{tipo:'spegni',ip:'192.168.1.49'}]},
+  {id:'a3',nome:'Luci esterne serali',attiva:false,ora:'18:45',giorni:[0,1,2,3,4,5,6],azioni:[
+    {tipo:'accendi',ip:'192.168.1.27'}]}
+];
+
+const $ = id => document.getElementById(id);
+let dispositivi = [], dati = {zone:[...ZONE_INIZIALI],schede:{},automazioni:[]};
+let zonaAttiva = 'tutti', vista = 'dispositivi', aperto = null, autoAperta = null;
+let timer = null, aggiornatoIl = null, demo = false;
+
+const chiave = d => d.mac || d.ip;
+const scheda = d => dati.schede[chiave(d)] ||= {alias:'',tipo:d.tipo||'sconosciuto',zona:null,note:''};
+const nomeDi = d => scheda(d).alias || (d.nomeRete||'').split('.')[0] || d.ip;
+const tipoDi = d => scheda(d).tipo || d.tipo || 'sconosciuto';
+const perIp = ip => dispositivi.find(d => d.ip === ip);
+const nomePerIp = ip => { const d = perIp(ip); return d ? nomeDi(d) : ip; };
+const orario = i => i ? new Date(i).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}) : '—';
+
+function avviso(t){ const b=$('brindisi'); b.textContent=t; b.classList.add('on'); setTimeout(()=>b.classList.remove('on'),2300); }
+addEventListener('scroll',()=>$('barra').classList.toggle('staccata',scrollY>4));
+
+/* ====================== CONFIGURAZIONE ====================== */
+const CONFIG = {
+  owner:'Liukrende98', repo:'Prove', branch:'main', cartella:'casa',
+  attesaComando: 12000     // quanto aspettare prima di rileggere lo stato
+};
+/* ============================================================ */
+const API = `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}`;
+const C = CONFIG.cartella;
+let token = localStorage.getItem('casa_token') || '';
+
+async function gh(percorso, opzioni = {}, accept = 'application/vnd.github+json'){
+  const r = await fetch(`${API}${percorso}`, { ...opzioni, headers:{
+    'Authorization':`Bearer ${token}`, 'Accept':accept,
+    'X-GitHub-Api-Version':'2022-11-28', ...(opzioni.headers||{}) }});
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error(`GitHub ${r.status}`);
+  return accept.includes('raw') ? r.text() : r.json();
+}
+const leggiFile = p => gh(`/contents/${p}?ref=${CONFIG.branch}&t=${Date.now()}`, {}, 'application/vnd.github.raw');
+async function scriviFile(percorso, testo, messaggio){
+  const info = await gh(`/contents/${percorso}?ref=${CONFIG.branch}&t=${Date.now()}`);
+  const corpo = { message:messaggio, branch:CONFIG.branch,
+                  content: btoa(unescape(encodeURIComponent(testo))) };
+  if (info) corpo.sha = info.sha;
+  return gh(`/contents/${percorso}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(corpo) });
+}
+const nuovoId = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+async function inviaComando(cmd){
+  const id = nuovoId();
+  await scriviFile(`${C}/comandi/${id}.json`, JSON.stringify(cmd), `comando ${cmd.tipo}`);
+}
+
+async function salvaDati(){
+  if (demo) return;
+  try { await scriviFile(`${C}/dati.json`, JSON.stringify(dati, null, 2), 'dati casa'); }
+  catch { avviso('Salvataggio non riuscito'); }
+}
+async function caricaDati(){
+  try {
+    const t = await leggiFile(`${C}/dati.json`);
+    if (t) { const d = JSON.parse(t); if (d.zone) dati = { automazioni:[], ...d }; }
+  } catch {}
+}
+function caricaDemo(){
+  demo = true;
+  dispositivi = JSON.parse(JSON.stringify(DEMO));
+  if (!Object.keys(dati.schede).length) dati.schede = JSON.parse(JSON.stringify(DEMO_SCHEDE));
+  if (!dati.automazioni.length) dati.automazioni = JSON.parse(JSON.stringify(DEMO_AUTO));
+  aggiornatoIl = new Date().toISOString();
+  disegna();
+}
+async function aggiorna(completa=false){
+  const b = $('btnAggiorna'); b.classList.add('gira');
+  try {
+    if (completa) { await inviaComando({tipo:'scansione'}); avviso('Scansione avviata sul server di casa'); }
+    const t = await leggiFile(`${C}/stato.json`);
+    if (!t) throw new Error('stato assente');
+    const r = JSON.parse(t);
+    dispositivi = r.dispositivi || []; aggiornatoIl = r.aggiornatoIl; demo = false;
+    dispositivi.forEach(d => { const s = scheda(d); if (s.tipo === 'sconosciuto' && d.tipo !== 'sconosciuto') s.tipo = d.tipo; });
+    disegna();
+  } catch { caricaDemo(); }
+  b.classList.remove('gira');
+}
+async function comanda(d, acceso){
+  if (demo) { d.acceso = acceso; d.watt = acceso ? +(Math.random()*90+5).toFixed(1) : 0; disegna(); return true; }
+  d.acceso = acceso; d.inAttesa = true; disegna();
+  try {
+    await inviaComando({ tipo: acceso ? 'accendi' : 'spegni', ip: d.ip });
+    avviso(acceso ? 'Accensione inviata' : 'Spegnimento inviato');
+    setTimeout(async () => { d.inAttesa = false; await aggiorna(false); }, CONFIG.attesaComando);
+    return true;
+  } catch { d.inAttesa = false; avviso('Comando non inviato'); disegna(); return false; }
+}
+
+/* ---------- viste ---------- */
+document.querySelectorAll('.scheda').forEach(s => s.onclick = () => {
+  vista = s.dataset.vista;
+  document.querySelectorAll('.scheda').forEach(x => x.classList.toggle('on', x === s));
+  $('vistaDispositivi').classList.toggle('nascosto', vista !== 'dispositivi');
+  $('vistaAutomazioni').classList.toggle('nascosto', vista !== 'automazioni');
+  $('btnPiu').style.display = vista === 'automazioni' ? '' : 'none';
+  $('titolo').textContent = vista === 'automazioni' ? 'Automazioni' : 'Casa';
+  scrollTo({top:0}); disegna();
+});
+
+function disegna(){ vista === 'automazioni' ? disegnaAutomazioni() : disegnaDispositivi(); }
+
+function disegnaDispositivi(){
+  const online = dispositivi.filter(d => d.online !== false).length;
+  const accesi = dispositivi.filter(d => d.acceso === true).length;
+  const watt = dispositivi.filter(d => d.acceso === true && d.watt != null).reduce((s,d) => s + (+d.watt), 0);
+  $('sottotitolo').textContent = !dispositivi.length
+    ? 'Nessun dispositivo: apri le impostazioni ed esegui una scansione.'
+    : (demo ? 'Dati di esempio · ' : '') + `${online} attivi · ${accesi} accesi` + (watt ? ` · ${watt.toFixed(0)} W` : '') + ` · ${orario(aggiornatoIl)}`;
+
+  const p = $('pillole'); p.innerHTML = '';
+  const zone = [{id:'tutti',nome:'Tutti'}, ...dati.zone, {id:'nessuna',nome:'Da assegnare'}];
+  zone.forEach(z => {
+    const n = z.id === 'tutti' ? dispositivi.length
+            : z.id === 'nessuna' ? dispositivi.filter(d => !scheda(d).zona).length
+            : dispositivi.filter(d => scheda(d).zona === z.id).length;
+    if (z.id === 'nessuna' && !n) return;
+    const b = document.createElement('button');
+    b.className = 'pillola' + (z.id === zonaAttiva ? ' on' : '');
+    b.innerHTML = `${z.nome}<span class="n">${n}</span>`;
+    b.onclick = () => { zonaAttiva = z.id; disegnaDispositivi(); };
+    p.appendChild(b);
+  });
+
+  const g = $('griglia'); g.innerHTML = '';
+  const el = dispositivi.filter(d => zonaAttiva === 'tutti' ? true
+    : zonaAttiva === 'nessuna' ? !scheda(d).zona : scheda(d).zona === zonaAttiva);
+  if (!el.length) {
+    g.innerHTML = '<div class="vuoto"><span class="em">🏠</span>Nessun dispositivo in questa zona.<br>Aprine uno e assegnagli la zona.</div>';
+    return;
+  }
+  el.sort((a,b) => nomeDi(a).localeCompare(nomeDi(b))).forEach(d => {
+    const t = TIPI[tipoDi(d)] || TIPI.sconosciuto;
+    const acceso = d.acceso === true;
+    const b = document.createElement('button');
+    b.className = 'tassello' + (acceso ? ' acceso' : '') + (d.online === false ? ' giu' : '');
+    const stato = d.online === false ? 'Non raggiungibile'
+                : acceso ? (d.watt != null ? `Acceso · ${(+d.watt).toFixed(1)} W` : 'Acceso')
+                : d.acceso === false ? 'Spento' : t.et;
+    b.innerHTML = `<div class="icona" style="${acceso ? '' : `color:${t.c}`}">${t.ic}</div>
+                   <div><div class="nome">${nomeDi(d)}</div><div class="stato">${stato}</div></div>
+                   ${d.comandabile ? `<div class="interruttore ${acceso ? 'on' : ''}"></div>` : ''}`;
+    b.onclick = e => e.target.classList.contains('interruttore') ? comanda(d, !acceso) : apriDispositivo(d);
+    g.appendChild(b);
+  });
+}
+
+function disegnaAutomazioni(){
+  const a = dati.automazioni || [];
+  $('sottotitolo').textContent = a.length
+    ? `${a.filter(x => x.attiva).length} attive su ${a.length}`
+    : 'Nessuna automazione';
+  const c = $('elencoAuto'); c.innerHTML = '';
+  if (!a.length) {
+    c.innerHTML = '<div class="vuoto"><span class="em">⏱</span>Nessuna automazione.<br>Tocca + per crearne una: scegli l\'ora, i giorni e cosa deve succedere.</div>';
+    return;
+  }
+  a.slice().sort((x,y) => x.ora.localeCompare(y.ora)).forEach(x => {
+    const giorni = (!x.giorni || x.giorni.length === 7) ? 'tutti i giorni'
+                 : x.giorni.map(g => NOMI_GIORNI[g]).join(' ');
+    const b = document.createElement('button');
+    b.className = 'auto' + (x.attiva ? '' : ' spenta');
+    b.innerHTML = `<div class="ora">${x.ora}</div>
+      <div class="cen"><div class="tit">${x.nome || 'Senza nome'}</div>
+      <div class="det">${giorni} · ${x.azioni.length} ${x.azioni.length === 1 ? 'passaggio' : 'passaggi'}</div></div>
+      <div class="interruttore ${x.attiva ? 'on' : ''}"></div>`;
+    b.onclick = e => {
+      if (e.target.classList.contains('interruttore')) {
+        x.attiva = !x.attiva; salvaDati(); disegnaAutomazioni();
+        avviso(x.attiva ? 'Automazione attivata' : 'Automazione disattivata');
+      } else apriAutomazione(x);
+    };
+    c.appendChild(b);
+  });
+}
+
+/* ---------- fogli ---------- */
+let pila = [];
+function apriFoglio(f){
+  if (!pila.includes(f)) pila.push(f);
+  $('velo').classList.add('on');
+  f.classList.add('on');
+}
+function chiudiUltimo(){
+  const f = pila.pop();
+  if (f) f.classList.remove('on');
+  if (!pila.length) { $('velo').classList.remove('on'); aperto = null; autoAperta = null; }
+}
+function chiudiFogli(){ while (pila.length) chiudiUltimo(); }
+$('velo').onclick = chiudiUltimo;
+document.querySelectorAll('[data-chiudi]').forEach(b => b.onclick = chiudiUltimo);
+
+/* scelta da un elenco */
+function apriScelta(titolo, sottotitolo, voci){
+  $('sTitolo').textContent = titolo;
+  $('sSub').textContent = sottotitolo || '';
+  const c = $('sCorpo'); c.innerHTML = '';
+  voci.forEach(v => {
+    const b = document.createElement('button');
+    b.className = 'scelta';
+    b.innerHTML = `<span class="ic" style="${v.colore ? `color:${v.colore}` : ''}">${v.icona || '•'}</span>
+                   <span class="tx"><b>${v.titolo}</b>${v.dettaglio ? `<span>${v.dettaglio}</span>` : ''}</span>
+                   <span class="fr">›</span>`;
+    b.onclick = () => { chiudiUltimo(); setTimeout(v.azione, 120); };
+    c.appendChild(b);
+  });
+  apriFoglio($('foglioScelta'));
+}
+
+/* inserimento di un testo */
+function apriTesto(titolo, sottotitolo, valore, azione){
+  $('tTitolo').textContent = titolo;
+  $('tSub').textContent = sottotitolo || '';
+  $('tValore').value = valore || '';
+  $('tOk').onclick = () => { const v = $('tValore').value.trim(); chiudiUltimo(); if (v) setTimeout(() => azione(v), 120); };
+  apriFoglio($('foglioTesto'));
+  setTimeout(() => $('tValore').focus(), 340);
+}
+
+function apriDispositivo(d){
+  aperto = d;
+  const s = scheda(d), t = TIPI[tipoDi(d)] || TIPI.sconosciuto;
+  $('dIcona').textContent = t.ic;
+  $('dIcona').style.color = t.c;
+  $('dNome').textContent = nomeDi(d);
+  $('dSub').textContent = d.online === false ? 'Non raggiungibile' : (t.et + ' · collegato');
+  $('gInterruttore').style.display = d.comandabile ? '' : 'none';
+  $('dInterruttore').className = 'interruttore' + (d.acceso ? ' on' : '');
+  $('dInterruttore').onclick = async () => {
+    const n = !d.acceso;
+    if (await comanda(d, n)) $('dInterruttore').className = 'interruttore' + (n ? ' on' : '');
+  };
+  $('dAlias').value = s.alias;
+  $('dTipo').innerHTML = Object.entries(TIPI).map(([k,v]) => `<option value="${k}">${v.ic}  ${v.et}</option>`).join('');
+  $('dTipo').value = tipoDi(d);
+  $('dZona').innerHTML = '<option value="">Nessuna</option>' + dati.zone.map(z => `<option value="${z.id}">${z.nome}</option>`).join('');
+  $('dZona').value = s.zona || '';
+  $('dNote').value = s.note || '';
+  $('dIp').textContent = d.ip;
+  $('dMac').textContent = d.mac || '—';
+  $('dRete').textContent = d.nomeRete || '—';
+  $('dPorte').textContent = (d.porte || []).join(' ') || '—';
+  $('dWatt').textContent = d.watt != null ? (+d.watt).toFixed(1) + ' W' : '—';
+  $('dVisto').textContent = orario(d.vistoIl);
+  $('dApri').onclick = () => window.open(`http://${d.ip}/`,'_blank');
+  apriFoglio($('foglioDispositivo'));
+}
+function scriviScheda(){
+  if (!aperto) return;
+  const s = scheda(aperto);
+  s.alias = $('dAlias').value.trim(); s.tipo = $('dTipo').value;
+  s.zona = $('dZona').value || null;  s.note = $('dNote').value;
+  salvaDati(); disegna();
+  $('dNome').textContent = nomeDi(aperto);
+  $('dIcona').textContent = TIPI[s.tipo]?.ic || '❓';
+  $('dIcona').style.color = TIPI[s.tipo]?.c || '';
+}
+['dAlias','dTipo','dZona','dNote'].forEach(id => $(id).onchange = scriviScheda);
+$('dNote').onblur = scriviScheda;
+
+/* ---------- automazioni ---------- */
+$('btnPiu').onclick = () => apriAutomazione(null);
+
+function apriAutomazione(a){
+  autoAperta = a ? JSON.parse(JSON.stringify(a)) : {id:'a'+Date.now().toString(36),nome:'',attiva:true,ora:'22:00',giorni:[0,1,2,3,4,5,6],azioni:[]};
+  autoAperta._nuova = !a;
+  $('aTitolo').textContent = a ? 'Modifica automazione' : 'Nuova automazione';
+  $('aNome').value = autoAperta.nome;
+  $('aOra').value = autoAperta.ora;
+  $('aAttiva').className = 'interruttore' + (autoAperta.attiva ? ' on' : '');
+  $('aElimina').style.display = a ? '' : 'none';
+  $('aProva').style.display = a ? '' : 'none';
+  disegnaGiorni(); disegnaPassi();
+  apriFoglio($('foglioAutomazione'));
+}
+$('aAttiva').onclick = () => {
+  autoAperta.attiva = !autoAperta.attiva;
+  $('aAttiva').className = 'interruttore' + (autoAperta.attiva ? ' on' : '');
+};
+function disegnaGiorni(){
+  const c = $('aGiorni'); c.innerHTML = '';
+  GIORNI.forEach(g => {
+    const b = document.createElement('button');
+    b.className = 'giorno' + (autoAperta.giorni.includes(g.n) ? ' on' : '');
+    b.textContent = g.e;
+    b.onclick = () => {
+      autoAperta.giorni = autoAperta.giorni.includes(g.n)
+        ? autoAperta.giorni.filter(x => x !== g.n) : [...autoAperta.giorni, g.n];
+      disegnaGiorni();
+    };
+    c.appendChild(b);
+  });
+}
+function disegnaPassi(){
+  const c = $('aPassi'); c.innerHTML = '';
+  if (!autoAperta.azioni.length) {
+    c.innerHTML = '<div class="voce" style="color:var(--testo2);font-size:14px">Nessun passaggio. Aggiungine uno qui sotto.</div>';
+    return;
+  }
+  autoAperta.azioni.forEach((az, i) => {
+    const r = document.createElement('div');
+    r.className = 'passo';
+    const testo = az.tipo === 'attendi'
+      ? `Attendi ${az.secondi >= 60 ? (az.secondi/60) + ' min' : az.secondi + ' s'}`
+      : `${az.tipo === 'accendi' ? 'Accendi' : 'Spegni'} ${nomePerIp(az.ip)}`;
+    r.innerHTML = `<span class="num">${i+1}</span><span class="desc">${testo}</span>`;
+    if (i > 0) {
+      const su = document.createElement('button');
+      su.className = 'su'; su.textContent = '↑';
+      su.onclick = () => { const t = autoAperta.azioni[i-1]; autoAperta.azioni[i-1] = az; autoAperta.azioni[i] = t; disegnaPassi(); };
+      r.appendChild(su);
+    }
+    const x = document.createElement('button');
+    x.className = 'via'; x.textContent = '⊖';
+    x.onclick = () => { autoAperta.azioni.splice(i,1); disegnaPassi(); };
+    r.appendChild(x);
+    c.appendChild(r);
+  });
+}
+$('aAggiungi').onclick = () => {
+  const comandabili = dispositivi.filter(d => d.comandabile);
+  if (!comandabili.length) return avviso('Nessun dispositivo comandabile');
+  apriScelta('Quale dispositivo', 'Poi scegli cosa fargli fare',
+    comandabili.slice().sort((a,b) => nomeDi(a).localeCompare(nomeDi(b))).map(d => {
+      const t = TIPI[tipoDi(d)] || TIPI.sconosciuto;
+      const z = dati.zone.find(z => z.id === scheda(d).zona);
+      return {
+        titolo: nomeDi(d), dettaglio: z ? z.nome : d.ip, icona: t.ic, colore: t.c,
+        azione: () => apriScelta(nomeDi(d), 'Cosa deve fare', [
+          { titolo:'Accendi', icona:'🔆', colore:'var(--verde)',  azione:() => { autoAperta.azioni.push({tipo:'accendi',ip:d.ip}); disegnaPassi(); } },
+          { titolo:'Spegni',  icona:'🌙', colore:'var(--testo2)', azione:() => { autoAperta.azioni.push({tipo:'spegni', ip:d.ip}); disegnaPassi(); } }
+        ])
+      };
+    }));
+};
+
+$('aAttendi').onclick = () => {
+  const opzioni = [10, 30, 60, 300, 900, 1800, 3600];
+  apriScelta('Quanto aspettare', 'Prima del passaggio successivo', [
+    ...opzioni.map(s => ({
+      titolo: s < 60 ? `${s} secondi` : s < 3600 ? `${s/60} minuti` : '1 ora',
+      icona: '⏳',
+      azione: () => { autoAperta.azioni.push({tipo:'attendi',secondi:s}); disegnaPassi(); }
+    })),
+    { titolo:'Personalizzata', icona:'✏️', azione:() => apriTesto('Pausa', 'Durata in secondi', '120', v => {
+        const n = parseInt(v,10);
+        if (n > 0) { autoAperta.azioni.push({tipo:'attendi',secondi:n}); disegnaPassi(); }
+      }) }
+  ]);
+};
+$('aSalva').onclick = () => {
+  autoAperta.nome = $('aNome').value.trim() || 'Automazione';
+  autoAperta.ora = $('aOra').value || '22:00';
+  if (!autoAperta.azioni.length) return avviso('Aggiungi almeno un passaggio');
+  const nuova = autoAperta._nuova; delete autoAperta._nuova;
+  dati.automazioni = dati.automazioni.filter(x => x.id !== autoAperta.id);
+  dati.automazioni.push(autoAperta);
+  salvaDati(); chiudiFogli(); disegnaAutomazioni();
+  avviso(nuova ? 'Automazione creata' : 'Automazione salvata');
+};
+$('aElimina').onclick = () => {
+  if (!confirm('Eliminare questa automazione?')) return;
+  dati.automazioni = dati.automazioni.filter(x => x.id !== autoAperta.id);
+  salvaDati(); chiudiFogli(); disegnaAutomazioni(); avviso('Automazione eliminata');
+};
+$('aProva').onclick = async () => {
+  if (demo) return avviso('In modalità esempio non viene eseguita');
+  try {
+    await inviaComando({tipo:'automazione', id:autoAperta.id});
+    avviso('Inviata al server di casa');
+    setTimeout(() => aggiorna(false), CONFIG.attesaComando);
+  } catch { avviso('Invio non riuscito'); }
+};
+
+/* ---------- impostazioni ---------- */
+$('btnImpostazioni').onclick = () => {
+  $('iConta').textContent = dispositivi.length;
+  $('iQuando').textContent = orario(aggiornatoIl);
+  $('iAuto').value = localStorage.getItem('casa_auto') || '0';
+  disegnaZone(); apriFoglio($('foglioImpostazioni'));
+};
+$('iScansiona').onclick = async () => { chiudiFogli(); await aggiorna(true); avviso('Scansione completata'); };
+$('iAuto').onchange = () => {
+  localStorage.setItem('casa_auto', $('iAuto').value); impostaTimer();
+  avviso($('iAuto').value === '0' ? 'Aggiornamento automatico disattivato' : 'Aggiornamento automatico attivo');
+};
+$('iToken').onclick = () => apriTesto('Token GitHub', 'Resta salvato solo su questo dispositivo', token, async v => {
+  token = v; localStorage.setItem('casa_token', v); demo = false;
+  chiudiFogli(); await entra(); avviso('Token aggiornato');
+});
+$('iNuovaZona').onclick = () => apriTesto('Nuova zona', 'es. Mansarda, Garage, Taverna', '', n => {
+  dati.zone.push({id:'z'+Date.now().toString(36),nome:n});
+  salvaDati(); disegnaZone(); disegna(); avviso('Zona aggiunta');
+});
+function disegnaZone(){
+  const c = $('iZone'); c.innerHTML = '';
+  dati.zone.forEach(z => {
+    const n = dispositivi.filter(d => scheda(d).zona === z.id).length;
+    const v = document.createElement('div');
+    v.className = 'voce';
+    v.innerHTML = `<span class="k">${z.nome}</span><span class="v">${n}</span>`;
+    const x = document.createElement('button');
+    x.textContent = '⊖'; x.style.cssText = 'color:var(--rosso);margin-left:14px;font-size:18px';
+    x.onclick = () => {
+      if (!confirm(`Eliminare la zona ${z.nome}?`)) return;
+      dati.zone = dati.zone.filter(y => y.id !== z.id);
+      Object.values(dati.schede).forEach(s => { if (s.zona === z.id) s.zona = null; });
+      if (zonaAttiva === z.id) zonaAttiva = 'tutti';
+      salvaDati(); disegnaZone(); disegna();
+    };
+    v.appendChild(x); c.appendChild(v);
+  });
+}
+
+/* ---------- avvio ---------- */
+$('btnAggiorna').onclick = () => aggiorna(false);
+function impostaTimer(){
+  clearInterval(timer);
+  const s = parseInt(localStorage.getItem('casa_auto') || '0', 10);
+  if (s > 0) timer = setInterval(() => { if (vista === 'dispositivi' && !demo) aggiorna(false); }, s * 1000);
+}
+
+async function entra(){
+  await caricaDati();
+  await aggiorna(false);
+  impostaTimer();
+}
+
+if (token) {
+  entra();
+} else {
+  caricaDemo();
+  setTimeout(() => apriTesto('Token GitHub', 'Serve per collegarsi al server di casa', '', async v => {
+    token = v;
+    localStorage.setItem('casa_token', v);
+    demo = false;
+    await entra();
+    avviso('Collegato');
+  }), 600);
+}
+</script>
+</body>
+</html>
