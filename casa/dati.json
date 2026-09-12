@@ -1,5 +1,43 @@
 {
-  "automazioni": [],
+  "automazioni": [
+    {
+      "id": "amtyobhra",
+      "nome": "Spegni mansarda",
+      "attiva": true,
+      "ora": "00:00",
+      "giorni": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "azioni": [
+        {
+          "tipo": "spegni",
+          "ip": "192.168.1.15"
+        },
+        {
+          "tipo": "spegni",
+          "ip": "192.168.1.22"
+        },
+        {
+          "tipo": "spegni",
+          "ip": "192.168.1.19"
+        },
+        {
+          "tipo": "spegni",
+          "ip": "192.168.1.46"
+        },
+        {
+          "tipo": "spegni",
+          "ip": "192.168.1.26"
+        }
+      ]
+    }
+  ],
   "zone": [
     {
       "id": "pt",
