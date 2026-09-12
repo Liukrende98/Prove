@@ -1,0 +1,35 @@
+{
+    "aggiornatoIl":  "2026-09-12T17:57:13.1086408+02:00",
+    "postazione":  "DESKTOP-TL5ITPG",
+    "dispositivi":  [
+                        {
+                            "ip":  "192.168.10.1",
+                            "mac":  "40:a5:ef:b5:36:8e",
+                            "nomeRete":  "192.168.10.1",
+                            "tipo":  "router",
+                            "porte":  [
+
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-12T17:57:12.9992350+02:00"
+                        },
+                        {
+                            "ip":  "192.168.10.106",
+                            "mac":  "",
+                            "nomeRete":  "DESKTOP-TL5ITPG.atoveir.online",
+                            "tipo":  "telecamera",
+                            "porte":  [
+                                          554,
+                                          445
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-12T17:57:13.0305109+02:00"
+                        }
+                    ]
+}
