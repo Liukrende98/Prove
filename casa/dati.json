@@ -3,7 +3,7 @@
     {
       "id": "a1",
       "nome": "Buonanotte",
-      "attiva": true,
+      "attiva": false,
       "ora": "23:30",
       "giorni": [
         0,
@@ -76,6 +76,35 @@
         {
           "tipo": "accendi",
           "ip": "192.168.1.27"
+        }
+      ]
+    },
+    {
+      "id": "amtymnkyq",
+      "nome": "Prova",
+      "attiva": true,
+      "ora": "18:58",
+      "giorni": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "azioni": [
+        {
+          "tipo": "accendi",
+          "ip": "192.168.1.26"
+        },
+        {
+          "tipo": "attendi",
+          "secondi": 10
+        },
+        {
+          "tipo": "spegni",
+          "ip": "192.168.1.26"
         }
       ]
     }
