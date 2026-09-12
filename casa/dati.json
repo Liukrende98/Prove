@@ -1,39 +1,5 @@
 {
-  "automazioni": [
-    {
-      "id": "a1",
-      "nome": "Buonanotte",
-      "attiva": true,
-      "ora": "23:30",
-      "giorni": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ],
-      "azioni": [
-        {
-          "tipo": "spegni",
-          "ip": "192.168.1.4"
-        },
-        {
-          "tipo": "spegni",
-          "ip": "192.168.1.9"
-        },
-        {
-          "tipo": "attendi",
-          "secondi": 5
-        },
-        {
-          "tipo": "spegni",
-          "ip": "192.168.1.27"
-        }
-      ]
-    }
-  ],
+  "automazioni": [],
   "zone": [
     {
       "id": "pt",
