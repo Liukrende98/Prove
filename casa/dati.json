@@ -1,4 +1,85 @@
 {
+  "automazioni": [
+    {
+      "id": "a1",
+      "nome": "Buonanotte",
+      "attiva": true,
+      "ora": "23:30",
+      "giorni": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "azioni": [
+        {
+          "tipo": "spegni",
+          "ip": "192.168.1.4"
+        },
+        {
+          "tipo": "spegni",
+          "ip": "192.168.1.9"
+        },
+        {
+          "tipo": "attendi",
+          "secondi": 5
+        },
+        {
+          "tipo": "spegni",
+          "ip": "192.168.1.27"
+        }
+      ]
+    },
+    {
+      "id": "a2",
+      "nome": "Irrigazione orto",
+      "attiva": true,
+      "ora": "06:30",
+      "giorni": [
+        1,
+        3,
+        5
+      ],
+      "azioni": [
+        {
+          "tipo": "accendi",
+          "ip": "192.168.1.49"
+        },
+        {
+          "tipo": "attendi",
+          "secondi": 900
+        },
+        {
+          "tipo": "spegni",
+          "ip": "192.168.1.49"
+        }
+      ]
+    },
+    {
+      "id": "a3",
+      "nome": "Luci esterne serali",
+      "attiva": false,
+      "ora": "18:45",
+      "giorni": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "azioni": [
+        {
+          "tipo": "accendi",
+          "ip": "192.168.1.27"
+        }
+      ]
+    }
+  ],
   "zone": [
     {
       "id": "pt",
@@ -137,87 +218,216 @@
       "tipo": "computer",
       "zona": null,
       "note": ""
-    }
-  },
-  "automazioni": [
-    {
-      "id": "a1",
-      "nome": "Buonanotte",
-      "attiva": true,
-      "ora": "23:30",
-      "giorni": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ],
-      "azioni": [
-        {
-          "tipo": "spegni",
-          "ip": "192.168.1.4"
-        },
-        {
-          "tipo": "spegni",
-          "ip": "192.168.1.9"
-        },
-        {
-          "tipo": "attendi",
-          "secondi": 5
-        },
-        {
-          "tipo": "spegni",
-          "ip": "192.168.1.27"
-        }
-      ]
     },
-    {
-      "id": "a2",
-      "nome": "Irrigazione orto",
-      "attiva": true,
-      "ora": "06:30",
-      "giorni": [
-        1,
-        3,
-        5
-      ],
-      "azioni": [
-        {
-          "tipo": "accendi",
-          "ip": "192.168.1.49"
-        },
-        {
-          "tipo": "attendi",
-          "secondi": 900
-        },
-        {
-          "tipo": "spegni",
-          "ip": "192.168.1.49"
-        }
-      ]
+    "34:38:b7:cf:05:ec": {
+      "alias": "",
+      "tipo": "sconosciuto",
+      "zona": null,
+      "note": ""
     },
-    {
-      "id": "a3",
-      "nome": "Luci esterne serali",
-      "attiva": false,
-      "ora": "18:45",
-      "giorni": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ],
-      "azioni": [
-        {
-          "tipo": "accendi",
-          "ip": "192.168.1.27"
-        }
-      ]
+    "40:a5:ef:b5:36:8f": {
+      "alias": "",
+      "tipo": "sconosciuto",
+      "zona": null,
+      "note": ""
+    },
+    "ec:64:c9:d1:06:3c": {
+      "alias": "",
+      "tipo": "hub",
+      "zona": null,
+      "note": ""
+    },
+    "7e:49:79:90:27:98": {
+      "alias": "",
+      "tipo": "shelly",
+      "zona": null,
+      "note": ""
+    },
+    "e4:b3:23:28:e4:7c": {
+      "alias": "",
+      "tipo": "shelly",
+      "zona": null,
+      "note": ""
+    },
+    "e4:b0:63:f0:ab:90": {
+      "alias": "",
+      "tipo": "shelly",
+      "zona": null,
+      "note": ""
+    },
+    "e4:b0:63:f0:af:58": {
+      "alias": "",
+      "tipo": "shelly",
+      "zona": null,
+      "note": ""
+    },
+    "d0:cf:13:c4:f7:a8": {
+      "alias": "",
+      "tipo": "shelly",
+      "zona": null,
+      "note": ""
+    },
+    "d0:cf:13:c4:b9:34": {
+      "alias": "",
+      "tipo": "shelly",
+      "zona": null,
+      "note": ""
+    },
+    "d0:cf:13:c6:0e:f8": {
+      "alias": "",
+      "tipo": "shelly",
+      "zona": null,
+      "note": ""
+    },
+    "34:cd:b0:32:12:40": {
+      "alias": "",
+      "tipo": "sconosciuto",
+      "zona": null,
+      "note": ""
+    },
+    "d0:cf:13:c6:34:58": {
+      "alias": "L",
+      "tipo": "shelly",
+      "zona": null,
+      "note": ""
+    },
+    "e4:b0:63:f1:7f:58": {
+      "alias": "",
+      "tipo": "shelly",
+      "zona": null,
+      "note": ""
+    },
+    "e4:b0:63:ee:16:b0": {
+      "alias": "",
+      "tipo": "shelly",
+      "zona": null,
+      "note": ""
+    },
+    "dc:b4:d9:c3:5f:d8": {
+      "alias": "",
+      "tipo": "shelly",
+      "zona": null,
+      "note": ""
+    },
+    "e4:b0:63:f0:77:a4": {
+      "alias": "",
+      "tipo": "shelly",
+      "zona": null,
+      "note": ""
+    },
+    "d0:cf:13:c4:30:08": {
+      "alias": "",
+      "tipo": "shelly",
+      "zona": null,
+      "note": ""
+    },
+    "f8:1a:2b:0b:c6:21": {
+      "alias": "",
+      "tipo": "sconosciuto",
+      "zona": null,
+      "note": ""
+    },
+    "cc:7b:5c:51:61:91": {
+      "alias": "",
+      "tipo": "hub",
+      "zona": null,
+      "note": ""
+    },
+    "cc:7b:5c:51:94:ee": {
+      "alias": "",
+      "tipo": "hub",
+      "zona": null,
+      "note": ""
+    },
+    "24:d7:eb:ee:6c:1c": {
+      "alias": "",
+      "tipo": "hub",
+      "zona": null,
+      "note": ""
+    },
+    "24:d7:eb:ee:69:20": {
+      "alias": "",
+      "tipo": "hub",
+      "zona": null,
+      "note": ""
+    },
+    "f8:fc:e1:05:ed:f0": {
+      "alias": "",
+      "tipo": "sconosciuto",
+      "zona": null,
+      "note": ""
+    },
+    "44:07:0b:85:f2:53": {
+      "alias": "",
+      "tipo": "altoparlante",
+      "zona": null,
+      "note": ""
+    },
+    "e0:cb:56:b9:38:70": {
+      "alias": "",
+      "tipo": "sconosciuto",
+      "zona": null,
+      "note": ""
+    },
+    "c0:e7:bf:e9:a1:25": {
+      "alias": "",
+      "tipo": "sconosciuto",
+      "zona": null,
+      "note": ""
+    },
+    "fc:f5:c4:bc:e0:6a": {
+      "alias": "",
+      "tipo": "hub",
+      "zona": null,
+      "note": ""
+    },
+    "2c:6f:51:23:79:16": {
+      "alias": "",
+      "tipo": "telecamera",
+      "zona": null,
+      "note": ""
+    },
+    "44:eb:2e:dd:6c:bc": {
+      "alias": "",
+      "tipo": "termostato",
+      "zona": null,
+      "note": ""
+    },
+    "b8:85:84:a1:e2:2e": {
+      "alias": "",
+      "tipo": "computer",
+      "zona": null,
+      "note": ""
+    },
+    "192.168.1.70": {
+      "alias": "",
+      "tipo": "telecamera",
+      "zona": null,
+      "note": ""
+    },
+    "192.168.1.83": {
+      "alias": "",
+      "tipo": "router",
+      "zona": null,
+      "note": ""
+    },
+    "84:d6:c5:26:e4:5d": {
+      "alias": "",
+      "tipo": "sconosciuto",
+      "zona": null,
+      "note": ""
+    },
+    "c0:c9:e3:2f:01:18": {
+      "alias": "",
+      "tipo": "sconosciuto",
+      "zona": null,
+      "note": ""
+    },
+    "90:70:69:48:9d:48": {
+      "alias": "",
+      "tipo": "shelly",
+      "zona": null,
+      "note": ""
     }
-  ]
+  }
 }
