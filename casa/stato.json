@@ -1,11 +1,11 @@
 {
-    "aggiornatoIl":  "2026-09-16T19:18:22.5253002+02:00",
+    "aggiornatoIl":  "2026-09-16T19:20:22.7907834+02:00",
     "postazione":  "DESKTOP-TL5ITPG",
     "dispositivi":  [
                         {
                             "ip":  "192.168.1.1",
                             "mac":  "f8:73:1a:8c:b0:94",
-                            "nomeRete":  "",
+                            "nomeRete":  "AGxDSL_2024.homenet.telecomitalia.it",
                             "tipo":  "router",
                             "porte":  [
                                           80,
@@ -15,378 +15,12 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.2260537+02:00"
+                            "vistoIl":  "2026-09-16T19:20:13.5849295+02:00"
                         },
                         {
                             "ip":  "192.168.1.2",
-                            "mac":  "dc:b4:d9:d0:80:00",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-                                          80
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.2729297+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.3",
-                            "mac":  "a8:4f:a4:87:70:ac",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.2729297+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.4",
-                            "mac":  "e4:b0:63:f0:40:60",
-                            "nomeRete":  "",
-                            "tipo":  "shelly",
-                            "porte":  [
-                                          80
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  true,
-                            "vistoIl":  "2026-09-16T19:18:18.2729297+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.5",
-                            "mac":  "34:38:b7:cf:05:ec",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-                                          80,
-                                          8080
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.2729297+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.6",
-                            "mac":  "40:a5:ef:b5:36:8f",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.2729297+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.8",
-                            "mac":  "ec:64:c9:d1:06:3c",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.2729297+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.9",
-                            "mac":  "32:3a:fd:64:1b:bb",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-                                          80,
-                                          443
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.2729297+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.10",
-                            "mac":  "a8:4f:a4:87:82:99",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.2729297+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.11",
-                            "mac":  "ec:64:c9:d7:98:f7",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.2729297+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.12",
-                            "mac":  "c4:d8:d5:0d:9b:07",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.2885520+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.13",
-                            "mac":  "f4:1c:26:83:3c:71",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.2885520+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.14",
-                            "mac":  "e4:b3:23:28:e4:7c",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.2885520+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.15",
-                            "mac":  "",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.2885520+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.16",
-                            "mac":  "e4:b0:63:f0:af:58",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.2885520+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.17",
-                            "mac":  "d0:cf:13:c6:69:00",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.2885520+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.18",
-                            "mac":  "d0:cf:13:c4:f7:a8",
-                            "nomeRete":  "",
-                            "tipo":  "shelly",
-                            "porte":  [
-                                          80
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  true,
-                            "vistoIl":  "2026-09-16T19:18:18.2885520+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.19",
-                            "mac":  "d0:cf:13:c4:b9:34",
-                            "nomeRete":  "",
-                            "tipo":  "shelly",
-                            "porte":  [
-                                          80
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  true,
-                            "vistoIl":  "2026-09-16T19:18:18.2885520+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.20",
                             "mac":  "d0:cf:13:c6:0e:f8",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.2885520+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.21",
-                            "mac":  "e4:b0:63:ed:e9:28",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  true,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.2885520+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.22",
-                            "mac":  "d0:cf:13:c4:8c:24",
-                            "nomeRete":  "",
-                            "tipo":  "shelly",
-                            "porte":  [
-                                          80
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  true,
-                            "vistoIl":  "2026-09-16T19:18:18.2885520+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.23",
-                            "mac":  "d8:3b:da:51:84:ec",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.2885520+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.24",
-                            "mac":  "90:70:69:48:9d:48",
-                            "nomeRete":  "",
-                            "tipo":  "shelly",
-                            "porte":  [
-                                          80
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  0.0,
-                            "comandabile":  true,
-                            "vistoIl":  "2026-09-16T19:18:18.2885520+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.25",
-                            "mac":  "34:cd:b0:32:12:40",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.2885520+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.26",
-                            "mac":  "d0:cf:13:c6:34:58",
-                            "nomeRete":  "",
-                            "tipo":  "shelly",
-                            "porte":  [
-                                          80
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  true,
-                            "vistoIl":  "2026-09-16T19:18:18.3041773+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.27",
-                            "mac":  "7e:49:79:90:27:98",
-                            "nomeRete":  "",
-                            "tipo":  "shelly",
-                            "porte":  [
-                                          80
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  true,
-                            "vistoIl":  "2026-09-16T19:18:18.3041773+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.28",
-                            "mac":  "e4:b0:63:ee:d9:88",
-                            "nomeRete":  "",
-                            "tipo":  "shelly",
-                            "porte":  [
-                                          80
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  true,
-                            "vistoIl":  "2026-09-16T19:18:18.3041773+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.29",
-                            "mac":  "e4:b0:63:ee:16:b0",
-                            "nomeRete":  "",
+                            "nomeRete":  "shelly1minig3-d0cf13c60ef8.homenet.telecomitalia.it",
                             "tipo":  "shelly",
                             "porte":  [
                                           80
@@ -395,27 +29,27 @@
                             "acceso":  true,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-16T19:18:18.3041773+02:00"
+                            "vistoIl":  "2026-09-16T19:20:13.7255710+02:00"
                         },
                         {
-                            "ip":  "192.168.1.30",
-                            "mac":  "dc:b4:d9:c3:5f:d8",
-                            "nomeRete":  "",
+                            "ip":  "192.168.1.3",
+                            "mac":  "d0:cf:13:c4:8c:24",
+                            "nomeRete":  "shelly1minig3-d0cf13c48c24.homenet.telecomitalia.it",
                             "tipo":  "shelly",
                             "porte":  [
                                           80
                                       ],
-                            "online":  false,
-                            "acceso":  null,
+                            "online":  true,
+                            "acceso":  true,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-16T19:18:18.4470688+02:00"
+                            "vistoIl":  "2026-09-16T19:20:13.8974099+02:00"
                         },
                         {
-                            "ip":  "192.168.1.31",
-                            "mac":  "e4:b0:63:f0:77:a4",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
+                            "ip":  "192.168.1.4",
+                            "mac":  "34:cd:b0:32:12:40",
+                            "nomeRete":  "tado-bridge-x.homenet.telecomitalia.it",
+                            "tipo":  "hub",
                             "porte":  [
 
                                       ],
@@ -423,180 +57,12 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.4470688+02:00"
+                            "vistoIl":  "2026-09-16T19:20:13.8974099+02:00"
                         },
                         {
-                            "ip":  "192.168.1.32",
-                            "mac":  "20:1f:3b:83:3e:5b",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-                                          8009
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.4470688+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.33",
-                            "mac":  "5c:8a:ae:f8:8f:e6",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.4470688+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.34",
-                            "mac":  "d0:cf:13:c4:30:08",
-                            "nomeRete":  "",
-                            "tipo":  "shelly",
-                            "porte":  [
-                                          80
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  true,
-                            "vistoIl":  "2026-09-16T19:18:18.4470688+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.35",
-                            "mac":  "44:d5:cc:2a:7f:37",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-                                          8009
-                                      ],
-                            "online":  true,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.4470688+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.36",
-                            "mac":  "f8:1a:2b:0b:c6:21",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.4470688+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.37",
-                            "mac":  "cc:7b:5c:51:61:91",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  true,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.4470688+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.38",
-                            "mac":  "cc:7b:5c:51:94:ee",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  true,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.4470688+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.39",
-                            "mac":  "24:d7:eb:ee:6c:1c",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  true,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.4470688+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.40",
-                            "mac":  "fc:f5:c4:bd:25:e9",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.4470688+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.41",
-                            "mac":  "24:d7:eb:ee:69:20",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  true,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.4470688+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.42",
-                            "mac":  "f8:fc:e1:05:ed:f0",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-                                          8009
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.4470688+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.44",
-                            "mac":  "44:07:0b:85:f2:53",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-                                          8009
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:18.4470688+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.46",
-                            "mac":  "7e:49:79:90:27:98",
-                            "nomeRete":  "",
+                            "ip":  "192.168.1.5",
+                            "mac":  "e4:b0:63:f0:40:60",
+                            "nomeRete":  "shelly1minig3-e4b063f04060.homenet.telecomitalia.it",
                             "tipo":  "shelly",
                             "porte":  [
                                           80
@@ -605,26 +71,26 @@
                             "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-16T19:18:18.4470688+02:00"
+                            "vistoIl":  "2026-09-16T19:20:14.0224077+02:00"
                         },
                         {
-                            "ip":  "192.168.1.47",
-                            "mac":  "bc:df:58:09:85:7c",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
+                            "ip":  "192.168.1.6",
+                            "mac":  "e4:b0:63:ee:d9:88",
+                            "nomeRete":  "shelly1minig3-e4b063eed988.homenet.telecomitalia.it",
+                            "tipo":  "shelly",
                             "porte":  [
-                                          8009
+                                          80
                                       ],
-                            "online":  false,
-                            "acceso":  null,
+                            "online":  true,
+                            "acceso":  false,
                             "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:22.4940512+02:00"
+                            "comandabile":  true,
+                            "vistoIl":  "2026-09-16T19:20:15.1948976+02:00"
                         },
                         {
-                            "ip":  "192.168.1.48",
-                            "mac":  "e0:cb:56:b9:38:70",
-                            "nomeRete":  "",
+                            "ip":  "192.168.1.7",
+                            "mac":  "f8:1a:2b:0b:c6:21",
+                            "nomeRete":  "Host-003.homenet.telecomitalia.it",
                             "tipo":  "sconosciuto",
                             "porte":  [
 
@@ -633,26 +99,96 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:22.4940512+02:00"
+                            "vistoIl":  "2026-09-16T19:20:15.1948976+02:00"
                         },
                         {
-                            "ip":  "192.168.1.49",
-                            "mac":  "d4:f5:47:26:a5:0d",
-                            "nomeRete":  "",
+                            "ip":  "192.168.1.8",
+                            "mac":  "e4:b0:63:f0:77:a4",
+                            "nomeRete":  "shelly1minig3-e4b063f077a4.homenet.telecomitalia.it",
+                            "tipo":  "shelly",
+                            "porte":  [
+                                          80
+                                      ],
+                            "online":  true,
+                            "acceso":  false,
+                            "watt":  null,
+                            "comandabile":  true,
+                            "vistoIl":  "2026-09-16T19:20:16.6690807+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.9",
+                            "mac":  "ec:64:c9:d7:98:f7",
+                            "nomeRete":  "shellydimmer2-EC64C9D798F7.homenet.telecomitalia.it",
                             "tipo":  "sconosciuto",
                             "porte":  [
-
+                                          80
                                       ],
-                            "online":  false,
+                            "online":  true,
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:22.4940512+02:00"
+                            "vistoIl":  "2026-09-16T19:20:17.2210596+02:00"
                         },
                         {
-                            "ip":  "192.168.1.50",
-                            "mac":  "c0:e7:bf:e9:a1:25",
-                            "nomeRete":  "",
+                            "ip":  "192.168.1.10",
+                            "mac":  "c4:d8:d5:0d:9b:07",
+                            "nomeRete":  "shellydimmer2-C4D8D50D9B07.homenet.telecomitalia.it",
+                            "tipo":  "sconosciuto",
+                            "porte":  [
+                                          80
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:17.7054318+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.11",
+                            "mac":  "fc:f5:c4:bd:25:e9",
+                            "nomeRete":  "SwitchBot-HubMini-BD25E9.homenet.telecomitalia.it",
+                            "tipo":  "hub",
+                            "porte":  [
+
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:17.7054318+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.12",
+                            "mac":  "ec:64:c9:d1:06:3c",
+                            "nomeRete":  "SwitchBot-HubMini-D1063C.homenet.telecomitalia.it",
+                            "tipo":  "hub",
+                            "porte":  [
+
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:17.7054318+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.14",
+                            "mac":  "d0:cf:13:c6:34:58",
+                            "nomeRete":  "shelly1minig3-d0cf13c63458.homenet.telecomitalia.it",
+                            "tipo":  "shelly",
+                            "porte":  [
+                                          80
+                                      ],
+                            "online":  true,
+                            "acceso":  true,
+                            "watt":  null,
+                            "comandabile":  true,
+                            "vistoIl":  "2026-09-16T19:20:18.9399474+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.15",
+                            "mac":  "d8:3b:da:51:84:ec",
+                            "nomeRete":  "Host-008.homenet.telecomitalia.it",
                             "tipo":  "sconosciuto",
                             "porte":  [
 
@@ -661,12 +197,68 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:22.4940512+02:00"
+                            "vistoIl":  "2026-09-16T19:20:18.9399474+02:00"
                         },
                         {
-                            "ip":  "192.168.1.51",
+                            "ip":  "192.168.1.16",
+                            "mac":  "4e:3a:fd:64:1b:bb",
+                            "nomeRete":  "SwitchBot-HubMini-EE6920.homenet.telecomitalia.it",
+                            "tipo":  "hub",
+                            "porte":  [
+
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:18.9399474+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.17",
+                            "mac":  "4e:3a:fd:64:1b:bb",
+                            "nomeRete":  "Google-Nest-Mini.homenet.telecomitalia.it",
+                            "tipo":  "altoparlante",
+                            "porte":  [
+
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:18.9399474+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.18",
+                            "mac":  "dc:b4:d9:d0:80:00",
+                            "nomeRete":  "shelly1minig3-dcb4d9d08000.homenet.telecomitalia.it",
+                            "tipo":  "shelly",
+                            "porte":  [
+                                          80
+                                      ],
+                            "online":  true,
+                            "acceso":  false,
+                            "watt":  null,
+                            "comandabile":  true,
+                            "vistoIl":  "2026-09-16T19:20:19.0337038+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.20",
                             "mac":  "fc:f5:c4:bc:e0:6a",
-                            "nomeRete":  "",
+                            "nomeRete":  "SwitchBot-HubMini-BCE06A.homenet.telecomitalia.it",
+                            "tipo":  "hub",
+                            "porte":  [
+
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:19.0337038+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.21",
+                            "mac":  "40:a5:ef:b5:36:8f",
+                            "nomeRete":  "Host-012.homenet.telecomitalia.it",
                             "tipo":  "sconosciuto",
                             "porte":  [
 
@@ -675,12 +267,54 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:22.4940512+02:00"
+                            "vistoIl":  "2026-09-16T19:20:19.0337038+02:00"
                         },
                         {
-                            "ip":  "192.168.1.52",
-                            "mac":  "20:1f:3b:a2:4a:a5",
-                            "nomeRete":  "",
+                            "ip":  "192.168.1.22",
+                            "mac":  "cc:7b:5c:51:94:ee",
+                            "nomeRete":  "SwitchBot-HubMini-5194EE.homenet.telecomitalia.it",
+                            "tipo":  "hub",
+                            "porte":  [
+
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:19.0337038+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.23",
+                            "mac":  "d0:cf:13:c6:69:00",
+                            "nomeRete":  "shelly1minig3-d0cf13c66900.homenet.telecomitalia.it",
+                            "tipo":  "shelly",
+                            "porte":  [
+                                          80
+                                      ],
+                            "online":  true,
+                            "acceso":  false,
+                            "watt":  null,
+                            "comandabile":  true,
+                            "vistoIl":  "2026-09-16T19:20:19.1118292+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.24",
+                            "mac":  "e4:b0:63:ed:e9:28",
+                            "nomeRete":  "shelly1minig3-e4b063ede928.homenet.telecomitalia.it",
+                            "tipo":  "shelly",
+                            "porte":  [
+                                          80
+                                      ],
+                            "online":  true,
+                            "acceso":  false,
+                            "watt":  null,
+                            "comandabile":  true,
+                            "vistoIl":  "2026-09-16T19:20:19.2055729+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.25",
+                            "mac":  "20:1f:3b:83:3e:5b",
+                            "nomeRete":  "Host-015.homenet.telecomitalia.it",
                             "tipo":  "sconosciuto",
                             "porte":  [
 
@@ -689,69 +323,195 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:22.4940512+02:00"
+                            "vistoIl":  "2026-09-16T19:20:19.2055729+02:00"
                         },
                         {
-                            "ip":  "192.168.1.60",
-                            "mac":  "2c:6f:51:23:79:16",
-                            "nomeRete":  "",
+                            "ip":  "192.168.1.26",
+                            "mac":  "e4:b0:63:f0:ab:90",
+                            "nomeRete":  "shelly1minig3-e4b063f0ab90.homenet.telecomitalia.it",
+                            "tipo":  "shelly",
+                            "porte":  [
+                                          80
+                                      ],
+                            "online":  true,
+                            "acceso":  false,
+                            "watt":  null,
+                            "comandabile":  true,
+                            "vistoIl":  "2026-09-16T19:20:19.2837027+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.27",
+                            "mac":  "d0:cf:13:c7:0c:f8",
+                            "nomeRete":  "shelly1minig3-d0cf13c70cf8.homenet.telecomitalia.it",
+                            "tipo":  "shelly",
+                            "porte":  [
+                                          80
+                                      ],
+                            "online":  true,
+                            "acceso":  false,
+                            "watt":  null,
+                            "comandabile":  true,
+                            "vistoIl":  "2026-09-16T19:20:19.3461985+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.28",
+                            "mac":  "d0:cf:13:c4:f7:a8",
+                            "nomeRete":  "shelly1minig3-d0cf13c4f7a8.homenet.telecomitalia.it",
                             "tipo":  "sconosciuto",
                             "porte":  [
 
                                       ],
-                            "online":  false,
+                            "online":  true,
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:22.4940512+02:00"
+                            "vistoIl":  "2026-09-16T19:20:19.3461985+02:00"
                         },
                         {
-                            "ip":  "192.168.1.70",
-                            "mac":  "",
-                            "nomeRete":  "",
-                            "tipo":  "telecamera",
+                            "ip":  "192.168.1.29",
+                            "mac":  "d0:cf:13:c4:b9:34",
+                            "nomeRete":  "shelly1minig3-d0cf13c4b934.homenet.telecomitalia.it",
+                            "tipo":  "shelly",
                             "porte":  [
-                                          554,
-                                          445
+                                          80
                                       ],
-                            "online":  false,
+                            "online":  true,
+                            "acceso":  true,
+                            "watt":  null,
+                            "comandabile":  true,
+                            "vistoIl":  "2026-09-16T19:20:19.4087001+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.30",
+                            "mac":  "4e:3a:fd:64:1b:bb",
+                            "nomeRete":  "shelly1minig3-e4b063ee16b0.homenet.telecomitalia.it",
+                            "tipo":  "shelly",
+                            "porte":  [
+                                          80
+                                      ],
+                            "online":  true,
+                            "acceso":  false,
+                            "watt":  null,
+                            "comandabile":  true,
+                            "vistoIl":  "2026-09-16T19:20:19.5493240+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.31",
+                            "mac":  "dc:b4:d9:c3:5f:d8",
+                            "nomeRete":  "shelly1minig3-dcb4d9c35fd8.homenet.telecomitalia.it",
+                            "tipo":  "shelly",
+                            "porte":  [
+                                          80
+                                      ],
+                            "online":  true,
+                            "acceso":  false,
+                            "watt":  null,
+                            "comandabile":  true,
+                            "vistoIl":  "2026-09-16T19:20:19.7056055+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.32",
+                            "mac":  "4e:3a:fd:64:1b:bb",
+                            "nomeRete":  "SwitchBot-HubMini-EE6C1C.homenet.telecomitalia.it",
+                            "tipo":  "hub",
+                            "porte":  [
+
+                                      ],
+                            "online":  true,
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:22.4940512+02:00"
+                            "vistoIl":  "2026-09-16T19:20:19.7056055+02:00"
                         },
                         {
-                            "ip":  "192.168.1.71",
-                            "mac":  "b6:1b:70:be:59:38",
-                            "nomeRete":  "",
+                            "ip":  "192.168.1.33",
+                            "mac":  "4e:3a:fd:64:1b:bb",
+                            "nomeRete":  "SwitchBot-HubMini-516191.homenet.telecomitalia.it",
+                            "tipo":  "hub",
+                            "porte":  [
+
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:19.7056055+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.35",
+                            "mac":  "e4:b0:63:f0:af:58",
+                            "nomeRete":  "shelly1minig3-e4b063f0af58.homenet.telecomitalia.it",
+                            "tipo":  "shelly",
+                            "porte":  [
+                                          80
+                                      ],
+                            "online":  true,
+                            "acceso":  false,
+                            "watt":  null,
+                            "comandabile":  true,
+                            "vistoIl":  "2026-09-16T19:20:20.6500107+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.36",
+                            "mac":  "34:38:b7:cf:05:ec",
+                            "nomeRete":  "Host-021.homenet.telecomitalia.it",
+                            "tipo":  "sconosciuto",
+                            "porte":  [
+                                          80,
+                                          8080
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:20.7437603+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.37",
+                            "mac":  "e4:b0:63:f1:7f:58",
+                            "nomeRete":  "shelly1minig3-e4b063f17f58.homenet.telecomitalia.it",
+                            "tipo":  "shelly",
+                            "porte":  [
+                                          80
+                                      ],
+                            "online":  true,
+                            "acceso":  false,
+                            "watt":  null,
+                            "comandabile":  true,
+                            "vistoIl":  "2026-09-16T19:20:20.8218863+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.38",
+                            "mac":  "e4:b3:23:28:e4:7c",
+                            "nomeRete":  "shelly1minig3-e4b32328e47c.homenet.telecomitalia.it",
+                            "tipo":  "shelly",
+                            "porte":  [
+                                          80
+                                      ],
+                            "online":  true,
+                            "acceso":  false,
+                            "watt":  null,
+                            "comandabile":  true,
+                            "vistoIl":  "2026-09-16T19:20:20.8843869+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.39",
+                            "mac":  "f4:1c:26:83:3c:71",
+                            "nomeRete":  "129176054.homenet.telecomitalia.it",
                             "tipo":  "sconosciuto",
                             "porte":  [
 
                                       ],
-                            "online":  false,
+                            "online":  true,
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:22.5096766+02:00"
+                            "vistoIl":  "2026-09-16T19:20:20.8843869+02:00"
                         },
                         {
-                            "ip":  "192.168.1.74",
-                            "mac":  "76:f2:12:e6:4a:b1",
-                            "nomeRete":  "",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:22.5096766+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.83",
-                            "mac":  "7e:49:79:90:27:98",
-                            "nomeRete":  "",
+                            "ip":  "192.168.1.40",
+                            "mac":  "4e:3a:fd:64:1b:bb",
+                            "nomeRete":  "Host-024.homenet.telecomitalia.it",
                             "tipo":  "sconosciuto",
                             "porte":  [
                                           80,
@@ -761,26 +521,26 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:22.5096766+02:00"
+                            "vistoIl":  "2026-09-16T19:20:21.0875242+02:00"
                         },
                         {
-                            "ip":  "192.168.1.100",
-                            "mac":  "84:d6:c5:26:e4:5d",
-                            "nomeRete":  "",
+                            "ip":  "192.168.1.41",
+                            "mac":  "d4:f5:47:26:a5:0d",
+                            "nomeRete":  "Host-025.homenet.telecomitalia.it",
                             "tipo":  "sconosciuto",
                             "porte":  [
-
+                                          8009
                                       ],
-                            "online":  false,
+                            "online":  true,
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:22.5096766+02:00"
+                            "vistoIl":  "2026-09-16T19:20:21.0875242+02:00"
                         },
                         {
-                            "ip":  "192.168.1.117",
-                            "mac":  "c0:c9:e3:2f:01:18",
-                            "nomeRete":  "",
+                            "ip":  "192.168.1.43",
+                            "mac":  "5c:8a:ae:f8:fa:eb",
+                            "nomeRete":  "Host-009.homenet.telecomitalia.it",
                             "tipo":  "sconosciuto",
                             "porte":  [
 
@@ -789,7 +549,191 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-16T19:18:22.5096766+02:00"
+                            "vistoIl":  "2026-09-16T19:20:21.0875242+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.44",
+                            "mac":  "4e:3a:fd:64:1b:bb",
+                            "nomeRete":  "Host-027.homenet.telecomitalia.it",
+                            "tipo":  "sconosciuto",
+                            "porte":  [
+                                          8009
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:21.1031364+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.46",
+                            "mac":  "44:07:0b:85:f2:53",
+                            "nomeRete":  "Google-Home-Mini.homenet.telecomitalia.it",
+                            "tipo":  "altoparlante",
+                            "porte":  [
+                                          8009
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:21.1031364+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.48",
+                            "mac":  "44:d5:cc:2a:7f:37",
+                            "nomeRete":  "Host-030.homenet.telecomitalia.it",
+                            "tipo":  "sconosciuto",
+                            "porte":  [
+                                          8009
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:21.1031364+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.49",
+                            "mac":  "4e:3a:fd:64:1b:bb",
+                            "nomeRete":  "shellyplugsg3-907069489d48.homenet.telecomitalia.it",
+                            "tipo":  "shelly",
+                            "porte":  [
+                                          80
+                                      ],
+                            "online":  true,
+                            "acceso":  false,
+                            "watt":  0.0,
+                            "comandabile":  true,
+                            "vistoIl":  "2026-09-16T19:20:21.4939066+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.50",
+                            "mac":  "f8:17:2d:a0:01:d5",
+                            "nomeRete":  "Host-031.homenet.telecomitalia.it",
+                            "tipo":  "sconosciuto",
+                            "porte":  [
+
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:21.4939066+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.51",
+                            "mac":  "e0:cb:56:b9:38:70",
+                            "nomeRete":  "Host-032.homenet.telecomitalia.it",
+                            "tipo":  "sconosciuto",
+                            "porte":  [
+
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:21.5095331+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.52",
+                            "mac":  "d0:cf:13:c4:30:08",
+                            "nomeRete":  "shelly1minig3-d0cf13c43008.homenet.telecomitalia.it",
+                            "tipo":  "shelly",
+                            "porte":  [
+                                          80
+                                      ],
+                            "online":  true,
+                            "acceso":  true,
+                            "watt":  null,
+                            "comandabile":  true,
+                            "vistoIl":  "2026-09-16T19:20:21.6189077+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.53",
+                            "mac":  "2c:6f:51:23:79:16",
+                            "nomeRete":  "Host-033.homenet.telecomitalia.it",
+                            "tipo":  "sconosciuto",
+                            "porte":  [
+
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:21.6189077+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.54",
+                            "mac":  "4e:3a:fd:64:1b:bb",
+                            "nomeRete":  "iPhone.homenet.telecomitalia.it",
+                            "tipo":  "sconosciuto",
+                            "porte":  [
+
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:21.6189077+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.61",
+                            "mac":  "",
+                            "nomeRete":  "DESKTOP-TL5ITPG.homenet.telecomitalia.it",
+                            "tipo":  "telecamera",
+                            "porte":  [
+                                          554,
+                                          445
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:21.6345335+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.83",
+                            "mac":  "42:49:79:90:27:98",
+                            "nomeRete":  "fritz.repeater.homenet.telecomitalia.it",
+                            "tipo":  "router",
+                            "porte":  [
+                                          80,
+                                          443
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:21.7595336+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.100",
+                            "mac":  "84:d6:c5:26:e4:5d",
+                            "nomeRete":  "Host-026.homenet.telecomitalia.it",
+                            "tipo":  "sconosciuto",
+                            "porte":  [
+
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:21.7595336+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.117",
+                            "mac":  "c0:c9:e3:2f:01:18",
+                            "nomeRete":  "TL-WPA4220.homenet.telecomitalia.it",
+                            "tipo":  "sconosciuto",
+                            "porte":  [
+                                          80
+                                      ],
+                            "online":  true,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-16T19:20:21.8532815+02:00"
                         }
                     ]
 }
