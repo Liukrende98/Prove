@@ -1,5 +1,5 @@
 {
-    "aggiornatoIl":  "2026-09-28T20:31:32.9828546+02:00",
+    "aggiornatoIl":  "2026-09-28T20:32:11.9934648+02:00",
     "postazione":  "DESKTOP-TL5ITPG",
     "dispositivi":  [
                         {
@@ -15,7 +15,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:28.8578429+02:00"
+                            "vistoIl":  "2026-09-28T20:32:08.2324628+02:00"
                         },
                         {
                             "ip":  "192.168.1.2",
@@ -29,7 +29,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:28.8588472+02:00"
+                            "vistoIl":  "2026-09-28T20:32:08.2384574+02:00"
                         },
                         {
                             "ip":  "192.168.1.3",
@@ -43,7 +43,7 @@
                             "acceso":  true,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-28T20:31:28.9218445+02:00"
+                            "vistoIl":  "2026-09-28T20:32:08.4024786+02:00"
                         },
                         {
                             "ip":  "192.168.1.4",
@@ -53,11 +53,11 @@
                             "porte":  [
 
                                       ],
-                            "online":  false,
+                            "online":  true,
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:28.9228766+02:00"
+                            "vistoIl":  "2026-09-28T20:32:08.4024786+02:00"
                         },
                         {
                             "ip":  "192.168.1.5",
@@ -71,7 +71,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:28.9228766+02:00"
+                            "vistoIl":  "2026-09-28T20:32:08.4024786+02:00"
                         },
                         {
                             "ip":  "192.168.1.6",
@@ -85,7 +85,7 @@
                             "acceso":  true,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-28T20:31:28.9838803+02:00"
+                            "vistoIl":  "2026-09-28T20:32:08.4824660+02:00"
                         },
                         {
                             "ip":  "192.168.1.7",
@@ -95,11 +95,11 @@
                             "porte":  [
 
                                       ],
-                            "online":  false,
+                            "online":  true,
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:28.9848537+02:00"
+                            "vistoIl":  "2026-09-28T20:32:08.4835230+02:00"
                         },
                         {
                             "ip":  "192.168.1.8",
@@ -113,7 +113,7 @@
                             "acceso":  true,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-28T20:31:29.0588927+02:00"
+                            "vistoIl":  "2026-09-28T20:32:08.5685000+02:00"
                         },
                         {
                             "ip":  "192.168.1.9",
@@ -127,11 +127,11 @@
                             "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-28T20:31:29.1108806+02:00"
+                            "vistoIl":  "2026-09-28T20:32:08.6414956+02:00"
                         },
                         {
                             "ip":  "192.168.1.10",
-                            "mac":  "",
+                            "mac":  "4e:3a:fd:64:1b:bb",
                             "nomeRete":  "shelly1minig3-e4b063ee16b0.homenet.telecomitalia.it",
                             "tipo":  "shelly",
                             "porte":  [
@@ -141,21 +141,21 @@
                             "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-28T20:31:29.3848510+02:00"
+                            "vistoIl":  "2026-09-28T20:32:08.7414934+02:00"
                         },
                         {
                             "ip":  "192.168.1.11",
                             "mac":  "ec:64:c9:d7:98:f7",
                             "nomeRete":  "shellydimmer2-EC64C9D798F7.homenet.telecomitalia.it",
-                            "tipo":  "sconosciuto",
+                            "tipo":  "shelly",
                             "porte":  [
                                           80
                                       ],
                             "online":  true,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:29.3858510+02:00"
+                            "acceso":  true,
+                            "watt":  24.19,
+                            "comandabile":  true,
+                            "vistoIl":  "2026-09-28T20:32:09.0824713+02:00"
                         },
                         {
                             "ip":  "192.168.1.12",
@@ -169,21 +169,21 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:29.3858510+02:00"
+                            "vistoIl":  "2026-09-28T20:32:09.0824713+02:00"
                         },
                         {
                             "ip":  "192.168.1.13",
                             "mac":  "c4:d8:d5:0d:9b:07",
                             "nomeRete":  "shellydimmer2-C4D8D50D9B07.homenet.telecomitalia.it",
-                            "tipo":  "sconosciuto",
+                            "tipo":  "shelly",
                             "porte":  [
                                           80
                                       ],
                             "online":  true,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:29.3868502+02:00"
+                            "acceso":  false,
+                            "watt":  0.00,
+                            "comandabile":  true,
+                            "vistoIl":  "2026-09-28T20:32:09.3954893+02:00"
                         },
                         {
                             "ip":  "192.168.1.14",
@@ -197,7 +197,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:29.3868502+02:00"
+                            "vistoIl":  "2026-09-28T20:32:09.3964633+02:00"
                         },
                         {
                             "ip":  "192.168.1.15",
@@ -211,7 +211,7 @@
                             "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-28T20:31:29.4868397+02:00"
+                            "vistoIl":  "2026-09-28T20:32:09.4734583+02:00"
                         },
                         {
                             "ip":  "192.168.1.16",
@@ -225,7 +225,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:29.4868397+02:00"
+                            "vistoIl":  "2026-09-28T20:32:09.4734583+02:00"
                         },
                         {
                             "ip":  "192.168.1.17",
@@ -239,7 +239,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:29.4868397+02:00"
+                            "vistoIl":  "2026-09-28T20:32:09.4734583+02:00"
                         },
                         {
                             "ip":  "192.168.1.18",
@@ -253,7 +253,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:29.4868397+02:00"
+                            "vistoIl":  "2026-09-28T20:32:09.4734583+02:00"
                         },
                         {
                             "ip":  "192.168.1.19",
@@ -267,7 +267,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:29.4878575+02:00"
+                            "vistoIl":  "2026-09-28T20:32:09.4744571+02:00"
                         },
                         {
                             "ip":  "192.168.1.20",
@@ -281,7 +281,7 @@
                             "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-28T20:31:29.5578723+02:00"
+                            "vistoIl":  "2026-09-28T20:32:09.5484998+02:00"
                         },
                         {
                             "ip":  "192.168.1.21",
@@ -295,7 +295,7 @@
                             "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-28T20:31:29.6348732+02:00"
+                            "vistoIl":  "2026-09-28T20:32:09.6324757+02:00"
                         },
                         {
                             "ip":  "192.168.1.22",
@@ -309,7 +309,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:29.6348732+02:00"
+                            "vistoIl":  "2026-09-28T20:32:09.6324757+02:00"
                         },
                         {
                             "ip":  "192.168.1.23",
@@ -323,21 +323,21 @@
                             "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-28T20:31:29.6868586+02:00"
+                            "vistoIl":  "2026-09-28T20:32:09.7334581+02:00"
                         },
                         {
                             "ip":  "192.168.1.24",
                             "mac":  "",
                             "nomeRete":  "shelly1minig3-d0cf13c48c24.homenet.telecomitalia.it",
-                            "tipo":  "sconosciuto",
+                            "tipo":  "shelly",
                             "porte":  [
-
+                                          80
                                       ],
                             "online":  true,
-                            "acceso":  null,
+                            "acceso":  true,
                             "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:29.6878737+02:00"
+                            "comandabile":  true,
+                            "vistoIl":  "2026-09-28T20:32:09.9084637+02:00"
                         },
                         {
                             "ip":  "192.168.1.25",
@@ -351,7 +351,7 @@
                             "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-28T20:31:29.9098426+02:00"
+                            "vistoIl":  "2026-09-28T20:32:10.3704780+02:00"
                         },
                         {
                             "ip":  "192.168.1.26",
@@ -365,7 +365,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:29.9098426+02:00"
+                            "vistoIl":  "2026-09-28T20:32:10.3704780+02:00"
                         },
                         {
                             "ip":  "192.168.1.27",
@@ -379,7 +379,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:29.9108413+02:00"
+                            "vistoIl":  "2026-09-28T20:32:10.3714644+02:00"
                         },
                         {
                             "ip":  "192.168.1.28",
@@ -393,7 +393,7 @@
                             "acceso":  true,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-28T20:31:29.9928448+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.0474657+02:00"
                         },
                         {
                             "ip":  "192.168.1.29",
@@ -407,7 +407,7 @@
                             "acceso":  true,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-28T20:31:30.4408410+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.1604631+02:00"
                         },
                         {
                             "ip":  "192.168.1.30",
@@ -421,7 +421,7 @@
                             "acceso":  true,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-28T20:31:30.5608464+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.2674588+02:00"
                         },
                         {
                             "ip":  "192.168.1.31",
@@ -435,7 +435,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:30.5608464+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.2674588+02:00"
                         },
                         {
                             "ip":  "192.168.1.32",
@@ -449,7 +449,7 @@
                             "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-28T20:31:30.6248421+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.4534670+02:00"
                         },
                         {
                             "ip":  "192.168.1.33",
@@ -464,7 +464,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:30.6258408+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.4544651+02:00"
                         },
                         {
                             "ip":  "192.168.1.34",
@@ -478,7 +478,7 @@
                             "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-28T20:31:30.7178494+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.5234964+02:00"
                         },
                         {
                             "ip":  "192.168.1.35",
@@ -492,7 +492,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:30.7178494+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.5234964+02:00"
                         },
                         {
                             "ip":  "192.168.1.36",
@@ -506,11 +506,11 @@
                             "acceso":  false,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-28T20:31:30.7848474+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.6044602+02:00"
                         },
                         {
                             "ip":  "192.168.1.37",
-                            "mac":  "4e:3a:fd:64:1b:bb",
+                            "mac":  "",
                             "nomeRete":  "Host-018.homenet.telecomitalia.it",
                             "tipo":  "sconosciuto",
                             "porte":  [
@@ -521,7 +521,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:30.7858799+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.6054588+02:00"
                         },
                         {
                             "ip":  "192.168.1.38",
@@ -535,7 +535,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:30.7858799+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.6054588+02:00"
                         },
                         {
                             "ip":  "192.168.1.39",
@@ -549,7 +549,7 @@
                             "acceso":  true,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-28T20:31:30.8358740+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.6714605+02:00"
                         },
                         {
                             "ip":  "192.168.1.40",
@@ -563,7 +563,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:30.8368465+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.6724662+02:00"
                         },
                         {
                             "ip":  "192.168.1.41",
@@ -577,11 +577,11 @@
                             "acceso":  true,
                             "watt":  null,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-28T20:31:30.9328399+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.7444603+02:00"
                         },
                         {
                             "ip":  "192.168.1.42",
-                            "mac":  "",
+                            "mac":  "4e:3a:fd:64:1b:bb",
                             "nomeRete":  "shellyplugsg3-907069489d48.homenet.telecomitalia.it",
                             "tipo":  "shelly",
                             "porte":  [
@@ -591,7 +591,7 @@
                             "acceso":  false,
                             "watt":  0.0,
                             "comandabile":  true,
-                            "vistoIl":  "2026-09-28T20:31:32.9718577+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9804632+02:00"
                         },
                         {
                             "ip":  "192.168.1.43",
@@ -605,7 +605,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9718577+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9814651+02:00"
                         },
                         {
                             "ip":  "192.168.1.44",
@@ -615,11 +615,11 @@
                             "porte":  [
 
                                       ],
-                            "online":  false,
+                            "online":  true,
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9718577+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9814651+02:00"
                         },
                         {
                             "ip":  "192.168.1.45",
@@ -633,7 +633,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9728641+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9814651+02:00"
                         },
                         {
                             "ip":  "192.168.1.46",
@@ -647,7 +647,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9728641+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9844644+02:00"
                         },
                         {
                             "ip":  "192.168.1.47",
@@ -661,7 +661,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9728641+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9844644+02:00"
                         },
                         {
                             "ip":  "192.168.1.48",
@@ -675,7 +675,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9728641+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9854625+02:00"
                         },
                         {
                             "ip":  "192.168.1.49",
@@ -689,7 +689,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9738657+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9854625+02:00"
                         },
                         {
                             "ip":  "192.168.1.50",
@@ -699,11 +699,25 @@
                             "porte":  [
 
                                       ],
+                            "online":  false,
+                            "acceso":  null,
+                            "watt":  null,
+                            "comandabile":  false,
+                            "vistoIl":  "2026-09-28T20:32:11.9854625+02:00"
+                        },
+                        {
+                            "ip":  "192.168.1.51",
+                            "mac":  "a8:4f:a4:87:82:99",
+                            "nomeRete":  "Host-030.homenet.telecomitalia.it",
+                            "tipo":  "sconosciuto",
+                            "porte":  [
+
+                                      ],
                             "online":  true,
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9738657+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9864612+02:00"
                         },
                         {
                             "ip":  "192.168.1.52",
@@ -717,7 +731,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9738657+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9864612+02:00"
                         },
                         {
                             "ip":  "192.168.1.53",
@@ -727,11 +741,11 @@
                             "porte":  [
 
                                       ],
-                            "online":  false,
+                            "online":  true,
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9768610+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9864612+02:00"
                         },
                         {
                             "ip":  "192.168.1.54",
@@ -747,7 +761,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9768610+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9864612+02:00"
                         },
                         {
                             "ip":  "192.168.1.55",
@@ -762,7 +776,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9778644+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9874648+02:00"
                         },
                         {
                             "ip":  "192.168.1.56",
@@ -776,49 +790,21 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9778644+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9874648+02:00"
                         },
                         {
                             "ip":  "192.168.1.57",
-                            "mac":  "4e:3a:fd:64:1b:bb",
+                            "mac":  "",
                             "nomeRete":  "Host-029.homenet.telecomitalia.it",
                             "tipo":  "sconosciuto",
                             "porte":  [
 
                                       ],
-                            "online":  false,
+                            "online":  true,
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9778644+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.61",
-                            "mac":  "",
-                            "nomeRete":  "Watch.homenet.telecomitalia.it",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9788654+02:00"
-                        },
-                        {
-                            "ip":  "192.168.1.62",
-                            "mac":  "b2:75:ef:12:4e:5c",
-                            "nomeRete":  "Host-038.homenet.telecomitalia.it",
-                            "tipo":  "sconosciuto",
-                            "porte":  [
-
-                                      ],
-                            "online":  false,
-                            "acceso":  null,
-                            "watt":  null,
-                            "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9788654+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9874648+02:00"
                         },
                         {
                             "ip":  "192.168.1.68",
@@ -832,7 +818,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9788654+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9884626+02:00"
                         },
                         {
                             "ip":  "192.168.1.70",
@@ -846,7 +832,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9798459+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9884626+02:00"
                         },
                         {
                             "ip":  "192.168.1.71",
@@ -860,7 +846,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9798459+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9884626+02:00"
                         },
                         {
                             "ip":  "192.168.1.72",
@@ -874,7 +860,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9798459+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9894634+02:00"
                         },
                         {
                             "ip":  "192.168.1.73",
@@ -888,7 +874,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9808571+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9894634+02:00"
                         },
                         {
                             "ip":  "192.168.1.74",
@@ -902,7 +888,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9808571+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9894634+02:00"
                         },
                         {
                             "ip":  "192.168.1.83",
@@ -917,7 +903,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9808571+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9904648+02:00"
                         },
                         {
                             "ip":  "192.168.1.104",
@@ -931,7 +917,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9808571+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9904648+02:00"
                         },
                         {
                             "ip":  "192.168.1.117",
@@ -945,7 +931,7 @@
                             "acceso":  null,
                             "watt":  null,
                             "comandabile":  false,
-                            "vistoIl":  "2026-09-28T20:31:32.9818541+02:00"
+                            "vistoIl":  "2026-09-28T20:32:11.9904648+02:00"
                         }
                     ]
 }
