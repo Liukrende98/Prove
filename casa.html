@@ -32,6 +32,7 @@
          background:rgba(0,0,0,.6);backdrop-filter:saturate(180%) blur(22px);-webkit-backdrop-filter:saturate(180%) blur(22px);
          border-bottom:.5px solid transparent;transition:border-color .2s}
   .barra.staccata{border-bottom-color:var(--sep)}
+  @media(min-width:760px){.barra.staccata{border-bottom-color:var(--sep)}}
   .titolo{display:flex;align-items:center;gap:12px}
   .titolo h1{margin:0;font-size:32px;font-weight:700;letter-spacing:-.8px;
              font-family:-apple-system,"SF Pro Display",sans-serif}
@@ -88,7 +89,7 @@
   /* ---------- riquadri dispositivi ---------- */
   .griglia{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px 20px 24px;
            grid-auto-rows:118px}
-  @media(min-width:700px){.griglia{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}}
+  @media(min-width:700px) and (max-width:759px){.griglia{grid-template-columns:repeat(3,1fr)}}
   .tassello{position:relative;border-radius:22px;padding:15px;height:100%;text-align:left;overflow:hidden;
             background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));
             border:.5px solid rgba(255,255,255,.08);
@@ -267,6 +268,24 @@
   .stampa .tx b{display:block;font-size:14.5px;font-weight:600;word-break:break-word;line-height:1.3}
   .stampa .tx span{font-size:12px;color:var(--testo2);display:block;margin-top:2px;line-height:1.35}
   .nascosto{display:none}
+
+  /* ---------- da computer: stessa app, incolonnata al centro ---------- */
+  @media(min-width:760px){
+    body{padding-bottom:96px}
+    .barra{max-width:720px;margin:0 auto;padding-top:22px;border-bottom:.5px solid transparent}
+    #vistaDispositivi,#vistaAutomazioni,#vistaStampe,#vistaImpostazioni{max-width:720px;margin:0 auto}
+    .schede{left:50%;transform:translateX(-50%);width:100%;max-width:720px;
+            border-radius:20px 20px 0 0;border:.5px solid var(--sep);border-bottom:0}
+    .scena{display:flex;justify-content:center;padding:10px 8px 4px}
+    .scena svg{height:240px;width:auto;max-width:100%}
+    .griglia{grid-template-columns:repeat(3,1fr);grid-auto-rows:124px}
+    .zona-file{padding:38px 18px}
+    .caricamento .scatola{min-width:280px}
+  }
+  @media(min-width:1100px){
+    .barra,#vistaDispositivi,#vistaAutomazioni,#vistaStampe,#vistaImpostazioni,.schede{max-width:840px}
+    .griglia{grid-template-columns:repeat(4,1fr)}
+  }
 </style>
 </head>
 <body>
