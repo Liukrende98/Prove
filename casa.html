@@ -368,6 +368,7 @@
     <div class="voce"><span class="k">Agente</span><span class="v" id="iAgente">—</span></div>
     <div class="voce"><span class="k">Stampante</span><span class="v" id="iStampante">—</span></div>
   </div>
+  <div class="nota" id="notaCollegamento"></div>
 
   <div class="etichetta">Rete</div>
   <div class="gruppo">
@@ -751,6 +752,7 @@ async function caricaDati(){
   sistemaEdifici();
 }
 function caricaDemo(){
+  const primaVolta = !demo;
   demo = true;
   dispositivi = JSON.parse(JSON.stringify(DEMO));
   if (!Object.keys(dati.schede).length) dati.schede = JSON.parse(JSON.stringify(DEMO_SCHEDE));
@@ -758,6 +760,7 @@ function caricaDemo(){
   if (!dati.automazioni.length) dati.automazioni = JSON.parse(JSON.stringify(DEMO_AUTO));
   aggiornatoIl = new Date().toISOString();
   disegna();
+  if (primaVolta) avviso('Agente non raggiungibile: dati di esempio');
 }
 function mostraCaricamento(titolo, sotto){
   $('carTitolo').textContent = titolo;
@@ -1305,6 +1308,11 @@ function disegnaImpostazioni(){
   $('iModo').textContent = demo ? 'esempio' : diretto ? 'diretto' : 'GitHub';
   $('iAgente').textContent = agente ? `${agente.etichetta} · ${agente.postazione}` : '—';
   $('iStampante').textContent = (agente && agente.stampante) || '—';
+  $('notaCollegamento').innerHTML = demo
+    ? 'Nessun collegamento attivo: quelli che vedi sono dispositivi di esempio. Apri la pagina servita dall\'agente — <b>http://localhost:8099</b> dal PC di casa, o l\'indirizzo che l\'agente stampa in verde all\'avvio se sei sul telefono.'
+    : diretto
+      ? 'Collegamento diretto: comandi e stato sono immediati.'
+      : 'I comandi passano dal repository: qualche secondo di attesa. Per la risposta immediata apri la pagina servita dall\'agente.';
   $('iConta').textContent = dispositivi.length;
   $('iQuando').textContent = orario(aggiornatoIl);
   const secondi = localStorage.getItem('casa_auto') ?? '30';
@@ -1314,7 +1322,12 @@ function disegnaImpostazioni(){
   $('iChiaveStato').textContent = chiaveAgente ? 'impostata' : 'non impostata';
   disegnaZone();
 }
-$('iScansiona').onclick = async () => { await aggiorna(true); avviso('Scansione completata'); disegnaImpostazioni(); };
+$('iScansiona').onclick = async () => {
+  if (demo) return avviso('Sei in modalità esempio: apri la pagina dall\'agente');
+  await aggiorna(true);
+  if (!demo) avviso('Scansione completata');
+  disegnaImpostazioni();
+};
 const AUTO = [['0','Mai'],['30','Ogni 30 secondi'],['60','Ogni minuto'],['300','Ogni 5 minuti']];
 const etichettaAuto = v => (AUTO.find(a => a[0] === String(v)) || AUTO[1])[1];
 $('iAuto').onclick = () => apriScelta('Aggiornamento automatico', 'Ogni quanto rileggere lo stato',
