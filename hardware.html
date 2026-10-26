@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Hardware — NodoItalia</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
   --sfondo:#f5f5f7;--sfondo2:#eeeef2;--sfondo3:#ffffff;
@@ -15,7 +14,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:'Outfit',sans-serif;background:var(--sfondo);color:var(--testo);overflow-x:hidden}
+body{background:var(--sfondo);color:var(--testo);overflow-x:hidden}
 ::selection{background:var(--ambra);color:#fff}
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:#eee}
@@ -83,7 +82,7 @@ section::before{content:'';position:absolute;top:0;left:50%;transform:translateX
 .nm{font-size:20px;font-weight:800;text-align:center;margin-bottom:4px;color:#ffffff}
 .tgt{font-size:12px;color:#8888a0;text-align:center;margin-bottom:20px}
 .prz{text-align:center;margin-bottom:20px}
-.prz .v{font-family:'DM Mono',monospace;font-size:28px;font-weight:800;color:#fff;background:var(--ambra);display:inline-block;padding:4px 16px 4px 12px;border-radius:0 8px 8px 0;position:relative}
+.prz .v{font-size:28px;font-weight:800;color:#fff;background:var(--ambra);display:inline-block;padding:4px 16px 4px 12px;border-radius:0 8px 8px 0;position:relative}
 .prz .v::before{content:'';position:absolute;left:-10px;top:50%;transform:translateY(-50%);border:10px solid transparent;border-right:10px solid var(--ambra);border-left:none}
 .prz .v::after{content:'';position:absolute;left:2px;top:50%;transform:translateY(-50%);width:5px;height:5px;background:#fff;border-radius:50%}
 .prz .s{font-size:12px;color:#8888a0;margin-top:8px}
@@ -125,7 +124,7 @@ section::before{content:'';position:absolute;top:0;left:50%;transform:translateX
 .opt-card.sel{border-color:var(--ambra);background:var(--ambra-dim)}
 .opt-card .on{font-size:14px;font-weight:600;flex:1}
 .opt-card .os{font-size:11px;color:var(--testo3);margin-top:2px}
-.opt-card .op{font-family:'DM Mono',monospace;font-size:14px;font-weight:800;color:#fff;background:var(--ambra);padding:4px 10px 4px 14px;border-radius:0 6px 6px 0;flex-shrink:0;position:relative}
+.opt-card .op{font-size:14px;font-weight:800;color:#fff;background:var(--ambra);padding:4px 10px 4px 14px;border-radius:0 6px 6px 0;flex-shrink:0;position:relative}
 .opt-card .op::before{content:'';position:absolute;left:-7px;top:50%;transform:translateY(-50%);border:7px solid transparent;border-right:7px solid var(--ambra);border-left:none}
 .opt-card .op::after{content:'';position:absolute;left:3px;top:50%;transform:translateY(-50%);width:4px;height:4px;background:#fff;border-radius:50%;opacity:.5}
 
@@ -149,9 +148,9 @@ section::before{content:'';position:absolute;top:0;left:50%;transform:translateX
   transition:all .3s cubic-bezier(.4,0,.2,1);
 }
 .cat-card:hover{border-color:#5a5a70;transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.2)}
-.btn-cat-info{padding:8px 18px;border-radius:8px;border:1.5px solid #5a5a70;background:none;color:#fff;font-size:12px;font-weight:600;font-family:Outfit,sans-serif;cursor:pointer;transition:all .2s}
+.btn-cat-info{padding:8px 18px;border-radius:8px;border:1.5px solid #5a5a70;background:none;color:#fff;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .2s}
 .btn-cat-info:hover{border-color:#f59e0b;color:#f59e0b}
-.cat-prezzo{font-family:DM Mono,monospace;font-size:18px;font-weight:800;color:#fff;background:var(--ambra);display:inline-block;padding:4px 12px 4px 16px;border-radius:0 6px 6px 0;position:relative;margin-left:10px}
+.cat-prezzo{font-size:18px;font-weight:800;color:#fff;background:var(--ambra);display:inline-block;padding:4px 12px 4px 16px;border-radius:0 6px 6px 0;position:relative;margin-left:10px}
 .cat-prezzo::before{content:'';position:absolute;left:-8px;top:50%;transform:translateY(-50%);width:0;height:0;border:8px solid transparent;border-right:8px solid var(--ambra);border-left:none}
 .cat-prezzo::after{content:'';position:absolute;left:2px;top:50%;transform:translateY(-50%);width:4px;height:4px;background:#fff;border-radius:50%}
 
@@ -232,22 +231,144 @@ footer a{color:var(--ambra);text-decoration:none}
   footer{padding:24px 16px}
   footer::before{width:80%}
 }
+
+/* ═══ TEMA NUOVO, come la home: bianco e nero alternati, font di sistema ═══ */
+:root{
+  --sans:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Segoe UI Variable Display','Segoe UI Variable Text','Segoe UI',system-ui,'Helvetica Neue',Arial,sans-serif;
+  --sfondo:#f5f5f7;--sfondo2:#ffffff;--sfondo3:#ffffff;
+  --bordo:rgba(0,0,0,.08);--bordo2:rgba(0,0,0,.14);
+  --testo:#1d1d1f;--testo2:#6e6e73;--testo3:#86868b;
+}
+body{font-family:var(--sans);letter-spacing:-.011em;background:#f5f5f7;color:#1d1d1f;-webkit-font-smoothing:antialiased}
+::selection{background:#f59e0b;color:#000}
+nav{background:rgba(6,7,11,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.07);padding:14px 40px}
+nav::after,section::before,.cta-sez::before,footer::before{display:none}
+.nav-links a{color:#a0a6ba;font-size:13.5px}
+.nav-links a:last-child{padding:8px 18px;border-radius:9px;background:#f59e0b;color:#000;font-weight:700;font-size:12.5px}
+.nav-links a:last-child:hover{background:#fbbf24;color:#000}
+.hero{background:#000;color:#f5f5f7;padding:150px 32px 100px}
+.hero-circuit{display:none!important}
+.hero h1{font-size:clamp(38px,5.2vw,68px);font-weight:700;letter-spacing:-.035em;line-height:1.05}
+.hero h1 em{color:#f59e0b;padding:0 4px}
+.hero .lead{color:#a1a1a6;font-size:clamp(16px,1.6vw,19px);max-width:640px}
+section{padding:110px 32px}
+.sez-titolo{margin-bottom:56px}
+.sez-titolo .tag{font-size:15px;font-weight:600;letter-spacing:-.01em;text-transform:none;color:#b45309;margin-bottom:12px}
+.sez-titolo h2{font-size:clamp(32px,4.4vw,52px);font-weight:700;letter-spacing:-.03em;line-height:1.08}
+.sez-titolo p{font-size:17px;color:#6e6e73;max-width:560px}
+
+/* catalogo: schede bianche */
+#catalogo{background:#f5f5f7!important;padding-top:70px!important}
+.cat-filtro{border:none;background:#fff;color:#6e6e73;box-shadow:0 1px 3px rgba(0,0,0,.07);font-family:inherit}
+.cat-filtro:hover{color:#1d1d1f;border:none}
+.cat-filtro.attivo{background:#1d1d1f;color:#fff}
+.cat-filtro.attivo svg{stroke:#fff}
+.cat-card{background:#fff;border:none;border-radius:22px;padding:22px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 30px rgba(0,0,0,.05)}
+.cat-card:hover{border:none;transform:translateY(-4px);box-shadow:0 24px 56px rgba(0,0,0,.11)}
+.cat-prezzo{background:none;color:#1d1d1f;font-family:inherit;font-size:21px;font-weight:700;padding:0;margin:0}
+.cat-prezzo::before,.cat-prezzo::after{display:none}
+.btn-cat-info{border:none;background:#1d1d1f;color:#fff;border-radius:999px;font-family:inherit;padding:8px 18px}
+.btn-cat-info:hover{background:#f59e0b;color:#000}
+
+/* rigenerati: sezione nera */
+#macchine{background:#000;color:#f5f5f7}
+#macchine .sez-titolo .tag{color:#f59e0b}
+#macchine .sez-titolo p{color:#a1a1a6}
+.carta-mac{background:#111216;border:1px solid rgba(255,255,255,.08);border-radius:24px}
+.carta-mac:hover{border-color:rgba(245,158,11,.45);box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.ic-pc{background:#1c1c1e;border-color:#3a3a3c}
+.ic-pc::after{background:#3a3a3c}
+.prz .v{background:none;color:#fff;font-family:inherit;font-size:44px;font-weight:700;letter-spacing:-.03em;padding:0}
+.prz .v::before,.prz .v::after{display:none}
+.sp{color:#d1d1d6}
+.btn-m{border-radius:999px;border:1px solid rgba(255,255,255,.22);font-family:inherit}
+.btn-m:hover{background:#f59e0b;border-color:#f59e0b;color:#000}
+
+/* processo: bianco */
+#processo{background:#fff}
+.griglia-proc{background:none;gap:16px;max-width:1080px;border-radius:0;overflow:visible}
+.carta-proc{background:#f5f5f7;border-radius:24px;padding:40px 28px}
+.carta-proc h3{font-size:19px;letter-spacing:-.02em}
+.carta-proc p{font-size:14.5px;color:#6e6e73}
+
+/* configuratore PC */
+#configuratore{background:#f5f5f7}
+.step-pills{background:#fff;border:none;box-shadow:0 1px 3px rgba(0,0,0,.06);border-radius:999px}
+.step-pill{border:none;background:#f5f5f7;color:#6e6e73}
+.step-pill.att{background:#1d1d1f;color:#fff;border:none}
+.step-pill.done{background:#fff4e0;color:#b45309;border:none}
+.opt-card{background:#fff;border:none;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.opt-card:hover{background:#fff;box-shadow:0 6px 20px rgba(0,0,0,.08)}
+.opt-card.sel{background:#fff;box-shadow:0 0 0 2px #f59e0b}
+.opt-card .op{background:none;color:#1d1d1f;font-family:inherit;font-size:15px;font-weight:700;padding:0}
+.opt-card .op::before,.opt-card .op::after{display:none}
+#btnPrev{border-radius:999px!important;background:#1d1d1f!important;color:#fff!important}
+
+/* garanzia: bianco */
+#garanzia{background:#fff}
+.griglia-gar{max-width:1080px}
+.carta-gar{background:#f5f5f7;border:none;border-radius:22px;padding:32px 24px}
+.carta-gar h3{font-size:17px;letter-spacing:-.02em}
+.carta-gar p{font-size:14px;color:#6e6e73}
+
+/* invito finale e piè di pagina: neri */
+.cta-sez{background:#000;color:#f5f5f7;padding:110px 32px}
+.cta-sez h2{font-size:clamp(30px,4vw,48px);font-weight:700;letter-spacing:-.03em}
+.cta-sez p{color:#a1a1a6;font-size:17px}
+.btn-cta{border-radius:999px;background:#f59e0b;color:#000}
+footer{background:#000;color:#86868b;border-top:1px solid rgba(255,255,255,.08);padding:36px 32px}
+@media(max-width:768px){
+  nav{padding:12px 16px}
+  .hero{padding:110px 16px 64px}
+  section,.cta-sez{padding:72px 16px}
+}
+
+/* ═══ BARRA IN ALTO stile apple.com ═══ */
+body>nav,#nav,#nav.scorre{
+  height:48px;padding:0 max(22px,calc((100% - 1040px)/2));
+  display:flex;align-items:center;
+  background:rgba(22,22,23,.8);
+  backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:none;box-shadow:none;
+}
+body>nav .nav-logo{font-size:15px;font-weight:600;letter-spacing:-.01em;gap:8px;color:#f5f5f7}
+body>nav .nav-logo svg{width:22px!important;height:16px!important}
+body>nav .nav-links{flex:1;margin-left:48px;gap:0;justify-content:space-between}
+body>nav .nav-links a{font-size:12px;font-weight:400;letter-spacing:-.01em;color:rgba(255,255,255,.8);padding:0;background:none;transition:color .2s}
+body>nav .nav-links a:hover,body>nav .nav-links a.attivo{color:#fff}
+body>nav .nav-links .nav-cta,body>nav .nav-links a:last-child{background:none;color:#f5a524!important;font-weight:500;padding:0;border-radius:0;font-size:12px}
+body>nav .nav-links .nav-cta:hover,body>nav .nav-links a:last-child:hover{background:none;color:#fbbf24!important;transform:none;box-shadow:none}
+@media(max-width:768px){
+  body>nav,#nav,#nav.scorre{padding:0 16px}
+  body>nav .nav-links{justify-content:flex-end}
+}
+/* ═══ BARRA IN ALTO: logo e voci a distanza uguale, come apple.com ═══ */
+body>nav,#nav,#nav.scorre{height:44px;padding:0;justify-content:center}
+body>nav .nav-logo,body>nav .nav-links a{flex:none}
+.nav-giro{width:100%;max-width:1000px;height:100%;margin:0 auto;padding:0 22px;display:flex;align-items:center;justify-content:space-between}
+body>nav .nav-links{display:contents}
+body>nav .nav-logo{font-size:14px}
+@media(max-width:768px){
+  .nav-giro{padding:0 16px}
+}
 </style>
 </head>
 <body>
 
 <!-- ═══ NAV ═══ -->
-<nav>
+<nav><div class="nav-giro">
   <a href="index.html" class="nav-logo">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="380 520 1060 760" preserveAspectRatio="xMidYMid meet" style="width:28px;height:20px"><g transform="translate(0,1800) scale(1,-1)"><path fill="#f59e0b" fill-rule="evenodd" d="M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z"/></g></svg>
     <span>Nodo<span style="color:#f59e0b">Italia</span></span>
   </a>
   <div class="nav-links">
-    <a href="index.html">← Torna al sito</a>
+    <a href="index.html#software">Software</a>
+    <a href="index.html#servizi">Servizi</a>
+    <a href="hardware.html" class="attivo">Hardware</a>
     <a href="#macchine">Rigenerati</a>
     <a href="#configuratore">Configuratore</a>
     <a href="index.html#contatti">Contattaci</a>
-  </div>
+  </div></div>
 </nav>
 
 <!-- ═══ HERO ═══ -->
@@ -318,7 +439,7 @@ footer a{color:var(--ambra);text-decoration:none}
 var svgMap={
 tower:'<svg viewBox="0 0 90 110" fill="none" style="width:70px;height:90px"><path d="M60 10 L80 0 L80 85 L60 95Z" fill="#c8c8d4" stroke="#b0b0c0" stroke-width=".5"/><path d="M10 10 L30 0 L80 0 L60 10Z" fill="#dcdce4" stroke="#b0b0c0" stroke-width=".5"/><rect x="10" y="10" width="50" height="85" rx="2" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".5"/><rect x="14" y="15" width="42" height="10" rx="1" fill="#f2f2f8" stroke="#d0d0dc"/><rect x="14" y="27" width="42" height="10" rx="1" fill="#f2f2f8" stroke="#d0d0dc"/><rect x="18" y="42" width="6" height="3" rx=".5" fill="#c0c0cc"/><rect x="26" y="42" width="6" height="3" rx=".5" fill="#c0c0cc"/><circle cx="35" cy="49" r="3.5" fill="none" stroke="#c0c0cc" stroke-width="1"/><circle cx="35" cy="49" r="1.5" fill="#f59e0b"/><circle cx="35" cy="70" r="14" fill="#f2f2f8" stroke="#d0d0dc"/><circle cx="35" cy="70" r="10" fill="none" stroke="#d0d0dc" stroke-width=".5"/><circle cx="35" cy="70" r="3" fill="#c0c0cc"/><path d="M35 60 Q40 65 35 70" stroke="#c0c0cc" fill="none"/><path d="M35 80 Q30 75 35 70" stroke="#c0c0cc" fill="none"/><path d="M25 70 Q30 65 35 70" stroke="#c0c0cc" fill="none"/><path d="M45 70 Q40 75 35 70" stroke="#c0c0cc" fill="none"/><rect x="12" y="95" width="10" height="3" rx="1" fill="#c0c0cc"/><rect x="48" y="95" width="10" height="3" rx="1" fill="#c0c0cc"/></svg>',
 mini:'<svg viewBox="0 0 90 70" fill="none" style="width:80px;height:60px"><path d="M70 22 L82 16 L82 50 L70 56Z" fill="#c8c8d4" stroke="#b0b0c0" stroke-width=".5"/><path d="M8 22 L20 16 L82 16 L70 22Z" fill="#dcdce4" stroke="#b0b0c0" stroke-width=".5"/><line x1="30" y1="19" x2="60" y2="19" stroke="#c0c0cc" stroke-width=".4"/><line x1="31" y1="20.5" x2="59" y2="20.5" stroke="#c0c0cc" stroke-width=".4"/><rect x="8" y="22" width="62" height="34" rx="2" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".5"/><circle cx="16" cy="39" r="2.5" fill="#f59e0b" opacity=".9"/><rect x="22" y="33" width="18" height="2" rx=".5" fill="#c0c0cc"/><rect x="22" y="37" width="12" height="2" rx=".5" fill="#c0c0cc"/><rect x="50" y="34" width="5" height="3" rx=".5" fill="#c0c0cc"/><rect x="57" y="34" width="5" height="3" rx=".5" fill="#c0c0cc"/><circle cx="53" cy="42" r="1.5" fill="#c0c0cc"/><rect x="12" y="56" width="8" height="2" rx=".5" fill="#c0c0cc"/><rect x="58" y="56" width="8" height="2" rx=".5" fill="#c0c0cc"/></svg>',
-work:'<svg viewBox="0 0 90 110" fill="none" style="width:70px;height:90px"><path d="M60 8 L82 0 L82 90 L60 98Z" fill="#c8c8d4" stroke="#b0b0c0" stroke-width=".5"/><path d="M8 8 L30 0 L82 0 L60 8Z" fill="#dcdce4" stroke="#b0b0c0" stroke-width=".5"/><rect x="8" y="8" width="52" height="90" rx="2" fill="#e8e8f0" stroke="#f59e0b" stroke-width=".8"/><rect x="12" y="13" width="44" height="10" rx="1" fill="#f2f2f8" stroke="#d0d0dc"/><rect x="16" y="28" width="5" height="3" rx=".5" fill="#c0c0cc"/><rect x="23" y="28" width="5" height="3" rx=".5" fill="#c0c0cc"/><rect x="30" y="28" width="5" height="3" rx=".5" fill="#c0c0cc"/><circle cx="34" cy="38" r="3.5" fill="none" stroke="#f59e0b" stroke-width="1"/><circle cx="34" cy="38" r="1.5" fill="#f59e0b"/><circle cx="26" cy="58" r="10" fill="#f2f2f8" stroke="#d0d0dc"/><circle cx="26" cy="58" r="2.5" fill="#c0c0cc"/><path d="M26 48 Q31 53 26 58" stroke="#c0c0cc" fill="none"/><path d="M26 68 Q21 63 26 58" stroke="#c0c0cc" fill="none"/><circle cx="46" cy="58" r="10" fill="#f2f2f8" stroke="#d0d0dc"/><circle cx="46" cy="58" r="2.5" fill="#c0c0cc"/><path d="M46 48 Q51 53 46 58" stroke="#c0c0cc" fill="none"/><path d="M46 68 Q41 63 46 58" stroke="#c0c0cc" fill="none"/><rect x="14" y="75" width="40" height="10" rx="2" fill="#f2f2f8" stroke="#f59e0b" stroke-width=".6"/><text x="34" y="83" text-anchor="middle" fill="#f59e0b" font-size="6" font-weight="700" font-family="Outfit">GPU</text><circle cx="14" cy="92" r="2" fill="#22c55e" opacity=".8"/><rect x="10" y="98" width="10" height="3" rx="1" fill="#c0c0cc"/><rect x="48" y="98" width="10" height="3" rx="1" fill="#c0c0cc"/></svg>',
+work:'<svg viewBox="0 0 90 110" fill="none" style="width:70px;height:90px"><path d="M60 8 L82 0 L82 90 L60 98Z" fill="#c8c8d4" stroke="#b0b0c0" stroke-width=".5"/><path d="M8 8 L30 0 L82 0 L60 8Z" fill="#dcdce4" stroke="#b0b0c0" stroke-width=".5"/><rect x="8" y="8" width="52" height="90" rx="2" fill="#e8e8f0" stroke="#f59e0b" stroke-width=".8"/><rect x="12" y="13" width="44" height="10" rx="1" fill="#f2f2f8" stroke="#d0d0dc"/><rect x="16" y="28" width="5" height="3" rx=".5" fill="#c0c0cc"/><rect x="23" y="28" width="5" height="3" rx=".5" fill="#c0c0cc"/><rect x="30" y="28" width="5" height="3" rx=".5" fill="#c0c0cc"/><circle cx="34" cy="38" r="3.5" fill="none" stroke="#f59e0b" stroke-width="1"/><circle cx="34" cy="38" r="1.5" fill="#f59e0b"/><circle cx="26" cy="58" r="10" fill="#f2f2f8" stroke="#d0d0dc"/><circle cx="26" cy="58" r="2.5" fill="#c0c0cc"/><path d="M26 48 Q31 53 26 58" stroke="#c0c0cc" fill="none"/><path d="M26 68 Q21 63 26 58" stroke="#c0c0cc" fill="none"/><circle cx="46" cy="58" r="10" fill="#f2f2f8" stroke="#d0d0dc"/><circle cx="46" cy="58" r="2.5" fill="#c0c0cc"/><path d="M46 48 Q51 53 46 58" stroke="#c0c0cc" fill="none"/><path d="M46 68 Q41 63 46 58" stroke="#c0c0cc" fill="none"/><rect x="14" y="75" width="40" height="10" rx="2" fill="#f2f2f8" stroke="#f59e0b" stroke-width=".6"/><text x="34" y="83" text-anchor="middle" fill="#f59e0b" font-size="6" font-weight="700" font-family="inherit">GPU</text><circle cx="14" cy="92" r="2" fill="#22c55e" opacity=".8"/><rect x="10" y="98" width="10" height="3" rx="1" fill="#c0c0cc"/><rect x="48" y="98" width="10" height="3" rx="1" fill="#c0c0cc"/></svg>',
 sff:'<svg viewBox="0 0 100 75" fill="none" style="width:85px;height:65px"><path d="M78 18 L92 12 L92 55 L78 61Z" fill="#c8c8d4" stroke="#b0b0c0" stroke-width=".5"/><path d="M8 18 L22 12 L92 12 L78 18Z" fill="#dcdce4" stroke="#b0b0c0" stroke-width=".5"/><rect x="8" y="18" width="70" height="43" rx="2" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".5"/><rect x="12" y="22" width="62" height="10" rx="1" fill="#f2f2f8" stroke="#d0d0dc"/><rect x="60" y="24" width="10" height="6" rx=".5" fill="#d0d0dc"/><circle cx="18" cy="41" r="3" fill="none" stroke="#c0c0cc"/><circle cx="18" cy="41" r="1.5" fill="#f59e0b"/><rect x="28" y="38" width="5" height="3" rx=".5" fill="#c0c0cc"/><rect x="35" y="38" width="5" height="3" rx=".5" fill="#c0c0cc"/><circle cx="45" cy="40" r="1.5" fill="#c0c0cc"/><line x1="55" y1="36" x2="55" y2="52" stroke="#d0d0dc" stroke-width=".5"/><line x1="58" y1="36" x2="58" y2="52" stroke="#d0d0dc" stroke-width=".5"/><line x1="61" y1="36" x2="61" y2="52" stroke="#d0d0dc" stroke-width=".5"/><line x1="64" y1="36" x2="64" y2="52" stroke="#d0d0dc" stroke-width=".5"/><line x1="67" y1="36" x2="67" y2="52" stroke="#d0d0dc" stroke-width=".5"/><rect x="12" y="61" width="8" height="2" rx=".5" fill="#c0c0cc"/><rect x="66" y="61" width="8" height="2" rx=".5" fill="#c0c0cc"/></svg>',
 stampante:'<svg viewBox="0 0 90 80" fill="none" style="width:80px;height:70px"><rect x="20" y="5" width="50" height="18" rx="2" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".8"/><line x1="28" y1="10" x2="58" y2="10" stroke="#c0c0cc" stroke-width="1"/><line x1="28" y1="14" x2="50" y2="14" stroke="#c0c0cc" stroke-width="1"/><line x1="28" y1="18" x2="54" y2="18" stroke="#c0c0cc" stroke-width="1"/><rect x="10" y="23" width="70" height="32" rx="4" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".8"/><rect x="16" y="30" width="20" height="3" rx="1" fill="#c0c0cc"/><rect x="16" y="36" width="14" height="3" rx="1" fill="#c0c0cc"/><circle cx="68" cy="33" r="3" fill="#f59e0b"/><circle cx="68" cy="42" r="2" fill="#22c55e"/><rect x="22" y="55" width="46" height="16" rx="2" fill="#f2f2f8" stroke="#d0d0dc" stroke-width=".8"/><line x1="30" y1="60" x2="56" y2="60" stroke="#c0c0cc" stroke-width=".8"/><line x1="30" y1="64" x2="48" y2="64" stroke="#c0c0cc" stroke-width=".8"/></svg>',
 server:'<svg viewBox="0 0 90 90" fill="none" style="width:75px;height:75px"><rect x="10" y="5" width="70" height="22" rx="3" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".8"/><circle cx="22" cy="16" r="2.5" fill="#22c55e"/><circle cx="30" cy="16" r="2.5" fill="#f59e0b"/><rect x="40" y="12" width="28" height="3" rx="1" fill="#c0c0cc"/><line x1="40" y1="18" x2="60" y2="18" stroke="#d0d0dc" stroke-width=".8"/><rect x="10" y="30" width="70" height="22" rx="3" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".8"/><circle cx="22" cy="41" r="2.5" fill="#22c55e"/><circle cx="30" cy="41" r="2.5" fill="#f59e0b"/><rect x="40" y="37" width="28" height="3" rx="1" fill="#c0c0cc"/><line x1="40" y1="43" x2="60" y2="43" stroke="#d0d0dc" stroke-width=".8"/><rect x="10" y="55" width="70" height="22" rx="3" fill="#e8e8f0" stroke="#b0b0c0" stroke-width=".8"/><circle cx="22" cy="66" r="2.5" fill="#22c55e"/><circle cx="30" cy="66" r="2.5" fill="#c0c0cc" opacity=".5"/><rect x="40" y="62" width="28" height="3" rx="1" fill="#c0c0cc"/><line x1="40" y1="68" x2="60" y2="68" stroke="#d0d0dc" stroke-width=".8"/><rect x="35" y="80" width="20" height="5" rx="1" fill="#c0c0cc"/></svg>',
@@ -430,14 +551,14 @@ function renderCatalogo(skipAnim){
     var pr='\u20ac'+p.prezzo;
 
     html+='<div class="cat-card">'+
-      '<div style="background:#3a3a4e;border-radius:10px;height:130px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;overflow:hidden;padding:10px">'+svgMap[p.tipo]+'</div>'+
+      '<div style="background:#f5f5f7;border-radius:14px;height:140px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;overflow:hidden;padding:10px">'+svgMap[p.tipo]+'</div>'+
       '<div style="font-size:10px;color:var(--testo3);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:6px">'+p.brand+'</div>'+
-      '<div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:10px">'+p.nome+'</div>'+
+      '<div style="font-size:17px;font-weight:600;letter-spacing:-.02em;color:#1d1d1f;margin-bottom:10px">'+p.nome+'</div>'+
       '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+tags+'</div>'+
-      '<div style="display:flex;gap:12px;margin-bottom:16px;font-size:12px;color:#9090a8">'+
+      '<div style="display:flex;gap:12px;margin-bottom:16px;font-size:12.5px;color:#6e6e73">'+
         '<span>'+p.spec1+'</span><span>\u00b7</span><span>'+p.spec2+'</span><span>\u00b7</span><span>'+p.spec3+'</span>'+
       '</div>'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:12px;border-top:1px solid #4a4a60">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:14px;border-top:1px solid rgba(0,0,0,.07)">'+
         '<div class="cat-prezzo">'+pr+'</div>'+
         '<button class="btn-cat-info" onclick="location.href=\'index.html#contatti\'">Info</button>'+
       '</div></div>';
@@ -449,7 +570,7 @@ function renderCatalogo(skipAnim){
     var ph='<button onclick="vaiPagina('+(paginaCorrente-1)+')" style="width:36px;height:36px;border-radius:8px;border:1.5px solid var(--bordo);background:var(--sfondo3);color:var(--testo);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;opacity:'+(paginaCorrente===0?'.3;pointer-events:none':'1')+'">←</button>';
     for(var pg=0;pg<totPag;pg++){
       var att=pg===paginaCorrente;
-      ph+='<button onclick="vaiPagina('+pg+')" style="width:36px;height:36px;border-radius:8px;border:1.5px solid '+(att?'var(--ambra)':'var(--bordo)')+';background:'+(att?'var(--ambra)':'var(--sfondo3)')+';color:'+(att?'#000':'var(--testo)')+';font-size:13px;font-weight:700;cursor:pointer;font-family:Outfit,sans-serif;transition:all .2s">'+(pg+1)+'</button>';
+      ph+='<button onclick="vaiPagina('+pg+')" style="width:36px;height:36px;border-radius:8px;border:1.5px solid '+(att?'var(--ambra)':'var(--bordo)')+';background:'+(att?'var(--ambra)':'var(--sfondo3)')+';color:'+(att?'#000':'var(--testo)')+';font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s">'+(pg+1)+'</button>';
     }
     ph+='<button onclick="vaiPagina('+(paginaCorrente+1)+')" style="width:36px;height:36px;border-radius:8px;border:1.5px solid var(--bordo);background:var(--sfondo3);color:var(--testo);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;opacity:'+(paginaCorrente===totPag-1?'.3;pointer-events:none':'1')+'">→</button>';
     pag.innerHTML=ph;
@@ -561,7 +682,7 @@ renderCatalogo();
             <line x1="50" y1="68" x2="50" y2="40" stroke="#1a1a2e" stroke-width="2.5" stroke-linecap="round"/>
           </g>
           <!-- Label PASS -->
-          <text x="50" y="92" text-anchor="middle" fill="#22c55e" font-size="12" font-weight="800" font-family="Outfit,sans-serif">PASS</text>
+          <text x="50" y="92" text-anchor="middle" fill="#22c55e" font-size="12" font-weight="800" font-family="inherit">PASS</text>
         </svg>
       </div>
       <h3>Benchmark Test</h3>
@@ -604,95 +725,95 @@ renderCatalogo();
         <!-- ═══ MOTHERBOARD ═══ -->
         <g id="gMb" class="comp-g" opacity="1">
           <rect x="60" y="80" width="230" height="320" rx="4" fill="#2e2e42" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
-          <text x="175" y="250" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="800" letter-spacing="3" font-family="Outfit,sans-serif">SCHEDA MADRE</text>
+          <text x="175" y="250" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="800" letter-spacing="3" font-family="inherit">SCHEDA MADRE</text>
         </g>
 
         <!-- ═══ CPU ═══ -->
         <g id="gCpu" class="comp-g" opacity="1">
           <rect x="120" y="115" width="70" height="70" rx="4" fill="#2e2e42" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
-          <text x="155" y="155" text-anchor="middle" fill="#ffffff" font-size="20" font-weight="800" font-family="Outfit,sans-serif">CPU</text>
+          <text x="155" y="155" text-anchor="middle" fill="#ffffff" font-size="20" font-weight="800" font-family="inherit">CPU</text>
         </g>
 
         <!-- ═══ RAM ═══ -->
         <g id="gRam" class="comp-g" opacity="1">
           <rect x="210" y="130" width="18" height="80" rx="3" fill="#2e2e42" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
           <rect x="234" y="130" width="18" height="80" rx="3" fill="#2e2e42" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
-          <text x="235" y="122" text-anchor="middle" fill="#ffffff" font-size="16" font-weight="800" font-family="Outfit,sans-serif">RAM</text>
+          <text x="235" y="122" text-anchor="middle" fill="#ffffff" font-size="16" font-weight="800" font-family="inherit">RAM</text>
         </g>
 
         <!-- ═══ GPU ═══ -->
         <g id="gGpu" class="comp-g" opacity="1">
           <rect x="70" y="280" width="210" height="48" rx="4" fill="#2e2e42" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
-          <text x="175" y="309" text-anchor="middle" fill="#ffffff" font-size="16" font-weight="800" font-family="Outfit,sans-serif">SCHEDA VIDEO</text>
+          <text x="175" y="309" text-anchor="middle" fill="#ffffff" font-size="16" font-weight="800" font-family="inherit">SCHEDA VIDEO</text>
         </g>
 
         <!-- ═══ SSD ═══ -->
         <g id="gSsd" class="comp-g" opacity="1">
           <rect x="70" y="345" width="100" height="28" rx="3" fill="#2e2e42" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
-          <text x="120" y="364" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="800" font-family="Outfit,sans-serif">SSD</text>
+          <text x="120" y="364" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="800" font-family="inherit">SSD</text>
         </g>
 
         <!-- ═══ PSU ═══ -->
         <g id="gPsu" class="comp-g" opacity="1">
           <rect x="60" y="430" width="170" height="80" rx="4" fill="#2e2e42" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
-          <text x="145" y="476" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="800" font-family="Outfit,sans-serif">ALIMENTATORE</text>
+          <text x="145" y="476" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="800" font-family="inherit">ALIMENTATORE</text>
         </g>
 
         <!-- ═══ ETICHETTE — frecce orizzontali ═══ -->
         <g id="lblCpu" opacity="0">
           <line x1="193" y1="150" x2="400" y2="150" stroke="#f59e0b" stroke-width="2"/>
           <circle cx="400" cy="150" r="5" fill="#f59e0b"/>
-          <text x="412" y="146" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtCpu"></text>
+          <text x="412" y="146" fill="#1a1a2e" font-size="22" font-weight="700" font-family="inherit" id="txtCpu"></text>
           <path id="tagCpu" d="M408,158 L402,170 L408,182 L520,182 Q526,182 526,176 L526,164 Q526,158 520,158 Z" fill="#f59e0b"/>
           <circle cx="412" cy="170" r="3.5" fill="#fff" opacity=".5"/>
-          <text x="422" y="170" fill="#fff" dominant-baseline="central" font-size="18" font-weight="800" font-family="DM Mono,monospace" id="prezCpu"></text>
+          <text x="422" y="170" fill="#fff" dominant-baseline="central" font-size="18" font-weight="800" font-family="inherit" id="prezCpu"></text>
         </g>
         <g id="lblRam" opacity="0">
           <line x1="255" y1="115" x2="400" y2="115" stroke="#f59e0b" stroke-width="2"/>
           <circle cx="400" cy="115" r="5" fill="#f59e0b"/>
-          <text x="412" y="111" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtRam"></text>
+          <text x="412" y="111" fill="#1a1a2e" font-size="22" font-weight="700" font-family="inherit" id="txtRam"></text>
           <path id="tagRam" d="M408,123 L402,135 L408,147 L520,147 Q526,147 526,141 L526,129 Q526,123 520,123 Z" fill="#f59e0b"/>
           <circle cx="412" cy="135" r="3.5" fill="#fff" opacity=".5"/>
-          <text x="422" y="135" fill="#fff" dominant-baseline="central" font-size="18" font-weight="800" font-family="DM Mono,monospace" id="prezRam"></text>
+          <text x="422" y="135" fill="#fff" dominant-baseline="central" font-size="18" font-weight="800" font-family="inherit" id="prezRam"></text>
         </g>
         <g id="lblMb" opacity="0">
           <line x1="292" y1="220" x2="400" y2="220" stroke="#f59e0b" stroke-width="2"/>
           <circle cx="400" cy="220" r="5" fill="#f59e0b"/>
-          <text x="412" y="216" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtMb"></text>
+          <text x="412" y="216" fill="#1a1a2e" font-size="22" font-weight="700" font-family="inherit" id="txtMb"></text>
           <path id="tagMb" d="M408,228 L402,240 L408,252 L520,252 Q526,252 526,246 L526,234 Q526,228 520,228 Z" fill="#f59e0b"/>
           <circle cx="412" cy="240" r="3.5" fill="#fff" opacity=".5"/>
-          <text x="422" y="240" fill="#fff" dominant-baseline="central" font-size="18" font-weight="800" font-family="DM Mono,monospace" id="prezMb"></text>
+          <text x="422" y="240" fill="#fff" dominant-baseline="central" font-size="18" font-weight="800" font-family="inherit" id="prezMb"></text>
         </g>
         <g id="lblGpu" opacity="0">
           <line x1="282" y1="304" x2="400" y2="304" stroke="#f59e0b" stroke-width="2"/>
           <circle cx="400" cy="304" r="5" fill="#f59e0b"/>
-          <text x="412" y="300" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtGpu"></text>
+          <text x="412" y="300" fill="#1a1a2e" font-size="22" font-weight="700" font-family="inherit" id="txtGpu"></text>
           <path id="tagGpu" d="M408,312 L402,324 L408,336 L520,336 Q526,336 526,330 L526,318 Q526,312 520,312 Z" fill="#f59e0b"/>
           <circle cx="412" cy="324" r="3.5" fill="#fff" opacity=".5"/>
-          <text x="422" y="324" fill="#fff" dominant-baseline="central" font-size="18" font-weight="800" font-family="DM Mono,monospace" id="prezGpu"></text>
+          <text x="422" y="324" fill="#fff" dominant-baseline="central" font-size="18" font-weight="800" font-family="inherit" id="prezGpu"></text>
         </g>
         <g id="lblSsd" opacity="0">
           <line x1="172" y1="360" x2="400" y2="360" stroke="#f59e0b" stroke-width="2"/>
           <circle cx="400" cy="360" r="5" fill="#f59e0b"/>
-          <text x="412" y="356" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtSsd"></text>
+          <text x="412" y="356" fill="#1a1a2e" font-size="22" font-weight="700" font-family="inherit" id="txtSsd"></text>
           <path id="tagSsd" d="M408,368 L402,380 L408,392 L520,392 Q526,392 526,386 L526,374 Q526,368 520,368 Z" fill="#f59e0b"/>
           <circle cx="412" cy="380" r="3.5" fill="#fff" opacity=".5"/>
-          <text x="422" y="380" fill="#fff" dominant-baseline="central" font-size="18" font-weight="800" font-family="DM Mono,monospace" id="prezSsd"></text>
+          <text x="422" y="380" fill="#fff" dominant-baseline="central" font-size="18" font-weight="800" font-family="inherit" id="prezSsd"></text>
         </g>
         <g id="lblPsu" opacity="0">
           <line x1="232" y1="465" x2="400" y2="465" stroke="#f59e0b" stroke-width="2"/>
           <circle cx="400" cy="465" r="5" fill="#f59e0b"/>
-          <text x="412" y="461" fill="#1a1a2e" font-size="22" font-weight="700" font-family="Outfit,sans-serif" id="txtPsu"></text>
+          <text x="412" y="461" fill="#1a1a2e" font-size="22" font-weight="700" font-family="inherit" id="txtPsu"></text>
           <path id="tagPsu" d="M408,473 L402,485 L408,497 L520,497 Q526,497 526,491 L526,479 Q526,473 520,473 Z" fill="#f59e0b"/>
           <circle cx="412" cy="485" r="3.5" fill="#fff" opacity=".5"/>
-          <text x="422" y="485" fill="#fff" dominant-baseline="central" font-size="18" font-weight="800" font-family="DM Mono,monospace" id="prezPsu"></text>
+          <text x="422" y="485" fill="#fff" dominant-baseline="central" font-size="18" font-weight="800" font-family="inherit" id="prezPsu"></text>
         </g>
 
         <!-- Case label + totale -->
-        <text x="175" y="605" text-anchor="middle" fill="#555570" font-size="16" font-weight="600" font-family="Outfit,sans-serif" id="caseLabelTxt">CASE — in attesa</text>
+        <text x="175" y="605" text-anchor="middle" fill="#555570" font-size="16" font-weight="600" font-family="inherit" id="caseLabelTxt">CASE — in attesa</text>
         <path id="tagTotale" d="M125,614 L119,630 L125,646 L225,646 Q231,646 231,640 L231,620 Q231,614 225,614 Z" fill="#f59e0b" opacity=".3"/>
         <circle cx="129" cy="630" r="4" fill="#fff" opacity=".5"/>
-        <text x="175" y="626" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="18" font-weight="800" font-family="DM Mono,monospace" id="caseTotTxt">€ 0</text>
+        <text x="175" y="626" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="18" font-weight="800" font-family="inherit" id="caseTotTxt">€ 0</text>
       </svg>
     </div>
 
@@ -725,9 +846,9 @@ renderCatalogo();
 <!-- ═══ CTA ═══ -->
 <div class="cta-sez"><h2>Non sai cosa scegliere?</h2><p>Scrivici e ti consigliamo la configurazione migliore.</p><a href="index.html#contatti" class="btn-cta">Contattaci →</a></div>
 
-<footer>© 2026 NodoItalia — <a href="/cdn-cgi/l/email-protection#244d4a424b644a4b404b4d5045484d450a4d50"><span class="__cf_email__" data-cfemail="f69f989099b6989992999f82979a9f97d89f82">[email&#160;protected]</span></a></footer>
+<footer>© 2026 NodoItalia — <a href="mailto:info@nodoitalia.it">info@nodoitalia.it</a></footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 const PASSI=[
   {id:'cpu',nome:'Processore',desc:'Il cuore del PC'},
   {id:'mb',nome:'Scheda Madre',desc:'Compatibile con il processore scelto'},
