@@ -245,6 +245,12 @@ footer.piede{background:#f5f5f7;color:#6e6e73;border-top:1px solid #d2d2d7;paddi
   .piede-basso{padding-top:18px!important;font-size:12.5px!important}
   .piede-basso nav{display:none!important}
 }
+
+/* ═══ TELEFONO: niente barre di scorrimento visibili, si scorre col dito come nelle app ═══ */
+@media(max-width:900px){
+  *{scrollbar-width:none}
+  *::-webkit-scrollbar{display:none;width:0;height:0}
+}
 </style>
 
 </head>
@@ -420,11 +426,12 @@ footer.piede{background:#f5f5f7;color:#6e6e73;border-top:1px solid #d2d2d7;paddi
 (function(){
   const cv = document.getElementById('rackVivo'); if (!cv) return;
   const ctx = cv.getContext('2d'), dpr = Math.min(devicePixelRatio || 1, 3);
+  let tel = false, larghezza = 0;
   const LOGO = new Path2D('M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z');
   const TIPI = ['pc','stampante','wifi','portatile','nas','pc','telefono','pc'];
   let W, H, cx, cy, S, R, alto, cavi = [], pacchetti = [], led = [], visibile = true, t0 = performance.now();
   function genera(){
-    W = cv.offsetWidth; H = cv.offsetHeight;
+    W = cv.offsetWidth; H = cv.offsetHeight; tel = W < 700; larghezza = innerWidth;
     // pixel interi del canvas: con lo zoom di Windows al 125% / 150% il disegno resta nitido
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
     cv.style.width = W + 'px'; cv.style.height = H + 'px';
@@ -477,7 +484,7 @@ footer.piede{background:#f5f5f7;color:#6e6e73;border-top:1px solid #d2d2d7;paddi
     else if (c.tipo === 'nas') { ctx.roundRect(-14, -17, 28, 34, 3); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-8, -6); ctx.lineTo(8, -6); ctx.moveTo(-8, 2); ctx.lineTo(8, 2); ctx.stroke(); }
     else { ctx.roundRect(-9, -16, 18, 32, 4); ctx.fill(); ctx.stroke(); }
     ctx.beginPath(); ctx.arc(c.lato < 0 ? -26 : 26, -14, 3, 0, 7);
-    ctx.fillStyle = `rgba(48,209,88,${.5 + c.luce * .5})`; ctx.shadowColor = '#30d158'; ctx.shadowBlur = 10 * c.luce; ctx.fill();
+    ctx.fillStyle = `rgba(48,209,88,${.5 + c.luce * .5})`; ctx.shadowColor = '#30d158'; ctx.shadowBlur = tel ? 0 : 10 * c.luce; ctx.fill();
     ctx.restore();
   }
   let prima = performance.now();
@@ -509,7 +516,7 @@ footer.piede{background:#f5f5f7;color:#6e6e73;border-top:1px solid #d2d2d7;paddi
     cavi.forEach(icona);
     // armadio rack
     ctx.save();
-    ctx.shadowColor = `rgba(245,150,40,${.45 * resp})`; ctx.shadowBlur = 30;
+    ctx.shadowColor = `rgba(245,150,40,${.45 * resp})`; ctx.shadowBlur = tel ? 0 : 30;
     const mg = ctx.createLinearGradient(R.x, 0, R.x + R.w, 0);
     mg.addColorStop(0, '#3a3c42'); mg.addColorStop(.5, '#5a5d64'); mg.addColorStop(1, '#2e3035');
     ctx.fillStyle = mg; ctx.beginPath(); ctx.roundRect(R.x, R.y, R.w, R.h, 10); ctx.fill();
@@ -538,7 +545,7 @@ footer.piede{background:#f5f5f7;color:#6e6e73;border-top:1px solid #d2d2d7;paddi
         const col = l === 1 ? '245,165,36' : (l === 3 ? '10,132,255' : '48,209,88');
         ctx.beginPath(); ctx.arc(ux + 12 + l * 9, y + uH / 2, 2.3, 0, 7);
         ctx.fillStyle = L.on ? `rgb(${col})` : `rgba(${col},.18)`;
-        ctx.shadowColor = `rgb(${col})`; ctx.shadowBlur = L.on ? 8 : 0; ctx.fill(); ctx.shadowBlur = 0;
+        ctx.shadowColor = `rgb(${col})`; ctx.shadowBlur = L.on && !tel ? 8 : 0; ctx.fill(); ctx.shadowBlur = 0;
       }
       if (u === 0) {
         ctx.fillStyle = '#0a0b0d'; ctx.beginPath(); ctx.roundRect(Math.round(ux + uw * .78 - uw * .2), Math.round(y + uH * .16), Math.round(uw * .4), Math.round(uH * .68), 3); ctx.fill();
@@ -553,7 +560,8 @@ footer.piede{background:#f5f5f7;color:#6e6e73;border-top:1px solid #d2d2d7;paddi
     ctx.fillStyle = v; ctx.fillRect(0, 0, W, alto);
   }
   genera();
-  addEventListener('resize', () => { clearTimeout(genera.t); genera.t = setTimeout(genera, 200); });
+  // su iPhone, scorrendo, la barra di Safari cambia l'altezza della finestra: si rifà tutto solo se cambia la larghezza
+  addEventListener('resize', () => { if (innerWidth === larghezza) return; clearTimeout(genera.t); genera.t = setTimeout(genera, 200); });
   new IntersectionObserver(e => visibile = e[0].isIntersecting).observe(cv);
   requestAnimationFrame(draw);
 })();
@@ -578,20 +586,12 @@ document.querySelectorAll('body>nav .nav-tendina').forEach(t => {
   giro.appendChild(btn);
   const m = document.createElement('div');
   m.className = 'menu-tel';
-  let html = '', k = 0;
-  const v = (h) => `<div class="mt-v" style="transition-delay:${(k++) * 35}ms">${h}</div>`;
-  [...voci.children].forEach(el => {
-    if (el.classList.contains('nav-tendina')) {
-      const capo = el.querySelector(':scope > a');
-      html += v(`<a class="mt-g${capo.classList.contains('attivo') ? ' attivo' : ''}" href="${capo.getAttribute('href')}">${capo.textContent}</a><div class="mt-sub">${[...el.querySelectorAll('.tendina a')].map(a => `<a href="${a.getAttribute('href')}">${a.textContent}</a>`).join('')}</div>`);
-    } else if (el.tagName === 'A' && !el.classList.contains('nav-cta')) {
-      html += v(`<a class="mt-g${el.classList.contains('attivo') ? ' attivo' : ''}" href="${el.getAttribute('href')}">${el.textContent}</a>`);
-    }
-  });
-  const cta = voci.querySelector('.nav-cta');
-  if (cta) html += v(`<a class="mt-cta" href="${cta.getAttribute('href')}">${cta.textContent} →</a>`);
-  m.innerHTML = html;
-  document.body.appendChild(m);
+  // sul telefono il menu ha solo le tre pagine: Home, Hardware, Assistenza (Contattaci resta nella barra in alto)
+  const qui = location.pathname.split('/').pop() || 'index.html';
+  let k = 0;
+  const html = [['Home','index.html'],['Hardware','hardware.html'],['Assistenza','assistenza.html']].map(([t, h]) =>
+    `<div class="mt-v" style="transition-delay:${(k++) * 45}ms"><a class="mt-g${qui === h ? ' attivo' : ''}" href="${h}">${t}</a></div>`).join('');
+  m.innerHTML = html;  document.body.appendChild(m);
   const chiudi = () => document.body.classList.remove('menu-aperto');
   btn.addEventListener('click', () => document.body.classList.toggle('menu-aperto'));
   m.addEventListener('click', e => { if (e.target.closest('a')) chiudi(); });

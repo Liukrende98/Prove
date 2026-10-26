@@ -1971,6 +1971,8 @@ footer.piede,footer.piede *{font-family:-apple-system,BlinkMacSystemFont,'SF Pro
   .pl-lista li.on .pl-t b{margin-top:0!important;font-size:18px!important}
   .pl-lista li.on .pl-ic{position:relative}
   .pl-lista li.on .pl-ic::after{content:'';position:absolute;left:50%;bottom:-9px;width:16px;height:3px;margin-left:-8px;border-radius:2px;background:#f5a524}
+  /* sul telefono niente livelli grafici separati per le 7 demo: l'iPhone, a corto di memoria, li disegnava sgranati */
+  .cap-schermo{will-change:auto!important}
   /* iMac più piccolo e centrato */
   .pl-scene{width:86%;margin:0 auto}
   .pl-ic{width:48px!important;height:48px!important;border-radius:15px!important}
@@ -2123,6 +2125,12 @@ footer.piede,footer.piede *{font-family:-apple-system,BlinkMacSystemFont,'SF Pro
   .piede-col .aperto{padding-bottom:4px}
   .piede-basso{padding-top:18px!important;font-size:12.5px!important}
   .piede-basso nav{display:none!important}
+}
+
+/* ═══ TELEFONO: niente barre di scorrimento visibili, si scorre col dito come nelle app ═══ */
+@media(max-width:900px){
+  *{scrollbar-width:none}
+  *::-webkit-scrollbar{display:none;width:0;height:0}
 }
 </style>
 
@@ -3747,10 +3755,8 @@ class Lettore {
   }
   ridim(){
     this.scala = this.schermo.clientWidth / 900 || 1;
-    // sul telefono si rimpicciolisce con zoom invece che con transform: il browser ridisegna testi e linee
-    // alla grandezza vera, così restano nitidi (con transform l'iPhone sgrana l'immagine)
-    if (innerWidth <= 760 && window.CSS && CSS.supports('zoom', '0.5')) { this.app.style.transform = 'none'; this.app.style.zoom = this.scala; }
-    else { this.app.style.zoom = ''; this.app.style.transform = `scale(${this.scala})`; }
+    // sempre transform: con zoom Safari su iPhone scompone le demo
+    this.app.style.zoom = ''; this.app.style.transform = `scale(${this.scala})`;
   }
   // attesa annullabile: se parte un altro passo, quello vecchio si ferma
   attesa(ms, tok){
@@ -4074,20 +4080,12 @@ document.querySelectorAll('body>nav .nav-tendina').forEach(t => {
   giro.appendChild(btn);
   const m = document.createElement('div');
   m.className = 'menu-tel';
-  let html = '', k = 0;
-  const v = (h) => `<div class="mt-v" style="transition-delay:${(k++) * 35}ms">${h}</div>`;
-  [...voci.children].forEach(el => {
-    if (el.classList.contains('nav-tendina')) {
-      const capo = el.querySelector(':scope > a');
-      html += v(`<a class="mt-g${capo.classList.contains('attivo') ? ' attivo' : ''}" href="${capo.getAttribute('href')}">${capo.textContent}</a><div class="mt-sub">${[...el.querySelectorAll('.tendina a')].map(a => `<a href="${a.getAttribute('href')}">${a.textContent}</a>`).join('')}</div>`);
-    } else if (el.tagName === 'A' && !el.classList.contains('nav-cta')) {
-      html += v(`<a class="mt-g${el.classList.contains('attivo') ? ' attivo' : ''}" href="${el.getAttribute('href')}">${el.textContent}</a>`);
-    }
-  });
-  const cta = voci.querySelector('.nav-cta');
-  if (cta) html += v(`<a class="mt-cta" href="${cta.getAttribute('href')}">${cta.textContent} →</a>`);
-  m.innerHTML = html;
-  document.body.appendChild(m);
+  // sul telefono il menu ha solo le tre pagine: Home, Hardware, Assistenza (Contattaci resta nella barra in alto)
+  const qui = location.pathname.split('/').pop() || 'index.html';
+  let k = 0;
+  const html = [['Home','index.html'],['Hardware','hardware.html'],['Assistenza','assistenza.html']].map(([t, h]) =>
+    `<div class="mt-v" style="transition-delay:${(k++) * 45}ms"><a class="mt-g${qui === h ? ' attivo' : ''}" href="${h}">${t}</a></div>`).join('');
+  m.innerHTML = html;  document.body.appendChild(m);
   const chiudi = () => document.body.classList.remove('menu-aperto');
   btn.addEventListener('click', () => document.body.classList.toggle('menu-aperto'));
   m.addEventListener('click', e => { if (e.target.closest('a')) chiudi(); });
