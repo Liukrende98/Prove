@@ -718,7 +718,7 @@ footer{border-top:1px solid var(--bordo);background:#040508;padding:44px 32px}
 .chiaro .icona-servizio svg{stroke:#d97706}
 .chiaro .etichetta-tech{background:#f5f5f7;border-color:transparent}
 .chiaro .carta-servizio:hover .etichetta-tech{background:#fff4e0;color:#b45309;border-color:transparent}
-.chiaro .contatti-info{background:linear-gradient(160deg,#fff7e8,#fff 60%);border-color:transparent;box-shadow:0 8px 30px rgba(0,0,0,.05)}
+.chiaro .contatti-info{background:#fff;border-color:transparent;box-shadow:0 8px 30px rgba(0,0,0,.05)}
 .chiaro .form-contatto{border-color:transparent;box-shadow:0 8px 30px rgba(0,0,0,.05)}
 .chiaro .riga-contatto .ic{background:#f5f5f7;border-color:transparent}
 .chiaro .riga-contatto .ic svg{stroke:#d97706}
@@ -755,7 +755,6 @@ footer{border-top:1px solid var(--bordo);background:#040508;padding:44px 32px}
 @media(max-width:768px){
   nav,nav.scorre{padding:12px 16px}
   .nav-links a:not(.nav-cta){display:none}
-  #intro{display:none!important}
   .hero{padding:104px 16px 64px;min-height:auto}
   .hero-stats{gap:22px;flex-wrap:wrap}
   .chip-flot{display:none}
@@ -1001,7 +1000,7 @@ body>nav .nav-logo{font-size:14px}
 .cal-fr{color:#86868b;letter-spacing:6px}
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center;font-size:11.5px}
 .cal .w{color:#86868b;font-size:10px;font-weight:600;padding-bottom:4px}
-.cal span{height:30px;display:grid;place-items:center;border-radius:50%;color:#c7c7cc;position:relative;transition:all .4s cubic-bezier(.2,.8,.2,1)}
+.cal span{height:30px;width:30px;margin:0 auto;display:grid;place-items:center;border-radius:50%;color:#c7c7cc;position:relative;transition:all .4s cubic-bezier(.2,.8,.2,1)}
 .cal span.lib{color:#1d1d1f;font-weight:600}
 .cal span.lib::after{content:'';position:absolute;bottom:3px;left:50%;margin-left:-2px;width:4px;height:4px;border-radius:50%;background:#22c55e}
 .cal span.on{background:#1d1d1f;color:#fff;transform:scale(1.15)}
@@ -1956,7 +1955,177 @@ footer.piede,footer.piede *{font-family:-apple-system,BlinkMacSystemFont,'SF Pro
 .piede-cta{font-size:15px!important;font-weight:600!important}
 .piede-basso,.piede-basso a{font-size:13.5px!important;font-weight:500!important}
 .piede-basso a:hover{color:#f5a524!important;text-decoration:none!important}
+
+/* ═══ TELEFONO: home ottimizzata (sul PC non cambia niente) ═══ */
+@media(max-width:760px){
+  /* demo dei software: sei icone in fila, sotto la scheda di quella che gira */
+  .pl-wrap{gap:14px!important}
+  .pl-lista{display:grid!important;grid-template-columns:repeat(6,1fr);gap:6px!important;position:relative;min-height:326px;align-content:start}
+  .pl-lista li{display:flex!important;justify-content:center;padding:4px 0 10px!important;background:none!important;box-shadow:none!important;position:static!important;border-radius:0!important}
+  .pl-lista li.on{background:none!important;box-shadow:none!important}
+  .pl-lista li .pl-t{display:none}
+  .pl-lista li.on .pl-t{display:flex;flex-direction:column;position:absolute;left:0;right:0;top:66px;height:252px;padding:18px 20px 20px;border-radius:22px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.04),0 14px 36px rgba(0,0,0,.09);animation:entraLog .35s both}
+  .pl-lista li.on .pl-corpo{flex:1;display:flex;flex-direction:column}
+  .pl-lista li.on .pl-d{font-size:13.5px!important}
+  .pl-lista li.on .pl-demo{margin-top:auto!important;align-self:flex-start}
+  .pl-lista li.on .pl-t b{margin-top:0!important;font-size:18px!important}
+  .pl-lista li.on .pl-ic{position:relative}
+  .pl-lista li.on .pl-ic::after{content:'';position:absolute;left:50%;bottom:-9px;width:16px;height:3px;margin-left:-8px;border-radius:2px;background:#f5a524}
+  /* iMac più piccolo e centrato */
+  .pl-scene{width:86%;margin:0 auto}
+  .pl-ic{width:48px!important;height:48px!important;border-radius:15px!important}
+  .pl-lista li.on .pl-corpo{max-height:none!important}
+  /* iMac: piedistallo più basso, schermo più largo */
+  .pl-scena .cap-schermo{padding-bottom:44px!important}
+  .pl-scena .cap-schermo::after{height:38px!important;bottom:6px!important;width:24%!important}
+  .pl-scena .cap-schermo::before{height:7px!important;bottom:0!important;width:40%!important}
+  .pl-scena .schermo,.pl-scena .schermo.libero{padding:7px 7px 0!important;border-radius:14px!important}
+  .pl-scena .schermo::after{height:30px!important;margin:7px -7px 0!important;background-size:20px auto,auto!important}
+  #software{padding-left:12px!important;padding-right:12px!important;padding-bottom:44px!important}
+  /* dal manuale al digitale: palco più stretto, fogli più vicini allo schermo, tutto più grande */
+  .digi{margin-top:44px!important}
+  .hero:has(.digi){padding-bottom:56px!important}
+  /* versione telefono: palco verticale 400x640 quasi 1:1, cruscotto a due colonne leggibile,
+     i fogli sono appoggiati sulla parte bassa dello schermo e volano nei riquadri */
+  .digi.telefono .digi-in{width:400px;height:640px}
+  .digi.telefono .digi-schermo{left:6px;width:388px;top:0}
+  .digi.telefono.digitale .digi-schermo{transform:none}
+  .digi.telefono .digi-cap{transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+  .digi.telefono .schermo{padding:6px!important;border-radius:16px!important}
+  .digi.telefono .schermo-in{aspect-ratio:auto!important;height:auto}
+  .digi.telefono .app{position:relative!important;width:100%!important;height:auto!important;transform:none!important}
+  .digi.telefono .app-c{position:relative!important}
+  .digi.telefono .dg{grid-template-columns:1fr 1fr!important;grid-template-rows:none!important;gap:8px!important;padding:10px!important}
+  .digi.telefono .dt{min-height:122px;padding:11px 12px!important}
+  .digi.telefono .dt:nth-child(4){grid-column:auto!important}
+  .digi.telefono .dt:nth-child(5){grid-column:span 2}
+  .digi.telefono .dt:nth-child(5){min-height:112px}
+  .digi.telefono .dt small{font-size:10.5px!important}
+  .digi.telefono .dt-v{margin-top:22px!important;font-size:12px!important}
+  .digi.telefono .dt-p{left:12px!important;right:12px!important;top:30px!important}
+  .digi.telefono .dt-p b{font-size:14.5px!important}
+  .digi.telefono .dt-p p{font-size:11.5px!important;margin-bottom:6px!important}
+  .digi.telefono .dt-p svg{height:30px!important}
+  .digi.telefono .dbar{height:34px!important;margin-bottom:4px!important}
+  .digi.telefono .carta{width:178px!important}
+  .digi.telefono .c-postit{width:150px!important}
+  .digi.telefono .mano{font-size:14px}
+  .digi.telefono .c-ordine{left:6px!important;top:250px!important}
+  .digi.telefono .c-postit{left:228px!important;top:238px!important}
+  .digi.telefono .c-disegno{left:12px!important;top:388px!important}
+  .digi.telefono .c-excel{left:212px!important;top:398px!important}
+  .digi.telefono .c-bolla{left:110px!important;top:520px!important}
+  .digi-cap span{font-size:15px!important;padding:0 12px}
+  /* siti web: la pagina di esempio va in colonna, come un vero sito da telefono */
+  .tile-siti{padding:24px 16px 18px!important}
+  .siti-vis{min-width:0}
+  .tile-siti h3{font-size:28px!important}
+  .tile-siti .siti-testo p{font-size:15px!important}
+  .siti-tipi{margin-top:18px!important}
+  .tile-siti{gap:16px!important}
+  .sito{height:438px!important}
+  .s-conf{grid-template-columns:1fr!important;grid-template-rows:160px minmax(0,1fr)!important}
+  .s-img svg{width:auto!important;height:128px;max-width:70%}
+  .s-pan{padding:12px 16px!important}
+  .s-pan b{font-size:17px}
+  .s-pan small{display:none!important}
+  .sito label{margin:8px 0 5px!important;font-size:10px!important}
+  .s-sw i{width:24px!important;height:24px!important}
+  .s-seg span{padding:5px 12px!important;font-size:12px!important}
+  .s-prezzo{font-size:21px!important;margin:8px 0 8px!important}
+  .s-btn{padding-top:9px!important;padding-bottom:9px!important}
+  .s-ore span{padding:5px 10px!important;font-size:12px!important}
+  .op .avt{width:32px!important;height:32px!important;font-size:12px!important}
+  .op{font-size:10.5px!important;gap:3px!important}
+  .s-ops{gap:12px!important}
+  .s-step i,.s-step b{transform:scale(.9)}
+  .s-cal{padding:8px 12px 0!important}
+  .cal{gap:0!important;font-size:10px!important}
+  .cal span{height:19px!important;width:19px!important}
+  .cal span.lib::after{bottom:1px!important;width:3px;height:3px}
+  .cal .w{padding-bottom:1px!important;font-size:9px!important}
+  .cal-h{margin-bottom:4px!important;font-size:12px!important}
+  .biglietto{inset:8px!important;padding:10px 16px!important;gap:1px!important;border-radius:16px!important}
+  .biglietto .ora{font-size:34px!important;margin:2px 0!important}
+  .biglietto .gg{font-size:14px!important}
+  .biglietto .chi{margin-top:4px!important;font-size:12px!important}
+  .timbro{width:36px!important;height:36px!important;font-size:18px!important;top:14px!important;right:14px!important}
+  /* integrazione ERP: il flusso scende dall'alto verso il basso, i dati vanno sempre avanti */
+  .tile-erp .vis{margin-bottom:10px!important}
+  .flusso{flex-direction:column;align-items:flex-start!important}
+  .nd,.nd.erp{flex-direction:row;width:auto!important;gap:14px!important;font-size:14px!important}
+  .nd i,.nd.erp i{width:42px!important;height:42px!important;border-radius:13px!important}
+  .nd i svg,.nd.erp i svg{width:21px!important;height:21px!important}
+  .nd.on i{transform:none!important}
+  .ln{flex:none!important;width:2px!important;height:20px!important;margin:3px 0 3px 20px!important}
+  .ln b{top:0!important;left:-4px!important}
+  .ln.va b{animation:pacchettoGiu .9s cubic-bezier(.6,0,.4,1) forwards!important}
+  @keyframes pacchettoGiu{0%{top:-4px;opacity:1}100%{top:calc(100% - 6px);opacity:1}}
+  .erp-log{margin-top:18px!important;min-height:0!important}
+  .erp-log div{font-size:12.5px!important}
+  /* il riquadro dei partner e i loghi */
+  .partner{padding:64px 12px 72px!important}
+  .partner-griglia{grid-template-columns:repeat(3,1fr)!important;gap:8px!important}
+  .partner-card{padding:8px 8px 12px!important;gap:10px!important;border-radius:18px!important}
+  .partner-logo{height:64px!important;padding:8px!important;border-radius:12px!important;gap:5px!important}
+  .partner-logo img{max-height:44px!important}
+  .partner-logo.ps img:first-child{height:24px!important}
+  .partner-logo.ps img:last-child{width:68%!important}
+  .partner-logo img[src*="eurosystem"]{width:96%!important}
+  .partner-info{text-align:center}
+  .partner-info b{font-size:13px!important;line-height:1.2}
+  .partner-info span{display:none}
+  .partner-vai{align-self:center;font-size:0!important}
+  .partner-vai i{font-size:0}
+  .partner-vai::after{content:'Visita ↗';font-size:12px;font-weight:600;color:#b45309}
+}
+
+/* ═══ TELEFONO: menu a scomparsa (sul PC non cambia niente) ═══ */
+.nav-menu,.menu-tel{display:none}
+@media(max-width:900px){
+  body>nav .nav-giro{justify-content:space-between!important;padding:0 6px 0 16px!important}
+  body>nav .nav-logo::after{display:none!important}
+  body>nav .nav-links{margin-left:auto!important;gap:0!important}
+  body>nav .nav-links > a:not(.nav-cta),body>nav .nav-links > .nav-tendina{display:none!important}
+  body>nav .nav-links > a.nav-cta{font-size:14px!important}
+  .nav-menu{display:flex;flex-direction:column;justify-content:center;gap:6px;width:44px;height:44px;padding:0 12px;margin-left:6px;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .nav-menu i{display:block;height:1.5px;width:18px;border-radius:2px;background:#f5f5f7;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+  body.menu-aperto .nav-menu i:first-child{transform:translateY(3.75px) rotate(45deg)}
+  body.menu-aperto .nav-menu i:last-child{transform:translateY(-3.75px) rotate(-45deg)}
+  body.menu-aperto{overflow:hidden}
+  .menu-tel{display:block;position:fixed;left:0;right:0;top:44px;bottom:0;z-index:99;background:rgba(0,0,0,.97);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:22px 34px 60px;opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}
+  body.menu-aperto .menu-tel{opacity:1;visibility:visible}
+  .menu-tel .mt-v{opacity:0;transform:translateY(-8px);transition:opacity .35s,transform .45s cubic-bezier(.2,.8,.2,1)}
+  body.menu-aperto .menu-tel .mt-v{opacity:1;transform:none}
+  .menu-tel a{text-decoration:none;-webkit-tap-highlight-color:transparent}
+  .menu-tel .mt-g{display:block;padding:9px 0;font-size:28px;font-weight:600;letter-spacing:-.025em;color:#e8e8ed;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI Variable Display','Segoe UI',system-ui,sans-serif}
+  .menu-tel .mt-g:active,.menu-tel .mt-g.attivo{color:#f5a524}
+  .menu-tel .mt-sub{display:flex;flex-direction:column;padding:0 0 10px 2px}
+  .menu-tel .mt-sub a{padding:7px 0;font-size:16px;font-weight:500;color:#a1a1a6}
+  .menu-tel .mt-sub a:active{color:#f5a524}
+  .menu-tel .mt-cta{display:inline-flex;margin-top:22px;padding:13px 26px;border-radius:999px;background:#f5a524;color:#000;font-size:17px;font-weight:600}
+}
+
+/* ═══ TELEFONO: footer essenziale, le colonne si aprono a tocco come su apple.com ═══ */
+@media(max-width:760px){
+  footer.piede{padding:34px 20px 26px!important}
+  .piede-alto{flex-direction:column;align-items:flex-start!important;gap:16px!important;padding-bottom:22px!important}
+  .piede-marca{font-size:20px!important}
+  .piede-motto{font-size:15px!important;margin-top:4px!important}
+  .piede-cta{font-size:14px!important;padding:9px 18px!important}
+  .piede-col{display:block!important;padding:0!important;border-bottom:none!important}
+  .piede-col > div{border-bottom:1px solid #d2d2d7}
+  .piede-col h4{display:flex;justify-content:space-between;align-items:center;margin:0!important;padding:15px 0!important;font-size:15px!important;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .piede-col h4::after{content:'';width:7px;height:7px;margin-right:4px;border-right:1.6px solid #6e6e73;border-bottom:1.6px solid #6e6e73;transform:translateY(-2px) rotate(45deg);transition:transform .3s}
+  .piede-col .aperto h4::after{transform:translateY(2px) rotate(225deg)}
+  .piede-col a{display:none!important}
+  .piede-col .aperto a{display:block!important;margin:0 0 14px 0!important;font-size:15px!important}
+  .piede-col .aperto{padding-bottom:4px}
+  .piede-basso{padding-top:18px!important;font-size:12.5px!important}
+  .piede-basso nav{display:none!important}
+}
 </style>
+
 </head>
 <body>
 <script>if('scrollRestoration' in history)history.scrollRestoration='manual';window.scrollTo(0,0);</script>
@@ -1991,7 +2160,7 @@ footer.piede,footer.piede *{font-family:-apple-system,BlinkMacSystemFont,'SF Pro
     <div class="hero-logo"><svg><use href="#logo"/></svg></div>
     <p class="hero-occhiello">Nodo<span style="color:#f5a524">Italia</span></p>
     <h1>Software su misura.<br><span class="grad">Per chi produce.</span></h1>
-    <p class="hero-sotto"><em class="kw">Configuratore</em>, <em class="kw">CRM</em>, <em class="kw">PDM</em>, <em class="kw">MES</em> e <em class="kw">AI</em>.<br>Scritti da noi. Collegati a quello che usi già.</p>
+    <p class="hero-sotto"><em class="kw">Configuratore</em>, <em class="kw">CRM</em>, <em class="kw">PDM</em>, <em class="kw">MES</em> e <em class="kw">AI</em>. <br>Scritti da noi. Collegati a quello che usi già.</p>
     <div class="hero-actions">
       <a href="#software" class="pill">Guarda i software</a>
       <a href="#contatti" class="link-apple">Parliamone <span>›</span></a>
@@ -2232,17 +2401,22 @@ const pct1 = n => n.toLocaleString('it-IT', {minimumFractionDigits:1, maximumFra
   const aggiornata = nav0 ? nav0.type === 'reload' : performance.navigation && performance.navigation.type === 1;
   let interno = false;
   try { interno = !!document.referrer && new URL(document.referrer).origin === location.origin; } catch(e) {}
-  const salta = !aggiornata && (interno || !!location.hash);
-  if (window.innerWidth <= 768 || location.search.includes('nointro') || salta) { intro.style.display = 'none'; return; }
+  // sul telefono il loader si vede una volta sola per sessione: il telefono ricarica le pagine da solo (cambio app, memoria) e non deve ripartire a caso
+  const tel = innerWidth <= 760;
+  let visto = false; try { visto = sessionStorage.getItem('introVisto') === '1'; } catch(e) {}
+  const salta = (tel && visto) || (!aggiornata && (interno || !!location.hash));
+  if (location.search.includes('nointro') || salta) { intro.style.display = 'none'; return; }
+  try { sessionStorage.setItem('introVisto', '1'); } catch(e) {}
 
   const cv = document.getElementById('introCanvas'), logo = document.getElementById('introLogo');
   const ctx = cv.getContext('2d');
-  const W = cv.width = innerWidth, H = cv.height = innerHeight;
+  const W = innerWidth, H = innerHeight, dprI = Math.min(devicePixelRatio || 1, 3);
+  cv.width = Math.round(W * dprI); cv.height = Math.round(H * dprI); ctx.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0);
   document.body.style.overflow = 'hidden';
   heroLogo.style.opacity = '0';
 
   const A = '#f59e0b', DUR = 2500, t0 = performance.now();
-  const midX = W/2, midY = H/2, R = Math.min(W,H) * .32;
+  const midX = W/2, midY = H/2, R = W < 700 ? W * .44 : Math.min(W,H) * .32;
   const nodi = [{x:midX, y:midY, r:R*.22, t:'cpu'}], tracce = [];
   for (let ring = 0; ring < 3; ring++) {
     const n = 6 + ring*5, dist = R * (.3 + ring*.28);
@@ -2306,7 +2480,7 @@ const pct1 = n => n.toLocaleString('it-IT', {minimumFractionDigits:1, maximumFra
       logo.style.position = 'fixed';
       logo.style.left = (W/2 + (r.left+r.width/2-W/2)*ee) + 'px';
       logo.style.top = (H/2 + (r.top+r.height/2-H/2)*ee) + 'px';
-      logo.style.transform = 'translate(-50%,-50%) scale('+(1+(100/140-1)*ee)+')';
+      logo.style.transform = 'translate(-50%,-50%) scale('+(1+(r.width/140-1)*ee)+')';
       intro.style.background = 'rgba(6,7,11,'+(1-ee)+')'; intro.style.backdropFilter = 'none';
       cv.style.opacity = 1-ee;
     }
@@ -3571,7 +3745,13 @@ class Lettore {
     this.ridim();
     this.reset();
   }
-  ridim(){ this.scala = this.schermo.clientWidth / 900 || 1; this.app.style.transform = `scale(${this.scala})`; }
+  ridim(){
+    this.scala = this.schermo.clientWidth / 900 || 1;
+    // sul telefono si rimpicciolisce con zoom invece che con transform: il browser ridisegna testi e linee
+    // alla grandezza vera, così restano nitidi (con transform l'iPhone sgrana l'immagine)
+    if (innerWidth <= 760 && window.CSS && CSS.supports('zoom', '0.5')) { this.app.style.transform = 'none'; this.app.style.zoom = this.scala; }
+    else { this.app.style.zoom = ''; this.app.style.transform = `scale(${this.scala})`; }
+  }
   // attesa annullabile: se parte un altro passo, quello vecchio si ferma
   attesa(ms, tok){
     return new Promise((ok, ko) => {
@@ -3587,8 +3767,9 @@ class Lettore {
   }
   posa(x, y){ this.cx = x; this.cy = y; this.cur.style.transform = `translate(${x}px,${y}px)`; }
   centro(el){
-    const r = el.getBoundingClientRect(), b = this.app.getBoundingClientRect();
-    return [(r.left + r.width/2 - b.left) / this.scala, (r.top + r.height/2 - b.top) / this.scala];
+    // il rapporto si misura sul momento: vale sia con transform sia con zoom, su qualsiasi browser
+    const r = el.getBoundingClientRect(), b = this.app.getBoundingClientRect(), k = b.width / 900 || this.scala;
+    return [(r.left + r.width/2 - b.left) / k, (r.top + r.height/2 - b.top) / k];
   }
   async vaiA(el, tok, veloce){ if (veloce || !el) return; this.posa(...this.centro(el)); await this.attesa(560, tok); }
   async premi(el, tok, veloce){
@@ -3728,10 +3909,13 @@ class Lettore {
   const capPrima = st.querySelector('.cap-prima'), capDopo = st.querySelector('.cap-dopo');
   let s = 1;
   function scala(){
-    s = st.clientWidth / 1100;
+    // sul telefono il palco è verticale (400x640) e quasi a grandezza reale: tutto si legge
+    const tel = innerWidth <= 760;
+    st.classList.toggle('telefono', tel);
+    s = st.clientWidth / (tel ? 400 : 1100);
     inn.style.transform = `scale(${s})`;
-    st.style.height = (560 * s) + 'px';
-    app.style.transform = `scale(${st.querySelector('.digi-schermo .schermo-in').clientWidth / 900})`;
+    st.style.height = ((tel ? 640 : 560) * s) + 'px';
+    app.style.transform = tel ? '' : `scale(${st.querySelector('.digi-schermo .schermo-in').clientWidth / 900})`;
   }
   scala(); addEventListener('resize', scala);
 
@@ -3748,11 +3932,13 @@ class Lettore {
     carte.forEach(c => { c.classList.remove('vola'); c.style.transform = ''; });
     tiles.forEach(t => t.classList.remove('pieno'));
     capDopo.classList.remove('on'); capPrima.classList.add('on');
+    st.querySelector('.digi-cap').style.transform = '';
     st.classList.remove('digitale');
     await dorme(50);
     carte.forEach((c,i) => setTimeout(() => c.classList.add('in'), i * 140));
-    await via;
-    await attendi(1600);
+    // al primo giro parte appena si scorre; dal secondo giro i fogli restano visibili un attimo prima di volare
+    if (giro.fatto) await attendi(1200); else await via;
+    giro.fatto = true;
     for (let i = 0; i < carte.length; i++) {
       const c = carte[i], t = tiles[+c.dataset.t];
       const [cx, cy] = centro(c), [tx, ty] = centro(t);
@@ -3764,6 +3950,11 @@ class Lettore {
     }
     st.classList.add('digitale');
     capPrima.classList.remove('on'); capDopo.classList.add('on');
+    // sul telefono la scritta arancio va al centro dello spazio rimasto libero sotto lo schermo
+    if (st.classList.contains('telefono')) {
+      const cap = st.querySelector('.digi-cap'), sb = st.querySelector('.digi-schermo').getBoundingClientRect().bottom, r = cap.getBoundingClientRect();
+      cap.style.transform = `translateY(${(sb + (st.closest('.hero') || st).getBoundingClientRect().bottom) / 2 - (r.top + r.height / 2)}px)`;
+    }
     await attendi(5200);
     carte.forEach(c => c.classList.remove('in'));
     await attendi(700);
@@ -3871,6 +4062,41 @@ document.querySelectorAll('body>nav .nav-tendina').forEach(t => {
   t.querySelectorAll('.tendina a').forEach(a => a.addEventListener('click', () => { t.classList.add('chiusa'); a.blur(); }));
   t.addEventListener('mouseleave', () => t.classList.remove('chiusa'));
 });
+</script>
+
+<script>
+/* telefono: il menu a scomparsa si costruisce dalle voci della barra in alto */
+(function(){
+  const giro = document.querySelector('body>nav .nav-giro'), voci = document.querySelector('body>nav .nav-links');
+  if (!giro || !voci) return;
+  const btn = document.createElement('button');
+  btn.className = 'nav-menu'; btn.setAttribute('aria-label', 'Menu'); btn.innerHTML = '<i></i><i></i>';
+  giro.appendChild(btn);
+  const m = document.createElement('div');
+  m.className = 'menu-tel';
+  let html = '', k = 0;
+  const v = (h) => `<div class="mt-v" style="transition-delay:${(k++) * 35}ms">${h}</div>`;
+  [...voci.children].forEach(el => {
+    if (el.classList.contains('nav-tendina')) {
+      const capo = el.querySelector(':scope > a');
+      html += v(`<a class="mt-g${capo.classList.contains('attivo') ? ' attivo' : ''}" href="${capo.getAttribute('href')}">${capo.textContent}</a><div class="mt-sub">${[...el.querySelectorAll('.tendina a')].map(a => `<a href="${a.getAttribute('href')}">${a.textContent}</a>`).join('')}</div>`);
+    } else if (el.tagName === 'A' && !el.classList.contains('nav-cta')) {
+      html += v(`<a class="mt-g${el.classList.contains('attivo') ? ' attivo' : ''}" href="${el.getAttribute('href')}">${el.textContent}</a>`);
+    }
+  });
+  const cta = voci.querySelector('.nav-cta');
+  if (cta) html += v(`<a class="mt-cta" href="${cta.getAttribute('href')}">${cta.textContent} →</a>`);
+  m.innerHTML = html;
+  document.body.appendChild(m);
+  const chiudi = () => document.body.classList.remove('menu-aperto');
+  btn.addEventListener('click', () => document.body.classList.toggle('menu-aperto'));
+  m.addEventListener('click', e => { if (e.target.closest('a')) chiudi(); });
+  addEventListener('resize', () => { if (innerWidth > 900) chiudi(); });
+})();
+</script>
+<script>
+/* telefono: nel footer le colonne si aprono e si chiudono a tocco */
+document.querySelectorAll('.piede-col h4').forEach(h => h.addEventListener('click', () => { if (innerWidth <= 760) h.parentElement.classList.toggle('aperto'); }));
 </script>
 </body>
 </html>

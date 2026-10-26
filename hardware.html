@@ -438,7 +438,72 @@ footer.piede,footer.piede *{font-family:-apple-system,BlinkMacSystemFont,'SF Pro
 .piede-cta{font-size:15px!important;font-weight:600!important}
 .piede-basso,.piede-basso a{font-size:13.5px!important;font-weight:500!important}
 .piede-basso a:hover{color:#f5a524!important;text-decoration:none!important}
+
+/* ═══ TELEFONO: catalogo a due colonne, schede compatte (sul PC non cambia niente) ═══ */
+@media(max-width:600px){
+  #grCatalogo{grid-template-columns:1fr 1fr!important;gap:10px!important}
+  #catalogo{padding-left:12px!important;padding-right:12px!important}
+  .cat-card{padding:10px 10px 12px!important;border-radius:18px!important}
+  .cat-card>div:nth-child(1){height:92px!important;margin-bottom:10px!important;border-radius:12px!important;padding:8px!important}
+  .cat-card>div:nth-child(1) svg{max-height:70px;width:auto}
+  .cat-card>div:nth-child(2){font-size:9px!important;margin-bottom:3px!important;letter-spacing:.06em!important}
+  .cat-card>div:nth-child(3){font-size:14px!important;line-height:1.25;margin-bottom:6px!important}
+  .cat-card>div:nth-child(4){display:none!important}
+  .cat-card>div:nth-child(5){flex-wrap:wrap;gap:1px 6px!important;font-size:11px!important;line-height:1.35;margin-bottom:8px!important}
+  .cat-card>div:nth-child(5) span:nth-child(2),.cat-card>div:nth-child(5) span:nth-child(4){display:none}
+  .cat-card>div:nth-child(6){padding-top:10px!important}
+  .cat-prezzo{font-size:17px!important}
+  .btn-cat-info{padding:6px 13px!important;font-size:11.5px!important}
+  #paginazione{gap:6px!important;flex-wrap:wrap}
+  .hero h1{font-size:34px!important}
+}
+
+/* ═══ TELEFONO: menu a scomparsa (sul PC non cambia niente) ═══ */
+.nav-menu,.menu-tel{display:none}
+@media(max-width:900px){
+  body>nav .nav-giro{justify-content:space-between!important;padding:0 6px 0 16px!important}
+  body>nav .nav-logo::after{display:none!important}
+  body>nav .nav-links{margin-left:auto!important;gap:0!important}
+  body>nav .nav-links > a:not(.nav-cta),body>nav .nav-links > .nav-tendina{display:none!important}
+  body>nav .nav-links > a.nav-cta{font-size:14px!important}
+  .nav-menu{display:flex;flex-direction:column;justify-content:center;gap:6px;width:44px;height:44px;padding:0 12px;margin-left:6px;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .nav-menu i{display:block;height:1.5px;width:18px;border-radius:2px;background:#f5f5f7;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+  body.menu-aperto .nav-menu i:first-child{transform:translateY(3.75px) rotate(45deg)}
+  body.menu-aperto .nav-menu i:last-child{transform:translateY(-3.75px) rotate(-45deg)}
+  body.menu-aperto{overflow:hidden}
+  .menu-tel{display:block;position:fixed;left:0;right:0;top:44px;bottom:0;z-index:99;background:rgba(0,0,0,.97);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:22px 34px 60px;opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}
+  body.menu-aperto .menu-tel{opacity:1;visibility:visible}
+  .menu-tel .mt-v{opacity:0;transform:translateY(-8px);transition:opacity .35s,transform .45s cubic-bezier(.2,.8,.2,1)}
+  body.menu-aperto .menu-tel .mt-v{opacity:1;transform:none}
+  .menu-tel a{text-decoration:none;-webkit-tap-highlight-color:transparent}
+  .menu-tel .mt-g{display:block;padding:9px 0;font-size:28px;font-weight:600;letter-spacing:-.025em;color:#e8e8ed;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI Variable Display','Segoe UI',system-ui,sans-serif}
+  .menu-tel .mt-g:active,.menu-tel .mt-g.attivo{color:#f5a524}
+  .menu-tel .mt-sub{display:flex;flex-direction:column;padding:0 0 10px 2px}
+  .menu-tel .mt-sub a{padding:7px 0;font-size:16px;font-weight:500;color:#a1a1a6}
+  .menu-tel .mt-sub a:active{color:#f5a524}
+  .menu-tel .mt-cta{display:inline-flex;margin-top:22px;padding:13px 26px;border-radius:999px;background:#f5a524;color:#000;font-size:17px;font-weight:600}
+}
+
+/* ═══ TELEFONO: footer essenziale, le colonne si aprono a tocco come su apple.com ═══ */
+@media(max-width:760px){
+  footer.piede{padding:34px 20px 26px!important}
+  .piede-alto{flex-direction:column;align-items:flex-start!important;gap:16px!important;padding-bottom:22px!important}
+  .piede-marca{font-size:20px!important}
+  .piede-motto{font-size:15px!important;margin-top:4px!important}
+  .piede-cta{font-size:14px!important;padding:9px 18px!important}
+  .piede-col{display:block!important;padding:0!important;border-bottom:none!important}
+  .piede-col > div{border-bottom:1px solid #d2d2d7}
+  .piede-col h4{display:flex;justify-content:space-between;align-items:center;margin:0!important;padding:15px 0!important;font-size:15px!important;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .piede-col h4::after{content:'';width:7px;height:7px;margin-right:4px;border-right:1.6px solid #6e6e73;border-bottom:1.6px solid #6e6e73;transform:translateY(-2px) rotate(45deg);transition:transform .3s}
+  .piede-col .aperto h4::after{transform:translateY(2px) rotate(225deg)}
+  .piede-col a{display:none!important}
+  .piede-col .aperto a{display:block!important;margin:0 0 14px 0!important;font-size:15px!important}
+  .piede-col .aperto{padding-bottom:4px}
+  .piede-basso{padding-top:18px!important;font-size:12.5px!important}
+  .piede-basso nav{display:none!important}
+}
 </style>
+
 </head>
 <body>
 
@@ -1402,7 +1467,8 @@ window.addEventListener('resize',()=>renderCase());
   function genera(){
     W = cv.offsetWidth; H = cv.offsetHeight;
     cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    S = Math.min(W * .22, H * .3); cx = W / 2; cy = H * .68;
+    // sul telefono il processore è più grande, rispetto alla larghezza dello schermo
+    S = W < 700 ? Math.min(W * .4, H * .24) : Math.min(W * .22, H * .3); cx = W / 2; cy = H * .68;
     tracce = []; impulsi = [];
     [[0,-1],[1,0],[0,1],[-1,0]].forEach(([dx, dy]) => {
       const n = 16;
@@ -1529,6 +1595,41 @@ document.querySelectorAll('body>nav .nav-tendina').forEach(t => {
   t.querySelectorAll('.tendina a').forEach(a => a.addEventListener('click', () => { t.classList.add('chiusa'); a.blur(); }));
   t.addEventListener('mouseleave', () => t.classList.remove('chiusa'));
 });
+</script>
+
+<script>
+/* telefono: il menu a scomparsa si costruisce dalle voci della barra in alto */
+(function(){
+  const giro = document.querySelector('body>nav .nav-giro'), voci = document.querySelector('body>nav .nav-links');
+  if (!giro || !voci) return;
+  const btn = document.createElement('button');
+  btn.className = 'nav-menu'; btn.setAttribute('aria-label', 'Menu'); btn.innerHTML = '<i></i><i></i>';
+  giro.appendChild(btn);
+  const m = document.createElement('div');
+  m.className = 'menu-tel';
+  let html = '', k = 0;
+  const v = (h) => `<div class="mt-v" style="transition-delay:${(k++) * 35}ms">${h}</div>`;
+  [...voci.children].forEach(el => {
+    if (el.classList.contains('nav-tendina')) {
+      const capo = el.querySelector(':scope > a');
+      html += v(`<a class="mt-g${capo.classList.contains('attivo') ? ' attivo' : ''}" href="${capo.getAttribute('href')}">${capo.textContent}</a><div class="mt-sub">${[...el.querySelectorAll('.tendina a')].map(a => `<a href="${a.getAttribute('href')}">${a.textContent}</a>`).join('')}</div>`);
+    } else if (el.tagName === 'A' && !el.classList.contains('nav-cta')) {
+      html += v(`<a class="mt-g${el.classList.contains('attivo') ? ' attivo' : ''}" href="${el.getAttribute('href')}">${el.textContent}</a>`);
+    }
+  });
+  const cta = voci.querySelector('.nav-cta');
+  if (cta) html += v(`<a class="mt-cta" href="${cta.getAttribute('href')}">${cta.textContent} →</a>`);
+  m.innerHTML = html;
+  document.body.appendChild(m);
+  const chiudi = () => document.body.classList.remove('menu-aperto');
+  btn.addEventListener('click', () => document.body.classList.toggle('menu-aperto'));
+  m.addEventListener('click', e => { if (e.target.closest('a')) chiudi(); });
+  addEventListener('resize', () => { if (innerWidth > 900) chiudi(); });
+})();
+</script>
+<script>
+/* telefono: nel footer le colonne si aprono e si chiudono a tocco */
+document.querySelectorAll('.piede-col h4').forEach(h => h.addEventListener('click', () => { if (innerWidth <= 760) h.parentElement.classList.toggle('aperto'); }));
 </script>
 </body>
 </html>
