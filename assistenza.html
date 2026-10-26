@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Assistenza IT per aziende — NodoItalia</title>
+<meta name="description" content="Assistenza informatica per aziende: PC, server, rete, backup, posta e gestionale. Da remoto in pochi minuti o in sede, con tempi di intervento scritti nel contratto.">
+<meta name="theme-color" content="#000000">
+<style>
+:root{
+  --sans:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Segoe UI Variable Display','Segoe UI Variable Text','Segoe UI',system-ui,'Helvetica Neue',Arial,sans-serif;
+  --ambra:#f5a524;--ambra2:#fbbf24;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:#f5f5f7;color:#1d1d1f;letter-spacing:-.011em;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+::selection{background:var(--ambra);color:#000}
+
+/* ═══ BARRA IN ALTO, uguale ovunque ═══ */
+body>nav{position:fixed;top:0;left:0;width:100%;height:44px;z-index:100;background:#000;border-bottom:1px solid rgba(255,255,255,.08)}
+.nav-giro{max-width:1000px;height:100%;margin:0 auto;padding:0 22px;display:flex;align-items:center;justify-content:center}
+.nav-giro a{text-decoration:none}
+body>nav .nav-logo{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;letter-spacing:-.01em;color:#f5f5f7;flex:none}
+body>nav .nav-logo svg{width:22px;height:16px}
+body>nav .nav-logo::after{content:'|';margin:0 22px 0 20px;color:rgba(255,255,255,.35);font-weight:300}
+body>nav .nav-links{display:flex;align-items:center;gap:28px}
+body>nav .nav-links a{font-size:15px;font-weight:600;letter-spacing:-.01em;color:#f5f5f7;transition:color .2s}
+body>nav .nav-links a:hover,body>nav .nav-links a.attivo,body>nav .nav-links > a.nav-cta{color:var(--ambra)}
+body>nav .nav-tendina{position:relative;display:flex;align-items:center;height:44px}
+body>nav .tendina{position:absolute;top:44px;left:50%;min-width:250px;padding:10px;background:rgba(0,0,0,.96);border:1px solid rgba(255,255,255,.12);border-top:none;border-radius:0 0 16px 16px;display:flex;flex-direction:column;gap:2px;opacity:0;visibility:hidden;transform:translate(-50%,-8px);transition:opacity .25s ease,transform .3s cubic-bezier(.2,.8,.2,1),visibility .25s;box-shadow:0 24px 50px rgba(0,0,0,.45)}
+body>nav .nav-tendina:hover .tendina,body>nav .nav-tendina:focus-within .tendina{opacity:1;visibility:visible;transform:translate(-50%,0)}
+body>nav .tendina a{display:block;padding:9px 12px;border-radius:10px;font-size:14px;font-weight:500;color:#e5e5ea;opacity:0;transform:translateY(-6px);transition:opacity .25s,transform .3s,background .2s,color .2s}
+body>nav .nav-tendina:hover .tendina a,body>nav .nav-tendina:focus-within .tendina a{opacity:1;transform:none}
+body>nav .tendina a:nth-child(2){transition-delay:.05s}body>nav .tendina a:nth-child(3){transition-delay:.1s}body>nav .tendina a:nth-child(4){transition-delay:.15s}body>nav .tendina a:nth-child(5){transition-delay:.2s}body>nav .tendina a:nth-child(6){transition-delay:.25s}
+body>nav .tendina a:hover{background:rgba(255,255,255,.08);color:var(--ambra)}
+body>nav .nav-tendina > a::after{content:'';display:inline-block;width:5px;height:5px;margin-left:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:translateY(-3px) rotate(45deg);transition:transform .25s}
+body>nav .nav-tendina:hover > a::after{transform:translateY(0) rotate(225deg)}
+body>nav .nav-tendina.chiusa .tendina{opacity:0!important;visibility:hidden!important;transform:translate(-50%,-8px)!important}
+body>nav .nav-tendina.chiusa > a::after{transform:translateY(-3px) rotate(45deg)!important}
+@media(max-width:900px){body>nav .nav-links > a:not(.nav-cta),body>nav .nav-tendina{display:none}body>nav .nav-logo::after{margin:0 14px}}
+
+/* ═══ APERTURA: come la pagina Hardware, con l'armadio server vivo ═══ */
+.hero{position:relative;overflow:hidden;min-height:max(94vh,860px);display:flex;flex-direction:column;align-items:center;text-align:center;background:#000;color:#f5f5f7;padding:130px 32px 100px}
+#rackVivo{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.hero h1,.hero .lead,.hero .azioni{position:relative;z-index:2}
+.hero h1{font-size:clamp(38px,5.2vw,68px);font-weight:700;letter-spacing:-.035em;line-height:1.05;margin-bottom:18px}
+.hero h1 em{font-style:normal;color:var(--ambra);display:inline-block;transition:opacity .35s,transform .35s}
+.hero h1 em.cambia{opacity:0;transform:translateY(10px)}
+.hero .lead{font-size:clamp(16px,1.6vw,19px);line-height:1.6;color:#e5e5ea;max-width:640px;text-shadow:0 2px 14px rgba(0,0,0,.95)}
+.azioni{display:flex;gap:26px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:30px}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:999px;background:var(--ambra);color:#000;font-size:16px;font-weight:600;text-decoration:none;transition:background .2s,transform .2s}
+.pill:hover{background:var(--ambra2);transform:translateY(-2px)}
+.link{color:var(--ambra);font-size:16px;font-weight:500;text-decoration:none}
+.link:hover{text-decoration:underline}
+.hero::after{content:'';position:absolute;left:0;right:0;bottom:0;height:220px;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(245,245,247,0) 0%,rgba(245,245,247,.35) 45%,rgba(245,245,247,.85) 80%,#f5f5f7 100%)}
+
+/* ═══ SEZIONI ═══ */
+section{padding:110px 32px;position:relative}
+.sez-titolo{text-align:center;max-width:720px;margin:0 auto 56px}
+.sez-titolo .tag{display:block;font-size:15px;font-weight:600;color:#b45309;margin-bottom:12px}
+.sez-titolo h2{font-size:clamp(32px,4.4vw,52px);font-weight:700;letter-spacing:-.03em;line-height:1.08}
+.sez-titolo p{font-size:17px;line-height:1.55;color:#6e6e73;margin-top:14px}
+.scura{background:#000;color:#f5f5f7}
+.scura .sez-titolo .tag{color:var(--ambra)}
+.scura .sez-titolo p{color:#a1a1a6}
+.rivela{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.7,.2,1)}
+.rivela.vis{opacity:1;transform:none}
+
+/* 1. cosa seguiamo: schede bianche come il catalogo */
+#cosa{padding-top:50px}
+.griglia{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.voce{background:#fff;border-radius:22px;padding:28px 26px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 30px rgba(0,0,0,.05);transition:transform .35s,box-shadow .35s}
+.voce:hover{transform:translateY(-4px);box-shadow:0 24px 56px rgba(0,0,0,.11)}
+.voce .ic{width:48px;height:48px;border-radius:14px;background:#1d1d1f;display:grid;place-items:center;margin-bottom:18px}
+.voce .ic svg{width:24px;height:24px;fill:none;stroke:var(--ambra);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.voce h3{font-size:19px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.voce p{font-size:14.5px;line-height:1.55;color:#6e6e73}
+
+/* 2. come funziona: sezione nera con il ticket che avanza */
+.flusso{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.passi{list-style:none;display:flex;flex-direction:column;gap:8px}
+.passo{display:grid;grid-template-columns:44px 1fr;gap:16px;padding:16px 18px;border-radius:20px;border:1px solid transparent;cursor:pointer;transition:background .4s,border-color .4s}
+.passo .n{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:16px;font-weight:700;background:#1c1c1e;color:#86868b;border:1px solid rgba(255,255,255,.12);transition:all .4s}
+.passo h3{font-size:18px;font-weight:600;letter-spacing:-.02em;color:#a1a1a6;margin-top:2px;transition:color .4s}
+.passo p{font-size:14.5px;line-height:1.5;color:#86868b;margin-top:4px}
+.passo.on{background:#1c1c1e;border-color:rgba(255,255,255,.14)}
+.passo.on .n{background:var(--ambra);color:#000;border-color:var(--ambra)}
+.passo.on h3{color:#fff}
+.passo.fatto .n{background:#30d158;border-color:#30d158;color:#000;font-size:0}
+.passo.fatto .n::after{content:'✓';font-size:17px}
+.ticket{background:#1c1c1e;border:1px solid rgba(255,255,255,.14);border-radius:26px;padding:26px;box-shadow:0 40px 90px rgba(0,0,0,.5)}
+.tk-h{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#a1a1a6}
+.stato{font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;background:#3a2a05;color:#fbbf24;transition:all .35s}
+.stato.g{background:#0c2a4d;color:#7cc0ff}.stato.v{background:#0f3a1d;color:#4ade80}
+.tk-tit{font-size:22px;font-weight:700;letter-spacing:-.02em;margin:14px 0 4px}
+.tk-sub{font-size:14px;color:#a1a1a6}
+.tk-righe{margin-top:20px;display:flex;flex-direction:column;gap:2px}
+.tk-r{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-top:1px solid rgba(255,255,255,.08);font-size:14px;color:#c7c7cc}
+.tk-r b{font-weight:600;color:#fff;font-variant-numeric:tabular-nums}
+.chi{display:inline-flex;align-items:center;gap:8px}
+.av{width:24px;height:24px;border-radius:50%;background:#ea580c;color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center}
+.tk-barra{height:6px;border-radius:6px;background:rgba(255,255,255,.08);margin-top:18px;overflow:hidden}
+.tk-barra i{display:block;height:100%;width:0;border-radius:6px;background:var(--ambra);transition:width .9s cubic-bezier(.2,.8,.2,1),background .4s}
+.tempi{max-width:1080px;margin:56px auto 0;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.tempo{background:#1c1c1e;border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:20px}
+.tempo small{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#c7c7cc}
+.tempo small i{width:9px;height:9px;border-radius:50%}
+.tempo b{display:block;font-size:26px;font-weight:700;letter-spacing:-.03em;margin:8px 0 4px}
+.tempo span{font-size:13px;line-height:1.45;color:#a1a1a6}
+.nota-tempi{max-width:1080px;margin:14px auto 0;font-size:13px;color:#86868b;text-align:center}
+
+/* 3. formule: bianco, schede grigie con icone animate come il processo */
+#formule{background:#fff}
+.formule{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:stretch}
+.fm{background:#f5f5f7;border-radius:24px;padding:36px 28px;display:flex;flex-direction:column;text-align:center}
+.fm .anim{width:96px;height:96px;margin:0 auto 18px}
+.fm small{font-size:13px;font-weight:600;color:#b45309}
+.fm h3{font-size:24px;font-weight:700;letter-spacing:-.03em;margin:4px 0 8px}
+.fm > p{font-size:14.5px;line-height:1.55;color:#6e6e73;margin-bottom:18px}
+.fm ul{list-style:none;display:flex;flex-direction:column;gap:9px;text-align:left;margin-top:auto;padding-top:16px;border-top:1px solid rgba(0,0,0,.08)}
+.fm li{font-size:14px;line-height:1.4;padding-left:24px;position:relative;color:#3a3a3c}
+.fm li::before{content:'✓';position:absolute;left:0;color:#d97706;font-weight:800}
+.fm.top{background:#1d1d1f;color:#f5f5f7;box-shadow:0 30px 70px rgba(0,0,0,.22)}
+.fm.top small{color:var(--ambra)}
+.fm.top > p{color:#a1a1a6}
+.fm.top ul{border-top-color:rgba(255,255,255,.12)}
+.fm.top li{color:#e5e5ea}
+@keyframes squilla{0%,40%,100%{transform:rotate(0)}5%,15%,25%{transform:rotate(-14deg)}10%,20%,30%{transform:rotate(14deg)}}
+.squilla{transform-origin:50px 50px;transform-box:view-box;animation:squilla 2.4s ease-in-out infinite}
+@keyframes onda{0%{opacity:.9;r:20}100%{opacity:0;r:44}}
+.onda{animation:onda 2.4s ease-out infinite}.onda.b{animation-delay:.8s}
+@keyframes spunta{0%,30%{stroke-dashoffset:30}55%,100%{stroke-dashoffset:0}}
+.spunta{stroke-dasharray:30;animation:spunta 3s ease-in-out infinite}
+@keyframes ruota{to{transform:rotate(360deg)}}@keyframes ruotaA{to{transform:rotate(-360deg)}}
+.ingr1{transform-origin:44px 46px;transform-box:view-box;animation:ruota 6s linear infinite}
+.ingr2{transform-origin:70px 68px;transform-box:view-box;animation:ruotaA 4s linear infinite}
+
+/* 4. domande frequenti */
+.faq{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.faq details{background:#fff;border-radius:18px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 6px 20px rgba(0,0,0,.04);overflow:hidden}
+.faq summary{list-style:none;cursor:pointer;padding:20px 24px;font-size:17px;font-weight:600;letter-spacing:-.015em;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:'+';font-size:24px;font-weight:300;color:#b45309;transition:transform .3s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{padding:0 24px 22px;font-size:15px;line-height:1.6;color:#6e6e73}
+
+/* chiusura */
+.cta{text-align:center;padding:110px 32px;background:#000;color:#f5f5f7}
+.cta h2{font-size:clamp(30px,4vw,48px);font-weight:700;letter-spacing:-.03em;line-height:1.08;margin-bottom:14px}
+.cta p{font-size:17px;color:#a1a1a6;margin-bottom:30px}
+
+@media(max-width:900px){
+  .griglia,.formule{grid-template-columns:1fr}
+  .flusso{grid-template-columns:1fr;gap:28px}
+  .tempi{grid-template-columns:1fr 1fr}
+  section,.cta{padding:72px 16px}
+  .hero{padding:100px 16px 64px}
+}
+
+/* ═══ PIÈ DI PAGINA, stile apple.com: chiaro, a colonne ═══ */
+footer.piede{background:#f5f5f7;color:#6e6e73;border-top:1px solid #d2d2d7;padding:56px 24px 28px;font-size:12px;position:relative;z-index:1}
+.piede-in{max-width:1080px;margin:0 auto}
+.piede-alto{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid #d2d2d7}
+.piede-marca{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:700;letter-spacing:-.02em;color:#1d1d1f;text-decoration:none}
+.piede-marca svg{width:30px;height:22px}
+.piede-marca span span{color:var(--ambra)}
+.piede-motto{margin-top:8px;font-size:16px;font-weight:500;color:#6e6e73}
+.piede-cta{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:999px;background:#1d1d1f;color:#fff;font-size:15px;font-weight:600;text-decoration:none;transition:background .2s,color .2s}
+.piede-cta:hover{background:var(--ambra);color:#000}
+.piede-col{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;padding:30px 0 34px;border-bottom:1px solid #d2d2d7}
+.piede-col h4{font-size:15px;font-weight:700;color:#1d1d1f;margin-bottom:14px;letter-spacing:-.01em}
+.piede-col a{display:block;width:fit-content;font-size:15px;font-weight:500;color:#424245;text-decoration:none;margin-bottom:11px;transition:color .2s}
+.piede-col a:hover{color:var(--ambra)}
+.piede-col a.arancio{color:#b45309}
+.piede-basso{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:18px;font-size:13.5px;font-weight:500;color:#6e6e73}
+.piede-basso a{color:#424245;text-decoration:none}
+.piede-basso a:hover{color:var(--ambra)}
+.piede-basso nav{display:flex;flex-wrap:wrap}
+.piede-basso nav a{padding:0 10px;border-left:1px solid #d2d2d7}
+.piede-basso nav a:first-child{padding-left:0;border-left:none}
+@media(max-width:760px){.piede-col{grid-template-columns:1fr 1fr;gap:22px 16px}footer.piede{padding:40px 16px 24px}}
+</style>
+</head>
+<body>
+
+<nav><div class="nav-giro">
+  <a href="index.html" class="nav-logo"><svg viewBox="380 520 1060 760"><g transform="translate(0,1800) scale(1,-1)"><path fill="#f59e0b" fill-rule="evenodd" d="M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z"/></g></svg><span>Nodo<span style="color:#f5a524">Italia</span></span></a>
+  <div class="nav-links">
+    <a href="index.html#servizi">Servizi</a>
+    <div class="nav-tendina"><a href="index.html#software">Software</a><div class="tendina"><a href="index.html#demo-0">Configuratore tecnico e commerciale</a><a href="index.html#demo-1">CRM attività e ticket</a><a href="index.html#demo-2">PDM SmartBlock</a><a href="index.html#demo-3">MES di produzione</a><a href="index.html#demo-4">Analisi aziendali</a><a href="index.html#demo-5">Nodo AI</a></div></div>
+    <div class="nav-tendina"><a href="hardware.html">Hardware</a><div class="tendina"><a href="hardware.html#catalogo">Catalogo</a><a href="hardware.html#macchine">PC rigenerati</a><a href="hardware.html#configuratore">Configura il tuo PC</a></div></div>
+    <a href="assistenza.html" class="attivo">Assistenza</a>
+    <a href="index.html#metodo">Metodo</a>
+    <a href="index.html#contatti" class="nav-cta">Contattaci</a>
+  </div>
+</div></nav>
+
+<!-- ═══ APERTURA ═══ -->
+<div class="hero">
+  <canvas id="rackVivo"></canvas>
+  <h1>La tua <em id="asWord">informatica</em>,<br>sempre accesa.</h1>
+  <p class="lead">Un solo referente per PC, server, rete, backup e gestionale della tua azienda. Interveniamo da remoto in pochi minuti, o in sede quando serve.</p>
+  <div class="azioni"><a class="pill" href="index.html#contatti" data-oggetto="Preventivo assistenza IT">Richiedi un preventivo</a><a class="link" href="#come">Come funziona ›</a></div>
+</div>
+
+<!-- ═══ 1. COSA SEGUIAMO ═══ -->
+<section id="cosa">
+  <div class="sez-titolo rivela"><span class="tag">Cosa seguiamo</span><h2>Tutta l'informatica dell'azienda.<br>Un solo numero da chiamare.</h2></div>
+  <div class="griglia">
+    <div class="voce rivela"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></div><h3>PC e utenti</h3><p>Postazioni nuove o rigenerate, account, stampanti e programmi. Il collega nuovo trova tutto pronto il primo giorno.</p></div>
+    <div class="voce rivela"><div class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="6" rx="1.5"/><rect x="4" y="11" width="16" height="6" rx="1.5"/><path d="M8 6h.01M8 14h.01M7 21h10M12 17v4"/></svg></div><h3>Server e sala CED</h3><p>Progettati da zero o rimessi in ordine: armadio rack, server, archivio dati e gruppo di continuità.</p></div>
+    <div class="voce rivela"><div class="ic"><svg viewBox="0 0 24 24"><path d="M5 12.6a10 10 0 0114 0M8.5 16a5 5 0 017 0M2 9a15 15 0 0120 0"/><circle cx="12" cy="19.5" r="1"/></svg></div><h3>Rete e Wi-Fi</h3><p>Cablaggi, Wi-Fi che copre uffici e capannone, firewall e accesso sicuro da casa o dal cliente.</p></div>
+    <div class="voce rivela"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg></div><h3>Backup e sicurezza</h3><p>Copie automatiche, una anche fuori sede, e prove di ripristino vere. Protezione da virus e ransomware.</p></div>
+    <div class="voce rivela"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div><h3>Posta e Microsoft 365</h3><p>Caselle, cartelle condivise, Teams e licenze, configurati una volta e tenuti in ordine.</p></div>
+    <div class="voce rivela"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><h3>Gestionale e software</h3><p>Installazioni, aggiornamenti e collegamenti tra programmi. Parliamo noi con il fornitore del gestionale.</p></div>
+  </div>
+</section>
+
+<!-- ═══ 2. COME FUNZIONA ═══ -->
+<section id="come" class="scura">
+  <div class="sez-titolo rivela"><span class="tag">Come funziona</span><h2>Ci chiami. Noi risolviamo.<br>Tu vedi tutto.</h2><p>Ogni richiesta diventa un ticket: sai chi se ne occupa, quanto ci ha messo e cosa è stato fatto.</p></div>
+  <div class="flusso">
+    <ol class="passi" id="passi">
+      <li class="passo"><span class="n">1</span><div><h3>Apri la richiesta</h3><p>Con una telefonata, una mail o dal portale. Bastano due righe.</p></div></li>
+      <li class="passo"><span class="n">2</span><div><h3>Un tecnico la prende in carico</h3><p>Entro i tempi scritti nel contratto, in base a quanto è urgente.</p></div></li>
+      <li class="passo"><span class="n">3</span><div><h3>Risolviamo</h3><p>Prima da remoto, con il tuo consenso. Se serve, veniamo in sede.</p></div></li>
+      <li class="passo"><span class="n">4</span><div><h3>Ricevi il resoconto</h3><p>Ogni mese il riepilogo di ticket e ore, voce per voce.</p></div></li>
+    </ol>
+    <div class="ticket rivela">
+      <div class="tk-h"><span>Ticket ATT-0042</span><span class="stato" id="tkStato">Nuovo</span></div>
+      <div class="tk-tit">Stampante dell'ufficio offline</div>
+      <div class="tk-sub">Amministrazione · aperto da Laura alle 9:12</div>
+      <div class="tk-righe">
+        <div class="tk-r"><span>Tecnico</span><b id="tkChi">—</b></div>
+        <div class="tk-r"><span>Intervento</span><b id="tkDove">—</b></div>
+        <div class="tk-r"><span>Tempo</span><b id="tkTempo">0 min</b></div>
+      </div>
+      <div class="tk-barra"><i id="tkBarra"></i></div>
+    </div>
+  </div>
+  <div class="tempi">
+    <div class="tempo rivela"><small><i style="background:#ff453a"></i>Bloccante</small><b>2 ore</b><span>Server, rete o gestionale fermi: la produzione non lavora.</span></div>
+    <div class="tempo rivela"><small><i style="background:#ff9f0a"></i>Alta</small><b>4 ore</b><span>Un reparto o più persone non riescono a lavorare.</span></div>
+    <div class="tempo rivela"><small><i style="background:#0a84ff"></i>Normale</small><b>1 giorno</b><span>Una persona, una stampante, una configurazione.</span></div>
+    <div class="tempo rivela"><small><i style="background:#8e8e93"></i>Pianificata</small><b>Su accordo</b><span>Nuove installazioni, aggiornamenti, piccoli lavori.</span></div>
+  </div>
+  <p class="nota-tempi">Tempi di presa in carico in orario lavorativo, previsti dal contratto di assistenza.</p>
+</section>
+
+<!-- ═══ 3. FORMULE ═══ -->
+<section id="formule">
+  <div class="sez-titolo rivela"><span class="tag">Come lavoriamo insieme</span><h2>Scegli la formula<br>che ti serve.</h2><p>Prima del lavoro ricevi un preventivo dettagliato: sai cosa facciamo e quanto costa.</p></div>
+  <div class="formule">
+    <div class="fm rivela">
+      <svg class="anim" viewBox="0 0 100 100" fill="none"><circle class="onda" cx="50" cy="50" r="20" stroke="#f59e0b" stroke-width="1.5"/><circle class="onda b" cx="50" cy="50" r="20" stroke="#f59e0b" stroke-width="1.5"/><g class="squilla"><path d="M34 30c0-3 2-5 5-5h2l4 9-3 3c2 4 5 7 9 9l3-3 9 4v2c0 3-2 5-5 5-14 0-26-12-26-26z" fill="#1d1d1f"/></g></svg>
+      <small>A chiamata</small><h3>Quando serve</h3><p>Per chi ha bisogno ogni tanto: chiami, interveniamo, paghi solo le ore fatte.</p>
+      <ul><li>Nessun vincolo</li><li>Da remoto o in sede</li><li>Resoconto di ogni intervento</li></ul>
+    </div>
+    <div class="fm top rivela">
+      <svg class="anim" viewBox="0 0 100 100" fill="none"><rect x="22" y="26" width="56" height="52" rx="8" stroke="#f5a524" stroke-width="3"/><path d="M22 40h56M36 20v12M64 20v12" stroke="#f5a524" stroke-width="3" stroke-linecap="round"/><path class="spunta" d="M38 58l8 8 16-16" stroke="#30d158" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <small>La più scelta</small><h3>Contratto di assistenza</h3><p>Un canone mensile con le ore incluse: l'informatica seguita sempre dalle stesse persone.</p>
+      <ul><li>Ore incluse ogni mese</li><li>Tempi di intervento garantiti</li><li>Controllo di backup e aggiornamenti</li><li>Riepilogo mensile di ticket e ore</li></ul>
+    </div>
+    <div class="fm rivela">
+      <svg class="anim" viewBox="0 0 100 100" fill="none"><g class="ingr1"><circle cx="44" cy="46" r="15" stroke="#1d1d1f" stroke-width="3" fill="rgba(245,158,11,.1)"/><circle cx="44" cy="46" r="5" fill="#f59e0b"/><rect x="40" y="25" width="8" height="7" rx="1.5" fill="#1d1d1f"/><rect x="40" y="60" width="8" height="7" rx="1.5" fill="#1d1d1f"/><rect x="23" y="42" width="7" height="8" rx="1.5" fill="#1d1d1f"/><rect x="58" y="42" width="7" height="8" rx="1.5" fill="#1d1d1f"/></g><g class="ingr2"><circle cx="70" cy="68" r="9" stroke="#1d1d1f" stroke-width="2.5" fill="rgba(245,158,11,.08)"/><circle cx="70" cy="68" r="3.5" fill="#f59e0b"/><rect x="67" y="55" width="6" height="6" rx="1" fill="#1d1d1f"/><rect x="67" y="75" width="6" height="6" rx="1" fill="#1d1d1f"/><rect x="57" y="65" width="6" height="6" rx="1" fill="#1d1d1f"/><rect x="77" y="65" width="6" height="6" rx="1" fill="#1d1d1f"/></g></svg>
+      <small>A preventivo</small><h3>Progetti</h3><p>Lavori con un inizio e una fine: nuovo server, sala CED, rete, trasloco degli uffici.</p>
+      <ul><li>Sopralluogo e analisi</li><li>Preventivo voce per voce</li><li>Installazione e documentazione</li></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 4. DOMANDE ═══ -->
+<section id="domande">
+  <div class="sez-titolo rivela"><span class="tag">Domande frequenti</span><h2>Prima di chiamarci.</h2></div>
+  <div class="faq rivela">
+    <details open><summary>Serve per forza un contratto?</summary><p>No. Puoi chiamarci per un singolo intervento e pagare le ore fatte. Il contratto conviene quando l'informatica va seguita con continuità e servono tempi di intervento garantiti.</p></details>
+    <details><summary>Come fate a lavorare da remoto in sicurezza?</summary><p>Ci colleghiamo con un programma protetto e solo con il tuo consenso: vedi sullo schermo cosa facciamo e puoi chiudere il collegamento quando vuoi.</p></details>
+    <details><summary>Abbiamo già un fornitore per il gestionale. È un problema?</summary><p>No. Lavoriamo con il gestionale che usate già e ci parliamo noi con il vostro fornitore: tu hai un solo referente.</p></details>
+    <details><summary>Seguite anche i reparti produttivi?</summary><p>Sì: PC di reparto, Wi-Fi nel capannone, stampanti di etichette e collegamenti con le macchine e con i nostri software di produzione.</p></details>
+    <details><summary>Da dove si parte?</summary><p>Da un incontro per capire com'è fatta la vostra informatica oggi: cosa funziona, cosa è a rischio e cosa conviene sistemare per primo.</p></details>
+  </div>
+</section>
+
+<!-- ═══ CHIUSURA ═══ -->
+<div class="cta">
+  <h2>Parliamo della tua informatica.</h2>
+  <p>Raccontaci come lavorate: ti diciamo cosa sistemare, e cosa no.</p>
+  <a class="pill" href="index.html#contatti" data-oggetto="Assistenza IT">Richiedi un preventivo</a>
+</div>
+
+<footer class="piede">
+  <div class="piede-in">
+    <div class="piede-alto">
+      <div><a class="piede-marca" href="index.html"><svg viewBox="380 520 1060 760"><g transform="translate(0,1800) scale(1,-1)"><path fill="#f5a524" fill-rule="evenodd" d="M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z"/></g></svg><span>Nodo<span>Italia</span></span></a><p class="piede-motto">Software su misura. Per chi produce.</p></div>
+      <a class="piede-cta" href="index.html#contatti">Parliamo del tuo progetto →</a>
+    </div>
+    <div class="piede-col">
+      <div><h4>Software</h4><a href="index.html#demo-0">Configuratore</a><a href="index.html#demo-1">CRM attività e ticket</a><a href="index.html#demo-2">PDM SmartBlock</a><a href="index.html#demo-3">MES di produzione</a><a href="index.html#demo-4">Analisi aziendali</a><a href="index.html#demo-5">Nodo AI</a></div>
+      <div><h4>Servizi</h4><a href="index.html#servizi">Siti web e app</a><a href="index.html#servizi">Integrazione ERP</a><a href="index.html#servizi">Rebranding</a><a href="assistenza.html">Assistenza IT</a></div>
+      <div><h4>Hardware</h4><a href="hardware.html#catalogo">Catalogo</a><a href="hardware.html#macchine">PC rigenerati</a><a href="hardware.html#configuratore">Configura il tuo PC</a></div>
+      <div><h4>Contatti</h4><a href="mailto:info@nodoitalia.it">info@nodoitalia.it</a><a href="mailto:marketing@nodoitalia.it">marketing@nodoitalia.it</a><a href="index.html#metodo">Come lavoriamo</a><a class="arancio" href="index.html#contatti">Chiedi una demo</a></div>
+    </div>
+    <div class="piede-basso">
+      <span>Copyright © 2026 NodoItalia. Tutti i diritti riservati.</span>
+      <nav><a href="index.html#partner">Partner</a><a href="assistenza.html">Assistenza</a><a href="index.html#contatti">Contattaci</a></nav>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* comparsa allo scorrimento */
+(function(){
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('vis'); io.unobserve(e.target); } }), {threshold:.15});
+  document.querySelectorAll('.rivela').forEach((el,i) => { el.style.transitionDelay = (i%3)*80 + 'ms'; io.observe(el); });
+})();
+
+/* la parola che cambia nel titolo */
+(function(){
+  const el = document.getElementById('asWord'), parole = ['informatica','rete','posta','sala server','connessione'];
+  let i = 0;
+  setInterval(() => {
+    el.classList.add('cambia');
+    setTimeout(() => { i = (i + 1) % parole.length; el.textContent = parole[i]; el.classList.remove('cambia'); }, 350);
+  }, 2600);
+})();
+
+/* come funziona: i passi a sinistra e il ticket a destra vanno insieme */
+(function(){
+  const passi = [...document.querySelectorAll('.passo')];
+  const st = document.getElementById('tkStato'), chi = document.getElementById('tkChi'), dove = document.getElementById('tkDove'), tempo = document.getElementById('tkTempo'), barra = document.getElementById('tkBarra');
+  const marco = '<span class="chi"><span class="av">MF</span>Marco</span>';
+  const fasi = [
+    {s:'Nuovo', c:'', chi:'—', dove:'—', min:0, w:8},
+    {s:'In carico', c:'g', chi:marco, dove:'—', min:6, w:35},
+    {s:'In lavorazione', c:'g', chi:marco, dove:'Da remoto', min:14, w:70},
+    {s:'Risolto', c:'v', chi:marco, dove:'Da remoto · driver reinstallato', min:18, w:100}
+  ];
+  let k = 0, visto = false;
+  function vai(){
+    passi.forEach((p,j) => { p.classList.toggle('on', j === k); p.classList.toggle('fatto', j < k); });
+    const f = fasi[k];
+    st.textContent = f.s; st.className = 'stato ' + f.c;
+    chi.innerHTML = f.chi; dove.textContent = f.dove; tempo.textContent = f.min + ' min';
+    barra.style.width = f.w + '%'; barra.style.background = k === 3 ? '#30d158' : '';
+  }
+  vai();
+  new IntersectionObserver(e => { visto = e[0].isIntersecting; }, {threshold:.3}).observe(document.getElementById('come'));
+  setInterval(() => { if (!visto || document.hidden) return; k = (k + 1) % 4; vai(); }, 2600);
+  passi.forEach((p,j) => p.addEventListener('click', () => { k = j; vai(); }));
+})();
+
+/* ═══ SFONDO DELL'APERTURA: armadio server vivo, collegato ai PC dell'azienda ═══ */
+(function(){
+  const cv = document.getElementById('rackVivo'); if (!cv) return;
+  const ctx = cv.getContext('2d'), dpr = Math.min(devicePixelRatio || 1, 3);
+  const LOGO = new Path2D('M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z');
+  const TIPI = ['pc','stampante','wifi','portatile','nas','pc','telefono','pc'];
+  let W, H, cx, cy, S, R, alto, cavi = [], pacchetti = [], led = [], visibile = true, t0 = performance.now();
+  function genera(){
+    W = cv.offsetWidth; H = cv.offsetHeight;
+    // pixel interi del canvas: con lo zoom di Windows al 125% / 150% il disegno resta nitido
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    cv.style.width = W + 'px'; cv.style.height = H + 'px';
+    ctx.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0);
+    // tutto sta sotto ai pulsanti: niente si sovrappone alle scritte
+    const az = cv.parentElement.querySelector('.azioni');
+    alto = az.offsetTop + az.offsetHeight + 60;
+    const basso = Math.max(alto + 280, H - 140), spazio = basso - alto;
+    cx = W / 2; cy = alto + spazio / 2;
+    R = {h:Math.round(Math.min(spazio * .9, 430))}; R.w = Math.round(R.h * .7); R.x = Math.round(cx - R.w / 2); R.y = Math.round(cy - R.h / 2);
+    S = R.h / 1.15;
+    cavi = []; pacchetti = [];
+    const perLato = W < 700 ? 2 : 4;
+    for (let lato of [-1, 1]) for (let r = 0; r < perLato; r++) {
+      const f = perLato > 1 ? r / (perLato - 1) : .5;
+      const yu = R.y + R.h * (.24 + .62 * f);
+      // i dispositivi stanno in colonna, alla stessa distanza dai due lati
+      const xd = cx + lato * Math.min(W / 2 - 50, R.w / 2 + Math.max(150, W * .24)), yd = alto + spazio * (.06 + .88 * f);
+      // i cavi in alto girano prima di quelli più interni: nessun incrocio
+      const k = r < perLato / 2 ? r : perLato - 1 - r;
+      const x0 = cx + lato * R.w / 2, xm = x0 + lato * (30 + k * 24);
+      const pts = [{x:x0, y:yu}, {x:xm, y:yu}, {x:xm, y:yd}, {x:xd - lato * 30, y:yd}];
+      let L = 0; for (let k = 1; k < pts.length; k++) L += Math.hypot(pts[k].x - pts[k-1].x, pts[k].y - pts[k-1].y);
+      cavi.push({pts, L, tipo:TIPI[cavi.length % TIPI.length], dx:xd, dy:yd, lato, luce:0});
+    }
+    for (let i = 0; i < cavi.length * 2; i++) { const p = nuovo(); p.d = Math.random() * cavi[p.c].L; pacchetti.push(p); }
+    led = Array.from({length:6 * 4}, () => ({on:Math.random() > .3, t:Math.random() * 3}));
+  }
+  const nuovo = () => ({c:Math.floor(Math.random() * cavi.length), d:0, v:110 + Math.random() * 150, su:Math.random() < .6, att:0});
+  function punto(c, d){
+    const p = c.pts;
+    for (let i = 1; i < p.length; i++) {
+      const s = Math.hypot(p[i].x - p[i-1].x, p[i].y - p[i-1].y);
+      if (d <= s) { const f = d / s; return {x:p[i-1].x + (p[i].x - p[i-1].x) * f, y:p[i-1].y + (p[i].y - p[i-1].y) * f}; }
+      d -= s;
+    }
+    return p[p.length - 1];
+  }
+  // i dispositivi dell'azienda, disegnati a linee
+  function icona(c){
+    const a = .4 + c.luce * .6;
+    ctx.save(); ctx.translate(c.dx, c.dy);
+    ctx.strokeStyle = `rgba(229,229,234,${a})`; ctx.lineWidth = 1.6; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.fillStyle = 'rgba(28,28,30,.92)';
+    ctx.beginPath();
+    if (c.tipo === 'pc') { ctx.roundRect(-20, -15, 40, 26, 3); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-8, 18); ctx.lineTo(8, 18); ctx.moveTo(0, 11); ctx.lineTo(0, 18); ctx.stroke(); }
+    else if (c.tipo === 'portatile') { ctx.roundRect(-16, -13, 32, 21, 3); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-22, 12); ctx.lineTo(22, 12); ctx.stroke(); }
+    else if (c.tipo === 'stampante') { ctx.roundRect(-18, -6, 36, 18, 3); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.rect(-11, -16, 22, 10); ctx.moveTo(-10, 12); ctx.lineTo(-10, 18); ctx.lineTo(10, 18); ctx.lineTo(10, 12); ctx.stroke(); }
+    else if (c.tipo === 'wifi') { for (let r = 6; r <= 18; r += 6) { ctx.beginPath(); ctx.arc(0, 8, r, Math.PI * 1.2, Math.PI * 1.8); ctx.stroke(); } ctx.beginPath(); ctx.arc(0, 8, 2.2, 0, 7); ctx.fillStyle = `rgba(229,229,234,${a})`; ctx.fill(); }
+    else if (c.tipo === 'nas') { ctx.roundRect(-14, -17, 28, 34, 3); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-8, -6); ctx.lineTo(8, -6); ctx.moveTo(-8, 2); ctx.lineTo(8, 2); ctx.stroke(); }
+    else { ctx.roundRect(-9, -16, 18, 32, 4); ctx.fill(); ctx.stroke(); }
+    ctx.beginPath(); ctx.arc(c.lato < 0 ? -26 : 26, -14, 3, 0, 7);
+    ctx.fillStyle = `rgba(48,209,88,${.5 + c.luce * .5})`; ctx.shadowColor = '#30d158'; ctx.shadowBlur = 10 * c.luce; ctx.fill();
+    ctx.restore();
+  }
+  let prima = performance.now();
+  function draw(ora){
+    requestAnimationFrame(draw);
+    if (!visibile) { prima = ora; return; }
+    const dt = Math.min((ora - prima) / 1000, .05); prima = ora;
+    const t = (ora - t0) / 1000;
+    ctx.clearRect(0, 0, W, H);
+    // alone caldo dietro l'armadio
+    const resp = .6 + Math.sin(t * 1.6) * .15;
+    const al = ctx.createRadialGradient(cx, cy, S * .2, cx, cy, S * 1.7);
+    al.addColorStop(0, `rgba(245,140,30,${.36 * resp})`); al.addColorStop(1, 'rgba(245,140,30,0)');
+    ctx.fillStyle = al; ctx.fillRect(cx - S * 2, cy - S * 2, S * 4, S * 4);
+    // cavi di rete
+    ctx.lineWidth = 1.4; ctx.strokeStyle = 'rgba(255,255,255,.1)';
+    cavi.forEach(c => { ctx.beginPath(); ctx.moveTo(c.pts[0].x, c.pts[0].y); c.pts.slice(1).forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke(); c.luce = Math.max(0, c.luce - dt * 1.2); });
+    // dati in viaggio: arancio verso i PC, azzurri verso il server
+    pacchetti.forEach((p, i) => {
+      const c = cavi[p.c]; p.d += p.v * dt;
+      if (p.d > c.L) { if (p.su) c.luce = 1; pacchetti[i] = nuovo(); return; }
+      const col = p.su ? '245,165,36' : '110,190,255';
+      for (let k = 0; k < 7; k++) {
+        const dd = Math.max(0, p.d - k * 6);
+        const q = punto(c, p.su ? dd : c.L - dd);
+        ctx.beginPath(); ctx.arc(q.x, q.y, 2.4 - k * .28, 0, 7); ctx.fillStyle = `rgba(${col},${.95 - k * .13})`; ctx.fill();
+      }
+    });
+    cavi.forEach(icona);
+    // armadio rack
+    ctx.save();
+    ctx.shadowColor = `rgba(245,150,40,${.45 * resp})`; ctx.shadowBlur = 30;
+    const mg = ctx.createLinearGradient(R.x, 0, R.x + R.w, 0);
+    mg.addColorStop(0, '#3a3c42'); mg.addColorStop(.5, '#5a5d64'); mg.addColorStop(1, '#2e3035');
+    ctx.fillStyle = mg; ctx.beginPath(); ctx.roundRect(R.x, R.y, R.w, R.h, 10); ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = '#121316'; ctx.beginPath(); ctx.roundRect(R.x + 8, R.y + 8, R.w - 16, R.h - 16, 6); ctx.fill();
+    // targa in alto con il logo Nodo
+    const ux = R.x + 14, uw = R.w - 28, tH = Math.round(R.h * .13);
+    let y = R.y + 14;
+    const tg = ctx.createLinearGradient(0, y, 0, y + tH); tg.addColorStop(0, '#dcdfe3'); tg.addColorStop(1, '#a9adb3');
+    ctx.fillStyle = tg; ctx.beginPath(); ctx.roundRect(ux, y, uw, tH, 4); ctx.fill();
+    const ls = tH * .6 / 760;
+    ctx.save(); ctx.translate(ux + 12 - 380 * ls, y + tH * .2 + 1280 * ls); ctx.scale(ls, -ls); ctx.fillStyle = '#2b2e33'; ctx.fill(LOGO); ctx.restore();
+    ctx.fillStyle = '#1d1f23'; ctx.font = `700 ${Math.round(tH * .42)}px -apple-system,'Segoe UI Variable Display','Segoe UI',sans-serif`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText('NODO', Math.round(ux + 20 + 1060 * ls), Math.round(y + tH / 2) + 1);
+    y += tH + 6;
+    // sei unità con spie e prese d'aria
+    const uH = Math.floor((R.y + R.h - 14 - y - 5 * 5) / 6);
+    for (let u = 0; u < 6; u++) {
+      const ug = ctx.createLinearGradient(0, y, 0, y + uH); ug.addColorStop(0, '#2a2c31'); ug.addColorStop(1, '#1d1f23');
+      ctx.fillStyle = ug; ctx.beginPath(); ctx.roundRect(ux, y, uw, uH, 3); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,.07)'; ctx.lineWidth = 1;
+      for (let g = 0; g < 6; g++) { const gx = ux + uw * .4 + g * uw * .06; ctx.beginPath(); ctx.moveTo(gx, y + uH * .28); ctx.lineTo(gx, y + uH * .72); ctx.stroke(); }
+      for (let l = 0; l < 4; l++) {
+        const L = led[u * 4 + l]; L.t -= dt;
+        if (L.t < 0) { L.on = Math.random() > (l === 1 ? .5 : .12); L.t = l === 1 ? .05 + Math.random() * .2 : .6 + Math.random() * 2.5; }
+        const col = l === 1 ? '245,165,36' : (l === 3 ? '10,132,255' : '48,209,88');
+        ctx.beginPath(); ctx.arc(ux + 12 + l * 9, y + uH / 2, 2.3, 0, 7);
+        ctx.fillStyle = L.on ? `rgb(${col})` : `rgba(${col},.18)`;
+        ctx.shadowColor = `rgb(${col})`; ctx.shadowBlur = L.on ? 8 : 0; ctx.fill(); ctx.shadowBlur = 0;
+      }
+      if (u === 0) {
+        ctx.fillStyle = '#0a0b0d'; ctx.beginPath(); ctx.roundRect(Math.round(ux + uw * .78 - uw * .2), Math.round(y + uH * .16), Math.round(uw * .4), Math.round(uH * .68), 3); ctx.fill();
+        ctx.fillStyle = '#30d158'; ctx.font = `700 ${Math.max(11, Math.round(uH * .4))}px -apple-system,'Segoe UI Variable Display','Segoe UI',sans-serif`; ctx.textAlign = 'center';
+        ctx.fillText(Math.floor(t / 2) % 2 ? 'ONLINE' : '99,98%', Math.round(ux + uw * .78), Math.round(y + uH / 2) + 1);
+      }
+      y += uH + 5;
+    }
+    // velo in alto: il testo resta leggibile
+    const v = ctx.createLinearGradient(0, 0, 0, alto);
+    v.addColorStop(0, 'rgba(0,0,0,.95)'); v.addColorStop(.8, 'rgba(0,0,0,.7)'); v.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = v; ctx.fillRect(0, 0, W, alto);
+  }
+  genera();
+  addEventListener('resize', () => { clearTimeout(genera.t); genera.t = setTimeout(genera, 200); });
+  new IntersectionObserver(e => visibile = e[0].isIntersecting).observe(cv);
+  requestAnimationFrame(draw);
+})();
+
+/* i pulsanti del preventivo compilano l'oggetto del modulo nella home */
+document.querySelectorAll('[data-oggetto]').forEach(a => a.addEventListener('click', () => { try { sessionStorage.setItem('oggettoContatto', a.dataset.oggetto); } catch(e) {} }));
+
+/* tendina: dopo il clic su una voce si chiude, e si riapre solo ripassando col mouse */
+document.querySelectorAll('body>nav .nav-tendina').forEach(t => {
+  t.querySelectorAll('.tendina a').forEach(a => a.addEventListener('click', () => { t.classList.add('chiusa'); a.blur(); }));
+  t.addEventListener('mouseleave', () => t.classList.remove('chiusa'));
+});
+</script>
+</body>
+</html>

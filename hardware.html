@@ -74,7 +74,7 @@ section::before{content:'';position:absolute;top:0;left:50%;transform:translateX
 /* ═══ MACCHINE RIGENERATE ═══ */
 #macchine{background:var(--sfondo2)}
 .griglia-mac{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1000px;margin:0 auto}
-.carta-mac{background:#3a3a4e;border:1px solid #4a4a60;border-radius:16px;padding:36px 28px;display:flex;flex-direction:column;transition:all .3s;position:relative;overflow:hidden;cursor:pointer}
+.carta-mac{background:#1c1c1e;border:1px solid #2c2c2e;border-radius:16px;padding:36px 28px;display:flex;flex-direction:column;transition:all .3s;position:relative;overflow:hidden;cursor:pointer}
 .carta-mac:hover{border-color:#5a5a70;transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.25)}
 .ic-pc{width:80px;height:60px;margin:0 auto 20px;position:relative;border:2px solid #ffffff;border-radius:6px;display:flex;align-items:center;justify-content:center;background:#e8e8f0}
 .ic-pc::after{content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:40px;height:4px;background:#ffffff;border-radius:2px}
@@ -142,7 +142,7 @@ section::before{content:'';position:absolute;top:0;left:50%;transform:translateX
 .cat-filtro.attivo{background:var(--ambra);color:#000;border-color:var(--ambra)}
 .cat-filtro.attivo svg{stroke:#000}
 .cat-card{
-  background:#3a3a4e;border:1px solid #4a4a60;border-radius:14px;
+  background:#1c1c1e;border:1px solid #2c2c2e;border-radius:14px;
   padding:24px;display:flex;flex-direction:column;
   position:relative;overflow:hidden;
   transition:all .3s cubic-bezier(.4,0,.2,1);
@@ -163,7 +163,7 @@ section::before{content:'';position:absolute;top:0;left:50%;transform:translateX
 .btn-cta:hover{background:var(--ambra2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(245,158,11,.2)}
 
 /* ═══ FOOTER ═══ */
-footer{padding:32px 40px;text-align:center;border-top:none;font-size:12px;color:#9090a8;background:#3a3a4e;position:relative}
+footer{padding:32px 40px;text-align:center;border-top:none;font-size:12px;color:#9090a8;background:#1c1c1e;position:relative}
 footer::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:2px;background:linear-gradient(90deg,transparent,var(--ambra),transparent);opacity:.7}
 footer a{color:var(--ambra);text-decoration:none}
 
@@ -177,7 +177,7 @@ footer a{color:var(--ambra);text-decoration:none}
 @media(max-width:768px){
   nav{padding:12px 16px}
   nav::after{width:90%}
-  .nav-links a:not(:last-child){display:none}
+  .nav-links > a:not(:last-child){display:none}
   .hero{padding:100px 16px 16px}
   .hero h1{font-size:28px;letter-spacing:-.5px}
   .hero h1 em{padding:2px 8px}
@@ -244,8 +244,8 @@ body{font-family:var(--sans);letter-spacing:-.011em;background:#f5f5f7;color:#1d
 nav{background:rgba(6,7,11,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.07);padding:14px 40px}
 nav::after,section::before,.cta-sez::before,footer::before{display:none}
 .nav-links a{color:#a0a6ba;font-size:13.5px}
-.nav-links a:last-child{padding:8px 18px;border-radius:9px;background:#f59e0b;color:#000;font-weight:700;font-size:12.5px}
-.nav-links a:last-child:hover{background:#fbbf24;color:#000}
+.nav-links > a:last-child{padding:8px 18px;border-radius:9px;background:#f59e0b;color:#000;font-weight:700;font-size:12.5px}
+.nav-links > a:last-child:hover{background:#fbbf24;color:#000}
 .hero{background:#000;color:#f5f5f7;padding:150px 32px 100px}
 .hero-circuit{display:none!important}
 .hero h1{font-size:clamp(38px,5.2vw,68px);font-weight:700;letter-spacing:-.035em;line-height:1.05}
@@ -336,8 +336,8 @@ body>nav .nav-logo svg{width:22px!important;height:16px!important}
 body>nav .nav-links{flex:1;margin-left:48px;gap:0;justify-content:space-between}
 body>nav .nav-links a{font-size:12px;font-weight:400;letter-spacing:-.01em;color:rgba(255,255,255,.8);padding:0;background:none;transition:color .2s}
 body>nav .nav-links a:hover,body>nav .nav-links a.attivo{color:#fff}
-body>nav .nav-links .nav-cta,body>nav .nav-links a:last-child{background:none;color:#f5a524!important;font-weight:500;padding:0;border-radius:0;font-size:12px}
-body>nav .nav-links .nav-cta:hover,body>nav .nav-links a:last-child:hover{background:none;color:#fbbf24!important;transform:none;box-shadow:none}
+body>nav .nav-links .nav-cta,body>nav .nav-links > a:last-child{background:none;color:#f5a524!important;font-weight:500;padding:0;border-radius:0;font-size:12px}
+body>nav .nav-links .nav-cta:hover,body>nav .nav-links > a:last-child:hover{background:none;color:#fbbf24!important;transform:none;box-shadow:none}
 @media(max-width:768px){
   body>nav,#nav,#nav.scorre{padding:0 16px}
   body>nav .nav-links{justify-content:flex-end}
@@ -351,6 +351,93 @@ body>nav .nav-logo{font-size:14px}
 @media(max-width:768px){
   .nav-giro{padding:0 16px}
 }
+
+/* barra in alto: nera piena */
+body>nav,#nav,#nav.scorre{background:#000!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border-bottom:1px solid rgba(255,255,255,.08)!important}
+
+/* ═══ BARRA IN ALTO: logo | voci, stesso carattere di NodoItalia ═══ */
+body>nav .nav-giro{justify-content:flex-start!important;gap:0!important}
+body>nav .nav-logo{font-size:15px!important;font-weight:600!important;letter-spacing:-.01em;color:#f5f5f7!important;flex:none}
+body>nav .nav-logo::after{content:'|';margin:0 22px 0 20px;color:rgba(255,255,255,.35);font-weight:300}
+body>nav .nav-links{display:flex!important;flex:1;align-items:center;gap:28px;margin-left:0!important;justify-content:flex-start!important}
+body>nav .nav-links a,body>nav .nav-giro > a:not(.nav-logo){font-size:15px!important;font-weight:600!important;letter-spacing:-.01em!important;color:#f5f5f7!important;opacity:1!important;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;transition:color .2s}
+body>nav .nav-links a:hover,body>nav .nav-giro > a:not(.nav-logo):hover{color:#f5a524!important}
+body>nav .nav-links a.attivo,body>nav .nav-giro > a.attivo{color:#f5a524!important}
+body>nav .nav-links .nav-cta,body>nav .nav-links > a:last-child,body>nav .nav-giro > a.nav-cta{margin-left:auto;color:#f5a524!important}
+body>nav .nav-giro > a:not(.nav-logo){margin-right:28px}
+body>nav .nav-giro > a.nav-cta{margin-right:0}
+@media(max-width:900px){body>nav .nav-logo::after{margin:0 14px}}
+/* ═══ APERTURA: dentro un PC ═══ */
+.hero{position:relative;overflow:hidden;min-height:88vh;display:flex;flex-direction:column;align-items:center;padding-top:130px!important}
+#cpuVivo{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.hero h1,.hero .lead{position:relative;z-index:2}
+/* ═══ CONTRASTO: niente nero su nero ═══ */
+.carta-mac{background:#1c1c1e!important;border:1px solid rgba(255,255,255,.14)!important}
+.carta-mac:hover{border-color:rgba(245,165,36,.55)!important}
+.ic-pc{background:#2c2c2e!important;border-color:#48484a!important}
+.tgt,.prz .s{color:#a1a1a6!important}
+/* barra in alto centrata: logo | voci | Contattaci tutti insieme al centro */
+body>nav .nav-giro{justify-content:center!important}
+body>nav .nav-links{flex:none!important}
+body>nav .nav-links .nav-cta,body>nav .nav-links > a:last-child,body>nav .nav-giro > a.nav-cta{margin-left:0!important}
+.hero .lead{color:#e5e5ea!important;font-weight:400!important;text-shadow:0 2px 14px rgba(0,0,0,.95)}
+.hero{min-height:94vh}
+/* passaggio sfumato dal nero della CPU al grigio chiaro del catalogo */
+.hero::after{content:'';position:absolute;left:0;right:0;bottom:0;height:220px;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(245,245,247,0) 0%,rgba(245,245,247,.35) 45%,rgba(245,245,247,.85) 80%,#f5f5f7 100%)}
+#catalogo{padding-top:40px!important}
+
+/* ═══ BARRA IN ALTO uguale ovunque + tendina sotto Hardware ═══ */
+body>nav .nav-tendina{position:relative;display:flex;align-items:center;height:44px}
+body>nav .tendina{position:absolute;top:44px;left:50%;min-width:210px;padding:10px;background:rgba(0,0,0,.96);border:1px solid rgba(255,255,255,.12);border-top:none;border-radius:0 0 16px 16px;display:flex;flex-direction:column;gap:2px;opacity:0;visibility:hidden;transform:translate(-50%,-8px);transition:opacity .25s ease,transform .3s cubic-bezier(.2,.8,.2,1),visibility .25s;box-shadow:0 24px 50px rgba(0,0,0,.45)}
+body>nav .nav-tendina:hover .tendina,body>nav .nav-tendina:focus-within .tendina{opacity:1;visibility:visible;transform:translate(-50%,0)}
+body>nav .tendina a{display:block;padding:9px 12px;border-radius:10px;font-size:14px!important;font-weight:500!important;color:#e5e5ea!important;margin:0!important;opacity:0;transform:translateY(-6px);transition:opacity .25s,transform .3s,background .2s,color .2s!important}
+body>nav .nav-tendina:hover .tendina a,body>nav .nav-tendina:focus-within .tendina a{opacity:1;transform:none}
+body>nav .nav-tendina:hover .tendina a:nth-child(2){transition-delay:.05s}
+body>nav .nav-tendina:hover .tendina a:nth-child(3){transition-delay:.1s}
+body>nav .tendina a:hover{background:rgba(255,255,255,.08);color:#f5a524!important}
+body>nav .nav-tendina > a::after{content:'';display:inline-block;width:5px;height:5px;margin-left:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:translateY(-3px) rotate(45deg);transition:transform .25s}
+body>nav .nav-tendina:hover > a::after{transform:translateY(0) rotate(225deg)}
+@media(max-width:900px){body>nav .nav-tendina{display:none}}
+body>nav .tendina{min-width:250px}
+body>nav .nav-tendina:hover .tendina a:nth-child(4){transition-delay:.15s}
+body>nav .nav-tendina:hover .tendina a:nth-child(5){transition-delay:.2s}
+body>nav .nav-tendina:hover .tendina a:nth-child(6){transition-delay:.25s}
+body>nav .nav-tendina.chiusa .tendina{opacity:0!important;visibility:hidden!important;transform:translate(-50%,-8px)!important}
+body>nav .nav-tendina.chiusa > a::after{transform:translateY(-3px) rotate(45deg)!important}
+/* ═══ PIÈ DI PAGINA, stile apple.com: chiaro, a colonne ═══ */
+footer.piede{background:#f5f5f7!important;color:#6e6e73!important;border-top:1px solid #d2d2d7!important;padding:56px 24px 28px!important;text-align:left!important;font-size:12px!important;position:relative;z-index:1}
+footer.piede::before{display:none!important}
+.piede-in{max-width:1080px;margin:0 auto}
+.piede-alto{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid #d2d2d7}
+.piede-marca{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:700;letter-spacing:-.02em;color:#1d1d1f;text-decoration:none}
+.piede-marca svg{width:30px;height:22px}
+.piede-marca span span{color:#f5a524}
+.piede-motto{margin-top:8px;font-size:14px;color:#6e6e73;letter-spacing:-.01em}
+.piede-cta{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:999px;background:#1d1d1f;color:#fff!important;font-size:14px;font-weight:600;text-decoration:none;transition:background .2s,color .2s}
+.piede-cta:hover{background:#f5a524;color:#000!important}
+.piede-col{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;padding:30px 0 34px;border-bottom:1px solid #d2d2d7}
+.piede-col h4{font-size:12px;font-weight:600;color:#1d1d1f;margin-bottom:12px;letter-spacing:-.005em}
+.piede-col a{display:block;width:fit-content;font-size:12px;line-height:1.35;color:#424245!important;text-decoration:none;margin-bottom:9px;transition:color .2s}
+.piede-col a:hover{color:#1d1d1f!important;text-decoration:underline}
+.piede-col a.arancio{color:#b45309!important}
+.piede-basso{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:18px;font-size:12px;color:#6e6e73}
+.piede-basso a{color:#424245!important;text-decoration:none}
+.piede-basso a:hover{text-decoration:underline}
+.piede-basso nav{all:unset;display:flex;gap:0;flex-wrap:wrap}
+.piede-basso nav a{padding:0 10px;border-left:1px solid #d2d2d7}
+.piede-basso nav a:first-child{padding-left:0;border-left:none}
+@media(max-width:760px){.piede-col{grid-template-columns:1fr 1fr;gap:22px 16px}footer.piede{padding:40px 16px 24px!important}}
+/* footer: stesso carattere della barra in alto, piu' grande e nitido */
+footer.piede,footer.piede *{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI Variable Display','Segoe UI',system-ui,sans-serif!important;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:normal!important}
+.piede-marca{font-size:22px!important;font-weight:700!important;letter-spacing:-.02em!important}
+.piede-motto{font-size:16px!important;font-weight:500!important;color:#6e6e73!important}
+.piede-col h4{font-size:15px!important;font-weight:700!important;color:#1d1d1f!important;letter-spacing:-.01em!important;margin-bottom:14px!important}
+.piede-col a{font-size:15px!important;font-weight:500!important;color:#424245!important;letter-spacing:-.01em!important;margin-bottom:11px!important}
+.piede-col a:hover{color:#f5a524!important;text-decoration:none!important}
+.piede-col a.arancio{color:#b45309!important}
+.piede-cta{font-size:15px!important;font-weight:600!important}
+.piede-basso,.piede-basso a{font-size:13.5px!important;font-weight:500!important}
+.piede-basso a:hover{color:#f5a524!important;text-decoration:none!important}
 </style>
 </head>
 <body>
@@ -362,18 +449,18 @@ body>nav .nav-logo{font-size:14px}
     <span>Nodo<span style="color:#f59e0b">Italia</span></span>
   </a>
   <div class="nav-links">
-    <a href="index.html#software">Software</a>
     <a href="index.html#servizi">Servizi</a>
-    <a href="hardware.html" class="attivo">Hardware</a>
-    <a href="#macchine">Rigenerati</a>
-    <a href="#configuratore">Configuratore</a>
-    <a href="index.html#contatti">Contattaci</a>
+    <div class="nav-tendina"><a href="index.html#software">Software</a><div class="tendina"><a href="index.html#demo-0">Configuratore tecnico e commerciale</a><a href="index.html#demo-1">CRM attività e ticket</a><a href="index.html#demo-2">PDM SmartBlock</a><a href="index.html#demo-3">MES di produzione</a><a href="index.html#demo-4">Analisi aziendali</a><a href="index.html#demo-5">Nodo AI</a></div></div>
+    <div class="nav-tendina"><a href="hardware.html" class="attivo">Hardware</a><div class="tendina"><a href="hardware.html#catalogo">Catalogo</a><a href="hardware.html#macchine">PC rigenerati</a><a href="hardware.html#configuratore">Configura il tuo PC</a></div></div>
+    <a href="assistenza.html">Assistenza</a>
+    <a href="index.html#metodo">Metodo</a>
+    <a href="index.html#contatti" class="nav-cta">Contattaci</a>
   </div></div>
 </nav>
 
 <!-- ═══ HERO ═══ -->
 <div class="hero">
-  <canvas class="hero-circuit" id="circuitCanvas"></canvas>
+  <canvas class="hero-circuit" id="circuitCanvas"></canvas><canvas id="cpuVivo"></canvas>
   <h1 style="position:relative;z-index:2">Il tuo <em id="hwWord">hardware</em>, su misura</h1>
   <div class="lead" style="position:relative;z-index:2">PC rigenerati e nuovi, server, reti, stampanti e periferiche. Fornitura completa per uffici e produzione. Configura il tuo PC su misura, scegli un rigenerato o acquista hardware nuovo. Assistenza e configurazione incluse.</div>
 </div>
@@ -700,7 +787,7 @@ renderCatalogo();
     <div class="case-wrap">
       <svg id="caseSvg" viewBox="-30 10 780 640" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%">
         <defs>
-          <linearGradient id="gF" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3a3a4e"/><stop offset="100%" stop-color="#2e2e42"/></linearGradient>
+          <linearGradient id="gF" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1c1c1e"/><stop offset="100%" stop-color="#0f0f10"/></linearGradient>
           <linearGradient id="gS" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#333348"/><stop offset="100%" stop-color="#2a2a3e"/></linearGradient>
           <linearGradient id="gT" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#353548"/><stop offset="100%" stop-color="#454558"/></linearGradient>
         </defs>
@@ -724,38 +811,38 @@ renderCatalogo();
 
         <!-- ═══ MOTHERBOARD ═══ -->
         <g id="gMb" class="comp-g" opacity="1">
-          <rect x="60" y="80" width="230" height="320" rx="4" fill="#2e2e42" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
+          <rect x="60" y="80" width="230" height="320" rx="4" fill="#0f0f10" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
           <text x="175" y="250" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="800" letter-spacing="3" font-family="inherit">SCHEDA MADRE</text>
         </g>
 
         <!-- ═══ CPU ═══ -->
         <g id="gCpu" class="comp-g" opacity="1">
-          <rect x="120" y="115" width="70" height="70" rx="4" fill="#2e2e42" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
+          <rect x="120" y="115" width="70" height="70" rx="4" fill="#0f0f10" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
           <text x="155" y="155" text-anchor="middle" fill="#ffffff" font-size="20" font-weight="800" font-family="inherit">CPU</text>
         </g>
 
         <!-- ═══ RAM ═══ -->
         <g id="gRam" class="comp-g" opacity="1">
-          <rect x="210" y="130" width="18" height="80" rx="3" fill="#2e2e42" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
-          <rect x="234" y="130" width="18" height="80" rx="3" fill="#2e2e42" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
+          <rect x="210" y="130" width="18" height="80" rx="3" fill="#0f0f10" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
+          <rect x="234" y="130" width="18" height="80" rx="3" fill="#0f0f10" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
           <text x="235" y="122" text-anchor="middle" fill="#ffffff" font-size="16" font-weight="800" font-family="inherit">RAM</text>
         </g>
 
         <!-- ═══ GPU ═══ -->
         <g id="gGpu" class="comp-g" opacity="1">
-          <rect x="70" y="280" width="210" height="48" rx="4" fill="#2e2e42" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
+          <rect x="70" y="280" width="210" height="48" rx="4" fill="#0f0f10" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
           <text x="175" y="309" text-anchor="middle" fill="#ffffff" font-size="16" font-weight="800" font-family="inherit">SCHEDA VIDEO</text>
         </g>
 
         <!-- ═══ SSD ═══ -->
         <g id="gSsd" class="comp-g" opacity="1">
-          <rect x="70" y="345" width="100" height="28" rx="3" fill="#2e2e42" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
+          <rect x="70" y="345" width="100" height="28" rx="3" fill="#0f0f10" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
           <text x="120" y="364" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="800" font-family="inherit">SSD</text>
         </g>
 
         <!-- ═══ PSU ═══ -->
         <g id="gPsu" class="comp-g" opacity="1">
-          <rect x="60" y="430" width="170" height="80" rx="4" fill="#2e2e42" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
+          <rect x="60" y="430" width="170" height="80" rx="4" fill="#0f0f10" stroke="#55556a" stroke-width="1" stroke-dasharray="6 4"/>
           <text x="145" y="476" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="800" font-family="inherit">ALIMENTATORE</text>
         </g>
 
@@ -846,7 +933,24 @@ renderCatalogo();
 <!-- ═══ CTA ═══ -->
 <div class="cta-sez"><h2>Non sai cosa scegliere?</h2><p>Scrivici e ti consigliamo la configurazione migliore.</p><a href="index.html#contatti" class="btn-cta">Contattaci →</a></div>
 
-<footer>© 2026 NodoItalia — <a href="mailto:info@nodoitalia.it">info@nodoitalia.it</a></footer>
+<footer class="piede">
+  <div class="piede-in">
+    <div class="piede-alto">
+      <div><a class="piede-marca" href="index.html"><svg viewBox="380 520 1060 760"><g transform="translate(0,1800) scale(1,-1)"><path fill="#f5a524" fill-rule="evenodd" d="M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z"/></g></svg><span>Nodo<span>Italia</span></span></a><p class="piede-motto">Software su misura. Per chi produce.</p></div>
+      <a class="piede-cta" href="index.html#contatti">Parliamo del tuo progetto →</a>
+    </div>
+    <div class="piede-col">
+      <div><h4>Software</h4><a href="index.html#demo-0">Configuratore</a><a href="index.html#demo-1">CRM attività e ticket</a><a href="index.html#demo-2">PDM SmartBlock</a><a href="index.html#demo-3">MES di produzione</a><a href="index.html#demo-4">Analisi aziendali</a><a href="index.html#demo-5">Nodo AI</a></div>
+      <div><h4>Servizi</h4><a href="index.html#servizi">Siti web e app</a><a href="index.html#servizi">Integrazione ERP</a><a href="index.html#servizi">Rebranding</a><a href="assistenza.html">Assistenza IT</a></div>
+      <div><h4>Hardware</h4><a href="hardware.html#catalogo">Catalogo</a><a href="hardware.html#macchine">PC rigenerati</a><a href="hardware.html#configuratore">Configura il tuo PC</a></div>
+      <div><h4>Contatti</h4><a href="mailto:info@nodoitalia.it">info@nodoitalia.it</a><a href="mailto:marketing@nodoitalia.it">marketing@nodoitalia.it</a><a href="index.html#metodo">Come lavoriamo</a><a class="arancio" href="index.html#contatti">Chiedi una demo</a></div>
+    </div>
+    <div class="piede-basso">
+      <span>Copyright © 2026 NodoItalia. Tutti i diritti riservati.</span>
+      <nav><a href="index.html#partner">Partner</a><a href="assistenza.html">Assistenza</a><a href="index.html#contatti">Contattaci</a></nav>
+    </div>
+  </div>
+</footer>
 
 <script>
 const PASSI=[
@@ -1019,7 +1123,7 @@ function renderCase(){
     } else {
       g.setAttribute('opacity','1');
       g.querySelectorAll('rect, circle').forEach(r => {
-        r.setAttribute('fill', '#2e2e42');
+        r.setAttribute('fill', '#0f0f10');
         r.setAttribute('stroke', '#55556a');
         r.setAttribute('stroke-dasharray', '6 4');
       });
@@ -1286,5 +1390,145 @@ window.addEventListener('resize',()=>renderCase());
 })();
 </script>
 
+
+<script>
+/* ═══ SFONDO DELL'APERTURA: dentro un PC, un processore vivo ═══ */
+(function(){
+  const cv = document.getElementById('cpuVivo'); if (!cv) return;
+  const LOGO_NODO = new Path2D('M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z');
+  const ctx = cv.getContext('2d'), dpr = Math.min(devicePixelRatio || 1, 2);
+  let W, H, cx, cy, S, tracce = [], impulsi = [], onde = [], t0 = performance.now(), visibile = true;
+  const G = 18;
+  function genera(){
+    W = cv.offsetWidth; H = cv.offsetHeight;
+    cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    S = Math.min(W * .22, H * .3); cx = W / 2; cy = H * .68;
+    tracce = []; impulsi = [];
+    [[0,-1],[1,0],[0,1],[-1,0]].forEach(([dx, dy]) => {
+      const n = 16;
+      for (let i = 0; i < n; i++) {
+        const o = (i - (n - 1) / 2) / ((n - 1) / 2) * S * .5;
+        let x = cx + dx * S * .62 + (dy ? o : 0), y = cy + dy * S * .62 + (dx ? o : 0);
+        const pts = [{x, y}];
+        const l1 = G * (2 + Math.random() * 5); x += dx * l1; y += dy * l1; pts.push({x, y});
+        const g = Math.sign(o) || 1, l2 = G * (2 + Math.random() * 6);
+        x += (dx || g) * l2 * (dx ? 1 : .7); y += (dy || g) * l2 * (dy ? 1 : .7); pts.push({x, y});
+        x += dx * Math.max(W, H); y += dy * Math.max(W, H); pts.push({x, y});
+        let L = 0; for (let k = 1; k < pts.length; k++) L += Math.hypot(pts[k].x - pts[k-1].x, pts[k].y - pts[k-1].y);
+        tracce.push({pts, L});
+      }
+    });
+    for (let i = 0; i < 52; i++) impulsi.push(nuovo());
+  }
+  const nuovo = () => ({t: Math.floor(Math.random() * tracce.length), d: Math.random() * 200, v: 110 + Math.random() * 240, c: Math.random() < .72 ? '245,165,36' : '110,190,255'});
+  function punto(tr, d){
+    const p = tr.pts;
+    for (let i = 1; i < p.length; i++) {
+      const s = Math.hypot(p[i].x - p[i-1].x, p[i].y - p[i-1].y);
+      if (d <= s) { const f = d / s; return {x: p[i-1].x + (p[i].x - p[i-1].x) * f, y: p[i-1].y + (p[i].y - p[i-1].y) * f}; }
+      d -= s;
+    }
+    return p[p.length - 1];
+  }
+  // sagoma del coperchio metallico: quadrato con gli angoli smussati
+  function coperchio(x, y, s, r){
+    ctx.beginPath();
+    ctx.moveTo(x + r, y); ctx.lineTo(x + s - r, y); ctx.lineTo(x + s, y + r); ctx.lineTo(x + s, y + s - r);
+    ctx.lineTo(x + s - r, y + s); ctx.lineTo(x + r, y + s); ctx.lineTo(x, y + s - r); ctx.lineTo(x, y + r); ctx.closePath();
+  }
+  let prima = performance.now();
+  function draw(ora){
+    requestAnimationFrame(draw);
+    if (!visibile) { prima = ora; return; }
+    const dt = Math.min((ora - prima) / 1000, .05); prima = ora;
+    const t = (ora - t0) / 1000;
+    ctx.clearRect(0, 0, W, H);
+    // piste e impulsi
+    ctx.lineWidth = 1.2; ctx.strokeStyle = 'rgba(255,255,255,.07)'; ctx.beginPath();
+    tracce.forEach(tr => { ctx.moveTo(tr.pts[0].x, tr.pts[0].y); tr.pts.slice(1).forEach(p => ctx.lineTo(p.x, p.y)); });
+    ctx.stroke();
+    impulsi.forEach((im, i) => {
+      const tr = tracce[im.t]; im.d += im.v * dt;
+      if (im.d > tr.L * .7) { impulsi[i] = nuovo(); impulsi[i].d = 0; return; }
+      for (let k = 0; k < 8; k++) {
+        const p = punto(tr, Math.max(0, im.d - k * 6));
+        ctx.beginPath(); ctx.arc(p.x, p.y, 2.4 - k * .26, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${im.c},${.95 - k * .12})`; ctx.fill();
+      }
+    });
+    const resp = .6 + Math.sin(t * 2) * .2 + Math.sin(t * 6.1) * .05;
+    // onde di energia che partono dal chip
+    if (Math.random() < .012) onde.push({r: S * .62, a: 1});
+    onde = onde.filter(o => (o.a -= dt * .55) > 0);
+    onde.forEach(o => {
+      o.r += dt * S * .9;
+      ctx.strokeStyle = `rgba(245,165,36,${o.a * .35})`; ctx.lineWidth = 2;
+      coperchio(cx - o.r, cy - o.r, o.r * 2, o.r * .28); ctx.stroke();
+    });
+    // alone caldo sotto il chip
+    const al = ctx.createRadialGradient(cx, cy, S * .3, cx, cy, S * 1.6);
+    al.addColorStop(0, `rgba(245,140,30,${.42 * resp})`); al.addColorStop(1, 'rgba(245,140,30,0)');
+    ctx.fillStyle = al; ctx.fillRect(cx - S * 1.7, cy - S * 1.7, S * 3.4, S * 3.4);
+    // substrato verde scuro con i contatti dorati
+    const P = S * 1.24, px = cx - P / 2, py = cy - P / 2;
+    ctx.fillStyle = '#0d1f17'; ctx.beginPath(); ctx.roundRect(px, py, P, P, 10); ctx.fill();
+    ctx.strokeStyle = 'rgba(214,175,90,.55)'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = 'rgba(214,175,90,.75)';
+    for (let i = 0; i < 18; i++) {
+      const ox = px + 10 + i * (P - 20) / 17, oy = py + 10 + i * (P - 20) / 17;
+      ctx.fillRect(ox - 1.5, py + 4, 3, 5); ctx.fillRect(ox - 1.5, py + P - 9, 3, 5);
+      ctx.fillRect(px + 4, oy - 1.5, 5, 3); ctx.fillRect(px + P - 9, oy - 1.5, 5, 3);
+    }
+    // piccoli componenti sul substrato
+    ctx.fillStyle = '#2b2f36';
+    for (let i = 0; i < 6; i++) { ctx.fillRect(px + P * .14 + i * P * .13, py + P * .085, P * .06, P * .028); ctx.fillRect(px + P * .14 + i * P * .13, py + P * .89, P * .06, P * .028); }
+    // coperchio metallico spazzolato
+    const C = S * .92, x0 = cx - C / 2, y0 = cy - C / 2;
+    ctx.save();
+    ctx.shadowColor = `rgba(245,150,40,${.55 * resp})`; ctx.shadowBlur = 26 * resp;
+    const mg = ctx.createLinearGradient(x0, y0, x0 + C, y0 + C);
+    mg.addColorStop(0, '#e9ebee'); mg.addColorStop(.45, '#a9aeb6'); mg.addColorStop(.55, '#c9cdd3'); mg.addColorStop(1, '#8d939c');
+    ctx.fillStyle = mg; coperchio(x0, y0, C, C * .1); ctx.fill();
+    ctx.restore();
+    ctx.save(); coperchio(x0, y0, C, C * .1); ctx.clip();
+    // spazzolatura
+    ctx.strokeStyle = 'rgba(255,255,255,.08)'; ctx.lineWidth = 1;
+    for (let i = 0; i < C; i += 3) { ctx.beginPath(); ctx.moveTo(x0, y0 + i); ctx.lineTo(x0 + C, y0 + i + 2); ctx.stroke(); }
+    // riflesso di luce che attraversa il coperchio
+    const sw = ((t * .35) % 1.6 - .3) * C * 2;
+    const lg = ctx.createLinearGradient(x0 + sw - C * .3, y0, x0 + sw + C * .3, y0 + C);
+    lg.addColorStop(0, 'rgba(255,255,255,0)'); lg.addColorStop(.5, 'rgba(255,255,255,.55)'); lg.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = lg; ctx.fillRect(x0, y0, C, C);
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 1; coperchio(x0 + .5, y0 + .5, C - 1, C * .1); ctx.stroke();
+    // incisioni
+    // logo di Nodo serigrafato sul coperchio
+    const k = C * .3 / 1060, ly = cy - C * .17;
+    ctx.save(); ctx.translate(cx, ly + 1); ctx.scale(k, -k); ctx.translate(-910, -900);
+    ctx.fillStyle = 'rgba(255,255,255,.45)'; ctx.fill(LOGO_NODO, 'evenodd'); ctx.restore();
+    ctx.save(); ctx.translate(cx, ly); ctx.scale(k, -k); ctx.translate(-910, -900);
+    ctx.fillStyle = 'rgba(40,44,52,.7)'; ctx.fill(LOGO_NODO, 'evenodd'); ctx.restore();
+    ctx.fillStyle = 'rgba(40,44,52,.75)'; ctx.textAlign = 'center';
+    ctx.font = `700 ${Math.round(C * .12)}px -apple-system,'Segoe UI',sans-serif`; ctx.fillText('NODO', cx, cy + C * .09);
+    ctx.font = `500 ${Math.round(C * .05)}px -apple-system,'Segoe UI',sans-serif`; ctx.fillText('CORE · 16 THREAD · 4.8 GHz', cx, cy + C * .19);
+    ctx.fillStyle = '#f5a524'; ctx.beginPath(); ctx.arc(x0 + C * .12, y0 + C * .88, C * .025, 0, Math.PI * 2); ctx.fill();
+    // velo in alto: il testo resta leggibile
+    const v = ctx.createLinearGradient(0, 0, 0, H * .62);
+    v.addColorStop(0, 'rgba(0,0,0,.95)'); v.addColorStop(.7, 'rgba(0,0,0,.75)'); v.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = v; ctx.fillRect(0, 0, W, H * .62);
+  }
+  genera();
+  addEventListener('resize', () => { clearTimeout(genera.t); genera.t = setTimeout(genera, 200); });
+  new IntersectionObserver(e => visibile = e[0].isIntersecting).observe(cv);
+  requestAnimationFrame(draw);
+})();
+</script>
+<script>
+/* tendina: dopo il clic su una voce si chiude, e si riapre solo ripassando col mouse */
+document.querySelectorAll('body>nav .nav-tendina').forEach(t => {
+  t.querySelectorAll('.tendina a').forEach(a => a.addEventListener('click', () => { t.classList.add('chiusa'); a.blur(); }));
+  t.addEventListener('mouseleave', () => t.classList.remove('chiusa'));
+});
+</script>
 </body>
 </html>
