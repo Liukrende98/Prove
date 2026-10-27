@@ -381,7 +381,8 @@ body>nav .nav-giro{justify-content:center!important}
 body>nav .nav-links{flex:none!important}
 body>nav .nav-links .nav-cta,body>nav .nav-links > a:last-child,body>nav .nav-giro > a.nav-cta{margin-left:0!important}
 .hero .lead{color:#e5e5ea!important;font-weight:400!important;text-shadow:0 2px 14px rgba(0,0,0,.95)}
-.hero{min-height:94vh}
+.hero{min-height:0;padding-bottom:370px}
+.hero::after{height:170px!important}
 /* passaggio sfumato dal nero della CPU al grigio chiaro del catalogo */
 .hero::after{content:'';position:absolute;left:0;right:0;bottom:0;height:220px;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(245,245,247,0) 0%,rgba(245,245,247,.35) 45%,rgba(245,245,247,.85) 80%,#f5f5f7 100%)}
 #catalogo{padding-top:40px!important}
@@ -457,8 +458,8 @@ footer.piede,footer.piede *{font-family:-apple-system,BlinkMacSystemFont,'SF Pro
   #paginazione{gap:6px!important;flex-wrap:wrap}
   .hero h1{font-size:34px!important}
   /* apertura: spazio fisso per il processore sotto al testo, sfumatura più corta */
-  .hero{min-height:780px!important}
-  .hero::after{height:150px!important}
+  .hero{min-height:0!important;padding-bottom:250px!important}
+  .hero::after{height:110px!important}
   /* PC rigenerati: tre colonne compatte */
   #macchine{padding-left:10px!important;padding-right:10px!important}
   .griglia-mac{grid-template-columns:repeat(3,1fr)!important;gap:8px!important}
@@ -595,8 +596,8 @@ body.scheda-aperta{overflow:hidden}
     <a href="index.html#servizi">Servizi</a>
     <div class="nav-tendina"><a href="index.html#software">Software</a><div class="tendina"><a href="index.html#demo-0">Configuratore tecnico e commerciale</a><a href="index.html#demo-1">CRM attività e ticket</a><a href="index.html#demo-2">PDM SmartBlock</a><a href="index.html#demo-3">MES di produzione</a><a href="index.html#demo-4">Analisi aziendali</a><a href="index.html#demo-5">Nodo AI</a></div></div>
     <div class="nav-tendina"><a href="hardware.html" class="attivo">Hardware</a><div class="tendina"><a href="hardware.html#catalogo">Catalogo</a><a href="hardware.html#macchine">PC rigenerati</a><a href="hardware.html#configuratore">Configura il tuo PC</a></div></div>
-    <a href="assistenza.html">Assistenza</a>
-    <a href="index.html#metodo">Metodo</a>
+    <a href="assistenza.html">Assistenza IT</a>
+    <a href="ufficio-tecnico.html">Progettazione CAD</a>
     <a href="index.html#contatti" class="nav-cta">Contattaci</a>
   </div></div>
 </nav>
@@ -1098,7 +1099,7 @@ renderCatalogo();
     </div>
     <div class="piede-col">
       <div><h4>Software</h4><a href="index.html#demo-0">Configuratore</a><a href="index.html#demo-1">CRM attività e ticket</a><a href="index.html#demo-2">PDM SmartBlock</a><a href="index.html#demo-3">MES di produzione</a><a href="index.html#demo-4">Analisi aziendali</a><a href="index.html#demo-5">Nodo AI</a></div>
-      <div><h4>Servizi</h4><a href="index.html#servizi">Siti web e app</a><a href="index.html#servizi">Integrazione ERP</a><a href="index.html#servizi">Rebranding</a><a href="assistenza.html">Assistenza IT</a></div>
+      <div><h4>Servizi</h4><a href="index.html#servizi">Siti web e app</a><a href="index.html#servizi">Integrazione ERP</a><a href="ufficio-tecnico.html">Ufficio tecnico</a><a href="assistenza.html">Assistenza IT</a></div>
       <div><h4>Hardware</h4><a href="hardware.html#catalogo">Catalogo</a><a href="hardware.html#macchine">PC rigenerati</a><a href="hardware.html#configuratore">Configura il tuo PC</a></div>
       <div><h4>Contatti</h4><a href="mailto:info@nodoitalia.it">info@nodoitalia.it</a><a href="mailto:marketing@nodoitalia.it">marketing@nodoitalia.it</a><a href="index.html#metodo">Come lavoriamo</a><a class="arancio" href="index.html#contatti">Chiedi una demo</a></div>
     </div>
@@ -1562,15 +1563,11 @@ window.addEventListener('resize',()=>renderCase());
   function genera(){
     W = cv.offsetWidth; H = cv.offsetHeight; larghezza = innerWidth; tel = W < 700;
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0);
-    // sul telefono il processore è più grande, rispetto alla larghezza dello schermo
-    S = tel ? Math.min(W * .4, H * .24) : Math.min(W * .22, H * .3); cx = W / 2; cy = H * .68;
-    if (tel) {
-      // sul telefono il processore sta al centro dello spazio libero tra la fine del testo e la sfumatura in basso
-      const lead = cv.parentElement.querySelector('.lead');
-      const alto = lead ? lead.offsetTop + lead.offsetHeight + 30 : H * .45, basso = H - 140, spazio = Math.max(160, basso - alto);
-      cy = alto + spazio / 2;
-      S = Math.min(W * .4, spazio * .62);
-    }
+    // processore grande la metà di prima; l'apertura è più bassa in proporzione
+    S = tel ? W * .2 : Math.min(W * .11, innerHeight * .141);
+    const lead = cv.parentElement.querySelector('.lead');
+    const alto = lead ? lead.offsetTop + lead.offsetHeight : H * .45;
+    cx = W / 2; cy = alto + (H - alto) * .42;
     tracce = []; impulsi = []; onde = [];
     [[0,-1],[1,0],[0,1],[-1,0]].forEach(([dx, dy]) => {
       const n = tel ? 10 : 16;
@@ -1608,11 +1605,13 @@ window.addEventListener('resize',()=>renderCase());
   // le parti ferme del processore si disegnano una volta sola, su un foglio a parte
   function chip(){
     const P = S * 1.24, m = 4, lato = P + m * 2;
+    // il foglio sta su pixel interi del canvas e si copia 1:1, senza ricampionare: resta nitido
+    const sx = cv.width / W, sy = cv.height / H;
+    const dx = Math.floor((cx - P / 2 - m) * sx), dy = Math.floor((cy - P / 2 - m) * sy);
     strato = document.createElement('canvas');
-    strato.width = Math.round(lato * dpr); strato.height = Math.round(lato * dpr);
+    strato.width = Math.ceil(lato * sx) + 2; strato.height = Math.ceil(lato * sy) + 2;
     const c = strato.getContext('2d');
-    c.setTransform(strato.width / lato, 0, 0, strato.height / lato, 0, 0);
-    c.translate(m - (cx - P / 2), m - (cy - P / 2));
+    c.setTransform(sx, 0, 0, sy, -dx, -dy);
     const px = cx - P / 2, py = cy - P / 2;
     // substrato verde scuro con i contatti dorati
     c.fillStyle = '#0d1f17'; c.beginPath(); c.roundRect(px, py, P, P, 10); c.fill();
@@ -1643,10 +1642,10 @@ window.addEventListener('resize',()=>renderCase());
     c.save(); c.translate(cx, ly); c.scale(k, -k); c.translate(-910, -900);
     c.fillStyle = 'rgba(40,44,52,.7)'; c.fill(LOGO_NODO, 'evenodd'); c.restore();
     c.fillStyle = 'rgba(40,44,52,.75)'; c.textAlign = 'center';
-    c.font = `700 ${Math.round(C * .12)}px -apple-system,'Segoe UI',sans-serif`; c.fillText('NODO', cx, cy + C * .09);
-    c.font = `500 ${Math.round(C * .05)}px -apple-system,'Segoe UI',sans-serif`; c.fillText('CORE · 16 THREAD · 4.8 GHz', cx, cy + C * .19);
+    c.font = `700 ${(C * .12).toFixed(1)}px -apple-system,'Segoe UI',sans-serif`; c.fillText('NODO', cx, cy + C * .09);
+    c.font = `500 ${(C * .055).toFixed(1)}px -apple-system,'Segoe UI',sans-serif`; c.fillText('CORE · 16 THREAD · 4.8 GHz', cx, cy + C * .19);
     c.fillStyle = '#f5a524'; c.beginPath(); c.arc(x0 + C * .12, y0 + C * .88, C * .025, 0, Math.PI * 2); c.fill();
-    strato.x = cx - P / 2 - m; strato.y = cy - P / 2 - m; strato.lato = lato;
+    strato.dx = dx; strato.dy = dy;
   }
   let prima = performance.now();
   function draw(ora){
@@ -1689,7 +1688,7 @@ window.addEventListener('resize',()=>renderCase());
       ctx.save(); ctx.shadowColor = `rgba(245,150,40,${.55 * resp})`; ctx.shadowBlur = 26 * resp;
       ctx.fillStyle = '#a9aeb6'; coperchio(ctx, x0, y0, C, C * .1); ctx.fill(); ctx.restore();
     }
-    ctx.drawImage(strato, strato.x, strato.y, strato.lato, strato.lato);
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(strato, strato.dx, strato.dy); ctx.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0);
     if (tel) {
       // sul telefono il bagliore è un alone leggero: stesso effetto, molto meno lavoro
       const gl = ctx.createRadialGradient(cx, cy, C * .45, cx, cy, C * .85);
@@ -1736,7 +1735,7 @@ document.querySelectorAll('body>nav .nav-tendina').forEach(t => {
   // sul telefono il menu ha solo le tre pagine: Home, Hardware, Assistenza (Contattaci resta nella barra in alto)
   const qui = location.pathname.split('/').pop() || 'index.html';
   let k = 0;
-  const html = [['Home','index.html'],['Hardware','hardware.html'],['Assistenza','assistenza.html']].map(([t, h]) =>
+  const html = [['Home','index.html'],['Hardware','hardware.html'],['Assistenza IT','assistenza.html'],['Progettazione CAD','ufficio-tecnico.html']].map(([t, h]) =>
     `<div class="mt-v" style="transition-delay:${(k++) * 45}ms"><a class="mt-g${qui === h ? ' attivo' : ''}" href="${h}">${t}</a></div>`).join('');
   m.innerHTML = html;  document.body.appendChild(m);
   const chiudi = () => document.body.classList.remove('menu-aperto');

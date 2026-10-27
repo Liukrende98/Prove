@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ufficio tecnico per conto terzi — NodoItalia</title>
+<meta name="description" content="Ufficio tecnico esterno per aziende: una squadra di tecnici progetta per conto tuo. Modelli 3D, tavole, distinte base e un archivio progetti sempre in ordine.">
+<meta name="theme-color" content="#000000">
+<style>
+:root{
+  --sans:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Segoe UI Variable Display','Segoe UI Variable Text','Segoe UI',system-ui,'Helvetica Neue',Arial,sans-serif;
+  --ambra:#f5a524;--ambra2:#fbbf24;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:#f5f5f7;color:#1d1d1f;letter-spacing:-.011em;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+::selection{background:var(--ambra);color:#000}
+
+/* ═══ BARRA IN ALTO, uguale ovunque ═══ */
+body>nav{position:fixed;top:0;left:0;width:100%;height:44px;z-index:100;background:#000;border-bottom:1px solid rgba(255,255,255,.08)}
+.nav-giro{max-width:1000px;height:100%;margin:0 auto;padding:0 22px;display:flex;align-items:center;justify-content:center}
+.nav-giro a{text-decoration:none}
+body>nav .nav-logo{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;letter-spacing:-.01em;color:#f5f5f7;flex:none}
+body>nav .nav-logo svg{width:22px;height:16px}
+body>nav .nav-logo::after{content:'|';margin:0 22px 0 20px;color:rgba(255,255,255,.35);font-weight:300}
+body>nav .nav-links{display:flex;align-items:center;gap:28px}
+body>nav .nav-links a{font-size:15px;font-weight:600;letter-spacing:-.01em;color:#f5f5f7;transition:color .2s}
+body>nav .nav-links a:hover,body>nav .nav-links a.attivo,body>nav .nav-links > a.nav-cta{color:var(--ambra)}
+body>nav .nav-tendina{position:relative;display:flex;align-items:center;height:44px}
+body>nav .tendina{position:absolute;top:44px;left:50%;min-width:250px;padding:10px;background:rgba(0,0,0,.96);border:1px solid rgba(255,255,255,.12);border-top:none;border-radius:0 0 16px 16px;display:flex;flex-direction:column;gap:2px;opacity:0;visibility:hidden;transform:translate(-50%,-8px);transition:opacity .25s ease,transform .3s cubic-bezier(.2,.8,.2,1),visibility .25s;box-shadow:0 24px 50px rgba(0,0,0,.45)}
+body>nav .nav-tendina:hover .tendina,body>nav .nav-tendina:focus-within .tendina{opacity:1;visibility:visible;transform:translate(-50%,0)}
+body>nav .tendina a{display:block;padding:9px 12px;border-radius:10px;font-size:14px;font-weight:500;color:#e5e5ea;opacity:0;transform:translateY(-6px);transition:opacity .25s,transform .3s,background .2s,color .2s}
+body>nav .nav-tendina:hover .tendina a,body>nav .nav-tendina:focus-within .tendina a{opacity:1;transform:none}
+body>nav .tendina a:nth-child(2){transition-delay:.05s}body>nav .tendina a:nth-child(3){transition-delay:.1s}body>nav .tendina a:nth-child(4){transition-delay:.15s}body>nav .tendina a:nth-child(5){transition-delay:.2s}body>nav .tendina a:nth-child(6){transition-delay:.25s}
+body>nav .tendina a:hover{background:rgba(255,255,255,.08);color:var(--ambra)}
+body>nav .nav-tendina > a::after{content:'';display:inline-block;width:5px;height:5px;margin-left:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:translateY(-3px) rotate(45deg);transition:transform .25s}
+body>nav .nav-tendina:hover > a::after{transform:translateY(0) rotate(225deg)}
+body>nav .nav-tendina.chiusa .tendina{opacity:0!important;visibility:hidden!important;transform:translate(-50%,-8px)!important}
+body>nav .nav-tendina.chiusa > a::after{transform:translateY(-3px) rotate(45deg)!important}
+@media(max-width:900px){body>nav .nav-links > a:not(.nav-cta),body>nav .nav-tendina{display:none}body>nav .nav-logo::after{margin:0 14px}}
+
+/* ═══ APERTURA: il pezzo che si disegna da solo, come in un CAD ═══ */
+.hero{position:relative;overflow:hidden;min-height:max(94vh,860px);display:flex;flex-direction:column;align-items:center;text-align:center;background:#000;color:#f5f5f7;padding:130px 32px 100px}
+#cadVivo{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.hero h1,.hero .lead,.hero .azioni{position:relative;z-index:2}
+.hero h1{font-size:clamp(38px,5.2vw,68px);font-weight:700;letter-spacing:-.035em;line-height:1.05;margin-bottom:18px}
+.hero h1 em{font-style:normal;color:var(--ambra);display:inline-block;transition:opacity .35s,transform .35s}
+.hero h1 em.cambia{opacity:0;transform:translateY(10px)}
+.hero .lead{font-size:clamp(16px,1.6vw,19px);line-height:1.6;color:#e5e5ea;max-width:660px;text-shadow:0 2px 14px rgba(0,0,0,.95)}
+.azioni{display:flex;gap:26px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:30px}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:999px;background:var(--ambra);color:#000;font-size:16px;font-weight:600;text-decoration:none;transition:background .2s,transform .2s}
+.pill:hover{background:var(--ambra2);transform:translateY(-2px)}
+.link{color:var(--ambra);font-size:16px;font-weight:500;text-decoration:none}
+.link:hover{text-decoration:underline}
+.hero::after{content:'';position:absolute;left:0;right:0;bottom:0;height:220px;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(245,245,247,0) 0%,rgba(245,245,247,.35) 45%,rgba(245,245,247,.85) 80%,#f5f5f7 100%)}
+
+/* ═══ SEZIONI ═══ */
+section{padding:110px 32px;position:relative}
+.sez-titolo{text-align:center;max-width:720px;margin:0 auto 56px}
+.sez-titolo .tag{display:block;font-size:15px;font-weight:600;color:#b45309;margin-bottom:12px}
+.sez-titolo h2{font-size:clamp(32px,4.4vw,52px);font-weight:700;letter-spacing:-.03em;line-height:1.08}
+.sez-titolo p{font-size:17px;line-height:1.55;color:#6e6e73;margin-top:14px}
+.scura{background:#000;color:#f5f5f7}
+.scura .sez-titolo .tag{color:var(--ambra)}
+.scura .sez-titolo p{color:#a1a1a6}
+.rivela{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.7,.2,1)}
+.rivela.vis{opacity:1;transform:none}
+
+/* 1. cosa progettiamo */
+#cosa{padding-top:50px}
+.griglia{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.voce{background:#fff;border-radius:22px;padding:28px 26px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 30px rgba(0,0,0,.05);transition:transform .35s,box-shadow .35s}
+.voce:hover{transform:translateY(-4px);box-shadow:0 24px 56px rgba(0,0,0,.11)}
+.voce .ic{width:48px;height:48px;border-radius:14px;background:#1d1d1f;display:grid;place-items:center;margin-bottom:18px}
+.voce .ic svg{width:24px;height:24px;fill:none;stroke:var(--ambra);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.voce h3{font-size:19px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.voce p{font-size:14.5px;line-height:1.55;color:#6e6e73}
+
+/* 2. la squadra: le commesse passano da una colonna all'altra */
+.team{max-width:1080px;margin:0 auto 22px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.team div{display:flex;align-items:center;gap:10px;padding:8px 16px 8px 8px;border-radius:999px;background:#1c1c1e;border:1px solid rgba(255,255,255,.12);font-size:14px;font-weight:600;color:#e5e5ea}
+.team div small{font-weight:500;color:#86868b;margin-left:2px}
+.team .on{width:8px;height:8px;border-radius:50%;background:#30d158;box-shadow:0 0 0 3px rgba(48,209,88,.18)}
+.av{width:28px;height:28px;border-radius:50%;background:#ea580c;color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;flex:none}
+.kb{max-width:1080px;margin:0 auto;position:relative;height:330px;transition:height .6s cubic-bezier(.2,.8,.2,1)}
+.kb-bg{position:absolute;top:0;left:0;border-radius:22px;background:#111113;border:1px solid rgba(255,255,255,.08);transition:transform .6s cubic-bezier(.2,.8,.2,1),height .6s cubic-bezier(.2,.8,.2,1)}
+.kb-h{position:absolute;top:0;left:0;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#a1a1a6;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.kb-h i{width:8px;height:8px;border-radius:50%}
+.kc{position:absolute;top:0;left:0;height:118px;padding:14px 16px;border-radius:16px;background:#1c1c1e;border:1px solid rgba(255,255,255,.14);box-shadow:0 18px 40px rgba(0,0,0,.45);transition:transform .8s cubic-bezier(.3,.8,.2,1),opacity .5s,border-color .4s;display:flex;flex-direction:column}
+.kc.entra{opacity:0}
+.kc.esce{opacity:0}
+.kc.ok{border-color:rgba(48,209,88,.45)}
+.kc-h{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#86868b;font-weight:600;font-variant-numeric:tabular-nums}
+.kc-tag{font-style:normal;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:#2c2c2e;color:#c7c7cc;transition:all .4s}
+.kc-tag.g{background:#3a2a05;color:#fbbf24}.kc-tag.b{background:#0c2a4d;color:#7cc0ff}.kc-tag.v{background:#0f3a1d;color:#4ade80}
+.kc-t{font-size:15px;font-weight:600;letter-spacing:-.015em;color:#fff;margin:7px 0 auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kc-f{display:flex;align-items:center;gap:8px;font-size:12px;color:#a1a1a6;margin-top:8px;white-space:nowrap;overflow:hidden}
+.kc-f .av{width:22px;height:22px;font-size:9px;transition:opacity .4s}
+.kc-b{height:4px;border-radius:4px;background:rgba(255,255,255,.08);margin-top:10px;overflow:hidden}
+.kc-b i{display:block;height:100%;width:0;border-radius:4px;background:var(--ambra);transition:width 2.2s cubic-bezier(.3,.7,.3,1),background .4s}
+.nota{max-width:1080px;margin:16px auto 0;font-size:13px;color:#86868b;text-align:center}
+
+/* 3. l'archivio progetti: ricerca, revisioni e file */
+#archivio{background:#fff}
+.arch{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:.8fr 1.4fr;gap:56px;align-items:center}
+.arch-testo .tag{display:block;font-size:15px;font-weight:600;color:#b45309;margin-bottom:12px}
+.arch-testo h2{font-size:clamp(32px,4vw,48px);font-weight:700;letter-spacing:-.03em;line-height:1.08}
+.arch-testo > p{font-size:17px;line-height:1.55;color:#6e6e73;margin:14px 0 26px}
+.punti{list-style:none;display:flex;flex-direction:column;gap:16px}
+.punti li{display:grid;grid-template-columns:36px 1fr;gap:14px;align-items:start}
+.punti .ic{width:36px;height:36px;border-radius:11px;background:#f5f5f7;display:grid;place-items:center}
+.punti .ic svg{width:19px;height:19px;fill:none;stroke:#b45309;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.punti b{display:block;font-size:15.5px;letter-spacing:-.01em}
+.punti span{font-size:14px;line-height:1.45;color:#6e6e73}
+.punti a{color:#b45309;font-weight:600;text-decoration:none}
+.app{background:#fff;border-radius:22px;border:1px solid #e5e5ea;box-shadow:0 40px 90px rgba(0,0,0,.14);overflow:hidden}
+.app-top{display:flex;align-items:center;gap:7px;padding:12px 16px;background:#f5f5f7;border-bottom:1px solid #e5e5ea;font-size:12.5px;font-weight:600;color:#6e6e73}
+.app-top i{width:11px;height:11px;border-radius:50%;background:#ff5f57}.app-top i:nth-child(2){background:#febc2e}.app-top i:nth-child(3){background:#28c840}
+.app-top span{margin-left:10px}
+.app-corpo{display:grid;grid-template-columns:240px 1fr;height:430px}
+.app-lista{border-right:1px solid #f0f0f2;padding:14px;display:flex;flex-direction:column;gap:4px;overflow:hidden}
+.cerca{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;background:#f5f5f7;font-size:13.5px;color:#1d1d1f;margin-bottom:8px;min-height:38px}
+.cerca svg{width:15px;height:15px;fill:none;stroke:#86868b;stroke-width:2;stroke-linecap:round;flex:none}
+.cerca .vuoto{color:#aeaeb2}
+.cursore{display:inline-block;width:1.5px;height:16px;background:var(--ambra);margin-left:1px;vertical-align:-3px;animation:lampeggia 1s steps(1) infinite}
+@keyframes lampeggia{50%{opacity:0}}
+.ris{padding:9px 11px;border-radius:10px;transition:background .3s,color .3s}
+.ris b{display:block;font-size:11.5px;font-weight:600;color:#86868b;font-variant-numeric:tabular-nums;transition:color .3s}
+.ris span{display:block;font-size:13.5px;font-weight:600;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ris mark{background:rgba(245,165,36,.28);color:inherit;border-radius:3px;padding:0 1px}
+.ris.via{display:none}
+.ris.sel{background:#1d1d1f;color:#fff}
+.ris.sel b{color:var(--ambra)}
+.ris.sel mark{background:rgba(245,165,36,.45)}
+.app-det{padding:20px 24px;overflow:hidden;transition:opacity .35s}
+.app-det.spento{opacity:0}
+.det-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.det-h small{font-size:12px;font-weight:600;color:#86868b;font-variant-numeric:tabular-nums}
+.det-h h3{font-size:19px;font-weight:700;letter-spacing:-.02em;margin-top:2px}
+.badge{font-size:11.5px;font-weight:700;padding:4px 11px;border-radius:20px;background:#e9f9ee;color:#1f8a3a;white-space:nowrap}
+.det-vis{display:grid;grid-template-columns:190px 1fr;gap:18px;margin:14px 0 12px;align-items:center}
+.det-img{height:120px;border-radius:14px;background:#fbfbfd;border:1px solid #f0f0f2;background-image:linear-gradient(#f0f0f2 1px,transparent 1px),linear-gradient(90deg,#f0f0f2 1px,transparent 1px);background-size:16px 16px;display:grid;place-items:center}
+.det-img svg{width:100%;height:100%}
+.det-img path{fill:none;stroke:#1d1d1f;stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;animation:disegna 1.6s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes disegna{to{stroke-dashoffset:0}}
+.det-info{display:flex;flex-direction:column;gap:7px;font-size:12.5px}
+.det-info div{display:flex;justify-content:space-between;gap:10px;padding-bottom:7px;border-bottom:1px solid #f0f0f2}
+.det-info span{color:#86868b}
+.det-info b{font-weight:600;text-align:right}
+.det-sez{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#86868b;margin:4px 0 8px}
+.revs{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.rev{display:grid;grid-template-columns:26px 74px 1fr;gap:10px;align-items:center;font-size:12.5px;opacity:0;transform:translateY(6px);transition:opacity .4s,transform .4s}
+.rev.on{opacity:1;transform:none}
+.rev i{width:26px;height:26px;border-radius:50%;background:#f5f5f7;font-style:normal;font-weight:700;font-size:12px;display:grid;place-items:center;color:#3a3a3c}
+.rev.ultima i{background:var(--ambra);color:#000}
+.rev small{font-size:12px;color:#86868b;font-variant-numeric:tabular-nums}
+.files{display:flex;gap:6px;flex-wrap:wrap}
+.file{font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px;background:#f5f5f7;color:#3a3a3c;opacity:0;transform:scale(.85);transition:opacity .3s,transform .35s cubic-bezier(.3,1.6,.5,1)}
+.file.on{opacity:1;transform:none}
+.file:first-letter{color:#b45309}
+
+/* 4. formule */
+#formule{background:#f5f5f7}
+.formule{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:stretch}
+.fm{background:#fff;border-radius:24px;padding:36px 28px;display:flex;flex-direction:column;text-align:center}
+.fm .anim{width:96px;height:96px;margin:0 auto 18px}
+.fm small{font-size:13px;font-weight:600;color:#b45309}
+.fm h3{font-size:24px;font-weight:700;letter-spacing:-.03em;margin:4px 0 8px}
+.fm > p{font-size:14.5px;line-height:1.55;color:#6e6e73;margin-bottom:18px}
+.fm ul{list-style:none;display:flex;flex-direction:column;gap:9px;text-align:left;margin-top:auto;padding-top:16px;border-top:1px solid rgba(0,0,0,.08)}
+.fm li{font-size:14px;line-height:1.4;padding-left:24px;position:relative;color:#3a3a3c}
+.fm li::before{content:'✓';position:absolute;left:0;color:#d97706;font-weight:800}
+.fm.top{background:#1d1d1f;color:#f5f5f7;box-shadow:0 30px 70px rgba(0,0,0,.22)}
+.fm.top small{color:var(--ambra)}
+.fm.top > p{color:#a1a1a6}
+.fm.top ul{border-top-color:rgba(255,255,255,.12)}
+.fm.top li{color:#e5e5ea}
+@keyframes traccia{0%,10%{stroke-dashoffset:1}55%,85%{stroke-dashoffset:0}100%{stroke-dashoffset:-1}}
+.traccia{stroke-dasharray:1;animation:traccia 3.6s ease-in-out infinite}
+@keyframes spunta{0%,30%{stroke-dashoffset:30}55%,100%{stroke-dashoffset:0}}
+.spunta{stroke-dasharray:30;animation:spunta 3s ease-in-out infinite}
+@keyframes ruota{to{transform:rotate(360deg)}}
+.lancetta{transform-origin:50px 52px;transform-box:view-box;animation:ruota 4s linear infinite}
+.lancetta.lenta{animation-duration:48s}
+
+/* 5. domande frequenti */
+#domande{background:#fff}
+.faq{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.faq details{background:#f5f5f7;border-radius:18px;overflow:hidden}
+.faq summary{list-style:none;cursor:pointer;padding:20px 24px;font-size:17px;font-weight:600;letter-spacing:-.015em;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:'+';font-size:24px;font-weight:300;color:#b45309;transition:transform .3s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{padding:0 24px 22px;font-size:15px;line-height:1.6;color:#6e6e73}
+
+/* chiusura */
+.cta{text-align:center;padding:110px 32px;background:#000;color:#f5f5f7}
+.cta h2{font-size:clamp(30px,4vw,48px);font-weight:700;letter-spacing:-.03em;line-height:1.08;margin-bottom:14px}
+.cta p{font-size:17px;color:#a1a1a6;margin-bottom:30px}
+
+@media(max-width:900px){
+  .griglia,.formule{grid-template-columns:1fr}
+  .arch{grid-template-columns:1fr;gap:36px}
+  section,.cta{padding:72px 16px}
+  .hero{padding:100px 16px 64px;min-height:780px}
+}
+
+/* ═══ PIÈ DI PAGINA, stile apple.com: chiaro, a colonne ═══ */
+footer.piede{background:#f5f5f7;color:#6e6e73;border-top:1px solid #d2d2d7;padding:56px 24px 28px;font-size:12px;position:relative;z-index:1}
+.piede-in{max-width:1080px;margin:0 auto}
+.piede-alto{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid #d2d2d7}
+.piede-marca{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:700;letter-spacing:-.02em;color:#1d1d1f;text-decoration:none}
+.piede-marca svg{width:30px;height:22px}
+.piede-marca span span{color:var(--ambra)}
+.piede-motto{margin-top:8px;font-size:16px;font-weight:500;color:#6e6e73}
+.piede-cta{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:999px;background:#1d1d1f;color:#fff;font-size:15px;font-weight:600;text-decoration:none;transition:background .2s,color .2s}
+.piede-cta:hover{background:var(--ambra);color:#000}
+.piede-col{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;padding:30px 0 34px;border-bottom:1px solid #d2d2d7}
+.piede-col h4{font-size:15px;font-weight:700;color:#1d1d1f;margin-bottom:14px;letter-spacing:-.01em}
+.piede-col a{display:block;width:fit-content;font-size:15px;font-weight:500;color:#424245;text-decoration:none;margin-bottom:11px;transition:color .2s}
+.piede-col a:hover{color:var(--ambra)}
+.piede-col a.arancio{color:#b45309}
+.piede-basso{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:18px;font-size:13.5px;font-weight:500;color:#6e6e73}
+.piede-basso a{color:#424245;text-decoration:none}
+.piede-basso a:hover{color:var(--ambra)}
+.piede-basso nav{display:flex;flex-wrap:wrap}
+.piede-basso nav a{padding:0 10px;border-left:1px solid #d2d2d7}
+.piede-basso nav a:first-child{padding-left:0;border-left:none}
+@media(max-width:760px){.piede-col{grid-template-columns:1fr 1fr;gap:22px 16px}footer.piede{padding:40px 16px 24px}}
+
+/* ═══ TELEFONO: pagina più compatta (sul PC non cambia niente) ═══ */
+@media(max-width:600px){
+  .hero h1{font-size:36px}
+  .sez-titolo{margin-bottom:36px}
+  .sez-titolo h2{font-size:32px}
+  .griglia{gap:10px}
+  .voce{display:grid;grid-template-columns:44px 1fr;column-gap:16px;padding:20px 18px}
+  .voce .ic{width:44px;height:44px;margin:0;grid-row:span 2}
+  .voce h3{font-size:17px;margin:2px 0 4px}
+  .voce p{font-size:14px}
+  .team div{font-size:13px;padding:6px 12px 6px 6px}
+  .team div small{display:none}
+  .kc{height:104px;padding:12px 14px}
+  .app-corpo{grid-template-columns:1fr;height:auto}
+  .app-lista{border-right:0;border-bottom:1px solid #f0f0f2;max-height:none}
+  .app-det{padding:18px 16px;min-height:470px}
+  .det-vis{grid-template-columns:1fr;gap:12px}
+  .det-img{height:140px}
+  .fm{padding:28px 22px}
+  .faq summary{padding:18px 18px;font-size:16px}
+  .faq details p{padding:0 18px 18px}
+}
+
+/* ═══ TELEFONO: menu a scomparsa (sul PC non cambia niente) ═══ */
+.nav-menu,.menu-tel{display:none}
+@media(max-width:900px){
+  body>nav .nav-giro{justify-content:space-between!important;padding:0 6px 0 16px!important}
+  body>nav .nav-logo::after{display:none!important}
+  body>nav .nav-links{margin-left:auto!important;gap:0!important}
+  body>nav .nav-links > a:not(.nav-cta),body>nav .nav-links > .nav-tendina{display:none!important}
+  body>nav .nav-links > a.nav-cta{font-size:14px!important}
+  .nav-menu{display:flex;flex-direction:column;justify-content:center;gap:6px;width:44px;height:44px;padding:0 12px;margin-left:6px;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .nav-menu i{display:block;height:1.5px;width:18px;border-radius:2px;background:#f5f5f7;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+  body.menu-aperto .nav-menu i:first-child{transform:translateY(3.75px) rotate(45deg)}
+  body.menu-aperto .nav-menu i:last-child{transform:translateY(-3.75px) rotate(-45deg)}
+  body.menu-aperto{overflow:hidden}
+  .menu-tel{display:block;position:fixed;left:0;right:0;top:44px;bottom:0;z-index:99;background:rgba(0,0,0,.97);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:22px 34px 60px;opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}
+  body.menu-aperto .menu-tel{opacity:1;visibility:visible}
+  .menu-tel .mt-v{opacity:0;transform:translateY(-8px);transition:opacity .35s,transform .45s cubic-bezier(.2,.8,.2,1)}
+  body.menu-aperto .menu-tel .mt-v{opacity:1;transform:none}
+  .menu-tel a{text-decoration:none;-webkit-tap-highlight-color:transparent}
+  .menu-tel .mt-g{display:block;padding:9px 0;font-size:28px;font-weight:600;letter-spacing:-.025em;color:#e8e8ed;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI Variable Display','Segoe UI',system-ui,sans-serif}
+  .menu-tel .mt-g:active,.menu-tel .mt-g.attivo{color:#f5a524}
+}
+
+/* ═══ TELEFONO: footer essenziale, le colonne si aprono a tocco come su apple.com ═══ */
+@media(max-width:760px){
+  footer.piede{padding:34px 20px 26px!important}
+  .piede-alto{flex-direction:column;align-items:flex-start!important;gap:16px!important;padding-bottom:22px!important}
+  .piede-marca{font-size:20px!important}
+  .piede-motto{font-size:15px!important;margin-top:4px!important}
+  .piede-cta{font-size:14px!important;padding:9px 18px!important}
+  .piede-col{display:block!important;padding:0!important;border-bottom:none!important}
+  .piede-col > div{border-bottom:1px solid #d2d2d7}
+  .piede-col h4{display:flex;justify-content:space-between;align-items:center;margin:0!important;padding:15px 0!important;font-size:15px!important;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .piede-col h4::after{content:'';width:7px;height:7px;margin-right:4px;border-right:1.6px solid #6e6e73;border-bottom:1.6px solid #6e6e73;transform:translateY(-2px) rotate(45deg);transition:transform .3s}
+  .piede-col .aperto h4::after{transform:translateY(2px) rotate(225deg)}
+  .piede-col a{display:none!important}
+  .piede-col .aperto a{display:block!important;margin:0 0 14px 0!important;font-size:15px!important}
+  .piede-col .aperto{padding-bottom:4px}
+  .piede-basso{padding-top:18px!important;font-size:12.5px!important}
+  .piede-basso nav{display:none!important}
+}
+
+/* ═══ TELEFONO: niente barre di scorrimento visibili ═══ */
+@media(max-width:900px){
+  *{scrollbar-width:none}
+  *::-webkit-scrollbar{display:none;width:0;height:0}
+}
+</style>
+</head>
+<body>
+
+<nav><div class="nav-giro">
+  <a href="index.html" class="nav-logo"><svg viewBox="380 520 1060 760"><g transform="translate(0,1800) scale(1,-1)"><path fill="#f59e0b" fill-rule="evenodd" d="M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z"/></g></svg><span>Nodo<span style="color:#f5a524">Italia</span></span></a>
+  <div class="nav-links">
+    <a href="index.html#servizi">Servizi</a>
+    <div class="nav-tendina"><a href="index.html#software">Software</a><div class="tendina"><a href="index.html#demo-0">Configuratore tecnico e commerciale</a><a href="index.html#demo-1">CRM attività e ticket</a><a href="index.html#demo-2">PDM SmartBlock</a><a href="index.html#demo-3">MES di produzione</a><a href="index.html#demo-4">Analisi aziendali</a><a href="index.html#demo-5">Nodo AI</a></div></div>
+    <div class="nav-tendina"><a href="hardware.html">Hardware</a><div class="tendina"><a href="hardware.html#catalogo">Catalogo</a><a href="hardware.html#macchine">PC rigenerati</a><a href="hardware.html#configuratore">Configura il tuo PC</a></div></div>
+    <a href="assistenza.html">Assistenza IT</a>
+    <a href="ufficio-tecnico.html" class="attivo">Progettazione CAD</a>
+    <a href="index.html#contatti" class="nav-cta">Contattaci</a>
+  </div>
+</div></nav>
+
+<!-- ═══ APERTURA ═══ -->
+<div class="hero">
+  <canvas id="cadVivo"></canvas>
+  <h1>Il tuo <em id="utWord">ufficio tecnico</em>.<br>Senza assumere nessuno.</h1>
+  <p class="lead">Una squadra di tecnici progetta per conto della tua azienda: modelli 3D, tavole, distinte e un archivio progetti sempre in ordine. Paghi il lavoro, non la struttura.</p>
+  <div class="azioni"><a class="pill" href="index.html#contatti" data-oggetto="Ufficio tecnico per conto terzi">Richiedi un preventivo</a><a class="link" href="#archivio">L'archivio progetti ›</a></div>
+</div>
+
+<!-- ═══ 1. COSA PROGETTIAMO ═══ -->
+<section id="cosa">
+  <div class="sez-titolo rivela"><span class="tag">Cosa progettiamo</span><h2>Dal primo schizzo<br>al file per l'officina.</h2></div>
+  <div class="griglia">
+    <div class="voce rivela"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></svg></div><h3>Progettazione 3D</h3><p>Parti e assiemi modellati da zero, da uno schizzo, da una foto o da un pezzo da rifare.</p></div>
+    <div class="voce rivela"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15h18M14 15v5M7 8h6M7 11h4"/></svg></div><h3>Tavole 2D</h3><p>Messa in tavola con quote, tolleranze e cartiglio: disegni pronti per l'officina e per i fornitori.</p></div>
+    <div class="voce rivela"><div class="ic"><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg></div><h3>Distinte base e codici</h3><p>Ogni pezzo con il suo codice e la sua distinta, pronte da caricare nel gestionale.</p></div>
+    <div class="voce rivela"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 18V8l5-4h11v14z"/><path d="M9 4v4H4M9 13h6"/></svg></div><h3>Carpenteria e lamiera</h3><p>Telai, basamenti e lamiere piegate, con gli sviluppi e i file DXF per il taglio laser.</p></div>
+    <div class="voce rivela"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg></div><h3>Protezioni per macchine</h3><p>Ripari, recinzioni perimetrali e carter per macchine automatiche e linee di produzione.</p></div>
+    <div class="voce rivela"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg></div><h3>Modifiche e revisioni</h3><p>Aggiorniamo i disegni che hai già, anche quelli vecchi su carta da ridisegnare in 3D.</p></div>
+  </div>
+</section>
+
+<!-- ═══ 2. LA SQUADRA ═══ -->
+<section id="squadra" class="scura">
+  <div class="sez-titolo rivela"><span class="tag">La squadra</span><h2>Una squadra di tecnici,<br>come se fosse la tua.</h2><p>Ogni commessa ha un responsabile. Sai sempre a che punto è: richiesta, progetto, revisione, rilascio.</p></div>
+  <div class="team rivela">
+    <div><span class="av" style="background:#ea580c">AR</span>Progettista meccanico <small>· in linea</small><span class="on"></span></div>
+    <div><span class="av" style="background:#2563eb">SL</span>Disegnatore CAD <small>· in linea</small><span class="on"></span></div>
+    <div><span class="av" style="background:#16a34a">DB</span>Responsabile tecnico <small>· in linea</small><span class="on"></span></div>
+  </div>
+  <div class="kb rivela" id="kb"></div>
+  <p class="nota">Commesse di esempio.</p>
+</section>
+
+<!-- ═══ 3. L'ARCHIVIO PROGETTI ═══ -->
+<section id="archivio">
+  <div class="arch">
+    <div class="arch-testo rivela">
+      <span class="tag">L'archivio progetti</span>
+      <h2>Ogni progetto,<br>ritrovato in tre secondi.</h2>
+      <p>Niente più cartelle sparse e file "definitivo_2". Ogni pezzo ha un codice, le sue revisioni e i file giusti, anche dopo dieci anni.</p>
+      <ul class="punti">
+        <li><span class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg></span><div><b>Cerchi e trovi</b><span>Per codice, nome, macchina o cliente.</span></div></li>
+        <li><span class="ic"><svg viewBox="0 0 24 24"><path d="M6 3v12M18 9v12"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><path d="M6 15c0-4 12-2 12-6"/></svg></span><div><b>Revisioni tracciate</b><span>Chi ha cambiato cosa, quando e perché.</span></div></li>
+        <li><span class="ic"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 13h6M9 17h6"/></svg></span><div><b>Tutti i file insieme</b><span>Modello 3D, tavola, PDF, STEP e DXF dello stesso pezzo.</span></div></li>
+        <li><span class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg></span><div><b>Sempre tuo</b><span>Lo consulti quando vuoi, con il nostro <a href="index.html#demo-2">PDM SmartBlock</a>.</span></div></li>
+      </ul>
+    </div>
+    <div class="app rivela">
+      <div class="app-top"><i></i><i></i><i></i><span>Archivio progetti</span></div>
+      <div class="app-corpo">
+        <div class="app-lista" id="arLista">
+          <div class="cerca"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg><span id="arQ"></span><span class="cursore"></span></div>
+        </div>
+        <div class="app-det" id="arDet"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 4. FORMULE ═══ -->
+<section id="formule">
+  <div class="sez-titolo rivela"><span class="tag">Come lavoriamo insieme</span><h2>Scegli come usarci.</h2><p>Prima di iniziare ricevi un preventivo dettagliato: sai cosa progettiamo, in quanto tempo e quanto costa.</p></div>
+  <div class="formule">
+    <div class="fm rivela">
+      <svg class="anim" viewBox="0 0 100 100" fill="none"><path class="traccia" pathLength="1" d="M22 70V36l12-12h44v46z M22 36h12V24 M38 52a8 8 0 1016 0a8 8 0 10-16 0" stroke="#1d1d1f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 82h56M22 79v6M78 79v6" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/></svg>
+      <small>A progetto</small><h3>Un lavoro alla volta</h3><p>Ci dai il progetto, noi lo consegniamo finito: prezzo e data di consegna decisi prima.</p>
+      <ul><li>Preventivo a corpo</li><li>Consegna di tavole, distinte e file</li><li>Revisioni comprese</li></ul>
+    </div>
+    <div class="fm top rivela">
+      <svg class="anim" viewBox="0 0 100 100" fill="none"><rect x="22" y="26" width="56" height="52" rx="8" stroke="#f5a524" stroke-width="3"/><path d="M22 40h56M36 20v12M64 20v12" stroke="#f5a524" stroke-width="3" stroke-linecap="round"/><path class="spunta" d="M38 58l8 8 16-16" stroke="#30d158" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <small>La più scelta</small><h3>Ufficio tecnico dedicato</h3><p>Un canone mensile e una squadra che lavora per te ogni giorno, come un reparto interno.</p>
+      <ul><li>Tecnici dedicati alla tua azienda</li><li>Ore di progettazione incluse ogni mese</li><li>Archivio progetti sempre aggiornato</li><li>Riepilogo mensile di commesse e ore</li></ul>
+    </div>
+    <div class="fm rivela">
+      <svg class="anim" viewBox="0 0 100 100" fill="none"><circle cx="50" cy="52" r="28" stroke="#1d1d1f" stroke-width="3"/><path d="M50 18v6M44 16h12" stroke="#1d1d1f" stroke-width="3" stroke-linecap="round"/><path class="lancetta lenta" d="M50 52V38" stroke="#1d1d1f" stroke-width="3" stroke-linecap="round"/><path class="lancetta" d="M50 52V30" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/><circle cx="50" cy="52" r="3" fill="#f59e0b"/></svg>
+      <small>A ore</small><h3>Quando serve</h3><p>Per i picchi di lavoro o una modifica veloce: paghi solo le ore di progettazione fatte.</p>
+      <ul><li>Nessun vincolo</li><li>Si lavora anche sui tuoi file</li><li>Resoconto delle ore</li></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 5. DOMANDE ═══ -->
+<section id="domande">
+  <div class="sez-titolo rivela"><span class="tag">Domande frequenti</span><h2>Prima di affidarci un progetto.</h2></div>
+  <div class="faq rivela">
+    <details open><summary>Di chi sono i disegni?</summary><p>Tuoi. Alla consegna ricevi tutti i file: modelli 3D, tavole, distinte e file di scambio, oltre ai PDF.</p></details>
+    <details><summary>Con quali programmi lavorate?</summary><p>Progettiamo in Solid Edge e lavoriamo con i formati di scambio più diffusi: STEP, IGES, DXF, DWG e PDF. Possiamo partire anche dai file che avete già.</p></details>
+    <details><summary>I nostri progetti restano riservati?</summary><p>Sì. Ogni cliente ha il suo archivio separato e, se serve, firmiamo un accordo di riservatezza prima di iniziare.</p></details>
+    <details><summary>Le distinte entrano nel nostro gestionale?</summary><p>Sì: prepariamo codici e distinte nel formato del vostro gestionale, così non va ricopiato niente a mano.</p></details>
+    <details><summary>Da dove si parte?</summary><p>Da un incontro per capire cosa producete e come lavora oggi il vostro ufficio tecnico. Poi vi proponiamo la formula più adatta.</p></details>
+  </div>
+</section>
+
+<!-- ═══ CHIUSURA ═══ -->
+<div class="cta">
+  <h2>Parliamo del tuo prossimo progetto.</h2>
+  <p>Mandaci uno schizzo, una foto o un vecchio disegno: ti diciamo come lo faremmo.</p>
+  <a class="pill" href="index.html#contatti" data-oggetto="Ufficio tecnico per conto terzi">Richiedi un preventivo</a>
+</div>
+
+<footer class="piede">
+  <div class="piede-in">
+    <div class="piede-alto">
+      <div><a class="piede-marca" href="index.html"><svg viewBox="380 520 1060 760"><g transform="translate(0,1800) scale(1,-1)"><path fill="#f5a524" fill-rule="evenodd" d="M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z"/></g></svg><span>Nodo<span>Italia</span></span></a><p class="piede-motto">Software su misura. Per chi produce.</p></div>
+      <a class="piede-cta" href="index.html#contatti">Parliamo del tuo progetto →</a>
+    </div>
+    <div class="piede-col">
+      <div><h4>Software</h4><a href="index.html#demo-0">Configuratore</a><a href="index.html#demo-1">CRM attività e ticket</a><a href="index.html#demo-2">PDM SmartBlock</a><a href="index.html#demo-3">MES di produzione</a><a href="index.html#demo-4">Analisi aziendali</a><a href="index.html#demo-5">Nodo AI</a></div>
+      <div><h4>Servizi</h4><a href="index.html#servizi">Siti web e app</a><a href="index.html#servizi">Integrazione ERP</a><a href="ufficio-tecnico.html">Ufficio tecnico</a><a href="assistenza.html">Assistenza IT</a></div>
+      <div><h4>Hardware</h4><a href="hardware.html#catalogo">Catalogo</a><a href="hardware.html#macchine">PC rigenerati</a><a href="hardware.html#configuratore">Configura il tuo PC</a></div>
+      <div><h4>Contatti</h4><a href="mailto:info@nodoitalia.it">info@nodoitalia.it</a><a href="mailto:marketing@nodoitalia.it">marketing@nodoitalia.it</a><a href="index.html#metodo">Come lavoriamo</a><a class="arancio" href="index.html#contatti">Chiedi una demo</a></div>
+    </div>
+    <div class="piede-basso">
+      <span>Copyright © 2026 NodoItalia. Tutti i diritti riservati.</span>
+      <nav><a href="index.html#partner">Partner</a><a href="assistenza.html">Assistenza</a><a href="index.html#contatti">Contattaci</a></nav>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* comparsa allo scorrimento */
+(function(){
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('vis'); io.unobserve(e.target); } }), {threshold:.15});
+  document.querySelectorAll('.rivela').forEach((el,i) => { el.style.transitionDelay = (i%3)*80 + 'ms'; io.observe(el); });
+})();
+
+/* la parola che cambia nel titolo */
+(function(){
+  const el = document.getElementById('utWord'), parole = ['ufficio tecnico','progettista','disegnatore CAD','reparto progettazione'];
+  let i = 0;
+  setInterval(() => {
+    el.classList.add('cambia');
+    setTimeout(() => { i = (i + 1) % parole.length; el.textContent = parole[i]; el.classList.remove('cambia'); }, 350);
+  }, 2600);
+})();
+
+/* ═══ GEOMETRIE DEI PEZZI (mm): spigoli per il 3D dell'apertura e le anteprime dell'archivio ═══ */
+const GEO = (function(){
+  const seg = (E, a, b) => E.push([a, b]);
+  function scatola(E, x0, x1, y0, y1, z0, z1){
+    const v = [];
+    for (const x of [x0, x1]) for (const y of [y0, y1]) for (const z of [z0, z1]) v.push([x, y, z]);
+    for (let i = 0; i < 8; i++) for (let j = i + 1; j < 8; j++) {
+      let d = 0; for (let k = 0; k < 3; k++) if (v[i][k] !== v[j][k]) d++;
+      if (d === 1) seg(E, v[i], v[j]);
+    }
+  }
+  // foro: un cerchio su ognuna delle due facce
+  function foro(E, asse, c, r, facce){
+    const n = 28;
+    facce.forEach(f => {
+      const p = k => { const a = k / n * Math.PI * 2, u = Math.cos(a) * r, w = Math.sin(a) * r; return asse === 'y' ? [c[0] + u, f, c[2] + w] : [c[0] + u, c[1] + w, f]; };
+      for (let k = 0; k < n; k++) seg(E, p(k), p(k + 1));
+    });
+  }
+  return {
+    staffa(){
+      const E = [];
+      scatola(E, -80, 80, 0, 12, -50, 50);
+      scatola(E, -80, 80, 12, 110, -50, -38);
+      [-62, 62].forEach(x => {
+        const a = [[x - 4, 12, -38], [x - 4, 12, 12], [x - 4, 76, -38]], b = a.map(p => [x + 4, p[1], p[2]]);
+        for (let k = 0; k < 3; k++) { seg(E, a[k], a[(k + 1) % 3]); seg(E, b[k], b[(k + 1) % 3]); seg(E, a[k], b[k]); }
+      });
+      foro(E, 'y', [-46, 0, 18], 9, [0, 12]); foro(E, 'y', [46, 0, 18], 9, [0, 12]);
+      foro(E, 'z', [0, 72, 0], 15, [-50, -38]);
+      return E;
+    },
+    piastra(){
+      const E = [];
+      scatola(E, -80, 80, 0, 10, -50, 50);
+      [[-60, -32], [60, -32], [-60, 32], [60, 32]].forEach(([x, z]) => foro(E, 'y', [x, 0, z], 7, [0, 10]));
+      foro(E, 'y', [0, 0, 0], 20, [0, 10]);
+      return E;
+    },
+    telaio(){
+      const E = [], t = 8;
+      [[-90, -40], [90, -40], [-90, 40], [90, 40]].forEach(([x, z]) => scatola(E, x - t, x + t, 0, 140, z - t, z + t));
+      [0, 70, 132].forEach(y => { scatola(E, -82, 82, y, y + 8, -48, -32); scatola(E, -82, 82, y, y + 8, 32, 48); });
+      return E;
+    },
+    riparo(){
+      const E = [];
+      scatola(E, -95, 95, 0, 130, -4, 4);
+      for (let x = -75; x <= 75; x += 15) seg(E, [x, 10, 0], [x, 120, 0]);
+      for (let y = 22; y <= 110; y += 15) seg(E, [-85, y, 0], [85, y, 0]);
+      [-80, 80].forEach(x => scatola(E, x - 12, x + 12, -6, 0, -30, 30));
+      return E;
+    }
+  };
+})();
+
+/* anteprima isometrica, adattata al riquadro: un solo tracciato che si disegna */
+function anteprima(E, w, h){
+  const P = ([x, y, z]) => [(x - z) * .866, -y - (x + z) * .5];
+  const pts = E.map(([a, b]) => [P(a), P(b)]);
+  let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+  pts.forEach(s => s.forEach(([x, y]) => { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }));
+  const pad = 14, s = Math.min((w - pad * 2) / (x1 - x0), (h - pad * 2) / (y1 - y0));
+  const ox = (w - (x1 - x0) * s) / 2 - x0 * s, oy = (h - (y1 - y0) * s) / 2 - y0 * s;
+  const f = v => v.toFixed(1);
+  const d = pts.map(([[ax, ay], [bx, by]]) => `M${f(ax * s + ox)} ${f(ay * s + oy)}L${f(bx * s + ox)} ${f(by * s + oy)}`).join('');
+  return `<svg viewBox="0 0 ${w} ${h}"><path pathLength="1" d="${d}"/></svg>`;
+}
+
+/* ═══ SFONDO DELL'APERTURA: il pezzo si disegna spigolo per spigolo e ruota, con le quote ═══ */
+(function(){
+  const cv = document.getElementById('cadVivo'); if (!cv) return;
+  const ctx = cv.getContext('2d'), dpr = Math.min(devicePixelRatio || 1, 3);
+  const E = GEO.staffa(), N = E.length, AMBRA = '245,165,36', BLU = '110,190,255';
+  const QUOTE = [
+    {p:[-80, 0, 50], q:[80, 0, 50], o:[0, 0, 30], t:'160'},
+    {p:[80, 0, 50], q:[80, 0, -50], o:[30, 0, 0], t:'100'},
+    {p:[-80, 0, -50], q:[-80, 110, -50], o:[-30, 0, 0], t:'110'}
+  ];
+  const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif";
+  let W, H, cx, cy, sc, tel, larghezza = 0, fondo = null, visibile = true, t0 = performance.now();
+  let mx = 0, my = 0, gx = 0, gy = 0;
+  function genera(){
+    W = cv.offsetWidth; H = cv.offsetHeight; tel = W < 700; larghezza = innerWidth;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0);
+    // il pezzo sta sotto ai pulsanti: niente si sovrappone alle scritte
+    const az = cv.parentElement.querySelector('.azioni');
+    const alto = az.offsetTop + az.offsetHeight + (tel ? 30 : 40), basso = H - (tel ? 90 : 100), spazio = Math.max(200, basso - alto);
+    cx = W / 2; cy = alto + spazio / 2;
+    sc = Math.min(W * (tel ? .78 : .42) / 260, spazio / 210);
+    // la griglia del foglio si disegna una volta sola
+    fondo = document.createElement('canvas'); fondo.width = cv.width; fondo.height = cv.height;
+    const f = fondo.getContext('2d'); f.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0);
+    const passo = 32, x0 = (W / 2) % passo;
+    for (let x = x0, i = 0; x < W; x += passo, i++) { f.fillStyle = 'rgba(120,170,255,' + (Math.round((x - W / 2) / passo) % 5 ? .045 : .085) + ')'; f.fillRect(Math.round(x), 0, 1, H); }
+    for (let y = 0; y < H; y += passo) { f.fillStyle = 'rgba(120,170,255,' + (Math.round(y / passo) % 5 ? .045 : .085) + ')'; f.fillRect(0, Math.round(y), W, 1); }
+    // la luce dietro al pezzo
+    const g = f.createRadialGradient(cx, cy, 0, cx, cy, Math.max(260, 170 * sc * 1.6));
+    g.addColorStop(0, 'rgba(245,165,36,.10)'); g.addColorStop(1, 'rgba(245,165,36,0)');
+    f.fillStyle = g; f.fillRect(0, 0, W, H);
+  }
+  let ca, sa, cb, sb;
+  const D = 700;
+  function proj(p){
+    const x = p[0], y = p[1] - 55, z = p[2];
+    const x1 = x * ca + z * sa, z1 = -x * sa + z * ca;
+    const y2 = y * cb - z1 * sb, z2 = y * sb + z1 * cb;
+    const f = D / (D + z2);
+    return [cx + x1 * f * sc, cy - y2 * f * sc, z2];
+  }
+  const chiaro = z => .32 + .68 * Math.min(1, Math.max(0, (140 - z) / 280));
+  const somma = (a, b, k = 1) => [a[0] + b[0] * k, a[1] + b[1] * k, a[2] + b[2] * k];
+  function etichetta(x, y, testo, a){
+    ctx.font = '600 ' + (tel ? 11 : 12) + 'px ' + FONT;
+    const w = ctx.measureText(testo).width + 14, h = tel ? 19 : 21;
+    ctx.fillStyle = 'rgba(8,14,24,' + .9 * a + ')'; ctx.strokeStyle = 'rgba(' + BLU + ',' + .6 * a + ')'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.roundRect(x - w / 2, y - h / 2, w, h, h / 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = 'rgba(200,228,255,' + a + ')'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(testo, x, y + .5);
+  }
+  function draw(now){
+    requestAnimationFrame(draw);
+    if (!visibile || document.hidden) return;
+    const t = now - t0;
+    gx += (mx - gx) * .05; gy += (my - gy) * .05;
+    const ay = .55 + t * .00018 + gx * .5, ax = -.46 + gy * .12;
+    ca = Math.cos(ay); sa = Math.sin(ay); cb = Math.cos(ax); sb = Math.sin(ax);
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.drawImage(fondo, 0, 0);
+    ctx.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0);
+    ctx.lineCap = 'round';
+    // il piano di lavoro sotto al pezzo
+    for (let i = -150; i <= 150; i += 30) for (let j = -150; j < 150; j += 30) {
+      const d = Math.hypot(i, j + 15) / 175; if (d >= 1) continue;
+      const a = (1 - d) * .16, A = proj([i, -.5, j]), B = proj([i, -.5, j + 30]), C = proj([j, -.5, i]), Dd = proj([j + 30, -.5, i]);
+      ctx.strokeStyle = 'rgba(' + BLU + ',' + a + ')'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(A[0], A[1]); ctx.lineTo(B[0], B[1]); ctx.moveTo(C[0], C[1]); ctx.lineTo(Dd[0], Dd[1]); ctx.stroke();
+    }
+    // gli spigoli: si disegnano uno dopo l'altro, poi restano
+    const punte = [];
+    for (let i = 0; i < N; i++) {
+      const k = Math.min(1, Math.max(0, (t - 300 - i / N * 2200) / 450)); if (!k) continue;
+      const A = proj(E[i][0]), B = proj(E[i][1]);
+      const bx = A[0] + (B[0] - A[0]) * k, by = A[1] + (B[1] - A[1]) * k, a = chiaro((A[2] + B[2]) / 2);
+      ctx.strokeStyle = 'rgba(' + AMBRA + ',' + a * .16 + ')'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(A[0], A[1]); ctx.lineTo(bx, by); ctx.stroke();
+      ctx.strokeStyle = 'rgba(' + AMBRA + ',' + a + ')'; ctx.lineWidth = 1.3;
+      ctx.beginPath(); ctx.moveTo(A[0], A[1]); ctx.lineTo(bx, by); ctx.stroke();
+      if (k < 1) punte.push([bx, by]);
+    }
+    // la punta della matita mentre disegna
+    punte.forEach(([x, y]) => { ctx.fillStyle = 'rgba(255,236,200,.95)'; ctx.beginPath(); ctx.arc(x, y, 2.2, 0, Math.PI * 2); ctx.fill(); });
+    // le quote, dopo il disegno
+    const aq = Math.min(1, Math.max(0, (t - 2900) / 700));
+    if (aq > 0) {
+      QUOTE.forEach(q => {
+        const A = proj(somma(q.p, q.o)), B = proj(somma(q.q, q.o)), a0 = proj(somma(q.p, q.o, .15)), b0 = proj(somma(q.q, q.o, .15));
+        const A1 = proj(somma(q.p, q.o, 1.15)), B1 = proj(somma(q.q, q.o, 1.15));
+        ctx.strokeStyle = 'rgba(' + BLU + ',' + .55 * aq + ')'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(a0[0], a0[1]); ctx.lineTo(A1[0], A1[1]); ctx.moveTo(b0[0], b0[1]); ctx.lineTo(B1[0], B1[1]); ctx.stroke();
+        ctx.strokeStyle = 'rgba(' + BLU + ',' + .85 * aq + ')';
+        ctx.beginPath(); ctx.moveTo(A[0], A[1]); ctx.lineTo(B[0], B[1]); ctx.stroke();
+        // trattini obliqui alle estremità, come nelle tavole
+        [A, B].forEach(P => { ctx.beginPath(); ctx.moveTo(P[0] - 4, P[1] + 4); ctx.lineTo(P[0] + 4, P[1] - 4); ctx.stroke(); });
+        etichetta((A[0] + B[0]) / 2, (A[1] + B[1]) / 2, q.t, aq);
+      });
+    }
+    // il cartellino del pezzo, agganciato al foro
+    const ac = Math.min(1, Math.max(0, (t - 3500) / 700));
+    if (ac > 0 && !tel) {
+      const P = proj([0, 72, -50]);
+      ctx.font = '600 ' + (tel ? 12 : 13) + 'px ' + FONT;
+      const r1 = 'PRJ-0148 · Staffa motore', r2 = 'Rev. C · Rilasciato';
+      const w = Math.max(ctx.measureText(r1).width, ctx.measureText(r2).width) + 34, h = tel ? 46 : 52;
+      let tx = tel ? W - w - 14 : P[0] + 120, ty = tel ? cy - 170 * sc * .62 - h : P[1] - 110;
+      tx = Math.min(tx, W - w - 14); ty = Math.max(ty, 8);
+      ctx.strokeStyle = 'rgba(255,255,255,' + .35 * ac + ')'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(P[0], P[1]); ctx.lineTo(tx, ty + h / 2); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,' + .9 * ac + ')'; ctx.beginPath(); ctx.arc(P[0], P[1], 3, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(28,28,30,' + .92 * ac + ')'; ctx.strokeStyle = 'rgba(255,255,255,' + .16 * ac + ')';
+      ctx.beginPath(); ctx.roundRect(tx, ty, w, h, 12); ctx.fill(); ctx.stroke();
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'rgba(255,255,255,' + ac + ')'; ctx.fillText(r1, tx + 14, ty + h * .33);
+      ctx.font = '500 ' + (tel ? 11 : 12) + 'px ' + FONT;
+      ctx.fillStyle = 'rgba(48,209,88,' + ac + ')'; ctx.beginPath(); ctx.arc(tx + 18, ty + h * .7, 3.5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(161,161,166,' + ac + ')'; ctx.fillText(r2, tx + 28, ty + h * .7);
+    }
+  }
+  genera();
+  // su iPhone la barra di Safari cambia l'altezza della finestra: si rifà tutto solo se cambia la larghezza
+  addEventListener('resize', () => { if (innerWidth === larghezza) return; clearTimeout(genera.t); genera.t = setTimeout(genera, 200); });
+  addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; });
+  new IntersectionObserver(e => visibile = e[0].isIntersecting).observe(cv);
+  requestAnimationFrame(draw);
+})();
+
+/* ═══ LA SQUADRA: le commesse avanzano da una colonna all'altra ═══ */
+(function(){
+  const kb = document.getElementById('kb'); if (!kb) return;
+  const COL = [['Richiesta','#8e8e93'],['In progettazione','#f5a524'],['In revisione','#0a84ff'],['Rilasciato','#30d158']];
+  const LAVORI = [['UT-0215','Riparo perimetrale linea 3'],['UT-0216','Telaio nastro trasportatore'],['UT-0217','Staffa motore riduttore'],['UT-0218','Carter di protezione pressa'],['UT-0219','Basamento saldato'],['UT-0220','Supporto sensori di linea']];
+  const TEC = [['AR','#ea580c'],['SL','#2563eb']];
+  const STATI = [
+    {tag:'Nuova', c:'', s:'Schizzo e misure ricevuti', w:0},
+    {tag:'3D', c:'g', s:'Modello in corso', w:82},
+    {tag:'Rev. B', c:'b', s:'Controllo con il cliente', w:100},
+    {tag:'✓ Consegnata', c:'v', s:'Tavole, distinte e DXF', w:100}
+  ];
+  const sfondi = COL.map(() => { const d = document.createElement('div'); d.className = 'kb-bg'; kb.appendChild(d); return d; });
+  const teste = COL.map(([t, c]) => { const d = document.createElement('div'); d.className = 'kb-h'; d.innerHTML = `<i style="background:${c}"></i>${t}`; kb.appendChild(d); return d; });
+  const carte = []; let n = 0;
+  function stato(k){
+    const s = STATI[k.col], el = k.el;
+    const tag = el.querySelector('.kc-tag'); tag.textContent = s.tag; tag.className = 'kc-tag ' + s.c;
+    el.querySelector('.kc-s').textContent = s.s;
+    el.querySelector('.av').style.opacity = k.col ? 1 : .25;
+    const b = el.querySelector('.kc-b i'); b.style.width = s.w + '%'; b.style.background = k.col === 3 ? '#30d158' : k.col === 2 ? '#0a84ff' : '';
+    el.classList.toggle('ok', k.col === 3);
+  }
+  function nuova(col){
+    const [c, t] = LAVORI[n % LAVORI.length], chi = col >= 2 ? ['DB','#16a34a'] : TEC[n % 2]; n++;
+    const el = document.createElement('div'); el.className = 'kc entra';
+    el.innerHTML = `<div class="kc-h"><span>${c}</span><i class="kc-tag"></i></div><div class="kc-t">${t}</div><div class="kc-f"><span class="av" style="background:${chi[1]}">${chi[0]}</span><span class="kc-s"></span></div><div class="kc-b"><i></i></div>`;
+    kb.appendChild(el);
+    const k = {el, col, chi}; carte.push(k); stato(k); return k;
+  }
+  function disponi(){
+    const W = kb.clientWidth, largo = W >= 640, gap = 12, cH = largo ? 118 : 104;
+    let altezza = 0;
+    if (largo) {
+      const cw = (W - gap * 3) / 4;
+      let massimo = 1;
+      COL.forEach((_, i) => {
+        const x = i * (cw + gap), mie = carte.filter(k => k.col === i && !k.via);
+        massimo = Math.max(massimo, mie.length);
+        teste[i].style.transform = `translate(${x + 16}px,16px)`;
+        mie.forEach((k, j) => { k.el.style.width = (cw - 20) + 'px'; k.el.style.transform = `translate(${x + 10}px,${48 + j * (cH + 10)}px)`; });
+      });
+      altezza = Math.max(330, 48 + massimo * (cH + 10) + 10);
+      sfondi.forEach((s, i) => { s.style.width = cw + 'px'; s.style.height = altezza + 'px'; s.style.transform = `translate(${i * (cw + gap)}px,0)`; });
+    } else {
+      // telefono: le colonne diventano corsie una sotto l'altra
+      let y = 0;
+      COL.forEach((_, i) => {
+        const mie = carte.filter(k => k.col === i && !k.via), h = 42 + Math.max(1, mie.length) * (cH + 8) + 2;
+        sfondi[i].style.width = W + 'px'; sfondi[i].style.height = h + 'px'; sfondi[i].style.transform = `translate(0,${y}px)`;
+        teste[i].style.transform = `translate(16px,${y + 14}px)`;
+        mie.forEach((k, j) => { k.el.style.width = (W - 20) + 'px'; k.el.style.transform = `translate(10px,${y + 40 + j * (cH + 8)}px)`; });
+        y += h + 8;
+      });
+      altezza = y - 8;
+    }
+    kb.style.height = altezza + 'px';
+  }
+  [3, 2, 1, 0].forEach(c => nuova(c));
+  disponi();
+  requestAnimationFrame(() => requestAnimationFrame(() => carte.forEach(k => k.el.classList.remove('entra'))));
+  // una mossa alla volta, da destra a sinistra: esce la consegnata, avanzano le altre, entra una nuova richiesta
+  let visto = false;
+  new IntersectionObserver(e => { visto = e[0].isIntersecting; }, {threshold:.2}).observe(kb);
+  const mosse = [
+    () => { const k = carte.find(k => k.col === 3); if (!k) return; k.via = true; k.el.classList.add('esce'); setTimeout(() => { k.el.remove(); carte.splice(carte.indexOf(k), 1); }, 600); },
+    () => avanza(2), () => avanza(1), () => avanza(0),
+    () => { const k = nuova(0); disponi(); requestAnimationFrame(() => requestAnimationFrame(() => k.el.classList.remove('entra'))); }
+  ];
+  function avanza(c){
+    const k = carte.find(k => k.col === c && !k.via); if (!k) return;
+    k.col++;
+    if (k.col === 2) { k.chi = ['DB','#16a34a']; const av = k.el.querySelector('.av'); av.textContent = 'DB'; av.style.background = '#16a34a'; }
+    stato(k); disponi();
+  }
+  let m = 0;
+  (function giro(){
+    if (visto && !document.hidden) { mosse[m](); m = (m + 1) % mosse.length; }
+    setTimeout(giro, m === 0 ? 2200 : 750);
+  })();
+  addEventListener('resize', () => { clearTimeout(disponi.t); disponi.t = setTimeout(disponi, 150); });
+})();
+
+/* ═══ L'ARCHIVIO: si scrive una ricerca, si apre il progetto con revisioni e file ═══ */
+(function(){
+  const lista = document.getElementById('arLista'), det = document.getElementById('arDet'), q = document.getElementById('arQ');
+  if (!lista) return;
+  const DATI = [
+    {c:'PRJ-0148', n:'Staffa motore riduttore', g:'staffa', m:'Avvolgitrice AV-200', u:3, rev:[['14/03/2026','Prima emissione'],['02/06/2026','Fori asolati per la regolazione'],['12/09/2026','Spessore portato a 12 mm']], f:['.par','.dft','.pdf','.step','.dxf']},
+    {c:'PRJ-0152', n:'Staffa sensore di prossimità', g:'piastra', m:'Linea di confezionamento', u:5, rev:[['21/04/2026','Prima emissione'],['30/07/2026','Asola per sensore M18']], f:['.par','.dft','.pdf','.dxf']},
+    {c:'PRJ-0161', n:'Riparo perimetrale linea 3', g:'riparo', m:'Linea 3 · palettizzatore', u:2, rev:[['05/05/2026','Prima emissione'],['18/06/2026','Porta di accesso spostata'],['08/10/2026','Rete a maglia 20 mm']], f:['.asm','.dft','.pdf','.step']},
+    {c:'PRJ-0163', n:'Riparo fisso lato operatore', g:'riparo', m:'Pressa PR-80', u:1, rev:[['11/02/2026','Prima emissione'],['27/03/2026','Altezza portata a 1400 mm']], f:['.asm','.dft','.pdf']},
+    {c:'PRJ-0170', n:'Telaio nastro trasportatore', g:'telaio', m:'Nastro di carico NC-12', u:4, rev:[['09/01/2026','Prima emissione'],['14/04/2026','Traversi rinforzati'],['22/09/2026','Piedini regolabili']], f:['.asm','.par','.dft','.pdf','.step']},
+    {c:'PRJ-0174', n:'Telaio quadro elettrico', g:'telaio', m:'Avvolgitrice AV-200', u:2, rev:[['03/06/2026','Prima emissione']], f:['.asm','.dft','.pdf']},
+    {c:'PRJ-0180', n:'Piastra di fissaggio motore', g:'piastra', m:'Nastro di carico NC-12', u:6, rev:[['17/08/2026','Prima emissione'],['01/10/2026','Foro centrale Ø40']], f:['.par','.dft','.pdf','.dxf']}
+  ];
+  const CERCHE = ['staffa', 'riparo', 'telaio'];
+  const righe = DATI.map(d => { const r = document.createElement('div'); r.className = 'ris'; r.innerHTML = `<b>${d.c}</b><span>${d.n}</span>`; lista.appendChild(r); return r; });
+  const anteprime = {}; Object.keys(GEO).forEach(g => anteprime[g] = anteprima(GEO[g](), 220, 130));
+  let visto = false, timer = [];
+  new IntersectionObserver(e => { const prima = visto; visto = e[0].isIntersecting; if (visto && !prima) avvia(); }, {threshold:.25}).observe(lista);
+  const dopo = (ms, f) => timer.push(setTimeout(f, ms));
+  function filtra(testo){
+    DATI.forEach((d, i) => {
+      const ok = !testo || d.n.toLowerCase().includes(testo);
+      righe[i].classList.toggle('via', !ok); righe[i].classList.remove('sel');
+      righe[i].querySelector('span').innerHTML = testo && ok ? d.n.replace(new RegExp('(' + testo + ')', 'i'), '<mark>$1</mark>') : d.n;
+    });
+  }
+  function mostra(d){
+    det.classList.add('spento');
+    dopo(350, () => {
+      const L = 'ABCDEFG';
+      det.innerHTML = `<div class="det-h"><div><small>${d.c}</small><h3>${d.n}</h3></div><span class="badge">Rilasciato</span></div>
+        <div class="det-vis"><div class="det-img">${anteprime[d.g]}</div><div class="det-info"><div><span>Macchina</span><b>${d.m}</b></div><div><span>Revisione</span><b>${L[d.rev.length - 1]}</b></div><div><span>Usato in</span><b>${d.u} assiemi</b></div></div></div>
+        <div class="det-sez">Revisioni</div><div class="revs">${d.rev.map((r, i) => `<div class="rev${i === d.rev.length - 1 ? ' ultima' : ''}"><i>${L[i]}</i><small>${r[0]}</small><span>${r[1]}</span></div>`).join('')}</div>
+        <div class="det-sez">File</div><div class="files">${d.f.map(f => `<span class="file">${f}</span>`).join('')}</div>`;
+      det.classList.remove('spento');
+      det.querySelectorAll('.rev').forEach((r, i) => dopo(500 + i * 260, () => r.classList.add('on')));
+      det.querySelectorAll('.file').forEach((f, i) => dopo(500 + d.rev.length * 260 + i * 110, () => f.classList.add('on')));
+    });
+  }
+  let k = 0;
+  function avvia(){
+    timer.forEach(clearTimeout); timer = [];
+    const parola = CERCHE[k % CERCHE.length]; k++;
+    q.textContent = ''; filtra('');
+    // si scrive una lettera alla volta, e la lista si stringe mentre scrivi
+    [...parola].forEach((c, i) => dopo(500 + i * 110, () => { q.textContent += c; filtra(q.textContent); }));
+    const fine = 500 + parola.length * 110 + 450;
+    dopo(fine, () => {
+      const i = DATI.findIndex(d => d.n.toLowerCase().includes(parola));
+      righe[i].classList.add('sel'); mostra(DATI[i]);
+    });
+    dopo(fine + 5600, () => { if (visto && !document.hidden) avvia(); else timer = []; });
+  }
+  // la prima scheda c'è già, anche prima di arrivare alla sezione
+  filtra(''); righe[0].classList.add('sel'); mostra(DATI[0]);
+})();
+
+/* i pulsanti del preventivo compilano l'oggetto del modulo nella home */
+document.querySelectorAll('[data-oggetto]').forEach(a => a.addEventListener('click', () => { try { sessionStorage.setItem('oggettoContatto', a.dataset.oggetto); } catch(e) {} }));
+
+/* tendina: dopo il clic su una voce si chiude, e si riapre solo ripassando col mouse */
+document.querySelectorAll('body>nav .nav-tendina').forEach(t => {
+  t.querySelectorAll('.tendina a').forEach(a => a.addEventListener('click', () => { t.classList.add('chiusa'); a.blur(); }));
+  t.addEventListener('mouseleave', () => t.classList.remove('chiusa'));
+});
+</script>
+
+<script>
+/* telefono: il menu a scomparsa con le pagine del sito (Contattaci resta nella barra in alto) */
+(function(){
+  const giro = document.querySelector('body>nav .nav-giro'), voci = document.querySelector('body>nav .nav-links');
+  if (!giro || !voci) return;
+  const btn = document.createElement('button');
+  btn.className = 'nav-menu'; btn.setAttribute('aria-label', 'Menu'); btn.innerHTML = '<i></i><i></i>';
+  giro.appendChild(btn);
+  const m = document.createElement('div');
+  m.className = 'menu-tel';
+  const qui = location.pathname.split('/').pop() || 'index.html';
+  let k = 0;
+  m.innerHTML = [['Home','index.html'],['Hardware','hardware.html'],['Assistenza IT','assistenza.html'],['Progettazione CAD','ufficio-tecnico.html']].map(([t, h]) =>
+    `<div class="mt-v" style="transition-delay:${(k++) * 45}ms"><a class="mt-g${qui === h ? ' attivo' : ''}" href="${h}">${t}</a></div>`).join('');
+  document.body.appendChild(m);
+  const chiudi = () => document.body.classList.remove('menu-aperto');
+  btn.addEventListener('click', () => document.body.classList.toggle('menu-aperto'));
+  m.addEventListener('click', e => { if (e.target.closest('a')) chiudi(); });
+  addEventListener('resize', () => { if (innerWidth > 900) chiudi(); });
+})();
+</script>
+<script>
+/* telefono: nel footer le colonne si aprono e si chiudono a tocco */
+document.querySelectorAll('.piede-col h4').forEach(h => h.addEventListener('click', () => { if (innerWidth <= 760) h.parentElement.classList.toggle('aperto'); }));
+</script>
+</body>
+</html>

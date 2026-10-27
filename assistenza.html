@@ -41,9 +41,75 @@ body>nav .nav-tendina.chiusa > a::after{transform:translateY(-3px) rotate(45deg)
 @media(max-width:900px){body>nav .nav-links > a:not(.nav-cta),body>nav .nav-tendina{display:none}body>nav .nav-logo::after{margin:0 14px}}
 
 /* ═══ APERTURA: come la pagina Hardware, con l'armadio server vivo ═══ */
-.hero{position:relative;overflow:hidden;min-height:max(94vh,860px);display:flex;flex-direction:column;align-items:center;text-align:center;background:#000;color:#f5f5f7;padding:130px 32px 100px}
-#rackVivo{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
-.hero h1,.hero .lead,.hero .azioni{position:relative;z-index:2}
+.hero{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;text-align:center;background:#000;color:#f5f5f7;padding:130px 32px 130px}
+.hero h1,.hero .lead,.hero .azioni,.scena{position:relative;z-index:2}
+.hero::after{height:150px!important}
+@media(max-width:900px){.hero::after{height:90px!important}}
+
+/* ═══ APERTURA: problema → chiamata → risolto, in pochi secondi ═══ */
+.scena{--c:116px;--filo:300px;margin-top:70px;display:flex;flex-direction:column;align-items:center;gap:22px}
+.scena-riga{display:flex;align-items:flex-start}
+.nodo{width:180px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.cerchio{position:relative;width:var(--c);height:var(--c);border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,#1f1f22,#0d0d0f);border:1.5px solid rgba(255,255,255,.16);transition:border-color .4s,box-shadow .4s}
+.cerchio svg{width:46%;height:46%;fill:none;stroke:#f5f5f7;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:stroke .4s,opacity .25s}
+.nodo b{margin-top:14px;font-size:16px;font-weight:600;letter-spacing:-.015em;color:#f5f5f7;transition:opacity .25s}
+.nodo small{margin-top:4px;font-size:13.5px;font-weight:500;color:#86868b;transition:color .3s}
+.segno{position:absolute;top:2px;right:2px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:16px;font-weight:800;color:#fff;opacity:0;transform:scale(.4);transition:opacity .3s,transform .4s cubic-bezier(.3,1.7,.5,1),background .3s}
+.led{position:absolute;bottom:16%;width:7px;height:7px;border-radius:50%;background:#30d158;box-shadow:0 0 10px #30d158;transition:background .3s,box-shadow .3s}
+.filo{position:relative;width:var(--filo);height:var(--c);display:flex;align-items:center}
+.filo::before{content:'';position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.18) 0 6px,transparent 6px 12px);transition:background .4s}
+.impulso{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--ambra);box-shadow:0 0 16px 4px rgba(245,165,36,.6);opacity:0}
+.fumetto{position:absolute;left:50%;bottom:calc(50% + 18px);transform:translate(-50%,8px);white-space:nowrap;font-size:13.5px;font-weight:600;padding:8px 14px;border-radius:999px;background:#1c1c1e;border:1px solid rgba(255,255,255,.14);color:#f5f5f7;opacity:0;transition:opacity .3s,transform .4s;font-variant-numeric:tabular-nums}
+.fumetto i{font-style:normal;color:var(--ambra);margin-right:6px}
+.anello{position:absolute;inset:-1px;border-radius:50%;border:2px solid var(--ambra);opacity:0}
+.fasi{display:flex;gap:8px}
+.fasi span{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#6e6e73;padding:7px 14px 7px 8px;border-radius:999px;background:#111113;border:1px solid rgba(255,255,255,.08);transition:all .35s}
+.fasi span i{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:11px;background:#2c2c2e;color:#a1a1a6;transition:all .35s}
+/* 1. guasto */
+.scena.guasto .dev .cerchio{border-color:#ff453a;box-shadow:0 0 0 6px rgba(255,69,58,.12),0 0 50px rgba(255,69,58,.35);animation:trema .5s ease 2}
+.scena.guasto .dev .segno{opacity:1;transform:none;background:#ff453a}
+.scena.guasto .dev .led,.scena.chiama .dev .led{background:#ff453a;box-shadow:0 0 10px #ff453a}
+.scena.guasto .dev small,.scena.chiama .dev small{color:#ff6961}
+@keyframes trema{0%,100%{transform:none}20%{transform:translateX(-5px) rotate(-2deg)}40%{transform:translateX(5px) rotate(2deg)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+/* 2. chiamata */
+.scena.chiama .dev .segno{opacity:1;transform:none;background:#ff453a}
+.scena.chiama .dev .cerchio{border-color:rgba(255,69,58,.6)}
+.scena.chiama .tec .cerchio{border-color:var(--ambra);box-shadow:0 0 50px rgba(245,165,36,.35)}
+.scena.chiama .tec .anello{animation:squillo 1s ease-out infinite}.scena.chiama .tec .anello.b{animation-delay:.5s}
+@keyframes squillo{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(1.55)}}
+.scena.chiama .tec svg{animation:vibra .25s linear infinite}
+@keyframes vibra{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+.scena.chiama .fumetto,.scena.collegato .fumetto,.scena.risolto .fumetto{opacity:1;transform:translate(-50%,0)}
+.scena.chiama .filo::before{background:repeating-linear-gradient(90deg,rgba(245,165,36,.9) 0 6px,transparent 6px 12px);background-size:24px 2px;animation:scorre .5s linear infinite}
+@keyframes scorre{to{background-position:24px 0}}
+/* 3. collegato: il tecnico interviene da remoto */
+.scena.collegato .filo::before,.scena.risolto .filo::before{background:linear-gradient(90deg,rgba(48,209,88,.7),rgba(245,165,36,.9))}
+.scena.collegato .impulso{animation:vaiTorna 1s cubic-bezier(.5,0,.5,1) infinite}
+@keyframes vaiTorna{0%{left:100%;opacity:0}15%{opacity:1}85%{opacity:1}100%{left:0;opacity:0}}
+.scena.collegato .tec .cerchio{border-color:var(--ambra);box-shadow:0 0 40px rgba(245,165,36,.3)}
+.scena.collegato .dev .cerchio{border-color:var(--ambra)}
+.scena.collegato .dev .led{background:var(--ambra);box-shadow:0 0 10px var(--ambra);animation:lampo .3s steps(1) infinite}
+@keyframes lampo{50%{opacity:.2}}
+/* 4. risolto */
+.scena.risolto .dev .cerchio{border-color:#30d158;box-shadow:0 0 0 6px rgba(48,209,88,.12),0 0 50px rgba(48,209,88,.35)}
+.scena.risolto .dev .segno{opacity:1;transform:none;background:#30d158}
+.scena.risolto .dev small,.scena.risolto .tec small{color:#4ade80}
+.scena.risolto .tec .cerchio{border-color:rgba(48,209,88,.6)}
+.fasi span.on{color:#f5f5f7;border-color:rgba(255,255,255,.2);background:#1c1c1e}
+.fasi span.on i{background:var(--ambra);color:#000}
+.fasi span.fatto i{background:#30d158;color:#000;font-size:0}
+.fasi span.fatto i::after{content:'✓';font-size:12px}
+@media(max-width:600px){
+  .scena{--c:80px;--filo:96px;margin-top:84px;gap:18px}
+  .nodo{width:118px}
+  .nodo b{font-size:14px;margin-top:10px}
+  .nodo small{font-size:12px}
+  .segno{width:24px;height:24px;font-size:13px;top:0;right:0}
+  .fumetto{font-size:12px;padding:6px 11px;bottom:calc(50% + 50px)}
+  .fasi{gap:5px}
+  .fasi span{font-size:11.5px;padding:5px 10px 5px 5px;gap:6px}
+  .fasi span i{width:17px;height:17px;font-size:10px}
+}
 .hero h1{font-size:clamp(38px,5.2vw,68px);font-weight:700;letter-spacing:-.035em;line-height:1.05;margin-bottom:18px}
 .hero h1 em{font-style:normal;color:var(--ambra);display:inline-block;transition:opacity .35s,transform .35s}
 .hero h1 em.cambia{opacity:0;transform:translateY(10px)}
@@ -155,7 +221,8 @@ section{padding:110px 32px;position:relative}
   .flusso{grid-template-columns:1fr;gap:28px}
   .tempi{grid-template-columns:1fr 1fr}
   section,.cta{padding:72px 16px}
-  .hero{padding:100px 16px 64px}
+  .hero{padding:100px 16px 96px}
+  .hero::after{height:90px}
 }
 
 /* ═══ PIÈ DI PAGINA, stile apple.com: chiaro, a colonne ═══ */
@@ -262,18 +329,25 @@ footer.piede{background:#f5f5f7;color:#6e6e73;border-top:1px solid #d2d2d7;paddi
     <a href="index.html#servizi">Servizi</a>
     <div class="nav-tendina"><a href="index.html#software">Software</a><div class="tendina"><a href="index.html#demo-0">Configuratore tecnico e commerciale</a><a href="index.html#demo-1">CRM attività e ticket</a><a href="index.html#demo-2">PDM SmartBlock</a><a href="index.html#demo-3">MES di produzione</a><a href="index.html#demo-4">Analisi aziendali</a><a href="index.html#demo-5">Nodo AI</a></div></div>
     <div class="nav-tendina"><a href="hardware.html">Hardware</a><div class="tendina"><a href="hardware.html#catalogo">Catalogo</a><a href="hardware.html#macchine">PC rigenerati</a><a href="hardware.html#configuratore">Configura il tuo PC</a></div></div>
-    <a href="assistenza.html" class="attivo">Assistenza</a>
-    <a href="index.html#metodo">Metodo</a>
+    <a href="assistenza.html" class="attivo">Assistenza IT</a>
+    <a href="ufficio-tecnico.html">Progettazione CAD</a>
     <a href="index.html#contatti" class="nav-cta">Contattaci</a>
   </div>
 </div></nav>
 
 <!-- ═══ APERTURA ═══ -->
 <div class="hero">
-  <canvas id="rackVivo"></canvas>
   <h1>La tua <em id="asWord">informatica</em>,<br>sempre accesa.</h1>
   <p class="lead">Un solo referente per PC, server, rete, backup e gestionale della tua azienda. Interveniamo da remoto in pochi minuti, o in sede quando serve.</p>
   <div class="azioni"><a class="pill" href="index.html#contatti" data-oggetto="Preventivo assistenza IT">Richiedi un preventivo</a><a class="link" href="#come">Come funziona ›</a></div>
+  <div class="scena" id="scena" aria-hidden="true">
+    <div class="scena-riga">
+      <div class="nodo dev"><div class="cerchio"><svg id="devIc" viewBox="0 0 24 24"></svg><span class="led"></span><span class="segno" id="devSegno">!</span></div><b id="devNome">Stampante</b><small id="devStato">In funzione</small></div>
+      <div class="filo"><span class="impulso"></span><span class="fumetto" id="fumetto"></span></div>
+      <div class="nodo tec"><div class="cerchio"><span class="anello"></span><span class="anello b"></span><svg viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-2 2.5-5 2.5h-1"/></svg></div><b>Tecnico NodoItalia</b><small id="tecStato">Disponibile</small></div>
+    </div>
+    <div class="fasi" id="fasi"><span><i>1</i>Problema</span><span><i>2</i>Chiami</span><span><i>3</i>Risolto</span></div>
+  </div>
 </div>
 
 <!-- ═══ 1. COSA SEGUIAMO ═══ -->
@@ -325,7 +399,7 @@ footer.piede{background:#f5f5f7;color:#6e6e73;border-top:1px solid #d2d2d7;paddi
   <div class="sez-titolo rivela"><span class="tag">Come lavoriamo insieme</span><h2>Scegli la formula<br>che ti serve.</h2><p>Prima del lavoro ricevi un preventivo dettagliato: sai cosa facciamo e quanto costa.</p></div>
   <div class="formule">
     <div class="fm rivela">
-      <svg class="anim" viewBox="0 0 100 100" fill="none"><circle class="onda" cx="50" cy="50" r="20" stroke="#f59e0b" stroke-width="1.5"/><circle class="onda b" cx="50" cy="50" r="20" stroke="#f59e0b" stroke-width="1.5"/><g class="squilla"><path d="M34 30c0-3 2-5 5-5h2l4 9-3 3c2 4 5 7 9 9l3-3 9 4v2c0 3-2 5-5 5-14 0-26-12-26-26z" fill="#1d1d1f"/></g></svg>
+      <svg class="anim" viewBox="0 0 100 100" fill="none"><circle class="onda" cx="50" cy="50" r="20" stroke="#f59e0b" stroke-width="1.5"/><circle class="onda b" cx="50" cy="50" r="20" stroke="#f59e0b" stroke-width="1.5"/><g class="squilla"><path transform="translate(2.5 10.5)" d="M34 30c0-3 2-5 5-5h2l4 9-3 3c2 4 5 7 9 9l3-3 9 4v2c0 3-2 5-5 5-14 0-26-12-26-26z" fill="#1d1d1f"/></g></svg>
       <small>A chiamata</small><h3>Quando serve</h3><p>Per chi ha bisogno ogni tanto: chiami, interveniamo, paghi solo le ore fatte.</p>
       <ul><li>Nessun vincolo</li><li>Da remoto o in sede</li><li>Resoconto di ogni intervento</li></ul>
     </div>
@@ -369,7 +443,7 @@ footer.piede{background:#f5f5f7;color:#6e6e73;border-top:1px solid #d2d2d7;paddi
     </div>
     <div class="piede-col">
       <div><h4>Software</h4><a href="index.html#demo-0">Configuratore</a><a href="index.html#demo-1">CRM attività e ticket</a><a href="index.html#demo-2">PDM SmartBlock</a><a href="index.html#demo-3">MES di produzione</a><a href="index.html#demo-4">Analisi aziendali</a><a href="index.html#demo-5">Nodo AI</a></div>
-      <div><h4>Servizi</h4><a href="index.html#servizi">Siti web e app</a><a href="index.html#servizi">Integrazione ERP</a><a href="index.html#servizi">Rebranding</a><a href="assistenza.html">Assistenza IT</a></div>
+      <div><h4>Servizi</h4><a href="index.html#servizi">Siti web e app</a><a href="index.html#servizi">Integrazione ERP</a><a href="ufficio-tecnico.html">Ufficio tecnico</a><a href="assistenza.html">Assistenza IT</a></div>
       <div><h4>Hardware</h4><a href="hardware.html#catalogo">Catalogo</a><a href="hardware.html#macchine">PC rigenerati</a><a href="hardware.html#configuratore">Configura il tuo PC</a></div>
       <div><h4>Contatti</h4><a href="mailto:info@nodoitalia.it">info@nodoitalia.it</a><a href="mailto:marketing@nodoitalia.it">marketing@nodoitalia.it</a><a href="index.html#metodo">Come lavoriamo</a><a class="arancio" href="index.html#contatti">Chiedi una demo</a></div>
     </div>
@@ -397,6 +471,41 @@ footer.piede{background:#f5f5f7;color:#6e6e73;border-top:1px solid #d2d2d7;paddi
   }, 2600);
 })();
 
+/* apertura: si guasta qualcosa, chiami, il tecnico si collega e risolve */
+(function(){
+  const sc = document.getElementById('scena'); if (!sc) return;
+  const ic = document.getElementById('devIc'), nome = document.getElementById('devNome'), st = document.getElementById('devStato'), segno = document.getElementById('devSegno');
+  const tec = document.getElementById('tecStato'), fum = document.getElementById('fumetto'), fasi = [...document.querySelectorAll('#fasi span')];
+  const DEV = [
+    {n:'Stampante', g:'Non stampa', r:'Coda di stampa sbloccata', i:'<path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/>'},
+    {n:'PC ufficio', g:'Bloccato', r:'Aggiornamento sistemato', i:'<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>'},
+    {n:'Server', g:'Non risponde', r:'Servizio riavviato', i:'<rect x="4" y="3" width="16" height="7" rx="1.5"/><rect x="4" y="14" width="16" height="7" rx="1.5"/><path d="M8 6.5h.01M8 17.5h.01"/>'},
+    {n:'Wi-Fi', g:'Rete assente', r:'Rete ripristinata', i:'<path d="M5 12.6a10 10 0 0114 0M8.5 16a5 5 0 017 0M2 9a15 15 0 0120 0"/><circle cx="12" cy="19.5" r="1"/>'}
+  ];
+  let k = 0, visto = true, timer = [];
+  new IntersectionObserver(e => { visto = e[0].isIntersecting; }).observe(sc);
+  const fase = (cls, n) => { sc.className = 'scena ' + cls; fasi.forEach((f, j) => { f.classList.toggle('on', j === n); f.classList.toggle('fatto', j < n); }); };
+  function giro(){
+    timer.forEach(clearTimeout); timer = [];
+    if (!visto || document.hidden) { timer.push(setTimeout(giro, 800)); return; }
+    const d = DEV[k++ % DEV.length], dopo = (ms, f) => timer.push(setTimeout(f, ms));
+    // 0: tutto funziona
+    ic.innerHTML = d.i; nome.textContent = d.n; st.textContent = 'In funzione'; tec.textContent = 'Disponibile'; segno.textContent = '!';
+    fase('', -1); fum.innerHTML = '';
+    // 1: si guasta
+    dopo(900, () => { st.textContent = d.g; fase('guasto', 0); });
+    // 2: chiami: il tecnico risponde in due secondi
+    dopo(2300, () => { fase('chiama', 1); tec.textContent = 'Squilla…'; fum.innerHTML = '<i>✆</i>Chiamata · 00:01'; });
+    dopo(3100, () => { fum.innerHTML = '<i>✆</i>Chiamata · 00:02'; tec.textContent = 'Risponde'; });
+    // 3: si collega da remoto
+    dopo(3900, () => { fase('collegato', 1); st.textContent = 'Intervento in corso'; tec.textContent = 'Collegato da remoto'; fum.innerHTML = '<i>⇄</i>Da remoto'; });
+    // 4: risolto
+    dopo(5600, () => { fase('risolto', 3); segno.textContent = '✓'; st.textContent = d.r; tec.textContent = 'Risolto'; fum.innerHTML = '<i style="color:#30d158">✓</i>' + (innerWidth < 600 ? 'Risolto' : 'Risolto, senza aspettare'); });
+    dopo(8200, giro);
+  }
+  giro();
+})();
+
 /* come funziona: i passi a sinistra e il ticket a destra vanno insieme */
 (function(){
   const passi = [...document.querySelectorAll('.passo')];
@@ -422,150 +531,6 @@ footer.piede{background:#f5f5f7;color:#6e6e73;border-top:1px solid #d2d2d7;paddi
   passi.forEach((p,j) => p.addEventListener('click', () => { k = j; vai(); }));
 })();
 
-/* ═══ SFONDO DELL'APERTURA: armadio server vivo, collegato ai PC dell'azienda ═══ */
-(function(){
-  const cv = document.getElementById('rackVivo'); if (!cv) return;
-  const ctx = cv.getContext('2d'), dpr = Math.min(devicePixelRatio || 1, 3);
-  let tel = false, larghezza = 0;
-  const LOGO = new Path2D('M1023 1120 c160 -49 277 -174 277 -295 0 -63 -20 -105 -69 -147 -54 -46 -117 -64 -211 -59 -94 5 -146 5 -240 0 -94 -5 -157 13 -211 59 -118 102 -84 270 78 378 122 81 250 103 376 64z M805 1025 c-82 -29 -101 -98 -49 -177 24 -38 117 -108 143 -108 26 0 113 63 142 103 33 46 39 108 14 144 -32 46 -170 66 -250 38z M605 865 c-17 -43 -17 -49 -2 -80 18 -38 53 -60 112 -70 l40 -7 -43 44 c-24 25 -53 71 -66 102 l-24 58 -17 -47z M1157 859 c-11 -31 -38 -72 -65 -102 l-47 -50 40 7 c57 11 92 32 110 66 19 36 19 46 -3 93 l-17 38 -18 -52z');
-  const TIPI = ['pc','stampante','wifi','portatile','nas','pc','telefono','pc'];
-  let W, H, cx, cy, S, R, alto, cavi = [], pacchetti = [], led = [], visibile = true, t0 = performance.now();
-  function genera(){
-    W = cv.offsetWidth; H = cv.offsetHeight; tel = W < 700; larghezza = innerWidth;
-    // pixel interi del canvas: con lo zoom di Windows al 125% / 150% il disegno resta nitido
-    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
-    cv.style.width = W + 'px'; cv.style.height = H + 'px';
-    ctx.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0);
-    // tutto sta sotto ai pulsanti: niente si sovrappone alle scritte
-    const az = cv.parentElement.querySelector('.azioni');
-    alto = az.offsetTop + az.offsetHeight + 60;
-    const basso = Math.max(alto + 280, H - 140), spazio = basso - alto;
-    cx = W / 2; cy = alto + spazio / 2;
-    R = {h:Math.round(Math.min(spazio * .9, 430))}; R.w = Math.round(R.h * .7); R.x = Math.round(cx - R.w / 2); R.y = Math.round(cy - R.h / 2);
-    S = R.h / 1.15;
-    cavi = []; pacchetti = [];
-    const perLato = W < 700 ? 2 : 4;
-    for (let lato of [-1, 1]) for (let r = 0; r < perLato; r++) {
-      const f = perLato > 1 ? r / (perLato - 1) : .5;
-      const yu = R.y + R.h * (.24 + .62 * f);
-      // i dispositivi stanno in colonna, alla stessa distanza dai due lati
-      const xd = cx + lato * Math.min(W / 2 - 50, R.w / 2 + Math.max(150, W * .24)), yd = alto + spazio * (.06 + .88 * f);
-      // i cavi in alto girano prima di quelli più interni: nessun incrocio
-      const k = r < perLato / 2 ? r : perLato - 1 - r;
-      const x0 = cx + lato * R.w / 2, xm = x0 + lato * (30 + k * 24);
-      const pts = [{x:x0, y:yu}, {x:xm, y:yu}, {x:xm, y:yd}, {x:xd - lato * 30, y:yd}];
-      let L = 0; for (let k = 1; k < pts.length; k++) L += Math.hypot(pts[k].x - pts[k-1].x, pts[k].y - pts[k-1].y);
-      cavi.push({pts, L, tipo:TIPI[cavi.length % TIPI.length], dx:xd, dy:yd, lato, luce:0});
-    }
-    for (let i = 0; i < cavi.length * 2; i++) { const p = nuovo(); p.d = Math.random() * cavi[p.c].L; pacchetti.push(p); }
-    led = Array.from({length:6 * 4}, () => ({on:Math.random() > .3, t:Math.random() * 3}));
-  }
-  const nuovo = () => ({c:Math.floor(Math.random() * cavi.length), d:0, v:110 + Math.random() * 150, su:Math.random() < .6, att:0});
-  function punto(c, d){
-    const p = c.pts;
-    for (let i = 1; i < p.length; i++) {
-      const s = Math.hypot(p[i].x - p[i-1].x, p[i].y - p[i-1].y);
-      if (d <= s) { const f = d / s; return {x:p[i-1].x + (p[i].x - p[i-1].x) * f, y:p[i-1].y + (p[i].y - p[i-1].y) * f}; }
-      d -= s;
-    }
-    return p[p.length - 1];
-  }
-  // i dispositivi dell'azienda, disegnati a linee
-  function icona(c){
-    const a = .4 + c.luce * .6;
-    ctx.save(); ctx.translate(c.dx, c.dy);
-    ctx.strokeStyle = `rgba(229,229,234,${a})`; ctx.lineWidth = 1.6; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-    ctx.fillStyle = 'rgba(28,28,30,.92)';
-    ctx.beginPath();
-    if (c.tipo === 'pc') { ctx.roundRect(-20, -15, 40, 26, 3); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-8, 18); ctx.lineTo(8, 18); ctx.moveTo(0, 11); ctx.lineTo(0, 18); ctx.stroke(); }
-    else if (c.tipo === 'portatile') { ctx.roundRect(-16, -13, 32, 21, 3); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-22, 12); ctx.lineTo(22, 12); ctx.stroke(); }
-    else if (c.tipo === 'stampante') { ctx.roundRect(-18, -6, 36, 18, 3); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.rect(-11, -16, 22, 10); ctx.moveTo(-10, 12); ctx.lineTo(-10, 18); ctx.lineTo(10, 18); ctx.lineTo(10, 12); ctx.stroke(); }
-    else if (c.tipo === 'wifi') { for (let r = 6; r <= 18; r += 6) { ctx.beginPath(); ctx.arc(0, 8, r, Math.PI * 1.2, Math.PI * 1.8); ctx.stroke(); } ctx.beginPath(); ctx.arc(0, 8, 2.2, 0, 7); ctx.fillStyle = `rgba(229,229,234,${a})`; ctx.fill(); }
-    else if (c.tipo === 'nas') { ctx.roundRect(-14, -17, 28, 34, 3); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-8, -6); ctx.lineTo(8, -6); ctx.moveTo(-8, 2); ctx.lineTo(8, 2); ctx.stroke(); }
-    else { ctx.roundRect(-9, -16, 18, 32, 4); ctx.fill(); ctx.stroke(); }
-    ctx.beginPath(); ctx.arc(c.lato < 0 ? -26 : 26, -14, 3, 0, 7);
-    ctx.fillStyle = `rgba(48,209,88,${.5 + c.luce * .5})`; ctx.shadowColor = '#30d158'; ctx.shadowBlur = tel ? 0 : 10 * c.luce; ctx.fill();
-    ctx.restore();
-  }
-  let prima = performance.now();
-  function draw(ora){
-    requestAnimationFrame(draw);
-    if (!visibile) { prima = ora; return; }
-    const dt = Math.min((ora - prima) / 1000, .05); prima = ora;
-    const t = (ora - t0) / 1000;
-    ctx.clearRect(0, 0, W, H);
-    // alone caldo dietro l'armadio
-    const resp = .6 + Math.sin(t * 1.6) * .15;
-    const al = ctx.createRadialGradient(cx, cy, S * .2, cx, cy, S * 1.7);
-    al.addColorStop(0, `rgba(245,140,30,${.36 * resp})`); al.addColorStop(1, 'rgba(245,140,30,0)');
-    ctx.fillStyle = al; ctx.fillRect(cx - S * 2, cy - S * 2, S * 4, S * 4);
-    // cavi di rete
-    ctx.lineWidth = 1.4; ctx.strokeStyle = 'rgba(255,255,255,.1)';
-    cavi.forEach(c => { ctx.beginPath(); ctx.moveTo(c.pts[0].x, c.pts[0].y); c.pts.slice(1).forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke(); c.luce = Math.max(0, c.luce - dt * 1.2); });
-    // dati in viaggio: arancio verso i PC, azzurri verso il server
-    pacchetti.forEach((p, i) => {
-      const c = cavi[p.c]; p.d += p.v * dt;
-      if (p.d > c.L) { if (p.su) c.luce = 1; pacchetti[i] = nuovo(); return; }
-      const col = p.su ? '245,165,36' : '110,190,255';
-      for (let k = 0; k < 7; k++) {
-        const dd = Math.max(0, p.d - k * 6);
-        const q = punto(c, p.su ? dd : c.L - dd);
-        ctx.beginPath(); ctx.arc(q.x, q.y, 2.4 - k * .28, 0, 7); ctx.fillStyle = `rgba(${col},${.95 - k * .13})`; ctx.fill();
-      }
-    });
-    cavi.forEach(icona);
-    // armadio rack
-    ctx.save();
-    ctx.shadowColor = `rgba(245,150,40,${.45 * resp})`; ctx.shadowBlur = tel ? 0 : 30;
-    const mg = ctx.createLinearGradient(R.x, 0, R.x + R.w, 0);
-    mg.addColorStop(0, '#3a3c42'); mg.addColorStop(.5, '#5a5d64'); mg.addColorStop(1, '#2e3035');
-    ctx.fillStyle = mg; ctx.beginPath(); ctx.roundRect(R.x, R.y, R.w, R.h, 10); ctx.fill();
-    ctx.restore();
-    ctx.fillStyle = '#121316'; ctx.beginPath(); ctx.roundRect(R.x + 8, R.y + 8, R.w - 16, R.h - 16, 6); ctx.fill();
-    // targa in alto con il logo Nodo
-    const ux = R.x + 14, uw = R.w - 28, tH = Math.round(R.h * .13);
-    let y = R.y + 14;
-    const tg = ctx.createLinearGradient(0, y, 0, y + tH); tg.addColorStop(0, '#dcdfe3'); tg.addColorStop(1, '#a9adb3');
-    ctx.fillStyle = tg; ctx.beginPath(); ctx.roundRect(ux, y, uw, tH, 4); ctx.fill();
-    const ls = tH * .6 / 760;
-    ctx.save(); ctx.translate(ux + 12 - 380 * ls, y + tH * .2 + 1280 * ls); ctx.scale(ls, -ls); ctx.fillStyle = '#2b2e33'; ctx.fill(LOGO); ctx.restore();
-    ctx.fillStyle = '#1d1f23'; ctx.font = `700 ${Math.round(tH * .42)}px -apple-system,'Segoe UI Variable Display','Segoe UI',sans-serif`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText('NODO', Math.round(ux + 20 + 1060 * ls), Math.round(y + tH / 2) + 1);
-    y += tH + 6;
-    // sei unità con spie e prese d'aria
-    const uH = Math.floor((R.y + R.h - 14 - y - 5 * 5) / 6);
-    for (let u = 0; u < 6; u++) {
-      const ug = ctx.createLinearGradient(0, y, 0, y + uH); ug.addColorStop(0, '#2a2c31'); ug.addColorStop(1, '#1d1f23');
-      ctx.fillStyle = ug; ctx.beginPath(); ctx.roundRect(ux, y, uw, uH, 3); ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,.07)'; ctx.lineWidth = 1;
-      for (let g = 0; g < 6; g++) { const gx = ux + uw * .4 + g * uw * .06; ctx.beginPath(); ctx.moveTo(gx, y + uH * .28); ctx.lineTo(gx, y + uH * .72); ctx.stroke(); }
-      for (let l = 0; l < 4; l++) {
-        const L = led[u * 4 + l]; L.t -= dt;
-        if (L.t < 0) { L.on = Math.random() > (l === 1 ? .5 : .12); L.t = l === 1 ? .05 + Math.random() * .2 : .6 + Math.random() * 2.5; }
-        const col = l === 1 ? '245,165,36' : (l === 3 ? '10,132,255' : '48,209,88');
-        ctx.beginPath(); ctx.arc(ux + 12 + l * 9, y + uH / 2, 2.3, 0, 7);
-        ctx.fillStyle = L.on ? `rgb(${col})` : `rgba(${col},.18)`;
-        ctx.shadowColor = `rgb(${col})`; ctx.shadowBlur = L.on && !tel ? 8 : 0; ctx.fill(); ctx.shadowBlur = 0;
-      }
-      if (u === 0) {
-        ctx.fillStyle = '#0a0b0d'; ctx.beginPath(); ctx.roundRect(Math.round(ux + uw * .78 - uw * .2), Math.round(y + uH * .16), Math.round(uw * .4), Math.round(uH * .68), 3); ctx.fill();
-        ctx.fillStyle = '#30d158'; ctx.font = `700 ${Math.max(11, Math.round(uH * .4))}px -apple-system,'Segoe UI Variable Display','Segoe UI',sans-serif`; ctx.textAlign = 'center';
-        ctx.fillText(Math.floor(t / 2) % 2 ? 'ONLINE' : '99,98%', Math.round(ux + uw * .78), Math.round(y + uH / 2) + 1);
-      }
-      y += uH + 5;
-    }
-    // velo in alto: il testo resta leggibile
-    const v = ctx.createLinearGradient(0, 0, 0, alto);
-    v.addColorStop(0, 'rgba(0,0,0,.95)'); v.addColorStop(.8, 'rgba(0,0,0,.7)'); v.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = v; ctx.fillRect(0, 0, W, alto);
-  }
-  genera();
-  // su iPhone, scorrendo, la barra di Safari cambia l'altezza della finestra: si rifà tutto solo se cambia la larghezza
-  addEventListener('resize', () => { if (innerWidth === larghezza) return; clearTimeout(genera.t); genera.t = setTimeout(genera, 200); });
-  new IntersectionObserver(e => visibile = e[0].isIntersecting).observe(cv);
-  requestAnimationFrame(draw);
-})();
-
 /* i pulsanti del preventivo compilano l'oggetto del modulo nella home */
 document.querySelectorAll('[data-oggetto]').forEach(a => a.addEventListener('click', () => { try { sessionStorage.setItem('oggettoContatto', a.dataset.oggetto); } catch(e) {} }));
 
@@ -589,7 +554,7 @@ document.querySelectorAll('body>nav .nav-tendina').forEach(t => {
   // sul telefono il menu ha solo le tre pagine: Home, Hardware, Assistenza (Contattaci resta nella barra in alto)
   const qui = location.pathname.split('/').pop() || 'index.html';
   let k = 0;
-  const html = [['Home','index.html'],['Hardware','hardware.html'],['Assistenza','assistenza.html']].map(([t, h]) =>
+  const html = [['Home','index.html'],['Hardware','hardware.html'],['Assistenza IT','assistenza.html'],['Progettazione CAD','ufficio-tecnico.html']].map(([t, h]) =>
     `<div class="mt-v" style="transition-delay:${(k++) * 45}ms"><a class="mt-g${qui === h ? ' attivo' : ''}" href="${h}">${t}</a></div>`).join('');
   m.innerHTML = html;  document.body.appendChild(m);
   const chiudi = () => document.body.classList.remove('menu-aperto');
