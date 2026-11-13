@@ -1,0 +1,36 @@
+name: Scalata
+options:
+  bundleIdPrefix: com.luca
+  deploymentTarget:
+    iOS: "15.0"
+targets:
+  Scalata:
+    type: application
+    platform: iOS
+    scheme: {}
+    sources:
+      - path: Sources
+      - path: web
+        type: folder
+      - path: Resources
+    info:
+      path: Sources/Info.plist
+      properties:
+        CFBundleDisplayName: Scalata
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UIStatusBarStyle: UIStatusBarStyleLightContent
+        UIViewControllerBasedStatusBarAppearance: false
+        UIRequiresFullScreen: true
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.luca.scalata
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_STYLE: Automatic
+        SWIFT_VERSION: "5.0"
