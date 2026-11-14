@@ -1,7 +1,7 @@
 {
  "app": "sentinel",
  "version": 2,
- "updated": "2026-11-14T17:18:13.530Z",
+ "updated": "2026-11-14T17:18:17.250Z",
  "config": {
   "key": "config",
   "types": [
@@ -84,11 +84,13 @@
    "ts": 1794676691551,
    "type": "blackout",
    "intensity": null,
-   "duration": null,
-   "ctx": [],
+   "duration": 2,
+   "ctx": [
+    "Parlavo veloce"
+   ],
    "sens": [],
    "note": "",
-   "upd": 1794676691551
+   "upd": 1794676694631
   }
  ]
 }
