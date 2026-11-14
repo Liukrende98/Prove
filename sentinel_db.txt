@@ -1,7 +1,7 @@
 {
  "app": "sentinel",
  "version": 2,
- "updated": "2026-11-14T18:45:07.849Z",
+ "updated": "2026-11-14T18:45:25.563Z",
  "config": {
   "key": "config",
   "types": [
@@ -100,12 +100,16 @@
    "id": "mwgr9p86agjs3",
    "ts": 1794681905910,
    "type": "blackout",
-   "intensity": null,
-   "duration": null,
-   "ctx": [],
-   "sens": [],
+   "intensity": 3,
+   "duration": 2,
+   "ctx": [
+    "Parlando"
+   ],
+   "sens": [
+    "Perso il filo"
+   ],
    "note": "",
-   "upd": 1794681905910
+   "upd": 1794681923609
   }
  ]
 }
