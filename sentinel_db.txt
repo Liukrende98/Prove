@@ -1,7 +1,7 @@
 {
  "app": "sentinel",
  "version": 2,
- "updated": "2026-11-14T17:18:17.250Z",
+ "updated": "2026-11-14T17:44:31.673Z",
  "config": {
   "key": "config",
   "types": [
@@ -44,19 +44,10 @@
    "Fiato corto"
   ]
  },
- "deleted": {},
+ "deleted": {
+  "mwgnjvnewgqxp": 1794678269742
+ },
  "events": [
-  {
-   "id": "mwgnjvnewgqxp",
-   "ts": 1794675662330,
-   "type": "blackout",
-   "intensity": null,
-   "duration": null,
-   "ctx": [],
-   "sens": [],
-   "note": "",
-   "upd": 1794675662330
-  },
   {
    "id": "mwgnob4u4u6h8",
    "ts": 1794675869022,
