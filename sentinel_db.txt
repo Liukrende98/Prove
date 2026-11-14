@@ -1,7 +1,7 @@
 {
  "app": "sentinel",
  "version": 2,
- "updated": "2026-11-14T18:55:09.833Z",
+ "updated": "2026-11-14T18:55:13.554Z",
  "config": {
   "key": "config",
   "types": [
@@ -59,23 +59,8 @@
   "mwgra6ie0r5ph": 1794682495042,
   "mwgr9mwboyg10": 1794682498962,
   "mwgr9kq2m436c": 1794682502945,
-  "mwgr9b0jcqfbe": 1794682507829
+  "mwgr9b0jcqfbe": 1794682507829,
+  "mwgr9p86agjs3": 1794682511495
  },
- "events": [
-  {
-   "id": "mwgr9p86agjs3",
-   "ts": 1794681905910,
-   "type": "blackout",
-   "intensity": 3,
-   "duration": 2,
-   "ctx": [
-    "Parlando"
-   ],
-   "sens": [
-    "Perso il filo"
-   ],
-   "note": "",
-   "upd": 1794681923609
-  }
- ]
+ "events": []
 }
