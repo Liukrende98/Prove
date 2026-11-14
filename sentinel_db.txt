@@ -1,7 +1,7 @@
 {
  "app": "sentinel",
  "version": 2,
- "updated": "2026-11-14T18:45:02.012Z",
+ "updated": "2026-11-14T18:45:04.794Z",
  "config": {
   "key": "config",
   "types": [
@@ -84,6 +84,17 @@
    "sens": [],
    "note": "",
    "upd": 1794681900074
+  },
+  {
+   "id": "mwgr9mwboyg10",
+   "ts": 1794681902891,
+   "type": "tachi",
+   "intensity": null,
+   "duration": null,
+   "ctx": [],
+   "sens": [],
+   "note": "",
+   "upd": 1794681902891
   }
  ]
 }
