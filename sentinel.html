@@ -75,6 +75,7 @@ button{font-family:inherit;color:inherit;background:none;border:0;cursor:pointer
 .bb .nm{font-family:Orbitron;font-weight:700;font-size:14px;letter-spacing:.14em;color:#fff;text-shadow:0 0 10px var(--c);text-align:center;padding:0 6px}
 .bb .ht{font-size:11px;letter-spacing:.22em;color:color-mix(in srgb,var(--c) 70%,white)}
 .bb{-webkit-touch-callout:none}
+.sync{font-family:Orbitron;font-size:9px;letter-spacing:.15em;padding:2px 0}
 .bb .hd{font-size:9px;letter-spacing:.15em;color:var(--dim)}
 .bb::after{content:'';position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--c);box-shadow:0 0 10px var(--c)}
 .bb.hold::after{width:100%;transition:width .55s linear}
@@ -244,7 +245,7 @@ svg.ch{width:100%;height:auto;display:block;overflow:visible}
 
  <!-- ================= HOME ================= -->
  <section class="view on" id="v-home">
-  <div class="head"><div><div class="brand">SENTINEL</div><div class="sub">MONITOR EPISODI</div></div><div class="clk"><span class="clkT">--:--:--</span><small class="clkD"></small></div></div>
+  <div class="head"><div><div class="brand">SENTINEL</div><div class="sub">MONITOR EPISODI · <button class="sync" id="syncSt"></button></div></div><div class="clk"><span class="clkT">--:--:--</span><small class="clkD"></small></div></div>
   <div class="reactor">
    <svg viewBox="0 0 200 200">
     <defs><radialGradient id="rg"><stop offset="0" stop-color="#bff9ff"/><stop offset=".45" stop-color="#00e5ff" stop-opacity=".55"/><stop offset="1" stop-color="#00e5ff" stop-opacity="0"/></radialGradient></defs>
@@ -300,6 +301,16 @@ svg.ch{width:100%;height:auto;display:block;overflow:visible}
   <div class="panel"><div class="ttl">TIPOLOGIE<span>PULSANTI HOME</span></div><div id="setTypes"></div><button class="btn w" id="addType" style="margin-top:6px">+ AGGIUNGI TIPOLOGIA</button></div>
   <div class="panel"><div class="ttl">CONTESTI RAPIDI</div><div class="chips" id="setCtx"></div><div class="addrow"><input class="inp" id="inCtx" placeholder="Nuovo contesto"><button class="btn sm" data-addk="ctx">AGGIUNGI</button></div></div>
   <div class="panel"><div class="ttl">SENSAZIONI RAPIDE</div><div class="chips" id="setSens"></div><div class="addrow"><input class="inp" id="inSens" placeholder="Nuova sensazione"><button class="btn sm" data-addk="sens">AGGIUNGI</button></div></div>
+  <div class="panel"><div class="ttl">DATABASE GITHUB<span id="ghState"></span></div>
+   <div class="lab" style="margin-top:0">UTENTE GITHUB</div><input class="inp" id="ghOwner" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Liukrende98">
+   <div class="lab">REPOSITORY (PRIVATO)</div><input class="inp" id="ghRepo" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="sentinel-dati">
+   <div class="grid2"><div><div class="lab">BRANCH</div><input class="inp" id="ghBranch" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="main"></div><div><div class="lab">FILE</div><input class="inp" id="ghPath" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="sentinel_db.txt"></div></div>
+   <div class="lab">TOKEN</div><input class="inp" id="ghToken" type="password" autocomplete="off" placeholder="github_pat_…">
+   <div class="grid2" style="margin-top:14px"><button class="btn pri" id="ghSave">SALVA E COLLEGA</button><button class="btn" id="ghSync">SINCRONIZZA</button></div>
+   <button class="btn dan w" id="ghOff" style="margin-top:10px">SCOLLEGA</button>
+   <div class="note" id="ghInfo"></div>
+   <div class="note">Token: GitHub → Settings → Developer settings → Fine-grained tokens → accesso solo a questo repository, permesso <b>Contents: Read and write</b>. Il token resta solo su questo dispositivo e non viene scritto nel file.</div>
+  </div>
   <div class="panel"><div class="ttl">DATI</div>
    <div class="grid2"><button class="btn" id="expCsv">ESPORTA CSV</button><button class="btn" id="expJson">BACKUP JSON</button><button class="btn" id="impBtn">IMPORTA JSON</button><button class="btn dan" id="wipe">CANCELLA TUTTO</button></div>
    <input type="file" id="impFile" accept=".json,application/json" hidden>
@@ -374,8 +385,55 @@ const DB=(()=>{let db=null,mem=null;const LS='sentinel_fallback';
 const persist=p=>Promise.resolve(p).catch(e=>{console.error(e);toast('⚠ ERRORE SALVATAGGIO — riprova')});
 
 let EV=[],CFG=null,CUR='home';
-const saveCfg=()=>DB.put('meta',CFG);
+const saveCfg=(touch=true)=>{if(touch){CFG.upd=Date.now();scheduleSync()}return DB.put('meta',CFG)};
 const typeOf=id=>CFG.types.find(t=>t.id===id)||{id,name:'Sconosciuto',color:'#7a8a95',icon:'?'};
+
+
+/* ================= SYNC GITHUB (database .txt) ================= */
+let GHS={key:'gh'},TOMB={},syncT=null,syncing=false,syncAgain=false,SYNCST='';
+const ghOk=()=>!!(GHS.token&&GHS.owner&&GHS.repo&&GHS.path);
+const saveTomb=()=>DB.put('meta',{key:'tomb',map:TOMB});
+const normEv=r=>({id:String(r.id),ts:+r.ts,type:r.type,intensity:r.intensity??null,duration:r.duration??null,ctx:Array.isArray(r.ctx)?r.ctx:[],sens:Array.isArray(r.sens)?r.sens:[],note:r.note||'',upd:+r.upd||+r.ts||0});
+function setSync(st){SYNCST=st;const el=$('#syncSt');if(!el)return;
+ const m={pend:['● IN CODA','var(--gold)'],run:['◌ SYNC…','var(--cy)'],ok:['● GITHUB OK','#3dffb0'],err:['● SYNC ERRORE','var(--red)']};
+ const v=ghOk()?(m[st]||m.ok):['○ SOLO LOCALE','var(--dim)'];el.textContent=v[0];el.style.color=v[1]}
+function scheduleSync(d){if(!ghOk())return;setSync('pend');clearTimeout(syncT);syncT=setTimeout(()=>syncNow(false),d??1500)}
+const b64e=s=>{const b=new TextEncoder().encode(s);let x='';for(let i=0;i<b.length;i+=0x8000)x+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(x)};
+const b64d=s=>new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g,'')),c=>c.charCodeAt(0)));
+const ghUrl=()=>`https://api.github.com/repos/${encodeURIComponent(GHS.owner)}/${encodeURIComponent(GHS.repo)}/contents/${GHS.path.split('/').map(encodeURIComponent).join('/')}`;
+const ghH=x=>Object.assign({'Authorization':'Bearer '+GHS.token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},x||{});
+async function ghErr(r){let m='';try{m=(await r.json()).message||''}catch(e){}
+ if(r.status===401)return'Token non valido o scaduto';if(r.status===403)return'Permessi insufficienti ('+m+')';if(r.status===404)return'Repository non trovato o token senza accesso';return`GitHub ${r.status} ${m}`}
+async function ghGet(){const q='?ref='+encodeURIComponent(GHS.branch||'main')+'&_='+Date.now();
+ const r=await fetch(ghUrl()+q,{headers:ghH(),cache:'no-store'});
+ if(r.status===404)return{sha:null,data:null};if(!r.ok)throw new Error(await ghErr(r));
+ const j=await r.json();let txt;
+ if(j.content&&j.encoding==='base64')txt=b64d(j.content);
+ else{const rr=await fetch(ghUrl()+q,{headers:ghH({'Accept':'application/vnd.github.raw+json'}),cache:'no-store'});if(!rr.ok)throw new Error(await ghErr(rr));txt=await rr.text()}
+ let data=null;try{data=txt.trim()?JSON.parse(txt):null}catch(e){throw new Error('Il file su GitHub non è un database Sentinel valido')}
+ return{sha:j.sha,data}}
+async function ghPut(content,sha){const body={message:'sentinel sync '+new Date().toISOString(),content:b64e(content),branch:GHS.branch||'main'};if(sha)body.sha=sha;
+ const r=await fetch(ghUrl(),{method:'PUT',headers:ghH({'Content-Type':'application/json'}),body:JSON.stringify(body)});
+ if(r.status===409||r.status===422)return'conflict';if(!r.ok)throw new Error(await ghErr(r));return'ok'}
+const dbObj=()=>({app:'sentinel',version:2,updated:new Date().toISOString(),config:CFG,deleted:TOMB,events:[...EV].sort((a,b)=>a.ts-b.ts)});
+const sig=d=>JSON.stringify([d.config||null,Object.entries(d.deleted||{}).sort(),[...(d.events||[])].map(normEv).sort((a,b)=>a.id<b.id?-1:1)]);
+async function mergeRemote(d){let ch=false;
+ for(const[id,t]of Object.entries(d.deleted||{}))if(!(TOMB[id]>=t)){TOMB[id]=t;ch=true}
+ const map=new Map(EV.map(e=>[e.id,e]));
+ for(const r of d.events||[]){if(!r||!r.id||!r.ts)continue;const x=normEv(r);if(TOMB[x.id]&&TOMB[x.id]>=x.upd)continue;const l=map.get(x.id);
+  if(!l||x.upd>(l.upd||0)){map.set(x.id,x);await DB.put('events',x);ch=true}}
+ for(const[id,e]of map)if(TOMB[id]&&TOMB[id]>=(e.upd||0)){map.delete(id);await DB.del('events',id);ch=true}
+ EV=[...map.values()];
+ if(d.config&&Array.isArray(d.config.types)&&(d.config.upd||0)>(CFG.upd||0)){CFG=Object.assign({},d.config,{key:'config'});await DB.put('meta',CFG);ch=true}
+ if(ch)await saveTomb();return ch}
+async function syncNow(manual){if(!ghOk()){if(manual)toast('CONFIGURA GITHUB IN SETUP');return}
+ if(syncing){syncAgain=true;return}syncing=true;clearTimeout(syncT);setSync('run');let ch=false;
+ try{for(let i=0;i<3;i++){const{sha,data}=await ghGet();if(data&&await mergeRemote(data))ch=true;
+   const out=dbObj();if(data&&sig(data)===sig(out))break;
+   const res=await ghPut(JSON.stringify(out,null,1),sha);if(res==='ok')break;if(i===2)throw new Error('Conflitto di scrittura, riprova')}
+  GHS.last=Date.now();GHS.err='';setSync('ok');if(manual)toast('SINCRONIZZATO CON GITHUB')}
+ catch(e){GHS.err=(e&&e.message)||String(e);if(/Failed to fetch|NetworkError|Load failed/i.test(GHS.err))GHS.err='Nessuna connessione';setSync('err');if(manual)toast('⚠ '+GHS.err)}
+ finally{syncing=false;DB.put('meta',GHS).catch(()=>{});if(ch)renderAll();else if(CUR==='set')renderSet();if(syncAgain){syncAgain=false;scheduleSync(500)}}}
 
 /* ================= UTILITY UI ================= */
 function ago(ts){const s=(Date.now()-ts)/1000;if(s<60)return'adesso';if(s<3600)return Math.floor(s/60)+' min fa';if(s<86400)return Math.floor(s/3600)+' h fa';const d=Math.floor(s/86400);return d===1?'ieri':d+' giorni fa'}
@@ -405,16 +463,16 @@ function renderHome(){
 function updLast(){if(!EV.length){$('#last').innerHTML='SISTEMA IN ASCOLTO';return}const l=Math.max(...EV.map(e=>e.ts));$('#last').innerHTML=`ULTIMO EPISODIO: <b>${ago(l)}</b>`}
 
 async function quickLog(tid,details){
- const e={id:uid(),ts:Date.now(),type:tid,intensity:null,duration:null,ctx:[],sens:[],note:''};
+ const e={id:uid(),ts:Date.now(),type:tid,intensity:null,duration:null,ctx:[],sens:[],note:'',upd:Date.now()};
  EV.push(e);
  const t=typeOf(tid);renderHome();
  const nb=$(`.bb[data-t="${tid}"]`);if(nb){const r=document.createElement('span');r.className='ring';nb.appendChild(r);setTimeout(()=>r.remove(),750)}
  const f=$('#flash');f.style.setProperty('--c',t.color);f.classList.remove('go');void f.offsetWidth;f.classList.add('go');
  toast(`${t.name.toUpperCase()} · ${fmtTime(e.ts)}`,e.id);
- persist(DB.put('events',e));
+ persist(DB.put('events',e));scheduleSync();
  if(details)openSheet(e.id,true);
 }
-async function removeEv(id){EV=EV.filter(e=>e.id!==id);renderAll();await persist(DB.del('events',id))}
+async function removeEv(id){EV=EV.filter(e=>e.id!==id);TOMB[id]=Date.now();renderAll();await persist(Promise.all([DB.del('events',id),saveTomb()]));scheduleSync()}
 
 /* ================= SHEET DETTAGLI ================= */
 let SH=null;
@@ -432,7 +490,7 @@ function drawSheet(){const e=SH.e,t=typeOf(e.type);
  $('#shSens').innerHTML=CFG.sens.map(c=>`<button class="chip s${e.sens.includes(c)?' on':''}" data-v="${esc(c)}">${esc(c)}</button>`).join('')+'<button class="chip add" data-add="sens">+ nuova</button>';
  $('#shNote').value=e.note||'';
 }
-async function commitSheet(){if(!SH)return;const e=SH.e;SH=null;const i=EV.findIndex(x=>x.id===e.id);if(i<0)return;EV[i]=e;renderAll();await persist(DB.put('events',e))}
+async function commitSheet(){if(!SH)return;const e=SH.e;SH=null;const i=EV.findIndex(x=>x.id===e.id);if(i<0)return;e.upd=Date.now();EV[i]=e;renderAll();await persist(DB.put('events',e));scheduleSync()}
 function closeSheet(discard){if(document.activeElement)document.activeElement.blur();$('#sheet').classList.remove('on');$('#sheetBg').classList.remove('on');if(discard){SH=null;return}return commitSheet()}
 function multiToggle(k){return ev=>{const b=ev.target.closest('button');if(!b||!SH)return;
  if(b.dataset.add){const v=prompt(k==='ctx'?'Nuovo contesto':'Nuova sensazione');if(v&&v.trim()){const s=v.trim();if(!CFG[k].includes(s)){CFG[k].push(s);saveCfg()}if(!SH.e[k].includes(s))SH.e[k].push(s);drawSheet()}return}
@@ -564,13 +622,16 @@ function renderReg(){
  shown.forEach(e=>{const k=dayKey(e.ts);if(k!==cur){cur=k;const n=a.filter(x=>dayKey(x.ts)===k).length;h+=`<div class="dayh"><span>${new Date(e.ts).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase()}</span><span>${n}</span></div>`}h+=evItem(e)});
  $('#regList').innerHTML=h;
 }
-async function addPast(){const e={id:uid(),ts:Date.now(),type:(REGF!=='all'?REGF:CFG.types[0].id),intensity:null,duration:null,ctx:[],sens:[],note:''};EV.push(e);await DB.put('events',e);renderAll();openSheet(e.id,true);$('#shSub').textContent='Imposta data e ora dell\'episodio'}
+async function addPast(){const e={id:uid(),ts:Date.now(),type:(REGF!=='all'?REGF:CFG.types[0].id),intensity:null,duration:null,ctx:[],sens:[],note:'',upd:Date.now()};EV.push(e);await DB.put('events',e);scheduleSync();renderAll();openSheet(e.id,true);$('#shSub').textContent='Imposta data e ora dell\'episodio'}
 
 /* ================= SETUP ================= */
 function renderSet(){
  $('#setTypes').innerHTML=CFG.types.map(t=>`<div class="trow" data-id="${t.id}"><input class="inp emo" maxlength="4" value="${esc(t.icon)}" data-f="icon"><input class="inp" value="${esc(t.name)}" data-f="name"><input type="color" value="${t.color}" data-f="color"><button class="del" data-del="${t.id}">✕</button></div>`).join('');
  ['ctx','sens'].forEach(k=>$(k==='ctx'?'#setCtx':'#setSens').innerHTML=CFG[k].map(c=>`<span class="chip${k==='sens'?' s':''}">${esc(c)}<button class="x" data-k="${k}" data-v="${esc(c)}">✕</button></span>`).join('')||'<div class="empty">VUOTO</div>');
  $('#dbInfo').innerHTML=`<b>${EV.length}</b> episodi nel database locale.`;
+ $('#ghOwner').value=GHS.owner||'Liukrende98';$('#ghRepo').value=GHS.repo||'';$('#ghBranch').value=GHS.branch||'main';$('#ghPath').value=GHS.path||'sentinel_db.txt';$('#ghToken').value=GHS.token||'';
+ $('#ghState').textContent=ghOk()?(SYNCST==='err'?'ERRORE':'COLLEGATO'):'NON COLLEGATO';
+ $('#ghInfo').innerHTML=ghOk()?`File: <b>${esc(GHS.owner)}/${esc(GHS.repo)}/${esc(GHS.path)}</b><br>Ultima sincronizzazione: <b>${GHS.last?new Date(GHS.last).toLocaleString('it-IT'):'mai'}</b>${GHS.err?`<br><span style="color:var(--red)">⚠ ${esc(GHS.err)}</span>`:''}`:'Non collegato: i dati sono solo su questo dispositivo.';
 }
 function addChip(k){const inp=$(k==='ctx'?'#inCtx':'#inSens'),v=inp.value.trim();if(!v)return;if(!CFG[k].includes(v)){CFG[k].push(v);saveCfg()}inp.value='';renderSet()}
 function download(name,mime,content){const blob=new Blob([content],{type:mime});
@@ -581,9 +642,9 @@ function toCsv(){const q=s=>`"${String(s??'').replace(/"/g,'""')}"`,h=['Data','O
  const rows=[...EV].sort((a,b)=>a.ts-b.ts).map(e=>{const d=new Date(e.ts);return[`${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`,fmtTime(e.ts),typeOf(e.type).name,e.intensity??'',e.duration??'',(e.ctx||[]).join(', '),(e.sens||[]).join(', '),e.note].map(q).join(';')});
  return '\ufeff'+[h.map(q).join(';'),...rows].join('\r\n')}
 async function importJson(f){try{const d=JSON.parse(await f.text());let n=0;
- if(Array.isArray(d.events))for(const e of d.events){if(!e||!e.id||!e.ts)continue;const x={id:String(e.id),ts:+e.ts,type:e.type,intensity:e.intensity??null,duration:e.duration??null,ctx:Array.isArray(e.ctx)?e.ctx:[],sens:Array.isArray(e.sens)?e.sens:[],note:e.note||''};const i=EV.findIndex(y=>y.id===x.id);if(i>=0)EV[i]=x;else EV.push(x);await DB.put('events',x);n++}
+ if(Array.isArray(d.events))for(const e of d.events){if(!e||!e.id||!e.ts)continue;const x=normEv(e);x.upd=Math.max(x.upd,Date.now());const i=EV.findIndex(y=>y.id===x.id);if(i>=0)EV[i]=x;else EV.push(x);await DB.put('events',x);n++}
  if(d.config){for(const t of d.config.types||[])if(t&&t.id&&!CFG.types.some(y=>y.id===t.id))CFG.types.push(t);for(const k of['ctx','sens'])for(const c of d.config[k]||[])if(!CFG[k].includes(c))CFG[k].push(c);await saveCfg()}
- toast(`IMPORTATI ${n} EPISODI`);renderAll()}catch(err){alert('File non valido')}}
+ scheduleSync();toast(`IMPORTATI ${n} EPISODI`);renderAll()}catch(err){alert('File non valido')}}
 
 /* ================= NAVIGAZIONE ================= */
 function go(v){CUR=v;$$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));$$('.tab').forEach(x=>x.classList.toggle('on',x.dataset.v===v));$('#views').scrollTop=0;
@@ -634,17 +695,24 @@ function bind(){
  $('#expJson').onclick=()=>download(`sentinel_backup_${stamp()}.json`,'application/json',JSON.stringify({app:'sentinel',version:1,exported:new Date().toISOString(),config:CFG,events:EV},null,1));
  $('#impBtn').onclick=()=>$('#impFile').click();
  $('#impFile').onchange=async ev=>{const f=ev.target.files[0];if(f)await importJson(f);ev.target.value=''};
- $('#wipe').onclick=async()=>{if(!confirm('Cancellare TUTTI gli episodi?'))return;if(!confirm('Sicuro? L\'operazione non si può annullare.'))return;await DB.clear('events');EV=[];renderAll();toast('DATABASE SVUOTATO')};
+ $('#ghSave').onclick=async()=>{const v=id=>$(id).value.trim();GHS=Object.assign(GHS,{key:'gh',owner:v('#ghOwner'),repo:v('#ghRepo'),branch:v('#ghBranch')||'main',path:v('#ghPath')||'sentinel_db.txt',token:v('#ghToken'),err:''});
+  if(!ghOk()){toast('⚠ COMPILA UTENTE, REPO E TOKEN');return}await DB.put('meta',GHS);setSync('pend');await syncNow(true);renderSet()};
+ $('#ghSync').onclick=()=>syncNow(true);
+ $('#syncSt').onclick=()=>ghOk()?syncNow(true):go('set');
+ $('#ghOff').onclick=async()=>{if(!confirm('Scollegare GitHub? I dati locali restano, il file su GitHub non viene toccato.'))return;GHS={key:'gh'};await DB.put('meta',GHS);setSync('');renderSet()};
+ window.addEventListener('online',()=>scheduleSync(300));
+ $('#wipe').onclick=async()=>{if(!confirm('Cancellare TUTTI gli episodi?'))return;if(!confirm('Sicuro? L\'operazione non si può annullare.'))return;const now=Date.now();EV.forEach(e=>TOMB[e.id]=now);await DB.clear('events');await saveTomb();EV=[];renderAll();scheduleSync();toast('DATABASE SVUOTATO')};
 }
 
 (async()=>{
  await DB.open();try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
- EV=(await DB.all('events'))||[];EV.forEach(e=>{e.ctx=e.ctx||[];e.sens=e.sens||[]});
- const meta=await DB.all('meta');CFG=meta.find(x=>x.key==='config');
- if(!CFG){CFG=JSON.parse(JSON.stringify(DEF));await saveCfg()}
+ EV=(await DB.all('events'))||[];EV.forEach(e=>{e.ctx=e.ctx||[];e.sens=e.sens||[];if(!e.upd)e.upd=e.ts});
+ const meta=await DB.all('meta');CFG=meta.find(x=>x.key==='config');GHS=meta.find(x=>x.key==='gh')||{key:'gh'};TOMB=(meta.find(x=>x.key==='tomb')||{}).map||{};
+ if(!CFG){CFG=JSON.parse(JSON.stringify(DEF));CFG.upd=0;await saveCfg(false)}
  delete CFG.openDetails;
  bind();renderHome();tick();setInterval(tick,1000);
- document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')renderAll()});
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){renderAll();scheduleSync(300)}});
+ setSync('');if(ghOk())syncNow(false);
  window.addEventListener('pageshow',()=>renderAll());
  setTimeout(()=>$('#boot').classList.add('off'),650);
 })();
