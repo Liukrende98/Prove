@@ -1,7 +1,7 @@
 {
  "app": "sentinel",
  "version": 2,
- "updated": "2026-11-14T18:44:49.416Z",
+ "updated": "2026-11-14T18:45:02.012Z",
  "config": {
   "key": "config",
   "types": [
@@ -73,6 +73,17 @@
    "sens": [],
    "note": "",
    "upd": 1794681887491
+  },
+  {
+   "id": "mwgr9kq2m436c",
+   "ts": 1794681900074,
+   "type": "blackout",
+   "intensity": null,
+   "duration": null,
+   "ctx": [],
+   "sens": [],
+   "note": "",
+   "upd": 1794681900074
   }
  ]
 }
