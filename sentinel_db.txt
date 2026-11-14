@@ -1,0 +1,72 @@
+{
+ "app": "sentinel",
+ "version": 2,
+ "updated": "2026-11-14T17:12:00.524Z",
+ "config": {
+  "key": "config",
+  "types": [
+   {
+    "id": "blackout",
+    "name": "Black out",
+    "color": "#00e5ff",
+    "icon": "⚡"
+   },
+   {
+    "id": "tachi",
+    "name": "Tachicardia",
+    "color": "#ff3b5c",
+    "icon": "❤"
+   }
+  ],
+  "ctx": [
+   "Parlando",
+   "Parlavo veloce",
+   "Emozione",
+   "Al lavoro",
+   "Concentrato",
+   "Stress",
+   "Stanchezza",
+   "Dopo caffè",
+   "Dopo sforzo",
+   "In piedi",
+   "Seduto"
+  ],
+  "sens": [
+   "Vuoto mentale",
+   "Perso il filo",
+   "Non sapevo dov'ero",
+   "Vertigine",
+   "Cuore in gola",
+   "Calore",
+   "Formicolio",
+   "Ansia",
+   "Vista offuscata",
+   "Fiato corto"
+  ]
+ },
+ "deleted": {},
+ "events": [
+  {
+   "id": "mwgnjvnewgqxp",
+   "ts": 1794675662330,
+   "type": "blackout",
+   "intensity": null,
+   "duration": null,
+   "ctx": [],
+   "sens": [],
+   "note": "",
+   "upd": 1794675662330
+  },
+  {
+   "id": "mwgnob4u4u6h8",
+   "ts": 1794675869022,
+   "type": "blackout",
+   "intensity": null,
+   "duration": null,
+   "ctx": [],
+   "sens": [],
+   "note": "",
+   "upd": 1794675869022
+  }
+ ]
+}
