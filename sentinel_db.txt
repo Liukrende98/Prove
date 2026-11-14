@@ -1,7 +1,7 @@
 {
  "app": "sentinel",
  "version": 2,
- "updated": "2026-11-14T18:54:30.119Z",
+ "updated": "2026-11-14T18:54:34.655Z",
  "config": {
   "key": "config",
   "types": [
@@ -52,7 +52,8 @@
   "mwgo5xsv2zq3l": 1794678278172,
   "mwgrcx689gvms": 1794682072480,
   "mwgrct3j949z1": 1794682463082,
-  "mwgr96nlgpvc0": 1794682468100
+  "mwgr96nlgpvc0": 1794682468100,
+  "mwgrboh2ibzem": 1794682472683
  },
  "events": [
   {
@@ -135,17 +136,6 @@
    "sens": [],
    "note": "",
    "upd": 1794681996208
-  },
-  {
-   "id": "mwgrboh2ibzem",
-   "ts": 1794681998246,
-   "type": "blackout",
-   "intensity": null,
-   "duration": null,
-   "ctx": [],
-   "sens": [],
-   "note": "",
-   "upd": 1794682011969
   }
  ]
 }
