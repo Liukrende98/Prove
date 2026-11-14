@@ -1,0 +1,29 @@
+Attivo il Desktop remoto su questo PC. Servono i permessi di amministratore, quindi comparirà di nuovo la richiesta di conferma di Windows.
+
+● Write(Desktop\attiva_rdp_admin.bat)
+Wrote 10 lines to Desktop\attiva_rdp_admin.bat
+@echo off
+set "LOG=%~dp0attiva_rdp_admin.log"
+(
+echo Attivazione Desktop remoto...
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v
+ fDenyTSConnections /t REG_DWORD /d 0 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\Win
+Stations\RDP-Tcp" /v UserAuthentication /t REG_DWORD /d 1 /f
+echo.
+echo Apertura firewall per Desktop remoto...
+… +2 lines
+
+  Ran 1 shell command
+
+Ho attivato il Desktop remoto su questo PC e controllato che risponda sull'indirizzo Tailscale.azione a livello di rete(NLA), che chiede le credenziali prima di mostrare la schermata del PC.
+                                                                         Come collegarti da fuori positivo che usi):
+- Da un PC Windows: apri "Connessione Desktop remoto" (scrivi mstsc nel menu Start). Come computer metti 100.105.12.96, come utente DESKTOP-TIAP4BD\Utente, poi la password di Windows.
+- Da iPhone, Android o Mac: installa l'app Windows App di Microsoft (prima si chiamava "Microsoft Remote Desktop"). Aggiungi un PC con indirizzo       100.105.12.96 e le stes
+
+Una volta dentro, apri Esplora file e scrivi \\DESKTOP-TL5ITPG\Casa, poi inserisci le credenziali che la cartella Luca.
+
+Cose da sapere:
+- Password obbligatoria: il Desktop remoto non accetta account senza password. L'account Utente sembra averne una, impostata a settembre 2025. Se non te la ricordi, va reimpostata.
+- Una persona alla volta: quando ti colleghi da remoto, su questo PC la sessione si blocca. Se qualcuno lo sta usando in quel momento, viene disconnesso.
+- Rotta per Casa non più moto la rotta che doveviapprovare non serve più. Se vuoi, la disattivo.approvare non serve più. Se vuoi, la disattivo.
