@@ -1,7 +1,7 @@
 {
  "app": "sentinel",
  "version": 2,
- "updated": "2026-11-14T17:44:36.902Z",
+ "updated": "2026-11-14T17:44:40.091Z",
  "config": {
   "key": "config",
   "types": [
@@ -47,21 +47,8 @@
  "deleted": {
   "mwgnjvnewgqxp": 1794678269742,
   "mwgny6nhx4om6": 1794678272301,
-  "mwgnob4u4u6h8": 1794678274965
+  "mwgnob4u4u6h8": 1794678274965,
+  "mwgo5xsv2zq3l": 1794678278172
  },
- "events": [
-  {
-   "id": "mwgo5xsv2zq3l",
-   "ts": 1794676691551,
-   "type": "blackout",
-   "intensity": null,
-   "duration": 2,
-   "ctx": [
-    "Parlavo veloce"
-   ],
-   "sens": [],
-   "note": "",
-   "upd": 1794676694631
-  }
- ]
+ "events": []
 }
