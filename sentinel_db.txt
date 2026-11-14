@@ -1,7 +1,7 @@
 {
  "app": "sentinel",
  "version": 2,
- "updated": "2026-11-14T18:44:25.098Z",
+ "updated": "2026-11-14T18:44:43.792Z",
  "config": {
   "key": "config",
   "types": [
@@ -51,5 +51,17 @@
   "mwgnob4u4u6h8": 1794678274965,
   "mwgo5xsv2zq3l": 1794678278172
  },
- "events": []
+ "events": [
+  {
+   "id": "mwgr96nlgpvc0",
+   "ts": 1794681881841,
+   "type": "blackout",
+   "intensity": null,
+   "duration": null,
+   "ctx": [],
+   "sens": [],
+   "note": "",
+   "upd": 1794681881841
+  }
+ ]
 }
